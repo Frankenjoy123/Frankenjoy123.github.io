@@ -8,14 +8,31 @@
   <meta name="renderer" content="webkit">
   <meta http-equiv="X-UA-Compatible" content="IE=edge" >
   <link rel="dns-prefetch" href="http://yoursite.com">
-  <title>Tag: 后端 | xiaowu&#39;s blog</title>
+  <title>elastic-job的原理简介和使用 | xiaowu&#39;s blog</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta property="og:type" content="website">
-<meta property="og:title" content="xiaowu&#39;s blog">
-<meta property="og:url" content="http://yoursite.com/tags/后端/index.html">
+  <meta name="description" content="elastic-job是当当开源的一款非常好用的作业框架，在这之前，我们开发定时任务一般都是使用quartz或者spring-task（ScheduledExecutorService），无论是使用quartz还是spring-task，我们都会至少遇到两个痛点： 1.不敢轻易跟着应用服务多节点部署，可能会重复多次执行而引发系统逻辑的错误。 2.quartz的集群仅仅只是用来HA，节点数量的增加并">
+<meta name="keywords" content="elastic-job">
+<meta property="og:type" content="article">
+<meta property="og:title" content="elastic-job的原理简介和使用">
+<meta property="og:url" content="http://yoursite.com/2017/11/12/elastic-job的原理简介和使用/index.html">
 <meta property="og:site_name" content="xiaowu&#39;s blog">
+<meta property="og:description" content="elastic-job是当当开源的一款非常好用的作业框架，在这之前，我们开发定时任务一般都是使用quartz或者spring-task（ScheduledExecutorService），无论是使用quartz还是spring-task，我们都会至少遇到两个痛点： 1.不敢轻易跟着应用服务多节点部署，可能会重复多次执行而引发系统逻辑的错误。 2.quartz的集群仅仅只是用来HA，节点数量的增加并">
+<meta property="og:image" content="http://img.blog.csdn.net/20170311024524057">
+<meta property="og:image" content="http://img.blog.csdn.net/20170311025909513?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvZmFuZmFuX3Y1/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center">
+<meta property="og:image" content="http://img.blog.csdn.net/20170311025921842?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvZmFuZmFuX3Y1/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center">
+<meta property="og:image" content="http://img.blog.csdn.net/20170311024527737">
+<meta property="og:image" content="http://img.blog.csdn.net/20170311030002343?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvZmFuZmFuX3Y1/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center">
+<meta property="og:image" content="http://img.blog.csdn.net/20170311030016031?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvZmFuZmFuX3Y1/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center">
+<meta property="og:image" content="http://img.blog.csdn.net/20170311030147401?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvZmFuZmFuX3Y1/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center">
+<meta property="og:image" content="http://img.blog.csdn.net/20170311030410090?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvZmFuZmFuX3Y1/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center">
+<meta property="og:image" content="http://img.blog.csdn.net/20170311122000364?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvZmFuZmFuX3Y1/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center">
+<meta property="og:image" content="http://img.blog.csdn.net/20170311030441380?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvZmFuZmFuX3Y1/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center">
+<meta property="og:image" content="http://img.blog.csdn.net/20170311030454199?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvZmFuZmFuX3Y1/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center">
+<meta property="og:updated_time" content="2017-11-12T03:32:28.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="xiaowu&#39;s blog">
+<meta name="twitter:title" content="elastic-job的原理简介和使用">
+<meta name="twitter:description" content="elastic-job是当当开源的一款非常好用的作业框架，在这之前，我们开发定时任务一般都是使用quartz或者spring-task（ScheduledExecutorService），无论是使用quartz还是spring-task，我们都会至少遇到两个痛点： 1.不敢轻易跟着应用服务多节点部署，可能会重复多次执行而引发系统逻辑的错误。 2.quartz的集群仅仅只是用来HA，节点数量的增加并">
+<meta name="twitter:image" content="http://img.blog.csdn.net/20170311024524057">
   
     <link rel="alternative" href="/atom.xml" title="xiaowu&#39;s blog" type="application/atom+xml">
   
@@ -149,71 +166,217 @@
             <canvas data-colors="#eaeaea" data-sectionHeight="100" data-contentId="js-content" id="myCanvas1" class="anm-canvas"></canvas>
           </div>
           <div id="js-content" class="content-ll">
-            
-  
-  
+            <article id="post-elastic-job的原理简介和使用" class="article article-type-post " itemscope itemprop="blogPost">
+  <div class="article-inner">
     
-    
-      
-      
-      <section class="archives-wrap">
-        <div class="archive-year-wrap">
-          <a href="/archives/2016" class="archive-year">2016</a>
-        </div>
-        <div class="archives">
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2016/06/06/后端文集/" class="archive-article-date">
-  	<time datetime="2016-06-05T16:00:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2016-06-06</time>
-</a>
-        </div>
-    	 
+      <header class="article-header">
+        
   
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2016/06/06/后端文集/">后端文集</a>
+    <h1 class="article-title" itemprop="name">
+      elastic-job的原理简介和使用
     </h1>
   
 
-        <div class="article-info info-on-right">
-          
+        
+        <a href="/2017/11/12/elastic-job的原理简介和使用/" class="archive-article-date">
+  	<time datetime="2017-11-12T05:35:59.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2017-11-12</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>elastic-job是当当开源的一款非常好用的作业框架，在这之前，我们开发定时任务一般都是使用quartz或者spring-task（ScheduledExecutorService），无论是使用quartz还是spring-task，我们都会至少遇到两个痛点：</p>
+<p>1.不敢轻易跟着应用服务多节点部署，可能会重复多次执行而引发系统逻辑的错误。</p>
+<p>2.quartz的集群仅仅只是用来HA，节点数量的增加并不能给我们的每次执行效率带来提升，即不能实现水平扩展。</p>
+<p>本篇博文将会自顶向下地介绍elastic-job，让大家认识了解并且快速搭建起环境。</p>
+<h2 id="elastic-job产品线说明"><a href="#elastic-job产品线说明" class="headerlink" title="elastic-job产品线说明"></a>elastic-job产品线说明</h2><p>elastic-job在2.x之后，出了两个产品线：Elastic-Job-Lite和Elastic-Job-Cloud。我们一般使用Elastic-Job-Lite就能够满足需求，本文也是以Elastic-Job-Lite为主。1.x系列对应的就只有Elastic-Job-Lite，并且在2.x里修改了一些核心类名，差别虽大，原理类似，建议使用2.x系列。写此博文，最新release版本为2.0.5。</p>
+<h2 id="elastic-job-lite原理"><a href="#elastic-job-lite原理" class="headerlink" title="elastic-job-lite原理"></a>elastic-job-lite原理</h2><p>举个典型的job场景，比如余额宝里的昨日收益，系统需要job在每天某个时间点开始，给所有余额宝用户计算收益。如果用户数量不多，我们可以轻易使用quartz来完成，我们让计息job在某个时间点开始执行，循环遍历所有用户计算利息，这没问题。可是，如果用户体量特别大，我们可能会面临着在第二天之前处理不完这么多用户。另外，我们部署job的时候也得注意，我们可能会把job直接放在我们的webapp里，webapp通常是多节点部署的，这样，我们的job也就是多节点，多个job同时执行，很容易造成重复执行，比如用户重复计息，为了避免这种情况，我们可能会对job的执行加锁，保证始终只有一个节点能执行，或者干脆让job从webapp里剥离出来，独自部署一个节点。<br><strong>elastic-job就可以帮助我们解决上面的问题，elastic底层的任务调度还是使用的quartz，通过zookeeper来动态给job节点分片。</strong><br>我们来看：<br><strong><em>很大体量的用户需要在特定的时间段内计息完成</em></strong><br>我们肯定是希望我们的任务可以通过集群达到水平扩展，集群里的每个节点都处理部分用户，不管用户数量有多庞大，我们只要增加机器就可以了，比如单台机器特定时间能处理n个用户，2台机器处理2n个用户，3台3n，4台4n…，再多的用户也不怕了。<br>使用elastic-job开发的作业都是zookeeper的客户端，比如我希望3台机器跑job，我们将任务分成3片，框架通过zk的协调，最终会让3台机器分别分配到0,1,2的任务片，比如server0–&gt;0，server1–&gt;1，server2–&gt;2，当server0执行时，可以只查询id%3==0的用户，server1执行时，只查询id%3==1的用户，server2执行时，只查询id%3==2的用户。<br><strong>任务部署多节点引发重复执行</strong><br>在上面的基础上，我们再增加server3，此时，server3分不到任务分片，因为只有3片，已经分完了。没有分到任务分片的作业程序将不执行。<br>如果此时server2挂了，那么server2的分片项会分配给server3，server3有了分片，就会替代server2执行。<br>如果此时server3也挂了，只剩下server0和server1了，框架也会自动把server3的分片随机分配给server0或者server1，可能会这样，server0–&gt;0，server1–&gt;1,2。<br>这种特性称之为弹性扩容，即elastic-job名称的由来。</p>
+<h2 id="代码演示"><a href="#代码演示" class="headerlink" title="代码演示"></a>代码演示</h2><p>我们搭建环境通过示例代码来演示上面的例子，elastic-job是不支持单机多实例的，通过zk的协调分片是以ip为单元的。很多同学上来可能就是通过单机多实例来学习，结果导致分片和预期不一致。这里没办法，只能通过多机器或者虚拟机，我们这里使用虚拟机，另外，由于资源有限，我们这里仅仅只模拟两台机器。</p>
+<p><strong>节点说明：</strong><br>本地宿主机器<br>zookeeper、job<br>192.168.241.1<br>虚拟机<br>job<br>192.168.241.128<br><strong>环境说明：</strong><br>Java<br>请使用JDK1.7及其以上版本。<br>Zookeeper<br>请使用Zookeeper3.4.6及其以上版本<br>Elastic-Job-Lite<br>2.0.5（2.x系列即可，最好是2.0.4及其以上）<br><strong>需求说明：</strong><br>通过两台机器演示动态分片</p>
+<p><strong>step1. 引入框架的jar包</strong></p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- 引入elastic-job-lite核心模块 --&gt;</span>  </span><br><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span>  </span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.dangdang<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span>  </span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>elastic-job-lite-core<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span>  </span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>2.0.5<span class="tag">&lt;/<span class="name">version</span>&gt;</span>  </span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span>  </span><br><span class="line"><span class="comment">&lt;!-- 使用springframework自定义命名空间时引入 --&gt;</span>  </span><br><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span>  </span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.dangdang<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span>  </span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>elastic-job-lite-spring<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span>  </span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>2.0.5<span class="tag">&lt;/<span class="name">version</span>&gt;</span>  </span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p><strong>step2. 编写job</strong></p>
+<figure class="highlight haxe"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.fanfan.sample001;  </span><br><span class="line">  </span><br><span class="line"><span class="keyword">import</span> com.dangdang.ddframe.job.api.ShardingContext;  </span><br><span class="line"><span class="keyword">import</span> com.dangdang.ddframe.job.api.simple.SimpleJob;  </span><br><span class="line">  </span><br><span class="line"><span class="keyword">import</span> java.util.Date;  </span><br><span class="line">  </span><br><span class="line"><span class="comment">/** </span></span><br><span class="line"><span class="comment"> * Created by fanfan on 2016/12/20. </span></span><br><span class="line"><span class="comment"> */</span>  </span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MySimpleJob</span> <span class="keyword"><span class="keyword">implements</span> <span class="type">SimpleJob</span></span> </span>&#123;  </span><br><span class="line">    @Override  </span><br><span class="line">    <span class="keyword">public</span> void execute(ShardingContext shardingContext) &#123;  </span><br><span class="line">        System.out.println(<span class="keyword">String</span>.format(<span class="string">"------Thread ID: %s, 任务总片数: %s, 当前分片项: %s"</span>,  </span><br><span class="line">                Thread.currentThread().getId(), shardingContext.getShardingTotalCount(), shardingContext.getShardingItem()));  </span><br><span class="line">        <span class="comment">/** </span></span><br><span class="line"><span class="comment">         * 实际开发中，有了任务总片数和当前分片项，就可以对任务进行分片执行了 </span></span><br><span class="line"><span class="comment">         * 比如 SELECT * FROM user WHERE status = 0 AND MOD(id, shardingTotalCount) = shardingItem </span></span><br><span class="line"><span class="comment">         */</span>  </span><br><span class="line">    &#125;  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>Step3. Spring配置</strong></p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="php"><span class="meta">&lt;?</span>xml version=<span class="string">"1.0"</span> encoding=<span class="string">"UTF-8"</span><span class="meta">?&gt;</span></span>  </span><br><span class="line"><span class="tag">&lt;<span class="name">beans</span> <span class="attr">xmlns</span>=<span class="string">"http://www.springframework.org/schema/beans"</span>  </span></span><br><span class="line"><span class="tag">       <span class="attr">xmlns:xsi</span>=<span class="string">"http://www.w3.org/2001/XMLSchema-instance"</span>  </span></span><br><span class="line"><span class="tag">       <span class="attr">xmlns:reg</span>=<span class="string">"http://www.dangdang.com/schema/ddframe/reg"</span>  </span></span><br><span class="line"><span class="tag">       <span class="attr">xmlns:job</span>=<span class="string">"http://www.dangdang.com/schema/ddframe/job"</span>  </span></span><br><span class="line"><span class="tag">       <span class="attr">xsi:schemaLocation</span>=<span class="string">"http://www.springframework.org/schema/beans  </span></span></span><br><span class="line"><span class="tag"><span class="string">                        http://www.springframework.org/schema/beans/spring-beans.xsd  </span></span></span><br><span class="line"><span class="tag"><span class="string">                        http://www.dangdang.com/schema/ddframe/reg  </span></span></span><br><span class="line"><span class="tag"><span class="string">                        http://www.dangdang.com/schema/ddframe/reg/reg.xsd  </span></span></span><br><span class="line"><span class="tag"><span class="string">                        http://www.dangdang.com/schema/ddframe/job  </span></span></span><br><span class="line"><span class="tag"><span class="string">                        http://www.dangdang.com/schema/ddframe/job/job.xsd"</span>&gt;</span>  </span><br><span class="line">    <span class="comment">&lt;!--配置作业注册中心 --&gt;</span>  </span><br><span class="line">    <span class="tag">&lt;<span class="name">reg:zookeeper</span> <span class="attr">id</span>=<span class="string">"regCenter"</span> <span class="attr">server-lists</span>=<span class="string">"192.168.241.1:2181"</span> <span class="attr">namespace</span>=<span class="string">"dd-job"</span>  </span></span><br><span class="line"><span class="tag">                   <span class="attr">base-sleep-time-milliseconds</span>=<span class="string">"1000"</span> <span class="attr">max-sleep-time-milliseconds</span>=<span class="string">"3000"</span> <span class="attr">max-retries</span>=<span class="string">"3"</span> /&gt;</span>  </span><br><span class="line">  </span><br><span class="line">    <span class="comment">&lt;!-- 配置作业--&gt;</span>  </span><br><span class="line">    <span class="tag">&lt;<span class="name">job:simple</span> <span class="attr">id</span>=<span class="string">"mySimpleJob"</span> <span class="attr">class</span>=<span class="string">"com.fanfan.sample001.MySimpleJob"</span> <span class="attr">registry-center-ref</span>=<span class="string">"regCenter"</span>  </span></span><br><span class="line"><span class="tag">                <span class="attr">sharding-total-count</span>=<span class="string">"2"</span> <span class="attr">cron</span>=<span class="string">"0/2 * * * * ?"</span> <span class="attr">overwrite</span>=<span class="string">"true"</span> /&gt;</span>  </span><br><span class="line">  </span><br><span class="line"><span class="tag">&lt;/<span class="name">beans</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<hr>
+<p><strong>Case1. 单节点</strong></p>
+<hr>
+<p><img src="http://img.blog.csdn.net/20170311024524057" alt="img"></p>
+<p><img src="http://img.blog.csdn.net/20170311025909513?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvZmFuZmFuX3Y1/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center" alt="img"></p>
+<p><img src="http://img.blog.csdn.net/20170311025921842?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvZmFuZmFuX3Y1/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center" alt="img"></p>
+<hr>
+<p><strong>Case2. 增加一个节点</strong></p>
+<hr>
+<p><img src="http://img.blog.csdn.net/20170311024527737" alt="img"></p>
+<p><img src="http://img.blog.csdn.net/20170311030002343?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvZmFuZmFuX3Y1/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center" alt="img"></p>
+<p><img src="http://img.blog.csdn.net/20170311030016031?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvZmFuZmFuX3Y1/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center" alt="img"></p>
+<p><img src="http://img.blog.csdn.net/20170311030147401?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvZmFuZmFuX3Y1/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center" alt="img"></p>
+<p><img src="http://img.blog.csdn.net/20170311030410090?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvZmFuZmFuX3Y1/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center" alt="img"></p>
+<hr>
+<p><strong>Case3. 断开一个节点</strong></p>
+<p><img src="http://img.blog.csdn.net/20170311122000364?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvZmFuZmFuX3Y1/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center" alt="img"></p>
+<p><img src="http://img.blog.csdn.net/20170311030441380?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvZmFuZmFuX3Y1/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center" alt="img"></p>
+<p><img src="http://img.blog.csdn.net/20170311030454199?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvZmFuZmFuX3Y1/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center" alt="img"></p>
+<h2 id="作业类型"><a href="#作业类型" class="headerlink" title="作业类型"></a>作业类型</h2><p>elastic-job提供了三种类型的作业：Simple类型作业、Dataflow类型作业、Script类型作业。这里主要讲解前两者。Script类型作业意为脚本类型作业，支持shell，python，perl等所有类型脚本，使用不多，可以参见github文档。<br>SimpleJob需要实现SimpleJob接口，意为简单实现，未经过任何封装，与quartz原生接口相似，比如示例代码中所使用的job。<br>Dataflow类型用于处理数据流，需实现DataflowJob接口。该接口提供2个方法可供覆盖，分别用于抓取(fetchData)和处理(processData)数据。<br>可通过DataflowJobConfiguration配置是否流式处理。<br>流式处理数据只有fetchData方法的返回值为null或集合长度为空时，作业才停止抓取，否则作业将一直运行下去； 非流式处理数据则只会在每次作业执行过程中执行一次fetchData方法和processData方法，随即完成本次作业。<br>实际开发中，Dataflow类型的job还是很有好用的。</p>
+<figure class="highlight dart"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line">package com.fanfan.sample001;  </span><br><span class="line">  </span><br><span class="line"><span class="keyword">import</span> com.dangdang.ddframe.job.api.ShardingContext;  </span><br><span class="line"><span class="keyword">import</span> com.dangdang.ddframe.job.api.dataflow.DataflowJob;  </span><br><span class="line">  </span><br><span class="line"><span class="keyword">import</span> java.util.ArrayList;  </span><br><span class="line"><span class="keyword">import</span> java.util.<span class="built_in">List</span>;  </span><br><span class="line">  </span><br><span class="line"><span class="comment"><span class="markdown">/** </span></span></span><br><span class="line"><span class="comment"><span class="markdown"> * Created by fanfan on 2016/12/23. </span></span></span><br><span class="line"><span class="comment"><span class="markdown"> */</span></span>  </span><br><span class="line">public <span class="class"><span class="keyword">class</span> <span class="title">MyDataFlowJob</span> <span class="keyword">implements</span> <span class="title">DataflowJob</span>&lt;<span class="title">User</span>&gt; </span>&#123;  </span><br><span class="line">  </span><br><span class="line">    <span class="comment">/* </span></span><br><span class="line"><span class="comment">        status </span></span><br><span class="line"><span class="comment">        0：待处理 </span></span><br><span class="line"><span class="comment">        1：已处理 </span></span><br><span class="line"><span class="comment">     */</span>  </span><br><span class="line">  </span><br><span class="line">    <span class="meta">@Override</span>  </span><br><span class="line">    public <span class="built_in">List</span>&lt;User&gt; fetchData(ShardingContext shardingContext) &#123;  </span><br><span class="line">        <span class="built_in">List</span>&lt;User&gt; users = <span class="keyword">null</span>;  </span><br><span class="line">        <span class="comment"><span class="markdown">/** </span></span></span><br><span class="line"><span class="comment"><span class="markdown"><span class="code">         * users = SELECT * FROM user WHERE status = 0 AND MOD(id, shardingTotalCount) = shardingItem Limit 0, 30 </span></span></span></span><br><span class="line"><span class="comment"><span class="markdown"><span class="code">         */</span></span></span>  </span><br><span class="line">        <span class="keyword">return</span> users;  </span><br><span class="line">    &#125;  </span><br><span class="line">  </span><br><span class="line">    <span class="meta">@Override</span>  </span><br><span class="line">    public <span class="keyword">void</span> processData(ShardingContext shardingContext, <span class="built_in">List</span>&lt;User&gt; data) &#123;  </span><br><span class="line">        <span class="keyword">for</span> (User user: data) &#123;  </span><br><span class="line">            System.out.println(<span class="built_in">String</span>.format(<span class="string">"用户 %s 开始计息"</span>, user.getUserId()));  </span><br><span class="line">            user.setStatus(<span class="number">1</span>);  </span><br><span class="line">            <span class="comment"><span class="markdown">/** </span></span></span><br><span class="line"><span class="comment"><span class="markdown"><span class="code">             * update user </span></span></span></span><br><span class="line"><span class="comment"><span class="markdown"><span class="code">             */</span></span></span>  </span><br><span class="line">        &#125;  </span><br><span class="line">    &#125;  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">&lt;job:dataflow <span class="attribute">id</span>=<span class="string">"myDataFlowJob"</span> <span class="attribute">class</span>=<span class="string">"com.fanfan.sample001.MyDataFlowJob"</span> <span class="attribute">registry-center-ref</span>=<span class="string">"regCenter"</span>  </span><br><span class="line">              <span class="attribute">sharding-total-count</span>=<span class="string">"2"</span> <span class="attribute">cron</span>=<span class="string">"0 0 02 * * ?"</span> <span class="attribute">streaming-process</span>=<span class="string">"true"</span> <span class="attribute">overwrite</span>=<span class="string">"true"</span> /&gt;</span><br></pre></td></tr></table></figure>
+<h2 id="其它功能"><a href="#其它功能" class="headerlink" title="其它功能"></a>其它功能</h2><p>上述介绍的是最精简常用的功能。elastic-job的功能集还不止这些，比如像作业事件追踪、任务监听等，另外，elastic-job-lite-console作为一个独立的运维平台还提供了用来查询和操作任务的web页面。<br>这些增强的功能读者可以在github/elastic-job上自行学习，相信有了本篇博文的基础，再阅读那些文档就特别简单了。</p>
+
+      
+
+      
+        <div class="page-reward">
+          <a href="javascript:;" class="page-reward-btn tooltip-top">
+            <div class="tooltip tooltip-east">
+            <span class="tooltip-item">
+              赏
+            </span>
+            <span class="tooltip-content">
+              <span class="tooltip-text">
+                <span class="tooltip-inner">
+                  <p class="reward-p"><i class="icon icon-quo-left"></i>谢谢你请我吃糖果<i class="icon icon-quo-right"></i></p>
+                  <div class="reward-box">
+                    
+                    
+                  </div>
+                </span>
+              </span>
+            </span>
+          </div>
+          </a>
+        </div>
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
 	<div class="article-tag tagcloud">
 		<i class="icon-price-tags icon"></i>
 		<ul class="article-tag-list">
 			 
         		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">后端</a>
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color2">elastic-job</a>
         		</li>
       		
 		</ul>
 	</div>
 
-          
+      
 	<div class="article-category tagcloud">
 		<i class="icon-book icon"></i>
 		<ul class="article-tag-list">
 			 
         		<li class="article-tag-list-item">
-        			<a href="/categories/后端//" class="article-tag-list-link color3">后端</a>
+        			<a href="/categories/elastic-job//" class="article-tag-list-link color2">elastic-job</a>
         		</li>
       		
 		</ul>
 	</div>
 
 
+      <div style="font-size: 12px;">
+        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
+      </div>
+      
+
+      
+        
+<div class="share-btn share-icons tooltip-left">
+  <div class="tooltip tooltip-east">
+    <span class="tooltip-item">
+      <a href="javascript:;" class="share-sns share-outer">
+        <i class="icon icon-share"></i>
+      </a>
+    </span>
+    <span class="tooltip-content">
+      <div class="share-wrap">
+        <div class="share-icons">
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="icon icon-weibo"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="icon icon-weixin"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="icon icon-qq"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="icon icon-douban"></i>
+          </a>
+          <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a>
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="icon icon-facebook"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="icon icon-twitter"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="icon icon-google"></i>
+          </a>
         </div>
-        <div class="clearfix"></div>
-    </header>
+      </div>
+    </span>
+  </div>
+</div>
+
+<div class="page-modal wx-share js-wx-box">
+    <a class="close js-modal-close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="http://s.jiathis.com/qrcode.php?url=http://yoursite.com/2017/11/12/elastic-job的原理简介和使用/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div class="mask js-mask"></div>
+      
+      <div class="clearfix"></div>
+    </div>
   </div>
 </article>
+
+  
+<nav id="article-nav">
   
   
-    </div></section>
+    <a href="/2017/11/10/cron详解/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">cron详解</div>
+      <i class="icon-circle-right"></i>
+    </a>
+  
+</nav>
+
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+  
+  
   
 
-    
+  
+
+  
+
+  
 
 
           </div>
@@ -236,9 +399,9 @@
 	var yiliaConfig = {
 		mathjax: false,
 		isHome: false,
-		isPost: false,
+		isPost: true,
 		isArchive: false,
-		isTag: true,
+		isTag: false,
 		isCategory: false,
 		open_in_new: false,
 		toc_hide_index: true,
