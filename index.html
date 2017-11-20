@@ -425,40 +425,11 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        <h3 id="直连提供者"><a href="#直连提供者" class="headerlink" title="直连提供者"></a>直连提供者</h3><p>(<a href="http://dubbo.io/Directly+Provider-zh.htm" target="_blank" rel="external">+</a>) (<a href="http://dubbo.io/User+Guide-zh.htm#UserGuide-zh-%E7%9B%B4%E8%BF%9E%E6%8F%90%E4%BE%9B%E8%80%85" target="_blank" rel="external">#</a>)</p>
-<p>在开发及测试环境下，经常需要绕过注册中心，只测试指定服务提供者，这时候可能需要点对点直连，<br>点对点直联方式，将以服务接口为单位，忽略注册中心的提供者列表，<br>A接口配置点对点，不影响B接口从注册中心获取列表。</p>
-<p><img src="http://dubbo.io/dubbo-directly.jpg-version=1&amp;modificationDate=1326853485000.jpg" alt="img"></p>
-<p>(1) 如果是线上需求需要点对点，可在<dubbo:reference>中配置url指向提供者，将绕过注册中心，<strong>多个地址用分号隔开</strong>，配置如下：(1.0.6及以上版本支持)</dubbo:reference></p>
-<p>(2) 在JVM启动参数中加入-D参数映射服务地址，如：<br>(key为服务名，value为服务提供者url，此配置优先级最高，1.0.15及以上版本支持)</p>
-<table>
-<thead>
-<tr>
-<th><img src="http://dubbo.io/information.gif" alt="img"></th>
-<th><strong>注意</strong>为了避免复杂化线上环境，不要在线上使用这个功能，只应在测试阶段使用。</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td></td>
-</tr>
-</tbody>
-</table>
-<p>(3) 如果服务比较多，也可以用文件映射，如：<br>(用-Ddubbo.resolve.file指定映射文件路径，此配置优先级高于<dubbo:reference>中的配置，1.0.15及以上版本支持)<br>(2.0以上版本自动加载${user.home}/dubbo-resolve.properties文件，不需要配置)</dubbo:reference></p>
-<p>然后在映射文件xxx.properties中加入：<br>(key为服务名，value为服务提供者url)</p>
-<table>
-<thead>
-<tr>
-<th><img src="http://dubbo.io/information.gif" alt="img"></th>
-<th><strong>注意</strong>为了避免复杂化线上环境，不要在线上使用这个功能，只应在测试阶段使用。</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td></td>
-</tr>
-</tbody>
-</table>
-<p>在生产环境使用情况是，服务消费端只消费指定Provider提供者的服务</p>
+        <p><strong>服务端：</strong></p>
+<figure class="highlight dust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="xml"><span class="php"><span class="meta">&lt;?</span>xml version=<span class="string">"1.0"</span> encoding=<span class="string">"UTF-8"</span><span class="meta">?&gt;</span></span></span></span><br><span class="line"><span class="xml"></span></span><br><span class="line"><span class="xml"><span class="tag">&lt;<span class="name">beans</span> <span class="attr">xmlns</span>=<span class="string">"http://www.springframework.org/schema/beans"</span></span></span></span><br><span class="line"><span class="xml">       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"</span></span><br><span class="line"><span class="xml">       xmlns:context="http://www.springframework.org/schema/context"</span></span><br><span class="line"><span class="xml">       xmlns:dubbo="http://code.alibabatech.com/schema/dubbo"</span></span><br><span class="line"><span class="xml">       xsi:schemaLocation="http://www.springframework.org/schema/beans</span></span><br><span class="line"><span class="xml">         http://www.springframework.org/schema/beans/spring-beans.xsd</span></span><br><span class="line"><span class="xml">         http://www.springframework.org/schema/context</span></span><br><span class="line"><span class="xml">         http://www.springframework.org/schema/context/spring-context.xsd</span></span><br><span class="line"><span class="xml">         http://code.alibabatech.com/schema/dubbo</span></span><br><span class="line"><span class="xml">         http://code.alibabatech.com/schema/dubbo/dubbo.xsd" default-autowire="byName"&gt;</span></span><br><span class="line"><span class="xml"></span></span><br><span class="line"><span class="xml">    <span class="tag">&lt;<span class="name">dubbo:provider</span> <span class="attr">group</span>=<span class="string">"xxx"</span>/&gt;</span></span></span><br><span class="line"><span class="xml"><span class="comment">&lt;!-- 提供方应用信息，用于计算依赖关系 --&gt;</span></span></span><br><span class="line"><span class="xml">    <span class="tag">&lt;<span class="name">dubbo:application</span> <span class="attr">name</span>=<span class="string">"sports-basic-provider"</span>/&gt;</span></span></span><br><span class="line"><span class="xml">    <span class="comment">&lt;!-- 使用zookeeper注册中心暴露服务地址 --&gt;</span></span></span><br><span class="line"><span class="xml">    <span class="tag">&lt;<span class="name">dubbo:registry</span> <span class="attr">protocol</span>=<span class="string">"zookeeper"</span> <span class="attr">address</span>=<span class="string">"$</span></span></span><span class="template-variable">&#123;dubbo.registry.address&#125;</span><span class="xml"><span class="tag"><span class="string">"</span>/&gt;</span></span></span><br><span class="line"><span class="xml">    <span class="comment">&lt;!-- 使用dubbo协议在20880端口暴露服务 --&gt;</span></span></span><br><span class="line"><span class="xml">    <span class="tag">&lt;<span class="name">dubbo:protocol</span> <span class="attr">name</span>=<span class="string">"dubbo"</span> <span class="attr">port</span>=<span class="string">"20880"</span>/&gt;</span></span></span><br><span class="line"><span class="xml">    <span class="comment">&lt;!-- basic start --&gt;</span></span></span><br><span class="line"><span class="xml">    <span class="tag">&lt;<span class="name">dubbo:service</span> <span class="attr">interface</span>=<span class="string">"com.xxx.basic.manage.service.OrganizationService"</span> <span class="attr">ref</span>=<span class="string">"organizationService"</span> <span class="attr">timeout</span>=<span class="string">"10000"</span>/&gt;</span></span></span><br><span class="line"><span class="xml">    <span class="tag">&lt;<span class="name">dubbo:service</span> <span class="attr">interface</span>=<span class="string">"com.xxx.basic.manage.service.ResourceService"</span> <span class="attr">ref</span>=<span class="string">"resourceService"</span> <span class="attr">timeout</span>=<span class="string">"10000"</span>/&gt;</span></span></span><br><span class="line"><span class="xml">    <span class="tag">&lt;<span class="name">dubbo:service</span> <span class="attr">interface</span>=<span class="string">"com.xxx.basic.manage.service.SysRoleService"</span> <span class="attr">ref</span>=<span class="string">"sysRoleService"</span> <span class="attr">timeout</span>=<span class="string">"10000"</span>/&gt;</span></span></span><br><span class="line"><span class="xml">    <span class="tag">&lt;<span class="name">dubbo:service</span> <span class="attr">interface</span>=<span class="string">"com.xxx.basic.manage.service.SysUserService"</span> <span class="attr">ref</span>=<span class="string">"sysUserService"</span> <span class="attr">timeout</span>=<span class="string">"10000"</span>/&gt;</span></span></span><br><span class="line"><span class="xml"></span></span><br><span class="line"><span class="xml"><span class="tag">&lt;/<span class="name">beans</span>&gt;</span></span></span><br></pre></td></tr></table></figure>
+<p><strong>消费端：</strong></p>
+<p>增加url=”dubbo://localhost:20880”即可。</p>
+<figure class="highlight dust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="xml"><span class="php"><span class="meta">&lt;?</span>xml version=<span class="string">"1.0"</span> encoding=<span class="string">"UTF-8"</span><span class="meta">?&gt;</span></span></span></span><br><span class="line"><span class="xml"><span class="tag">&lt;<span class="name">beans</span> <span class="attr">xmlns</span>=<span class="string">"http://www.springframework.org/schema/beans"</span></span></span></span><br><span class="line"><span class="xml">       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dubbo="http://code.alibabatech.com/schema/dubbo"</span></span><br><span class="line"><span class="xml">       xsi:schemaLocation="http://www.springframework.org/schema/beans</span></span><br><span class="line"><span class="xml">            http://www.springframework.org/schema/beans/spring-beans.xsd</span></span><br><span class="line"><span class="xml">            http://code.alibabatech.com/schema/dubbo</span></span><br><span class="line"><span class="xml">            http://code.alibabatech.com/schema/dubbo/dubbo.xsd" default-autowire="byName"&gt;</span></span><br><span class="line"><span class="xml"></span></span><br><span class="line"><span class="xml">    <span class="tag">&lt;<span class="name">dubbo:application</span> <span class="attr">name</span>=<span class="string">"$</span></span></span><span class="template-variable">&#123;dubbo.application.name&#125;</span><span class="xml"><span class="tag"><span class="string">"</span>/&gt;</span></span></span><br><span class="line"><span class="xml">    <span class="tag">&lt;<span class="name">dubbo:registry</span> <span class="attr">address</span>=<span class="string">"$</span></span></span><span class="template-variable">&#123;dubbo.registry.address&#125;</span><span class="xml"><span class="tag"><span class="string">"</span> <span class="attr">timeout</span>=<span class="string">"$</span></span></span><span class="template-variable">&#123;dubbo.consumer.timeout&#125;</span><span class="xml"><span class="tag"><span class="string">"</span> /&gt;</span></span></span><br><span class="line"><span class="xml">    <span class="tag">&lt;<span class="name">dubbo:consumer</span> <span class="attr">retries</span>=<span class="string">"$</span></span></span><span class="template-variable">&#123;dubbo.consumer.retries&#125;</span><span class="xml"><span class="tag"><span class="string">"</span> <span class="attr">group</span>=<span class="string">"oa"</span> /&gt;</span></span></span><br><span class="line"><span class="xml"></span></span><br><span class="line"><span class="xml">    <span class="comment">&lt;!-- basic start --&gt;</span></span></span><br><span class="line"><span class="xml">    <span class="tag">&lt;<span class="name">dubbo:reference</span>  <span class="attr">interface</span>=<span class="string">"com.xxx.basic.manage.service.SysRoleService"</span> <span class="attr">id</span>=<span class="string">"sysRoleService"</span> <span class="attr">check</span>=<span class="string">"false"</span> <span class="attr">url</span>=<span class="string">"dubbo://localhost:20880"</span>/&gt;</span></span></span><br><span class="line"><span class="xml">    <span class="tag">&lt;<span class="name">dubbo:reference</span>  <span class="attr">interface</span>=<span class="string">"com.xxx.basic.manage.service.ResourceService"</span> <span class="attr">id</span>=<span class="string">"resourceService"</span> <span class="attr">check</span>=<span class="string">"false"</span> <span class="attr">url</span>=<span class="string">"dubbo://localhost:20880"</span> /&gt;</span></span></span><br><span class="line"><span class="xml">    <span class="tag">&lt;<span class="name">dubbo:reference</span>  <span class="attr">interface</span>=<span class="string">"com.xxx.basic.manage.service.OrganizationService"</span> <span class="attr">id</span>=<span class="string">"organizationService"</span> <span class="attr">check</span>=<span class="string">"false"</span> <span class="attr">url</span>=<span class="string">"dubbo://localhost:20880"</span> /&gt;</span></span></span><br><span class="line"><span class="xml">    <span class="tag">&lt;<span class="name">dubbo:reference</span>  <span class="attr">interface</span>=<span class="string">"com.xxx.basic.manage.service.SysUserService"</span> <span class="attr">id</span>=<span class="string">"sysUserService"</span> <span class="attr">check</span>=<span class="string">"false"</span> <span class="attr">url</span>=<span class="string">"dubbo://localhost:20880"</span>/&gt;</span></span></span><br><span class="line"><span class="xml">   </span></span><br><span class="line"><span class="xml"></span></span><br><span class="line"><span class="xml"><span class="tag">&lt;/<span class="name">beans</span>&gt;</span></span></span><br></pre></td></tr></table></figure>
 <p>开发调试</p>
 <p>我们启动远程服务提供者</p>
 <p><img src="http://img.blog.csdn.net/20160416092012422?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQv/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center" alt="img"></p>
@@ -1061,19 +1032,19 @@ git merge 则不会显示 feature，只保留单条分支记录。
 
 
   
-    <article id="post-Mac笔记本快捷键" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+    <article id="post-JVM性能优化" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
       <header class="article-header">
         
   
     <h1 itemprop="name">
-      <a class="article-title" href="/2017/11/08/Mac笔记本快捷键/">Mac笔记本快捷键</a>
+      <a class="article-title" href="/2017/11/08/JVM性能优化/">JVM性能优化</a>
     </h1>
   
 
         
-        <a href="/2017/11/08/Mac笔记本快捷键/" class="archive-article-date">
+        <a href="/2017/11/08/JVM性能优化/" class="archive-article-date">
   	<time datetime="2017-11-08T05:23:49.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2017-11-08</time>
 </a>
         
@@ -1081,9 +1052,14 @@ git merge 则不会显示 feature，只保留单条分支记录。
     
     <div class="article-entry" itemprop="articleBody">
       
-        <figure class="highlight mathematica"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Command + <span class="keyword">K</span> 清屏</span><br><span class="line"><span class="keyword">Control</span> + <span class="keyword">C</span> 退出命令</span><br></pre></td></tr></table></figure>
-<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">⌘ Command</span><br><span class="line">⇧ Shift</span><br><span class="line">⌥ Option</span><br><span class="line">⌃ Control</span><br><span class="line">↩︎ Return/Enter</span><br><span class="line">⌫ Delete</span><br><span class="line">⌦ 向前删除键（Fn+Delete）</span><br><span class="line">↑ 上箭头</span><br><span class="line">↓ 下箭头</span><br><span class="line">← 左箭头</span><br><span class="line">→ 右箭头</span><br><span class="line">⇞<span class="built_in"> Page </span>Up（Fn+↑）</span><br><span class="line">⇟<span class="built_in"> Page </span>Down（Fn+↓）</span><br><span class="line">Home Fn + ←</span><br><span class="line">End Fn + →</span><br><span class="line">⇥ 右制表符（Tab键）</span><br><span class="line">⇤ 左制表符（Shift+Tab）</span><br><span class="line">⎋ Escape (Esc)</span><br></pre></td></tr></table></figure>
-
+        <blockquote><p>Do not just seek happiness for yourself. Seek happiness for all. Through kindness. Through mercy.</p>
+<footer><strong>David Levithan</strong><cite>Wide Awake</cite></footer></blockquote>
+<h3 id="查看消耗cpu的线程"><a href="#查看消耗cpu的线程" class="headerlink" title="查看消耗cpu的线程"></a>查看消耗cpu的线程</h3><pre><code>top   按1 按shift+h  
+//将pid换算成16进制
+jstack [pid] | grep &apos;nid=0x6849&apos;
+</code></pre><h3 id="分析sy高的原因"><a href="#分析sy高的原因" class="headerlink" title="分析sy高的原因"></a>分析sy高的原因</h3><pre><code>vmstat 查看CPU的消耗情况
+jstack -l [pid] 查看程序的线程情况 
+</code></pre>
       
 
       
@@ -1096,20 +1072,43 @@ git merge 则不会显示 feature，只保留单条分支记录。
 		<ul class="article-tag-list">
 			 
         		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">快捷键</a>
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">java</a>
+        		</li>
+      		 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">性能优化</a>
         		</li>
       		
 		</ul>
 	</div>
 
       
+	<div class="article-category tagcloud">
+		<i class="icon-book icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="/categories/java//" class="article-tag-list-link color5">java</a>
+        		</li>
+      		 
+        		<li class="article-tag-list-item">
+        			<a href="/categories/java/java性能优化//" class="article-tag-list-link color4">java性能优化</a>
+        		</li>
+      		 
+        		<li class="article-tag-list-item">
+        			<a href="/categories/一级分类//" class="article-tag-list-link color5">一级分类</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
 
       <div style="font-size: 12px;">
         此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
       </div>
       
         <p class="article-more-link">
-          <a class="article-more-a" href="/2017/11/08/Mac笔记本快捷键/">展开全文 >></a>
+          <a class="article-more-a" href="/2017/11/08/JVM性能优化/">展开全文 >></a>
         </p>
       
 
@@ -1240,10 +1239,6 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">git</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">Dubbo</a>
               </li>
              
@@ -1256,11 +1251,15 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">快捷键</a>
+                <a href="javascript:void(0)" class="js-tag color4">git</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">elastic-job</a>
+                <a href="javascript:void(0)" class="js-tag color1">redis</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">快捷键</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1268,7 +1267,7 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">redis</a>
+                <a href="javascript:void(0)" class="js-tag color2">elastic-job</a>
               </li>
              
               <li class="article-tag-list-item">
