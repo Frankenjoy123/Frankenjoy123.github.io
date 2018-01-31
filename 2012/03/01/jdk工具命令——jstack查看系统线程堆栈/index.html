@@ -22,7 +22,7 @@
 <meta property="og:image" content="http://img.blog.csdn.net/20140830104223865?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvd2lzZ29vZA==/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center">
 <meta property="og:image" content="http://img.blog.csdn.net/20140830104019250?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvd2lzZ29vZA==/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center">
 <meta property="og:image" content="http://img1.tuicool.com/Bj2YVf.png!web">
-<meta property="og:updated_time" content="2017-12-27T09:18:48.000Z">
+<meta property="og:updated_time" content="2018-01-31T03:00:29.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="jdk工具命令——jstack查看系统线程堆栈">
 <meta name="twitter:description" content="查看当前 Java 系统线程执行状况使用场景  定位环境慢 / 功能 慢问题 . 在慢的过程中将执行的堆栈信息 已规律 的间隔 (5~10 秒 ) 打印出来 . 在连续几次都出现的线程一般是有问题的线程 , 因为在执行 10~20 秒中都未销毁的线程 .    系统 CPU 高居不下 .    堆栈观察 : 首先找到平台产生的进程 ( Ctrl+F:com.*.\ ), 记录线程 ID. 找出连续">
@@ -234,7 +234,7 @@
 <figure class="highlight processing"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Idle wait</span></span><br><span class="line">getLog().info(<span class="string">"Thread ["</span> + getName() + <span class="string">"] is idle waiting..."</span>);</span><br><span class="line">schedulerThreadState = PollTaskSchedulerThreadState.IdleWaiting;</span><br><span class="line"><span class="keyword">long</span> now = System.currentTimeMillis();</span><br><span class="line"><span class="keyword">long</span> waitTime = now + getIdleWaitTime();</span><br><span class="line"><span class="keyword">long</span> timeUntilContinue = waitTime - now;</span><br><span class="line"><span class="keyword">synchronized</span>(sigLock) &#123;</span><br><span class="line">  <span class="keyword">try</span> &#123;</span><br><span class="line">    <span class="keyword">if</span>(!halted.<span class="built_in">get</span>()) &#123;</span><br><span class="line">      sigLock.wait(timeUntilContinue);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125; </span><br><span class="line">  <span class="keyword">catch</span> (InterruptedException ignore) &#123;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>它是轮询任务的空闲等待代码，上面的sigLock.wait(timeUntilContinue)就对应了前面的Object.wait()。</p>
 <h1 id="billing线上故障排查"><a href="#billing线上故障排查" class="headerlink" title="billing线上故障排查"></a>billing线上故障排查</h1><figure class="highlight vim"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">#billing的进程<span class="number">7397</span></span><br><span class="line">jps -<span class="keyword">lv</span> | <span class="keyword">grep</span> billing</span><br><span class="line">或者</span><br><span class="line"><span class="keyword">ps</span> -ef | <span class="keyword">grep</span> java</span><br></pre></td></tr></table></figure>
-<figure class="highlight lsl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">#找到最耗cpu，时间最多的线程id 为 <span class="number">7491</span></span><br><span class="line">top -Hp <span class="number">7397</span></span><br><span class="line"></span><br><span class="line">#得到十六进制<span class="number">1</span>d43</span><br><span class="line">printf <span class="string">"%x<span class="subst">\n</span>"</span> <span class="number">7491</span></span><br><span class="line"></span><br><span class="line">jstack <span class="number">7397</span> | grep <span class="number">1</span>d43</span><br></pre></td></tr></table></figure>
+<figure class="highlight lsl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">#找到最耗cpu，时间最多的线程i|gd 为 <span class="number">7491</span></span><br><span class="line">top -Hp <span class="number">7397</span></span><br><span class="line"></span><br><span class="line">#得到十六进制<span class="number">1</span>d43</span><br><span class="line">printf <span class="string">"%x<span class="subst">\n</span>"</span> <span class="number">7491</span></span><br><span class="line"></span><br><span class="line">jstack <span class="number">7397</span> | grep <span class="number">1</span>d43</span><br></pre></td></tr></table></figure>
 <p>b batch批量 -n次数 -H 所有线程 -p 指定进程，输出到文件</p>
 <figure class="highlight lsl"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">top -b -n <span class="number">2</span>  -H -p <span class="number">7397</span> &gt; <span class="number">7397</span>-thread.txt</span><br></pre></td></tr></table></figure>
 <p>监控billing的线程数 wc计数 -l统计行</p>
@@ -498,19 +498,19 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
           <ul class="article-tag-list" q-show="showTags">
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">AngularJS</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">test</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">Dubbo</a>
+                <a href="javascript:void(0)" class="js-tag color5">AngularJS</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">git</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">Dubbo</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -522,11 +522,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">性能优化</a>
+                <a href="javascript:void(0)" class="js-tag color1">Maven</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">Maven</a>
+                <a href="javascript:void(0)" class="js-tag color5">性能优化</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -534,11 +534,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">linux</a>
+                <a href="javascript:void(0)" class="js-tag color4">快捷键</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">快捷键</a>
+                <a href="javascript:void(0)" class="js-tag color1">linux</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -570,11 +570,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">guava</a>
+                <a href="javascript:void(0)" class="js-tag color1">debug</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">debug</a>
+                <a href="javascript:void(0)" class="js-tag color1">guava</a>
               </li>
              
               <li class="article-tag-list-item">

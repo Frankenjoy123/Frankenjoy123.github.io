@@ -8,14 +8,18 @@
   <meta name="renderer" content="webkit">
   <meta http-equiv="X-UA-Compatible" content="IE=edge" >
   <link rel="dns-prefetch" href="http://yoursite.com">
-  <title>Category: java性能优化 | xiaowu&#39;s blog</title>
+  <title>kubernetes之使用minikube本地部署 | xiaowu&#39;s blog</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta property="og:type" content="website">
-<meta property="og:title" content="xiaowu&#39;s blog">
-<meta property="og:url" content="http://yoursite.com/categories/java/java性能优化/index.html">
+  <meta name="description" content="目录  kubernetes 介绍 环境、软件准备 kubectl 安装 minikube 安装 部署运行实例  1、kubernetes 介绍  Kubernetes 是 Google 开源的容器集群管理系统，它构建在目前流行的 Docker 技术之上，为容器化的应用提供资源调度、部署运行、服务发现、扩容缩容等一整套功能。而就在日前 DockerCon 欧洲大会上， Docker 宣布拥抱支持">
+<meta property="og:type" content="article">
+<meta property="og:title" content="kubernetes之使用minikube本地部署">
+<meta property="og:url" content="http://yoursite.com/2018/01/30/kubernetes之使用minikube本地部署/index.html">
 <meta property="og:site_name" content="xiaowu&#39;s blog">
+<meta property="og:description" content="目录  kubernetes 介绍 环境、软件准备 kubectl 安装 minikube 安装 部署运行实例  1、kubernetes 介绍  Kubernetes 是 Google 开源的容器集群管理系统，它构建在目前流行的 Docker 技术之上，为容器化的应用提供资源调度、部署运行、服务发现、扩容缩容等一整套功能。而就在日前 DockerCon 欧洲大会上， Docker 宣布拥抱支持">
+<meta property="og:updated_time" content="2018-01-31T05:05:52.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="xiaowu&#39;s blog">
+<meta name="twitter:title" content="kubernetes之使用minikube本地部署">
+<meta name="twitter:description" content="目录  kubernetes 介绍 环境、软件准备 kubectl 安装 minikube 安装 部署运行实例  1、kubernetes 介绍  Kubernetes 是 Google 开源的容器集群管理系统，它构建在目前流行的 Docker 技术之上，为容器化的应用提供资源调度、部署运行、服务发现、扩容缩容等一整套功能。而就在日前 DockerCon 欧洲大会上， Docker 宣布拥抱支持">
   
     <link rel="alternative" href="/atom.xml" title="xiaowu&#39;s blog" type="application/atom+xml">
   
@@ -149,83 +153,250 @@
             <canvas data-colors="#eaeaea" data-sectionHeight="100" data-contentId="js-content" id="myCanvas1" class="anm-canvas"></canvas>
           </div>
           <div id="js-content" class="content-ll">
-            
-  
-  
+            <article id="post-kubernetes之使用minikube本地部署" class="article article-type-post " itemscope itemprop="blogPost">
+  <div class="article-inner">
     
-    
-      
-      
-      <section class="archives-wrap">
-        <div class="archive-year-wrap">
-          <a href="/archives/2017" class="archive-year">2017</a>
-        </div>
-        <div class="archives">
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2017/11/08/JVM性能优化/" class="archive-article-date">
-  	<time datetime="2017-11-08T05:23:49.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2017-11-08</time>
-</a>
-        </div>
-    	 
+      <header class="article-header">
+        
   
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2017/11/08/JVM性能优化/">JVM性能优化</a>
+    <h1 class="article-title" itemprop="name">
+      kubernetes之使用minikube本地部署
     </h1>
   
 
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">java</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">性能优化</a>
-        		</li>
-      		
-		</ul>
-	</div>
+        
+        <a href="/2018/01/30/kubernetes之使用minikube本地部署/" class="archive-article-date">
+  	<time datetime="2018-01-30T14:27:54.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-01-30</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p><strong>目录</strong></p>
+<ul>
+<li>kubernetes 介绍</li>
+<li>环境、软件准备</li>
+<li>kubectl 安装</li>
+<li>minikube 安装</li>
+<li>部署运行实例</li>
+</ul>
+<p><strong>1、kubernetes 介绍</strong></p>
+<blockquote>
+<p>Kubernetes 是 Google 开源的容器集群管理系统，它构建在目前流行的 Docker 技术之上，为容器化的应用提供资源调度、部署运行、服务发现、扩容缩容等一整套功能。而就在日前 DockerCon 欧洲大会上， Docker 宣布拥抱支持 Kubernetes，Docker 公司计划提供一个无缝平台，同时支持包含 Swarm 和 Kubernetes 集群的异构部署。minikube 是一个使我们很容易在本地运行 kubernetes 的工具，他是通过在本机 VM 里运行一个单节点集群，大大方便学习和使用 kubernetes。</p>
+</blockquote>
+<p><strong>2、环境、软件准备</strong></p>
+<p>本次演示环境，我是在本机 MAC OS 以及虚拟机 Linux Centos7 上操作，以下是安装的软件及版本：</p>
+<ol>
+<li>Docker: version 17.09.0-ce</li>
+<li>Oracle VirtualBox: version 5.1.20 r114628 (Qt5.6.2)</li>
+<li>Minikube: version v0.22.2</li>
+<li>Kuberctl:<ul>
+<li>Client Version: v1.8.1</li>
+<li>Server Version: v1.7.5</li>
+</ul>
+</li>
+</ol>
+<p>注意：Minikube 启动的单节点 k8s Node 实例是需要运行在本机的 VM 虚拟机里面，所以需要提前安装好 VM，这里我选择 Oracle VirtualBox。k8s 运行底层使用 Docker 容器，所以本机需要安装好 Docker 环境，这里忽略 Docker、VirtualBox 的安装过程，着重介绍下 Minikube 和 Kuberctl 的安装。</p>
+<p><strong>3、 kubectl 安装</strong></p>
+<p>kubectl 是 Kubernetes 的命令行工具，我们可以使用该工具查看集群资源，创建、更新、删除各个组件等等，同时提供了非常详细的使用文档，非常方便，那我们在本机 Mac 上安装一下。</p>
+<p>安装方式有两种：</p>
+<p>一、通过 curl 安装</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">1、安装最新版</span><br><span class="line">curl -LO https://storage.googleapis.com/kubernetes-<span class="keyword">release</span>/<span class="keyword">release</span>/<span class="string">`curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt`</span>/<span class="keyword">bin</span>/darwin/amd64/kubectl</span><br><span class="line"></span><br><span class="line"># 安装指定版本，例如 v1<span class="number">.8</span><span class="number">.0</span></span><br><span class="line">curl -LO https://storage.googleapis.com/kubernetes-<span class="keyword">release</span>/<span class="keyword">release</span>/v1<span class="number">.8</span><span class="number">.0</span>/<span class="keyword">bin</span>/darwin/amd64/kubectl</span><br><span class="line"></span><br><span class="line"><span class="number">2</span>、赋二进制文件执行权限</span><br><span class="line">chmod +x ./kubectl</span><br><span class="line"></span><br><span class="line"><span class="number">3</span>、将二进制文件移到 <span class="keyword">PATH</span> 中</span><br><span class="line">sudo mv ./kubectl /usr/<span class="keyword">local</span>/<span class="keyword">bin</span>/kubectl1234567891011</span><br></pre></td></tr></table></figure>
+<p>二、通过 Homebrew 安装</p>
+<figure class="highlight mipsasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">brew </span><span class="keyword">install </span>kubectl1</span><br></pre></td></tr></table></figure>
+<p>安装完毕后，执行 <code>kubectl version</code> 查看版本以及是否安装成功。我们可以通过 <code>kubectl help</code> 查看说明文档。</p>
+<p><strong>4、minikube 安装</strong></p>
+<p>minikube 是一个使我们很容易在本地运行 kubernetes 的工具，他是通过在本机 VM 里运行一个单节点 kubernetes 集群，这对于新手想了解和学习 kubernetes 提供了很大的帮助。所以在安装 minikube 之前我们需要在本机先安装 VM，这里我选择 VirtualBox 忽略安装过程，以下是可选 VM 列表：</p>
+<ul>
+<li>OS X: <a href="https://git.k8s.io/minikube/docs/drivers.md#xhyve-driver" target="_blank" rel="external">xhyve driver</a>, <a href="https://www.virtualbox.org/wiki/Downloads" target="_blank" rel="external">VirtualBox</a>, <a href="https://www.vmware.com/products/fusion" target="_blank" rel="external">VMware Fusion</a>.</li>
+<li>Linux: <a href="https://www.virtualbox.org/wiki/Downloads" target="_blank" rel="external">VirtualBox</a>, <a href="http://www.linux-kvm.org/" target="_blank" rel="external">KVM</a></li>
+<li>Windows: <a href="https://www.virtualbox.org/wiki/Downloads" target="_blank" rel="external">VirtualBox</a>, <a href="https://msdn.microsoft.com/en-us/virtualization/hyperv_on_windows/quick_start/walkthrough_install" target="_blank" rel="external">Hyper-V</a></li>
+</ul>
+<p>minikube 的安装也很简单。</p>
+<p>1、curl 方式安装</p>
+<figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">OSX 系统：</span><br><span class="line">curl -Lo minikube https:<span class="regexp">//</span>storage.googleapis.com<span class="regexp">/minikube/</span>releases<span class="regexp">/v0.22.3/mi</span>nikube-darwin-amd64 &amp;&amp; chmod +x minikube &amp;&amp; sudo mv minikube <span class="regexp">/usr/</span>local<span class="regexp">/bin/</span></span><br><span class="line"></span><br><span class="line">Linux 系统：</span><br><span class="line">curl -Lo minikube https:<span class="regexp">//</span>storage.googleapis.com<span class="regexp">/minikube/</span>releases<span class="regexp">/v0.22.3/mi</span>nikube-linux-amd64 &amp;&amp; chmod +x minikube &amp;&amp; sudo mv minikube <span class="regexp">/usr/</span>local<span class="regexp">/bin/</span><span class="number">12345</span></span><br></pre></td></tr></table></figure>
+<p>2、若上边地址被墙了，可以去 GitHub 上下载安装包，在执行。</p>
+<p>下载最新版安装包，各系统对应地址如下：</p>
+<ul>
+<li><a href="https://github.com/kubernetes/minikube/releases/download/v0.22.3/minikube-darwin-amd64" target="_blank" rel="external">minikube-darwin-amd64</a></li>
+<li><a href="https://github.com/kubernetes/minikube/releases/download/v0.22.3/minikube-linux-amd64" target="_blank" rel="external">minikube-linux-amd64</a></li>
+<li><a href="https://github.com/kubernetes/minikube/releases/download/v0.22.3/minikube-installer.exe" target="_blank" rel="external">minikube-installer.exe</a></li>
+</ul>
+<p>然后执行 <code>chmod +x minikube &amp;&amp; sudo mv minikube /usr/local/bin/</code>，即可完成安装。安装完毕后，执行 <code>minikube version</code> 查看版本以及是否安装成功。我们可以通过 <code>minikube help</code> 查看说明文档。</p>
+<p><strong>5、部署运行实例</strong></p>
+<p>好了，环境我们已经安装完毕，现在来演示运行一个实例，这里我已 tomcat 镜像为例，演示部署服务，发布服务，扩容缩容服务等操作。</p>
+<figure class="highlight gams"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">1</span>、创建并启动 minikube 虚拟机</span><br><span class="line"><span class="symbol">$</span> minikube start</span><br><span class="line"><span class="function"><span class="title">Starting</span></span> local Kubernetes cluster...</span><br><span class="line"><span class="function"><span class="title">Running</span></span> pre-create checks...</span><br><span class="line"><span class="function"><span class="title">Creating</span></span> machine...</span><br><span class="line"><span class="function"><span class="title">Starting</span></span> local Kubernetes cluster...</span><br><span class="line"></span><br><span class="line"><span class="number">2</span>、创建 hello-minikube 部署</span><br><span class="line"><span class="symbol">$</span> kubectl run hello-minikube --image=tomcat:<span class="number">8.0</span> --port=<span class="number">8080</span></span><br><span class="line">deployment <span class="string">"hello-minikube"</span> created</span><br><span class="line"></span><br><span class="line"><span class="number">3</span>、发布服务 hello-minikube</span><br><span class="line"><span class="symbol">$</span> kubectl expose deployment hello-minikube --type=NodePort</span><br><span class="line">service <span class="string">"hello-minikube"</span> exposed</span><br><span class="line"></span><br><span class="line"><span class="number">4</span>、查看 pods</span><br><span class="line"><span class="symbol">$</span> kubectl get pods</span><br><span class="line">NAME                             READY     STATUS              RESTARTS   AGE</span><br><span class="line">hello-minikube<span class="number">-598805112</span><span class="number">-3</span>bzmf   <span class="number">1</span>/<span class="number">1</span>       ContainerCreating   <span class="number">0</span>          <span class="number">5</span>s</span><br><span class="line">注意：刚开始时，pod 没有完全创建好的时候，状态是 ContainerCreating，当部署完成后，状态就变成 Running。</span><br><span class="line"></span><br><span class="line"><span class="symbol">$</span> kubectl get pods</span><br><span class="line">NAME                             READY     STATUS    RESTARTS   AGE</span><br><span class="line">hello-minikube<span class="number">-598805112</span><span class="number">-3</span>bzmf   <span class="number">1</span>/<span class="number">1</span>       Running   <span class="number">0</span>          <span class="number">25</span>s</span><br><span class="line"></span><br><span class="line"><span class="number">5</span>、获取服务地址</span><br><span class="line"><span class="symbol">$</span> minikube service hello-minikube --url</span><br><span class="line">http:<span class="comment">//192.168.99.102:30724</span></span><br><span class="line"><span class="symbol">$</span> minikube service hello-minikube 将直接打开地址到默认浏览器上。</span><br><span class="line"></span><br><span class="line"><span class="number">6</span>、停止 minikube 虚拟机</span><br><span class="line"><span class="symbol">$</span> minikube stop</span><br><span class="line"><span class="function"><span class="title">Stopping</span></span> local Kubernetes cluster...</span><br><span class="line">Stopping <span class="string">"minikube"</span>..<span class="number">.12345678910111213141516171819202122232425262728293031323334</span></span><br></pre></td></tr></table></figure>
+<p>注意：在部署过程中可能会出现问题，大部分跟网络相关，下载 images 时会超时报错，解决办法是一安装翻墙工具，二是替代需要翻墙下载的 images。以下是我本机实验遇到的问题，以及解决方法。</p>
+<p>问题一：命令行下载 tomcat:8.0 镜像，执行 <code>docker pull tomcat:8.0</code> 没有任何反应，初步分析可能是 minikube 虚拟机里没有连接到本地 docker 服务。</p>
+<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">$ minikube docker-env</span><br><span class="line"><span class="builtin-name">export</span> <span class="attribute">DOCKER_TLS_VERIFY</span>=<span class="string">"1"</span></span><br><span class="line"><span class="builtin-name">export</span> <span class="attribute">DOCKER_HOST</span>=<span class="string">"tcp://192.168.99.102:2376"</span></span><br><span class="line"><span class="builtin-name">export</span> <span class="attribute">DOCKER_CERT_PATH</span>=<span class="string">"/Users/wanyang3/.minikube/certs"</span></span><br><span class="line"><span class="builtin-name">export</span> <span class="attribute">DOCKER_API_VERSION</span>=<span class="string">"1.23"</span>12345</span><br></pre></td></tr></table></figure>
+<p>执行 <code>eval $(minikube docker-env)</code>，即设置 minikube 虚拟机的 docker 环境变量即可。</p>
+<p>问题二：执行完毕上边 2 和 3 步骤后，发现 hello-minikube 服务并没有成功启动。</p>
+<figure class="highlight lsl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$ kubectl get pods</span><br><span class="line">NAME                             READY     STATUS              RESTARTS   AGE</span><br><span class="line">hello-minikube<span class="number">-598805112</span><span class="number">-3</span>bzmf   <span class="number">0</span>/<span class="number">1</span>       ContainerCreating   <span class="number">0</span>          <span class="number">15</span>s123</span><br></pre></td></tr></table></figure>
+<p>发现 hello-minikube 的状态一直是 ContainerCreating，并且 READY 为 0/1，通过 <code>minikube logs</code> 查看日志可以看出，有一个镜像 <code>gcr.io/google_containers/pause-amd64:3.0</code> 显示拉取失败，分析原因应该是 gcr.io 这个地址被墙了。</p>
+<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 替换镜像</span></span><br><span class="line">$ docker pull visenzek8s/pause-amd64:3.0</span><br><span class="line">$ docker tag visenzek8s/pause-amd64:3.0 gcr.io/google_containers/pause-amd64:3.0</span><br><span class="line"></span><br><span class="line"><span class="comment"># 显式设置拉取策略为 IfNotPresent</span></span><br><span class="line">$ kubectl <span class="builtin-name">run</span> hello-minikube <span class="attribute">--image</span>=tomcat:8.0 <span class="attribute">--port</span>=8080 <span class="attribute">--image-pull-policy</span>=IfNotPresent 123456</span><br></pre></td></tr></table></figure>
+<p>方案就是替换该镜像，然后可以设置拉取策略为优先本地获取，本地没有再去远程获取。因为这里服务启动策略为 always，会定时自动重新拉取，所以一旦本地拉取该镜像后，我们会发现上边 hello-minikube 一会就启动成功了。</p>
+<p>下边介绍一下 kubectl 一些其他常用操作。</p>
+<p>1、创建资源的两种方式</p>
+<p>1.1 通过 Yaml 或 Json 文件创建</p>
+<figure class="highlight jboss-cli"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ kubectl create -f &lt;file_path&gt;<span class="string">/xxx.yaml</span> | &lt;file_path&gt;<span class="string">/xxx.json</span> --[options]</span><br><span class="line">eg：kubectl create -f <span class="string">./redis.yaml12</span></span><br></pre></td></tr></table></figure>
+<p>简单的 <code>redis.yaml</code> 示例：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">apiVersion:</span> <span class="string">extensions/v1beta1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">Deployment</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line"><span class="attr">  name:</span> <span class="string">hello-redis</span></span><br><span class="line"><span class="attr">  namespace:</span> <span class="string">my-kube</span></span><br><span class="line"><span class="attr">spec:</span></span><br><span class="line"><span class="attr">  replicas:</span> <span class="number">2</span></span><br><span class="line"><span class="attr">  template:</span></span><br><span class="line"><span class="attr">    metadata:</span></span><br><span class="line"><span class="attr">      labels:</span></span><br><span class="line"><span class="attr">        group:</span> <span class="string">hello-scm</span></span><br><span class="line"><span class="attr">        my-kube:</span> <span class="string">hello-redis</span></span><br><span class="line"><span class="attr">        k8s-app:</span> <span class="string">redis</span></span><br><span class="line"><span class="attr">    spec:</span></span><br><span class="line"><span class="attr">      containers:</span></span><br><span class="line"><span class="attr">      - name:</span> <span class="string">redis</span></span><br><span class="line"><span class="attr">        image:</span> <span class="attr">redis:latest</span></span><br><span class="line"><span class="meta">---</span></span><br><span class="line"><span class="attr">apiVersion:</span> <span class="string">v1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">Service</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line"><span class="attr">  labels:</span></span><br><span class="line"><span class="attr">    group:</span> <span class="string">hello-scm</span></span><br><span class="line">    <span class="string">kubernetes.io/cluster-service:</span> <span class="string">'true'</span></span><br><span class="line">    <span class="string">kubernetes.io/name:</span> <span class="string">hello-redis</span></span><br><span class="line"><span class="attr">  name:</span> <span class="string">hello-redis</span></span><br><span class="line"><span class="attr">  namespace:</span> <span class="string">my-kube</span></span><br><span class="line"><span class="attr">spec:</span></span><br><span class="line"><span class="attr">  ports:</span></span><br><span class="line"><span class="attr">  - port:</span> <span class="number">6379</span></span><br><span class="line"><span class="attr">    targetPort:</span> <span class="number">6379</span></span><br><span class="line"><span class="attr">  selector:</span></span><br><span class="line"><span class="attr">    k8s-app:</span> <span class="string">redis123456789101112131415161718192021222324252627282930313233</span></span><br></pre></td></tr></table></figure>
+<p>yaml 文件要符合 kubernetes 的规范，可以参考官网对 yaml 语法定义，可以自学一下，这里就不展开来说了。</p>
+<p>1.2 指定镜像启动</p>
+<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ kubectl <span class="builtin-name">run</span> <span class="attribute">--image</span>=xxxx:xx --[options]</span><br><span class="line">eg: kubectl <span class="builtin-name">run</span> hello-minikube <span class="attribute">--image</span>=tomcat:8.0 <span class="attribute">--port</span>=8080 12</span><br></pre></td></tr></table></figure>
+<p>2、复制多个部署 pod</p>
+<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">$ kubectl scale <span class="attribute">--replicas</span>=3 deployment/hello-minikube</span><br><span class="line">deployment <span class="string">"hello-minikube"</span> scaled</span><br><span class="line">$ kubectl <span class="builtin-name">get</span> pods</span><br><span class="line">NAME                             READY     STATUS    RESTARTS   AGE</span><br><span class="line">hello-minikube-598805112-3bzmf   1/1       Running   1          1d</span><br><span class="line">hello-minikube-598805112-vrskz   1/1       Running   1          1d</span><br><span class="line">hello-minikube-598805112-xwq55   1/1       Running   1          1d</span><br><span class="line"></span><br><span class="line">也可以在启动时，指定复制数量</span><br><span class="line">$ kubectl <span class="builtin-name">run</span> hello-minikube <span class="attribute">--image</span>=tomcat:8.0 <span class="attribute">--port</span>=8080 <span class="attribute">--replicas</span>=312345678910</span><br></pre></td></tr></table></figure>
+<p>3、暴露 pod (po), service (svc), replicationcontroller (rc), deployment (deploy), replicaset (rs) 成新的服务</p>
+<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">$ kubectl expose po | svc | rc | delpoy | rs --[options]</span><br><span class="line">eg：kubectl expose deployment hello-minikube <span class="attribute">--type</span>=NodePort # 暴露名称为 hello-minikube 部署为类型为 NodePort 的服务</span><br><span class="line">eg：kubectl expose rc hello-nginx <span class="attribute">--port</span>=80 <span class="attribute">--target-port</span>=8000 <span class="attribute">--type</span>=NodePort # 暴漏名称为 nginx 的副本为指定服务端口80，连接该服务端口8000，类型为 NodePort 的服务</span><br><span class="line"></span><br><span class="line">$ kubectl <span class="builtin-name">get</span> service</span><br><span class="line">NAME            <span class="built_in"> TYPE </span>       CLUSTER-IP   EXTERNAL-IP   PORT(S)          AGE</span><br><span class="line">hello-minikube   NodePort    10.0.0.176   &lt;none&gt;        8080:30724/TCP   1d</span><br><span class="line">hello-nginx      NodePort    10.0.0.94    &lt;none&gt;        80:8000/TCP      1d</span><br><span class="line">kubernetes       ClusterIP   10.0.0.1     &lt;none&gt;        443/TCP          1d123456789</span><br></pre></td></tr></table></figure>
+<p>4、重新加载某个资源</p>
+<figure class="highlight coq"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ kubectl <span class="built_in">apply</span> -f &lt;file_path&gt;/xxx.yaml | <span class="type">&lt;file_path</span>&gt;/xxx.json --[options]</span><br><span class="line">eg：kubectl <span class="built_in">apply</span> -f ./redis.yaml12</span><br></pre></td></tr></table></figure>
+<p>5、查看 pod, service, replicationcontroller, deployment, replicaset 各种类型资源信息列表</p>
+<figure class="highlight coq"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ kubectl get po | <span class="type">svc</span> | <span class="type">rc</span> | <span class="type">deploy</span> | <span class="type">rs</span> # 查看默认 namespace 下各类型资源信息列表</span><br><span class="line">$ kubectl get po | <span class="type">svc</span> | <span class="type">rc</span> | <span class="type">deploy</span> | <span class="type">rs</span> --all-namespaces # 查看所有 namespace 下各类型资源信息列表<span class="number">12</span></span><br></pre></td></tr></table></figure>
+<p>6、查看 pod, service, replicationcontroller, deployment, replicaset 各种类型资源日志信息或描述信息</p>
+<figure class="highlight dts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">$ kubectl logs <span class="params">&lt;resource_type&gt;</span>/<span class="params">&lt;resource_name&gt;</span> [options]</span><br><span class="line">eg：kubectl logs -f po/hello-minikube<span class="number">-598805112</span><span class="number">-3</span>bzmf <span class="meta"># 查看指定 pod 的日志</span></span><br><span class="line">eg：kubectl logs deploy/hello-nginx -n my-kube <span class="meta"># 查看指定 delpoy 和 namespace 的日志</span></span><br><span class="line"></span><br><span class="line">$ kubectl describe <span class="params">&lt;resource_type&gt;</span>/<span class="params">&lt;resource_name&gt;</span> [options]</span><br><span class="line">eg：kubectl describe pods <span class="meta"># 查看所有 pod 的描述信息</span></span><br><span class="line">eg：kubectl describe po/hello-minikube<span class="number">-598805112</span><span class="number">-3</span>bzmf <span class="meta"># 查看指定 pod 的描述信息</span></span><br><span class="line">eg：kubectl describe deploy/hello-nginx -n my-kube <span class="meta"># 查看指定 delpoy 和 namespace 的描述信息12345678</span></span><br></pre></td></tr></table></figure>
+<p>7、查看集群信息</p>
+<figure class="highlight crmsh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ kubectl cluster<span class="literal">-inf</span>o</span><br><span class="line">Kubernetes <span class="keyword">master</span> <span class="title">is</span> running at https://<span class="number">192.168</span>.<span class="number">99.102</span>:<span class="number">844312</span></span><br></pre></td></tr></table></figure>
+<p>好了，先介绍这么多，下一篇继续介绍下通过 minikube 安装 Kubernetes Dashboard 并集成 Heapster 插件。</p>
+<p><strong>参考资料</strong></p>
+<ul>
+<li><a href="https://kubernetes.io/docs/getting-started-guides/minikube/" target="_blank" rel="external">Running Kubernetes Locally via Minikube</a></li>
+<li><a href="https://kubernetes.io/docs/tasks/tools/install-minikube/" target="_blank" rel="external">Install Minikube</a></li>
+<li><a href="https://kubernetes.io/docs/tasks/tools/install-kubectl/" target="_blank" rel="external">Install and Set Up kubectl</a></li>
+<li><a href="https://github.com/kubernetes/minikube/releases" target="_blank" rel="external">github minikube</a></li>
+</ul>
 
-          
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/java//" class="article-tag-list-link color5">java</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/java/java性能优化//" class="article-tag-list-link color4">java性能优化</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/一级分类//" class="article-tag-list-link color5">一级分类</a>
-        		</li>
-      		
-		</ul>
-	</div>
+      
 
-
+      
+        <div class="page-reward">
+          <a href="javascript:;" class="page-reward-btn tooltip-top">
+            <div class="tooltip tooltip-east">
+            <span class="tooltip-item">
+              赏
+            </span>
+            <span class="tooltip-content">
+              <span class="tooltip-text">
+                <span class="tooltip-inner">
+                  <p class="reward-p"><i class="icon icon-quo-left"></i>谢谢你请我吃糖果<i class="icon icon-quo-right"></i></p>
+                  <div class="reward-box">
+                    
+                    
+                  </div>
+                </span>
+              </span>
+            </span>
+          </div>
+          </a>
         </div>
-        <div class="clearfix"></div>
-    </header>
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+      
+
+      <div style="font-size: 12px;">
+        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
+      </div>
+      
+
+      
+        
+<div class="share-btn share-icons tooltip-left">
+  <div class="tooltip tooltip-east">
+    <span class="tooltip-item">
+      <a href="javascript:;" class="share-sns share-outer">
+        <i class="icon icon-share"></i>
+      </a>
+    </span>
+    <span class="tooltip-content">
+      <div class="share-wrap">
+        <div class="share-icons">
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="icon icon-weibo"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="icon icon-weixin"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="icon icon-qq"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="icon icon-douban"></i>
+          </a>
+          <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a>
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="icon icon-facebook"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="icon icon-twitter"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="icon icon-google"></i>
+          </a>
+        </div>
+      </div>
+    </span>
+  </div>
+</div>
+
+<div class="page-modal wx-share js-wx-box">
+    <a class="close js-modal-close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="http://s.jiathis.com/qrcode.php?url=http://yoursite.com/2018/01/30/kubernetes之使用minikube本地部署/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div class="mask js-mask"></div>
+      
+      <div class="clearfix"></div>
+    </div>
   </div>
 </article>
+
+  
+<nav id="article-nav">
   
   
-    </div></section>
+    <a href="/2018/01/27/kubernates-docker-常用命令/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">kubernates docker 常用命令</div>
+      <i class="icon-circle-right"></i>
+    </a>
+  
+</nav>
+
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+  
+  
   
 
-    
+  
+
+  
+
+  
 
 
           </div>
@@ -248,10 +419,10 @@
 	var yiliaConfig = {
 		mathjax: false,
 		isHome: false,
-		isPost: false,
+		isPost: true,
 		isArchive: false,
 		isTag: false,
-		isCategory: true,
+		isCategory: false,
 		open_in_new: false,
 		toc_hide_index: true,
 		root: "/",
