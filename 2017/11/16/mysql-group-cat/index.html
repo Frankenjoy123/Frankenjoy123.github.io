@@ -19,7 +19,7 @@
 <meta property="og:description" content="group_concat()函数的参数是可以直接使用order by排序的。666。。下面通过例子来说明，首先看下面的t1表。  比如，我们要查看每个人的多个分数，将该人对应的多个分数显示在一起，分数要从高到底排序。可以这样写： SELECT username,GROUP_CONCAT(score ORDER BY score DESC) AS myScore FROM t1 GROUP BY">
 <meta property="og:image" content="http://images2015.cnblogs.com/blog/711223/201610/711223-20161010141510680-2000506790.png">
 <meta property="og:image" content="http://images2015.cnblogs.com/blog/711223/201610/711223-20161010141914446-1535043052.png">
-<meta property="og:updated_time" content="2017-11-16T08:56:13.000Z">
+<meta property="og:updated_time" content="2018-01-31T09:48:37.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="mysql group_cat">
 <meta name="twitter:description" content="group_concat()函数的参数是可以直接使用order by排序的。666。。下面通过例子来说明，首先看下面的t1表。  比如，我们要查看每个人的多个分数，将该人对应的多个分数显示在一起，分数要从高到底排序。可以这样写： SELECT username,GROUP_CONCAT(score ORDER BY score DESC) AS myScore FROM t1 GROUP BY">
@@ -183,6 +183,8 @@
 <p>SELECT username,GROUP_CONCAT(score ORDER BY score DESC) AS myScore FROM t1 GROUP BY username;</p>
 <p>效果如下：</p>
 <p><img src="http://images2015.cnblogs.com/blog/711223/201610/711223-20161010141914446-1535043052.png" alt="img"></p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">UPDATE</span> cash_billing_item bi,</span><br><span class="line">  (</span><br><span class="line">    <span class="keyword">SELECT</span> bi.id</span><br><span class="line">    <span class="keyword">FROM</span> cash_billing_item bi</span><br><span class="line">    <span class="keyword">WHERE</span> bi.id <span class="keyword">and</span> bi.status = <span class="number">1</span> <span class="keyword">and</span> bi.id</span><br><span class="line">                    <span class="keyword">not</span> <span class="keyword">in</span></span><br><span class="line">                    (</span><br><span class="line">                      <span class="keyword">SELECT</span> <span class="keyword">group_concat</span>(<span class="keyword">id</span> <span class="keyword">ORDER</span> <span class="keyword">BY</span> product_start_time <span class="keyword">desc</span>)</span><br><span class="line">                      <span class="keyword">FROM</span> cash_billing_item</span><br><span class="line">                      <span class="keyword">WHERE</span> product_no = bi.product_no <span class="keyword">AND</span> customer_no = bi.customer_no</span><br><span class="line">                        <span class="keyword">and</span> <span class="keyword">status</span> = <span class="number">1</span></span><br><span class="line">                      <span class="keyword">GROUP</span> <span class="keyword">BY</span> product_no, customer_no</span><br><span class="line">                    )</span><br><span class="line">  ) temp</span><br><span class="line"><span class="keyword">SET</span> bi.status = <span class="number">2</span></span><br><span class="line"><span class="keyword">WHERE</span> bi.id = temp.id;</span><br></pre></td></tr></table></figure>
+<p>group_cat之后相当于还有一个SELECT substring_index(‘10,3,4,5’,’,’,1); 返回第一个10</p>
 
       
 
@@ -427,6 +429,18 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
           <ul class="article-tag-list" q-show="showTags">
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">test</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">AngularJS</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">Dubbo</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">git</a>
               </li>
              
@@ -439,15 +453,15 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">Dubbo</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">AngularJS</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">Maven</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">性能优化</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">快捷键</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -459,14 +473,6 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">快捷键</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">test</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">mysql</a>
               </li>
              
@@ -475,15 +481,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">react</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">spring</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">tomcat</a>
+                <a href="javascript:void(0)" class="js-tag color1">react</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -491,7 +493,7 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">性能优化</a>
+                <a href="javascript:void(0)" class="js-tag color2">tomcat</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -504,6 +506,10 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">debug</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">idk</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -523,11 +529,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">mybatis</a>
+                <a href="javascript:void(0)" class="js-tag color1">maven</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">maven</a>
+                <a href="javascript:void(0)" class="js-tag color3">mybatis</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -563,11 +569,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">jvm</a>
+                <a href="javascript:void(0)" class="js-tag color1">科学上网，hosts</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">科学上网，hosts</a>
+                <a href="javascript:void(0)" class="js-tag color4">jvm</a>
               </li>
              
               <li class="article-tag-list-item">
