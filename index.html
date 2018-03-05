@@ -151,6 +151,96 @@
           <div id="js-content" class="content-ll">
             
   
+    <article id="post-mac-中文版man安装" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2018/03/05/mac-中文版man安装/">mac 中文版man安装</a>
+    </h1>
+  
+
+        
+        <a href="/2018/03/05/mac-中文版man安装/" class="archive-article-date">
+  	<time datetime="2018-03-05T02:23:19.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-03-05</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="Mac-10-13-安装中文版-man-命令"><a href="#Mac-10-13-安装中文版-man-命令" class="headerlink" title="Mac 10.13 安装中文版 man 命令"></a>Mac 10.13 安装中文版 man 命令</h1><p>本文参考于 《<a href="http://www.jianshu.com/p/5e35202fc59c" target="_blank" rel="external">Mac 安装man命令中文文档</a>》，但原文提供的链接以及安装的版本比较老旧。因此重新整理新版在这边提供给大家。</p>
+<h2 id="为什么需要-man-以及-man-怎么使用"><a href="#为什么需要-man-以及-man-怎么使用" class="headerlink" title="为什么需要 man 以及 man 怎么使用"></a>为什么需要 man 以及 man 怎么使用</h2><p><code>linux</code> 或者 <code>mac</code> 系统的命令行工具非常多，可是我们不能记住所有的这些命令，通常只能记住一些我们常用的。遇到不常用的我们需要来查询一下这个命令是怎么使用的。这时候我们就需要使用到 <code>man</code> 命令了。</p>
+<p>使用方法也非常简单，例如我们不清楚 <code>ls</code> 这个命令的使用方法，我们就可以在命令行中输入</p>
+<figure class="highlight inform7"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">man</span> ls1</span><br></pre></td></tr></table></figure>
+<p>来查看这个命令的详情。</p>
+<p>但是默认情况下，输出的内容是英文的。可能很多英文不好的朋友希望有中文版本的 <code>man</code> ，这篇博文就是告诉大家，如何在 <code>mac</code>上安装中文版本的的 <code>man</code>。</p>
+<p>至于 <code>linux</code> 系统则非常简单，查看 <a href="https://github.com/man-pages-zh/manpages-zh" target="_blank" rel="external">https://github.com/man-pages-zh/manpages-zh</a> 中对应的版本，即可用简单的命令安装。</p>
+<h2 id="下载-manpages-zh-编辑安装"><a href="#下载-manpages-zh-编辑安装" class="headerlink" title="下载 manpages-zh 编辑安装"></a>下载 manpages-zh 编辑安装</h2><p>首先，我们打开上面的 <code>github</code> 地址，点击 <code>releases</code> 下载最新版本的 <code>tar.gz</code> 源码包。目前我下载到的是 <code>1.6.3.2</code> 版本的。</p>
+<p>因为需要编译安装，所以你电脑上需要有编译工具，运行下面两个命令安装</p>
+<figure class="highlight mipsasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">brew </span><span class="keyword">install </span>automake</span><br><span class="line"><span class="keyword">brew </span><span class="keyword">install </span>opencc12</span><br></pre></td></tr></table></figure>
+<p>我这边是需要安装这两个编译工具，如果你下面编译出错，会提示你需要安装说明编辑工具的。利用 <code>brew</code> 安装即可。</p>
+<p>如果你电脑没有安装 <code>brew</code> 工具，请参考 <a href="http://blog.csdn.net/FungLeo/article/details/57567538" target="_blank" rel="external">http://blog.csdn.net/FungLeo/article/details/57567538</a> 这篇博文安装</p>
+<p>好，准备工作做好，我们接着来。</p>
+<figure class="highlight vala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta"># 进入下载目录</span></span><br><span class="line">cd ~/Downloads/</span><br><span class="line"><span class="meta"># 下载最新版本的源码包</span></span><br><span class="line">wget https:<span class="comment">//github.com/man-pages-zh/manpages-zh/archive/v1.6.3.2.tar.gz</span></span><br><span class="line"><span class="meta"># 解压源码包(atool命令，推荐安装这个工具，统一所有压缩文档的命令）</span></span><br><span class="line">atool -x v1<span class="number">.6</span><span class="number">.3</span><span class="number">.2</span>.tar.gz</span><br><span class="line"><span class="meta"># 或者使用这个命令解压</span></span><br><span class="line">tar zxvf v1<span class="number">.6</span><span class="number">.3</span><span class="number">.2</span>.tar.gz</span><br><span class="line"><span class="meta"># 进入源码包文件夹</span></span><br><span class="line">cd manpages-zh<span class="number">-1.6</span><span class="number">.3</span><span class="number">.2</span>/</span><br><span class="line"><span class="meta"># 编译安装 1</span></span><br><span class="line">autoreconf --install --force</span><br><span class="line"><span class="meta"># 编译安装 2</span></span><br><span class="line">./configure</span><br><span class="line"><span class="meta"># 编译安装 3</span></span><br><span class="line">make</span><br><span class="line"><span class="meta"># 编译安装 4</span></span><br><span class="line">sudo make install</span><br><span class="line"><span class="meta"># 配置别名</span></span><br><span class="line">echo <span class="string">"alias cman='man -M /usr/local/share/man/zh_CN'"</span> &gt;&gt; ~/.bash_profile</span><br><span class="line"><span class="meta"># 使别名生效</span></span><br><span class="line">. ~/.bash_profile12345678910111213141516171819202122</span><br></pre></td></tr></table></figure>
+<p>这样，我们就安装上了中文版本的 <code>man</code> 工具了。我们可以使用</p>
+<figure class="highlight jboss-cli"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cman <span class="keyword">ls</span>1</span><br></pre></td></tr></table></figure>
+<p>来查看中文版本的解释了。但是由于 <code>mac</code> 上的 <code>groff</code> 工具比较老，所以中文会出现乱码。我们来解决一下这个问题。</p>
+<h2 id="安装-groff-新版本解决中文乱码的问题"><a href="#安装-groff-新版本解决中文乱码的问题" class="headerlink" title="安装 groff 新版本解决中文乱码的问题"></a>安装 groff 新版本解决中文乱码的问题</h2><p>首先，我们到 <a href="http://git.savannah.gnu.org/cgit/groff.git" target="_blank" rel="external">http://git.savannah.gnu.org/cgit/groff.git</a> 这个页面下载 <code>1.22</code> 版本的 <code>groff</code> 安装包。我这边用命令行下载，你如果直接复制我的命令，不能下载，请到上面的地址去看看下载地址是否发生变化。</p>
+<figure class="highlight vala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta"># 进入下载目录</span></span><br><span class="line">cd ~/Downloads/</span><br><span class="line"><span class="meta"># 下载1.22版本的源码包</span></span><br><span class="line">wget http:<span class="comment">//git.savannah.gnu.org/cgit/groff.git/snapshot/groff-1.22.tar.gz</span></span><br><span class="line"><span class="meta"># 解压</span></span><br><span class="line">atool -x groff<span class="number">-1.22</span>.tar.gz</span><br><span class="line"><span class="meta"># 进入目录</span></span><br><span class="line">cd groff<span class="number">-1.22</span></span><br><span class="line"><span class="meta"># 编译安装</span></span><br><span class="line">./configure</span><br><span class="line">sudo make</span><br><span class="line">sudo make install</span><br><span class="line"><span class="meta"># 添加配置</span></span><br><span class="line">sudo vim /etc/man.conf1234567891011121314</span><br></pre></td></tr></table></figure>
+<p>进入编辑之后，在文件末尾添加</p>
+<figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">NROFF preconv -e UTF8 | <span class="regexp">/usr/</span>local<span class="regexp">/bin/</span>nroff -Tutf8 -mandoc -c1</span><br></pre></td></tr></table></figure>
+<p>最后 <code>:wq</code> 保存退出</p>
+<p>然后，我们在输入</p>
+<figure class="highlight jboss-cli"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cman <span class="keyword">ls</span>1</span><br></pre></td></tr></table></figure>
+<p>就可以看到中文版本的命令介绍了。</p>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+      
+
+      <div style="font-size: 12px;">
+        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
+      </div>
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2018/03/05/mac-中文版man安装/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
     <article id="post-jmc使用方法" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
@@ -628,6 +718,13 @@
 <blockquote>
 <p>这个命令会下载一个测试用的镜像并启动一个容器运行它。</p>
 </blockquote>
+<h2 id="quick-start"><a href="#quick-start" class="headerlink" title="quick start"></a>quick start</h2><p>###docker container</p>
+<figure class="highlight crmsh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">docker build -t friendlyhello .  <span class="comment"># Create image using this directory's Dockerfile</span></span><br><span class="line">docker run -p <span class="number">4000</span>:<span class="number">80</span> friendlyhello  <span class="comment"># Run "friendlyname" mapping port 4000 to 80</span></span><br><span class="line">docker run -d -p <span class="number">4000</span>:<span class="number">80</span> friendlyhello         <span class="comment"># Same thing, but in detached mode</span></span><br><span class="line">docker container ls                                <span class="comment"># List all running containers</span></span><br><span class="line">docker container ls -a             <span class="comment"># List all containers, even those not running</span></span><br><span class="line">docker container <span class="literal">stop</span> <span class="tag">&lt;hash&gt;</span>           <span class="comment"># Gracefully stop the specified container</span></span><br><span class="line">docker container kill <span class="tag">&lt;hash&gt;</span>         <span class="comment"># Force shutdown of the specified container</span></span><br><span class="line">docker container rm <span class="tag">&lt;hash&gt;</span>        <span class="comment"># Remove specified container from this machine</span></span><br><span class="line">docker container rm $(docker container ls -a -q)         <span class="comment"># Remove all containers</span></span><br><span class="line">docker image ls -a                             <span class="comment"># List all images on this machine</span></span><br><span class="line">docker image rm <span class="tag">&lt;image id&gt;</span>            <span class="comment"># Remove specified image from this machine</span></span><br><span class="line">docker image rm $(docker image ls -a -q)   <span class="comment"># Remove all images from this machine</span></span><br><span class="line">docker login             <span class="comment"># Log in this CLI session using your Docker credentials</span></span><br><span class="line">docker <span class="keyword">tag</span> <span class="title">&lt;image</span>&gt; username/repository:<span class="keyword">tag</span>  <span class="title"># Tag</span> <span class="tag">&lt;image&gt;</span> for upload to registry</span><br><span class="line">docker push username/repository:<span class="keyword">tag</span>            <span class="title"># Upload</span> tagged image to registry</span><br><span class="line">docker run username/repository:<span class="keyword">tag</span>                   <span class="title"># Run</span> image from a registry</span><br></pre></td></tr></table></figure>
+<p>###docker service</p>
+<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">docker stack ls                                            # List stacks <span class="keyword">or</span> apps</span><br><span class="line">docker stack deploy -c &lt;composefile&gt; &lt;appname&gt;  # <span class="builtin-name">Run</span> the specified Compose file</span><br><span class="line">docker<span class="built_in"> service </span>ls                 # List running services associated with an app</span><br><span class="line">docker<span class="built_in"> service </span>ps &lt;service&gt;                  # List tasks associated with an app</span><br><span class="line">docker inspect &lt;task <span class="keyword">or</span> container&gt;                   # Inspect task <span class="keyword">or</span> container</span><br><span class="line">docker container ls -q                                      # List container IDs</span><br><span class="line">docker stack rm &lt;appname&gt;                             # Tear down an application</span><br><span class="line">docker swarm leave --force      # Take down a single node swarm <span class="keyword">from</span> the manager</span><br></pre></td></tr></table></figure>
+<p>需要<a href="https://api.github.com/repos/boot2docker/boot2docker/releases/latest" target="_blank" rel="external">https://api.github.com/repos/boot2docker/boot2docker/releases/latest</a> 下载，”html_url”: “<a href="https://github.com/boot2docker/boot2docker/releases/tag/v17.07.0-ce" target="_blank" rel="external">https://github.com/boot2docker/boot2docker/releases/tag/v17.07.0-ce</a>“</p>
+<p>###swarm集群</p>
+<figure class="highlight lsl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line">docker-machine create --virtualbox-boot2docker-url ~/.docker/machine/cache/boot2docker.iso manager1</span><br><span class="line"></span><br><span class="line">mv boot2docker.iso /Users/zhouxiaowu/.docker/machine/cache/</span><br><span class="line">docker-machine create --virtualbox-boot2docker-url ~/.docker/machine/cache/boot2docker.iso  myvm1</span><br><span class="line">docker-machine create --virtualbox-boot2docker-url ~/.docker/machine/cache/boot2docker.iso  myvm2</span><br><span class="line"></span><br><span class="line"><span class="number">10513</span>  docker-machine ssh myvm1 <span class="string">"docker swarm init --advertise-addr 192.168.99.101"</span></span><br><span class="line"></span><br><span class="line"><span class="number">10514</span>  docker-machine ls</span><br><span class="line"></span><br><span class="line"><span class="number">10515</span>  docker-machine ssh myvm2 <span class="string">"    docker swarm join --token SWMTKN-1-13x2fyyubrz6b0k0p86bpt0rjydu59ze8a7g4q6n4yn1aip7so-96zlikwtz3h7mmpa18ilu0i6g 192.168.99.101:2377"</span></span><br><span class="line"></span><br><span class="line"><span class="number">10516</span>  docker-machine ssh myvm1 <span class="string">"docker node ls"</span></span><br><span class="line"></span><br><span class="line"><span class="number">10520</span>  docker-machine env myvm1</span><br><span class="line"><span class="number">10521</span>  eval $(docker-machine env myvm1)</span><br><span class="line"></span><br><span class="line"><span class="number">10526</span>  docker stack deploy -c docker-compose.yml getstartedlab</span><br><span class="line"><span class="number">10527</span>  docker stack ls</span><br><span class="line"></span><br><span class="line"><span class="number">10529</span>  docker stack ps getstartedlab</span><br><span class="line"></span><br><span class="line"><span class="number">10530</span>  docker container ls</span><br><span class="line"></span><br><span class="line"><span class="number">10569</span>  docker stack ls</span><br><span class="line"><span class="number">10570</span>  docker stack rm getstartedlab</span><br><span class="line"><span class="number">10571</span>  docker-machine env -u</span><br><span class="line"></span><br><span class="line"><span class="number">10572</span>  eval $(docker-machine env -u)</span><br></pre></td></tr></table></figure>
 <h1 id="笔记"><a href="#笔记" class="headerlink" title="笔记"></a>笔记</h1><figure class="highlight vim"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">find</span> name </span><br><span class="line"></span><br><span class="line">lsof</span><br><span class="line"></span><br><span class="line">lsof -<span class="keyword">p</span> <span class="number">2951</span></span><br><span class="line"><span class="keyword">view</span></span><br><span class="line">ulimit -n <span class="number">1000</span></span><br><span class="line"><span class="keyword">cd</span> var/<span class="built_in">log</span></span><br><span class="line">minikube logs &gt;aa</span><br><span class="line"><span class="keyword">vim</span> aa</span><br><span class="line">kubectl <span class="built_in">get</span> pods --<span class="keyword">all</span>-namespaces</span><br></pre></td></tr></table></figure>
 
       
@@ -1413,125 +1510,6 @@
 
 
   
-    <article id="post-mac下删除python" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2018/01/01/mac下删除python/">mac下删除python</a>
-    </h1>
-  
-
-        
-        <a href="/2018/01/01/mac下删除python/" class="archive-article-date">
-  	<time datetime="2018-01-01T06:59:12.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-01-01</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h1 id="正文"><a href="#正文" class="headerlink" title="正文"></a>正文</h1><blockquote>
-<p><strong>安装 Python</strong></p>
-</blockquote>
-<p>首先，登录 Python 官网，下载所需版本：<a href="https://www.python.org/" target="_blank" rel="external">Welcome to Python</a>.</p>
-<p><img src="http://img.blog.csdn.net/20171016181741228" alt="0"></p>
-<p>如上图所示，我们下载了<code>python-2.7.14</code>这个版本，双击打开：</p>
-<p><img src="http://img.blog.csdn.net/20171016201729725" alt="1"></p>
-<p>如上图所示，依次进入<code>Introduction</code>、<code>Read Me</code>和<code>License</code>选项，对于这些，感兴趣的同学可以看看，否则的话，狂按<code>Continue</code>即可：</p>
-<p><img src="http://img.blog.csdn.net/20171016201949269" alt="2"></p>
-<p>但是对于<code>License</code>，则会弹出一个“许可协议”提示框，毫无疑问，既然我们想使用 Python，自然要同意其许可协议。因此，依次点击<code>Agree</code>和<code>Continue</code>：</p>
-<p><img src="http://img.blog.csdn.net/20171016202339187" alt="3"></p>
-<p>接下来，选择 Python 安装地址，默认是<code>Macintosh HD</code>，我们也可以自定义。然后，直到<code>Installation</code>，安装进行中，耐心等待：</p>
-<p><img src="http://img.blog.csdn.net/20171016202548376" alt="4"></p>
-<p>如上图所示，至此 Python 安装成功。</p>
-<blockquote>
-<p><strong>卸载 Python</strong></p>
-</blockquote>
-<p>正如开篇所言，Mac 自带的 Python 已经能够满足我们的需要了，因此很多同学在安装完 Python 之后，又想要将其删除，或者称之为卸载。对于删除 Python，我们首先要知道其具体都安装了什么，实际上，在安装 Python 时，其自动生成：</p>
-<ul>
-<li>Python framework，即 Python 框架；</li>
-<li>Python 应用目录；</li>
-<li>指向 Python 的连接。</li>
-</ul>
-<p>对于 Mac 自带的 Python，其框架目录为：</p>
-<ul>
-<li><code>System/Library/Frameworks/Python.framework</code></li>
-</ul>
-<p>而我们安装的 Python，其（默认）框架目录为：</p>
-<ul>
-<li><code>/Library/Frameworks/Python.framework</code></li>
-</ul>
-<p>接下来，我们就分别（在 Mac 终端进行）删除上面所提到的三部分。</p>
-<p><strong>第 1 步，删除框架</strong>：</p>
-<ul>
-<li><code>sudo rm -rf /Library/Frameworks/Python.framework/Versions/x.x</code></li>
-</ul>
-<p><strong>第 2步，删除应用目录</strong>：</p>
-<ul>
-<li><code>sudo rm -rf &quot;/Applications/Python x.x&quot;</code></li>
-</ul>
-<p><strong>第 3 步，删除指向 Python 的连接</strong>：</p>
-<figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">cd <span class="regexp">/usr/</span>local<span class="regexp">/bin/</span></span><br><span class="line">ls -l <span class="regexp">/usr/</span>local<span class="regexp">/bin | grep '../</span>Library<span class="regexp">/Frameworks/</span>Python.framework<span class="regexp">/Versions/</span>x.x<span class="string">' | awk '</span>&#123;print <span class="variable">$9</span>&#125;<span class="string">' | tr -d @ | xargs rm12</span></span><br></pre></td></tr></table></figure>
-<p>至此，我们已经成功删除 Python 的相关文件，其中<code>x.x</code>为 Python 的版本号。</p>
-
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color2">python</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-      
-
-      <div style="font-size: 12px;">
-        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
-      </div>
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2018/01/01/mac下删除python/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
   
     <nav id="page-nav">
       <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="page-number" href="/page/3/">3</a><span class="space">&hellip;</span><a class="page-number" href="/page/7/">7</a><a class="extend next" rel="next" href="/page/2/">Next &raquo;</a>
@@ -1629,11 +1607,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
           <ul class="article-tag-list" q-show="showTags">
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">AngularJS</a>
+                <a href="javascript:void(0)" class="js-tag color5">test</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">test</a>
+                <a href="javascript:void(0)" class="js-tag color5">AngularJS</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1657,11 +1635,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">Maven</a>
+                <a href="javascript:void(0)" class="js-tag color1">linux</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">linux</a>
+                <a href="javascript:void(0)" class="js-tag color1">Maven</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1669,19 +1647,23 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">redis</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">mysql</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">Python</a>
+                <a href="javascript:void(0)" class="js-tag color1">redis</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">react</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">spring</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">Python</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1693,15 +1675,7 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">spring</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">elastic-job</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">guava</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1709,11 +1683,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">rest</a>
+                <a href="javascript:void(0)" class="js-tag color1">guava</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">idk</a>
+                <a href="javascript:void(0)" class="js-tag color5">rest</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1721,11 +1695,15 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">python</a>
+                <a href="javascript:void(0)" class="js-tag color4">idk</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">Mac</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">python</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1737,19 +1715,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">zookeeper</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">vi</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">前端指南</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">善用佳软</a>
+                <a href="javascript:void(0)" class="js-tag color5">zookeeper</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1757,15 +1727,15 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">大数据</a>
+                <a href="javascript:void(0)" class="js-tag color5">善用佳软</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">前端指南</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">排序算法</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">jvm</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1774,6 +1744,10 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">科学上网，hosts</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">jvm</a>
               </li>
              
               <li class="article-tag-list-item">

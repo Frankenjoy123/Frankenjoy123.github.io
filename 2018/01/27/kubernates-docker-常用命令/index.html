@@ -16,7 +16,7 @@
 <meta property="og:url" content="http://yoursite.com/2018/01/27/kubernates-docker-常用命令/index.html">
 <meta property="og:site_name" content="xiaowu&#39;s blog">
 <meta property="og:description" content="minikube命令1234#启动虚拟机minikube startminikube stop k8s命令123456789101112131415161718192021222324252627282930kubectl podkubectl get podkubectl get pod XXX &amp;gt; aavim aakubectl get pod hello-minikube-5df766">
-<meta property="og:updated_time" content="2018-02-04T01:39:41.000Z">
+<meta property="og:updated_time" content="2018-03-05T01:41:48.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="kubernates docker 常用命令">
 <meta name="twitter:description" content="minikube命令1234#启动虚拟机minikube startminikube stop k8s命令123456789101112131415161718192021222324252627282930kubectl podkubectl get podkubectl get pod XXX &amp;gt; aavim aakubectl get pod hello-minikube-5df766">
@@ -215,6 +215,13 @@
 <blockquote>
 <p>这个命令会下载一个测试用的镜像并启动一个容器运行它。</p>
 </blockquote>
+<h2 id="quick-start"><a href="#quick-start" class="headerlink" title="quick start"></a>quick start</h2><p>###docker container</p>
+<figure class="highlight crmsh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">docker build -t friendlyhello .  <span class="comment"># Create image using this directory's Dockerfile</span></span><br><span class="line">docker run -p <span class="number">4000</span>:<span class="number">80</span> friendlyhello  <span class="comment"># Run "friendlyname" mapping port 4000 to 80</span></span><br><span class="line">docker run -d -p <span class="number">4000</span>:<span class="number">80</span> friendlyhello         <span class="comment"># Same thing, but in detached mode</span></span><br><span class="line">docker container ls                                <span class="comment"># List all running containers</span></span><br><span class="line">docker container ls -a             <span class="comment"># List all containers, even those not running</span></span><br><span class="line">docker container <span class="literal">stop</span> <span class="tag">&lt;hash&gt;</span>           <span class="comment"># Gracefully stop the specified container</span></span><br><span class="line">docker container kill <span class="tag">&lt;hash&gt;</span>         <span class="comment"># Force shutdown of the specified container</span></span><br><span class="line">docker container rm <span class="tag">&lt;hash&gt;</span>        <span class="comment"># Remove specified container from this machine</span></span><br><span class="line">docker container rm $(docker container ls -a -q)         <span class="comment"># Remove all containers</span></span><br><span class="line">docker image ls -a                             <span class="comment"># List all images on this machine</span></span><br><span class="line">docker image rm <span class="tag">&lt;image id&gt;</span>            <span class="comment"># Remove specified image from this machine</span></span><br><span class="line">docker image rm $(docker image ls -a -q)   <span class="comment"># Remove all images from this machine</span></span><br><span class="line">docker login             <span class="comment"># Log in this CLI session using your Docker credentials</span></span><br><span class="line">docker <span class="keyword">tag</span> <span class="title">&lt;image</span>&gt; username/repository:<span class="keyword">tag</span>  <span class="title"># Tag</span> <span class="tag">&lt;image&gt;</span> for upload to registry</span><br><span class="line">docker push username/repository:<span class="keyword">tag</span>            <span class="title"># Upload</span> tagged image to registry</span><br><span class="line">docker run username/repository:<span class="keyword">tag</span>                   <span class="title"># Run</span> image from a registry</span><br></pre></td></tr></table></figure>
+<p>###docker service</p>
+<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">docker stack ls                                            # List stacks <span class="keyword">or</span> apps</span><br><span class="line">docker stack deploy -c &lt;composefile&gt; &lt;appname&gt;  # <span class="builtin-name">Run</span> the specified Compose file</span><br><span class="line">docker<span class="built_in"> service </span>ls                 # List running services associated with an app</span><br><span class="line">docker<span class="built_in"> service </span>ps &lt;service&gt;                  # List tasks associated with an app</span><br><span class="line">docker inspect &lt;task <span class="keyword">or</span> container&gt;                   # Inspect task <span class="keyword">or</span> container</span><br><span class="line">docker container ls -q                                      # List container IDs</span><br><span class="line">docker stack rm &lt;appname&gt;                             # Tear down an application</span><br><span class="line">docker swarm leave --force      # Take down a single node swarm <span class="keyword">from</span> the manager</span><br></pre></td></tr></table></figure>
+<p>需要<a href="https://api.github.com/repos/boot2docker/boot2docker/releases/latest" target="_blank" rel="external">https://api.github.com/repos/boot2docker/boot2docker/releases/latest</a> 下载，”html_url”: “<a href="https://github.com/boot2docker/boot2docker/releases/tag/v17.07.0-ce" target="_blank" rel="external">https://github.com/boot2docker/boot2docker/releases/tag/v17.07.0-ce</a>“</p>
+<p>###swarm集群</p>
+<figure class="highlight lsl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line">docker-machine create --virtualbox-boot2docker-url ~/.docker/machine/cache/boot2docker.iso manager1</span><br><span class="line"></span><br><span class="line">mv boot2docker.iso /Users/zhouxiaowu/.docker/machine/cache/</span><br><span class="line">docker-machine create --virtualbox-boot2docker-url ~/.docker/machine/cache/boot2docker.iso  myvm1</span><br><span class="line">docker-machine create --virtualbox-boot2docker-url ~/.docker/machine/cache/boot2docker.iso  myvm2</span><br><span class="line"></span><br><span class="line"><span class="number">10513</span>  docker-machine ssh myvm1 <span class="string">"docker swarm init --advertise-addr 192.168.99.101"</span></span><br><span class="line"></span><br><span class="line"><span class="number">10514</span>  docker-machine ls</span><br><span class="line"></span><br><span class="line"><span class="number">10515</span>  docker-machine ssh myvm2 <span class="string">"    docker swarm join --token SWMTKN-1-13x2fyyubrz6b0k0p86bpt0rjydu59ze8a7g4q6n4yn1aip7so-96zlikwtz3h7mmpa18ilu0i6g 192.168.99.101:2377"</span></span><br><span class="line"></span><br><span class="line"><span class="number">10516</span>  docker-machine ssh myvm1 <span class="string">"docker node ls"</span></span><br><span class="line"></span><br><span class="line"><span class="number">10520</span>  docker-machine env myvm1</span><br><span class="line"><span class="number">10521</span>  eval $(docker-machine env myvm1)</span><br><span class="line"></span><br><span class="line"><span class="number">10526</span>  docker stack deploy -c docker-compose.yml getstartedlab</span><br><span class="line"><span class="number">10527</span>  docker stack ls</span><br><span class="line"></span><br><span class="line"><span class="number">10529</span>  docker stack ps getstartedlab</span><br><span class="line"></span><br><span class="line"><span class="number">10530</span>  docker container ls</span><br><span class="line"></span><br><span class="line"><span class="number">10569</span>  docker stack ls</span><br><span class="line"><span class="number">10570</span>  docker stack rm getstartedlab</span><br><span class="line"><span class="number">10571</span>  docker-machine env -u</span><br><span class="line"></span><br><span class="line"><span class="number">10572</span>  eval $(docker-machine env -u)</span><br></pre></td></tr></table></figure>
 <h1 id="笔记"><a href="#笔记" class="headerlink" title="笔记"></a>笔记</h1><figure class="highlight vim"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">find</span> name </span><br><span class="line"></span><br><span class="line">lsof</span><br><span class="line"></span><br><span class="line">lsof -<span class="keyword">p</span> <span class="number">2951</span></span><br><span class="line"><span class="keyword">view</span></span><br><span class="line">ulimit -n <span class="number">1000</span></span><br><span class="line"><span class="keyword">cd</span> var/<span class="built_in">log</span></span><br><span class="line">minikube logs &gt;aa</span><br><span class="line"><span class="keyword">vim</span> aa</span><br><span class="line">kubectl <span class="built_in">get</span> pods --<span class="keyword">all</span>-namespaces</span><br></pre></td></tr></table></figure>
 
       
@@ -449,11 +456,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
           <ul class="article-tag-list" q-show="showTags">
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">AngularJS</a>
+                <a href="javascript:void(0)" class="js-tag color5">test</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">test</a>
+                <a href="javascript:void(0)" class="js-tag color5">AngularJS</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -477,11 +484,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">Maven</a>
+                <a href="javascript:void(0)" class="js-tag color1">linux</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">linux</a>
+                <a href="javascript:void(0)" class="js-tag color1">Maven</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -489,19 +496,23 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">redis</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">mysql</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">Python</a>
+                <a href="javascript:void(0)" class="js-tag color1">redis</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">react</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">spring</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">Python</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -513,15 +524,7 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">spring</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">elastic-job</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">guava</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -529,11 +532,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">rest</a>
+                <a href="javascript:void(0)" class="js-tag color1">guava</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">idk</a>
+                <a href="javascript:void(0)" class="js-tag color5">rest</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -541,11 +544,15 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">python</a>
+                <a href="javascript:void(0)" class="js-tag color4">idk</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">Mac</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">python</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -557,19 +564,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">zookeeper</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">vi</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">前端指南</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">善用佳软</a>
+                <a href="javascript:void(0)" class="js-tag color5">zookeeper</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -577,15 +576,15 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">大数据</a>
+                <a href="javascript:void(0)" class="js-tag color5">善用佳软</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">前端指南</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">排序算法</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">jvm</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -594,6 +593,10 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">科学上网，hosts</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">jvm</a>
               </li>
              
               <li class="article-tag-list-item">
