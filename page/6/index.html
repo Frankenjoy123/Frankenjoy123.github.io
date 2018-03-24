@@ -151,6 +151,142 @@
           <div id="js-content" class="content-ll">
             
   
+    <article id="post-实例启停自动化示例" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>拿finalspeed 在内网Centos7下的运行情况做个例子</p>
+<p>1.将脚本finalspeed放倒目录 /etc/init.d 下 注册为服务</p>
+<p>使用service finalspeed start|stop|restart 命令启动服务</p>
+<figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#!/bin/bash</span></span><br><span class="line"><span class="comment"># chkconfig: - 85 15</span></span><br><span class="line"><span class="comment">#description: agent is the itsm base thing</span></span><br><span class="line">case <span class="string">"$1"</span> <span class="keyword">in</span></span><br><span class="line">start)</span><br><span class="line">  echo -n <span class="string">"starting finalspeed"</span></span><br><span class="line">cd <span class="regexp">/root/</span>fs</span><br><span class="line">nohup java -jar client.jar &gt;<span class="regexp">/dev/</span>null <span class="number">2</span>&gt;&amp;<span class="number">1</span> &amp;</span><br><span class="line">echo <span class="string">" OK "</span></span><br><span class="line"> ;;</span><br><span class="line">stop)</span><br><span class="line">echo -n <span class="string">"shutdown finalspeed:"</span></span><br><span class="line">pid=`ps -ef|grep client.jar |grep -v grep |awk <span class="string">'&#123;print $2&#125;'</span>`</span><br><span class="line">  kill -<span class="number">9</span> <span class="variable">$pid</span></span><br><span class="line">echo <span class="string">"OK"</span></span><br><span class="line">;;</span><br><span class="line">restart)</span><br><span class="line"><span class="variable">$0</span> stop</span><br><span class="line"><span class="variable">$0</span> start</span><br><span class="line">;;</span><br><span class="line">*)</span><br><span class="line">echo <span class="string">"Usage: `basename $0` start|stop|restart"</span></span><br><span class="line"><span class="keyword">exit</span> <span class="number">1</span></span><br><span class="line">esac</span><br><span class="line"><span class="keyword">exit</span> <span class="number">0</span></span><br></pre></td></tr></table></figure>
+<p>2.如需开启随机启动 chkconfig finalspeed on</p>
+<p>3.如需定制定时重启等计划<br>编辑crontab -e<br>查看crontab -l</p>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+      
+
+      <div style="font-size: 12px;">
+        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
+      </div>
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2017/08/03/实例启停自动化示例/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
+    <article id="post-centos7一键部署mysql-postgresql-redis-mongodb" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2017/08/03/centos7一键部署mysql-postgresql-redis-mongodb/">centos7一键部署mysql-postgresql-redis-mongodb</a>
+    </h1>
+  
+
+        
+        <a href="/2017/08/03/centos7一键部署mysql-postgresql-redis-mongodb/" class="archive-article-date">
+  	<time datetime="2017-08-03T08:10:45.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2017-08-03</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>root下执行：</p>
+<figure class="highlight livecodeserver"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl -o- <span class="keyword">ftp</span>://<span class="keyword">ftp</span>@<span class="keyword">ftp</span>.zenzet.com/<span class="built_in">shell</span>/MPRM.sh | bash</span><br></pre></td></tr></table></figure>
+<p>脚本结束后记得关闭重连一次ssh</p>
+<p>MPRM.sh内容</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#!/bin/bash</span></span><br><span class="line"><span class="comment">#author: ristory</span></span><br><span class="line"><span class="comment">###########install redis###########install redis###########install redis###########install redis###########install redis###########</span></span><br><span class="line"><span class="built_in">cd</span> /root</span><br><span class="line">wget http://download.redis.io/releases/redis-3.2.8.tar.gz</span><br><span class="line">tar zxvf redis-3.2.8.tar.gz</span><br><span class="line">rm -rf redis-3.2.8.tar.gz</span><br><span class="line">mv redis-3.2.8 /usr/<span class="built_in">local</span></span><br><span class="line"><span class="built_in">cd</span> /usr/<span class="built_in">local</span>/redis-3.2.8</span><br><span class="line">make</span><br><span class="line">sed -i <span class="string">'/bind 127.0.0.1/s/bind 127.0.0.1/bind 0.0.0.0/'</span> /usr/<span class="built_in">local</span>/redis-3.2.8/redis.conf</span><br><span class="line">sed -i <span class="string">'/daemonize no/s/no/yes/'</span> /usr/<span class="built_in">local</span>/redis-3.2.8/redis.conf</span><br><span class="line">sed -i <span class="string">'/# requirepass foobared/s/# requirepass foobared/requirepass Dryg-dEb-maf-jErj-eG-Ew-/'</span> /usr/<span class="built_in">local</span>/redis-3.2.8/redis.conf</span><br><span class="line"><span class="comment">#启动redis</span></span><br><span class="line">/usr/<span class="built_in">local</span>/redis-3.2.8/src/redis-server /usr/<span class="built_in">local</span>/redis-3.2.8/redis.conf</span><br><span class="line"><span class="comment">###########install mongo###########install mongo###########install mongo###########install mongo###########install mongo###########</span></span><br><span class="line"><span class="built_in">cd</span> /root</span><br><span class="line">wget https://fastdl.mongodb.org/linux/mongodb-linux-x86_64-rhel70-3.4.1.tgz</span><br><span class="line">tar -zxvf mongodb-linux-x86_64-rhel70-3.4.1.tgz</span><br><span class="line"><span class="built_in">cd</span> /usr/<span class="built_in">local</span>/</span><br><span class="line">mkdir -p mongodb</span><br><span class="line"><span class="built_in">cd</span> /usr/<span class="built_in">local</span>/mongodb</span><br><span class="line">mv /root/mongodb-linux-x86_64-rhel70-3.4.1/* /usr/<span class="built_in">local</span>/mongodb</span><br><span class="line">rm -rf /root/mongo*</span><br><span class="line">mkdir -p data</span><br><span class="line">mkdir -p logs</span><br><span class="line">sudo tee bin/mongodb.conf &lt;&lt;-<span class="string">'EOF'</span></span><br><span class="line">dbpath = /usr/<span class="built_in">local</span>/mongodb/data</span><br><span class="line">logpath = /usr/<span class="built_in">local</span>/mongodb/logs/mongodb.log</span><br><span class="line">bind_ip = 0.0.0.0   </span><br><span class="line">port = 27017 </span><br><span class="line">fork = <span class="literal">true</span> </span><br><span class="line">nohttpinterface = <span class="literal">true</span></span><br><span class="line">EOF</span><br><span class="line"><span class="comment">#启动mongodb程序（使用配置文件mongodb.conf定义的参数启动）：</span></span><br><span class="line">/usr/<span class="built_in">local</span>/mongodb/bin/mongod --config /usr/<span class="built_in">local</span>/mongodb/bin/mongodb.conf</span><br><span class="line"><span class="comment">#新建数据库和用户密码</span></span><br><span class="line"><span class="built_in">cd</span> /usr/<span class="built_in">local</span>/mongodb/bin</span><br><span class="line">./mongo &lt;&lt;EOF</span><br><span class="line">use testdb;</span><br><span class="line">db.usr.insert(&#123;<span class="string">'name'</span>:<span class="string">'tompig'</span>&#125;);</span><br><span class="line">db.usr.insert(&#123;<span class="string">'name'</span>:<span class="string">'tompig1'</span>,<span class="string">'id'</span>:1&#125;);</span><br><span class="line">db.createUser( </span><br><span class="line"> &#123; </span><br><span class="line">     user: <span class="string">"zenzet"</span>, </span><br><span class="line">     <span class="built_in">pwd</span>: <span class="string">"dYjUnqcdoGZ48sHfLrRZ"</span>, </span><br><span class="line">     roles: </span><br><span class="line">     [ </span><br><span class="line">       &#123; </span><br><span class="line">         role: <span class="string">"readWrite"</span>, </span><br><span class="line">         db: <span class="string">"testdb"</span> </span><br><span class="line">       &#125; </span><br><span class="line">     ] </span><br><span class="line">   &#125; </span><br><span class="line"> )  ;</span><br><span class="line"><span class="built_in">exit</span></span><br><span class="line">EOF</span><br><span class="line"><span class="comment">#配置开机自启动mongodb</span></span><br><span class="line"><span class="comment">#vi /etc/rc.d/rc.local </span></span><br><span class="line"><span class="comment">#在文件中加入：</span></span><br><span class="line"><span class="comment">#/usr/local/mongodb/bin/mongod --config /usr/local/mongodb/bin/mongodb.conf </span></span><br><span class="line"><span class="comment">###########install postgresql###########install postgresql###########install postgresql###########install postgresql###########</span></span><br><span class="line"><span class="built_in">cd</span> /root</span><br><span class="line">sed -i <span class="string">'/\[base\]/a\exclude=postgresql*'</span> /etc/yum.repos.d/CentOS-Base.repo</span><br><span class="line">sed -i <span class="string">'/\[updates\]/a\exclude=postgresql*'</span> /etc/yum.repos.d/CentOS-Base.repo</span><br><span class="line"><span class="comment">#http://yum.postgresql.org/repopackages.php</span></span><br><span class="line">yum -y localinstall https://download.postgresql.org/pub/repos/yum/9.6/redhat/rhel-7-x86_64/pgdg-centos96-9.6-3.noarch.rpm</span><br><span class="line"><span class="comment">#yum list postgres*</span></span><br><span class="line">yum -y install postgresql96-server</span><br><span class="line"><span class="comment">#initdb</span></span><br><span class="line">su - postgres -c /usr/pgsql-9.6/bin/initdb</span><br><span class="line"><span class="comment">#/usr/pgsql-9.6/bin/pg_ctl -D /var/lib/pgsql/9.6/data -l logfile start</span></span><br><span class="line"><span class="comment">#修改配置文件</span></span><br><span class="line"><span class="built_in">cd</span> /var/lib/pgsql/9.6/data</span><br><span class="line">sed -i <span class="string">'/#listen_addresses/s/#listen_addresses/listen_addresses/'</span> /var/lib/pgsql/9.6/data/postgresql.conf</span><br><span class="line">sed -i <span class="string">'/listen_addresses/s/localhost/*/'</span> /var/lib/pgsql/9.6/data/postgresql.conf</span><br><span class="line">sed -i <span class="string">'/#port = 5432/s/#port = 5432/port = 1921/'</span> /var/lib/pgsql/9.6/data/postgresql.conf</span><br><span class="line"><span class="comment">#修改访问控制文件</span></span><br><span class="line">sed -i <span class="string">'/# IPv4 local connections:/a\host    all    all    0.0.0.0/0    md5'</span> /var/lib/pgsql/9.6/data/pg_hba.conf</span><br><span class="line"><span class="comment">#systemctl enable|disable|start|stop|restart postgresql-9.6</span></span><br><span class="line">systemctl restart postgresql-9.6</span><br><span class="line"><span class="comment">#创建数据库</span></span><br><span class="line">su -l postgres -c <span class="string">"psql -U postgres -w -p 1921  -c \"create database lss_log;\""</span></span><br><span class="line"><span class="comment">#修改postgres密码</span></span><br><span class="line">su -l postgres -c <span class="string">"psql -U postgres -w -p 1921  -c \"ALTER USER postgres WITH PASSWORD 'uhP6BdZCVdhwAizywg6t';\""</span></span><br><span class="line"><span class="comment">###########install mysql###########install mysql###########install mysql###########install mysql###########install mysql###########</span></span><br><span class="line"><span class="built_in">cd</span> /root</span><br><span class="line">wget http://repo.mysql.com/mysql-community-release-el7-7.noarch.rpm</span><br><span class="line">rpm -ivh mysql-community-release-el7-7.noarch.rpm</span><br><span class="line">rm -rf mysql-community-release-el7-7.noarch.rpm</span><br><span class="line">yum -y install mysql-server</span><br><span class="line">sed -i <span class="string">'/sql_mode/a\collation-server=utf8_general_ci'</span> /etc/my.cnf</span><br><span class="line">sed -i <span class="string">'/sql_mode/a\character_set_server=utf8'</span> /etc/my.cnf</span><br><span class="line">sed -i <span class="string">'/sql_mode/a\lower_case_table_names=1'</span> /etc/my.cnf</span><br><span class="line">systemctl <span class="built_in">disable</span> mysqld</span><br><span class="line">systemctl restart mysqld</span><br><span class="line">mysql -uroot &lt;&lt;EOF</span><br><span class="line">SET PASSWORD FOR <span class="string">'root'</span>@<span class="string">'localhost'</span> = PASSWORD(<span class="string">'pgsJDBtkR9xuUQD3tiwv'</span>);</span><br><span class="line">create database openserver character <span class="built_in">set</span> UTF8;</span><br><span class="line">grant all on openserver.* to openserver@<span class="string">"%"</span> identified by <span class="string">"3wBc8@NZRG6dL3BYY4g4"</span>;</span><br><span class="line">grant all on openserver.* to openserver@<span class="string">"localhost"</span> identified by <span class="string">"3wBc8@NZRG6dL3BYY4g4"</span>;</span><br><span class="line">FLUSH PRIVILEGES;</span><br><span class="line"><span class="built_in">exit</span></span><br><span class="line">EOF</span><br><span class="line">systemctl status mysqld</span><br></pre></td></tr></table></figure>
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">shell</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+      
+
+      <div style="font-size: 12px;">
+        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
+      </div>
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2017/08/03/centos7一键部署mysql-postgresql-redis-mongodb/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
     <article id="post-centos7一键部署java和node环境" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
@@ -991,211 +1127,6 @@
 
 
   
-    <article id="post-科学上网 ShadowSocks(免费)" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2016/11/19/科学上网 ShadowSocks(免费)/">科学上网 ShadowSocks(免费)</a>
-    </h1>
-  
-
-        
-        <a href="/2016/11/19/科学上网 ShadowSocks(免费)/" class="archive-article-date">
-  	<time datetime="2016-11-18T16:00:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2016-11-19</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h1 id="客户端下载"><a href="#客户端下载" class="headerlink" title="客户端下载"></a>客户端下载</h1><p><code>地址</code>  <a href="https://www.mianvpn.com/client.html" target="_blank" rel="external">https://www.mianvpn.com/client.html</a><br> <img src="http://7xnbs3.com1.z0.glb.clouddn.com/public/16-11-19/58373972.jpg" alt=""></p>
-<h1 id="使用"><a href="#使用" class="headerlink" title="使用"></a>使用</h1><ul>
-<li>打开互联网提供的免费ss<br><a href="https://www.mianvpn.com/index.html#free" target="_blank" rel="external">https://www.mianvpn.com/index.html#free</a></li>
-</ul>
-<p><img src="http://7xnbs3.com1.z0.glb.clouddn.com/public/16-11-19/34802253.jpg" alt=""></p>
-<p>注意 <code>免费试用节点6小时更换一次密码与端口，请勿用于商业用途</code></p>
-<ul>
-<li>查看配置<br><img src="http://7xnbs3.com1.z0.glb.clouddn.com/public/16-11-19/17683825.jpg" alt=""></li>
-</ul>
-<ul>
-<li><code>方式一</code>二维码扫码<br><img src="http://7xnbs3.com1.z0.glb.clouddn.com/public/16-11-19/40930419.jpg" alt=""></li>
-</ul>
-<ul>
-<li><code>方式二</code>手动填写<br><img src="http://7xnbs3.com1.z0.glb.clouddn.com/public/16-11-19/72174072.jpg" alt=""></li>
-</ul>
-<ul>
-<li>开启全局代理<br><img src="http://7xnbs3.com1.z0.glb.clouddn.com/public/16-11-19/17445067.jpg" alt=""></li>
-</ul>
-<h1 id="验证"><a href="#验证" class="headerlink" title="验证"></a>验证</h1><p><img src="http://7xnbs3.com1.z0.glb.clouddn.com/public/16-11-19/51446865.jpg" alt=""></p>
-<hr>
-<p>Windows C#版下载： <a href="https://github.com/shadowsocksr/shadowsocksr-csharp/releases" target="_blank" rel="external">https://github.com/shadowsocksr/shadowsocksr-csharp/releases</a><br>项目地址：<a href="https://github.com/shadowsocksr" target="_blank" rel="external">https://github.com/shadowsocksr</a></p>
-<p>更新记录及详细说明链接 ： <a href="https://github.com/breakwa11/shadowsocks-rss" target="_blank" rel="external">https://github.com/breakwa11/shadowsocks-rss</a></p>
-<hr>
-<h1 id="手机客户端"><a href="#手机客户端" class="headerlink" title="手机客户端"></a>手机客户端</h1><p><img src="http://7xnbs3.com1.z0.glb.clouddn.com/public/16-11-19/6264520.jpg" alt=""></p>
-<p>中文名: 影梭<br>源地址: <a href="https://github.com/shadowsocks/shadowsocks-android/releases" target="_blank" rel="external">https://github.com/shadowsocks/shadowsocks-android/releases</a></p>
-<ul>
-<li>效果<br><img src="http://7xnbs3.com1.z0.glb.clouddn.com/public/16-11-19/5282729.jpg" alt=""></li>
-</ul>
-<hr>
-<h1 id="浏览器插件-推荐另一款快速安全通道"><a href="#浏览器插件-推荐另一款快速安全通道" class="headerlink" title="浏览器插件,推荐另一款快速安全通道"></a>浏览器插件,推荐另一款<code>快速安全通道</code></h1><p><a href="https://faststunnel.cc/" target="_blank" rel="external">https://faststunnel.cc/</a><br><img src="http://7xnbs3.com1.z0.glb.clouddn.com/public/16-11-19/66641490.jpg" alt=""></p>
-<ul>
-<li>使用 &amp; 效果<br><img src="http://7xnbs3.com1.z0.glb.clouddn.com/public/16-11-19/15101991.jpg" alt=""></li>
-</ul>
-
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">科学上网</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-      
-
-      <div style="font-size: 12px;">
-        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
-      </div>
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2016/11/19/科学上网 ShadowSocks(免费)/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
-    <article id="post-后端文集" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2016/06/06/后端文集/">后端文集</a>
-    </h1>
-  
-
-        
-        <a href="/2016/06/06/后端文集/" class="archive-article-date">
-  	<time datetime="2016-06-05T16:00:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2016-06-06</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>兄弟- <code>前端文集</code><br><a href="http://liuxiang.github.io/2015/12/18/%E5%89%8D%E7%AB%AF%E6%96%87%E9%9B%86/" target="_blank" rel="external">http://liuxiang.github.io/2015/12/18/%E5%89%8D%E7%AB%AF%E6%96%87%E9%9B%86/</a></p>
-<h1 id="RESTful"><a href="#RESTful" class="headerlink" title="RESTful"></a>RESTful</h1><p><code>RESTful API 规范 v1.0-imweb社区</code><br><a href="http://imweb.io/topic/5707561f06f2400432c139a5?utm_source=tuicool&amp;utm_medium=referral" target="_blank" rel="external">http://imweb.io/topic/5707561f06f2400432c139a5?utm_source=tuicool&amp;utm_medium=referral</a></p>
-<p><code>RESTful API 编写指南- 微服务</code><br><a href="http://blog.igevin.info/posts/restful-api-get-started-to-write/" target="_blank" rel="external">http://blog.igevin.info/posts/restful-api-get-started-to-write/</a></p>
-<p><code>RESTful API 设计指南-阮一峰</code><br><a href="http://www.ruanyifeng.com/blog/2014/05/restful_api.html" target="_blank" rel="external">http://www.ruanyifeng.com/blog/2014/05/restful_api.html</a></p>
-<p><code>RESTful API 设计最佳实践</code><br><a href="http://www.tuicool.com/articles/RR7VzeN" target="_blank" rel="external">http://www.tuicool.com/articles/RR7VzeN</a></p>
-<p><code>Restful api 错误提示返回实现思路</code><br><a href="http://www.tuicool.com/articles/MZJvm2a" target="_blank" rel="external">http://www.tuicool.com/articles/MZJvm2a</a></p>
-<h1 id="后端教学"><a href="#后端教学" class="headerlink" title="后端教学"></a>后端教学</h1><p><code>free-programming-books.md</code><br><a href="https://github.com/vhf/free-programming-books/blob/master/free-programming-books.md" target="_blank" rel="external">https://github.com/vhf/free-programming-books/blob/master/free-programming-books.md</a></p>
-        
-          <a class="article-more-a" href="/2016/06/06/后端文集/#more">more >></a>
-        
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">后端</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-      
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/后端//" class="article-tag-list-link color3">后端</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-
-      <div style="font-size: 12px;">
-        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
-      </div>
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2016/06/06/后端文集/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
   
     <nav id="page-nav">
       <a class="extend prev" rel="prev" href="/page/5/">&laquo; Prev</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/4/">4</a><a class="page-number" href="/page/5/">5</a><span class="page-number current">6</span><a class="page-number" href="/page/7/">7</a><a class="extend next" rel="next" href="/page/7/">Next &raquo;</a>
@@ -1325,11 +1256,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">redis</a>
+                <a href="javascript:void(0)" class="js-tag color1">linux</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">linux</a>
+                <a href="javascript:void(0)" class="js-tag color1">redis</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1337,11 +1268,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">test</a>
+                <a href="javascript:void(0)" class="js-tag color1">mysql</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">mysql</a>
+                <a href="javascript:void(0)" class="js-tag color5">test</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1369,11 +1300,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">influxdb</a>
+                <a href="javascript:void(0)" class="js-tag color1">guava</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">guava</a>
+                <a href="javascript:void(0)" class="js-tag color4">influxdb</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1445,11 +1376,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">HashMap</a>
+                <a href="javascript:void(0)" class="js-tag color3">单例</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">单例</a>
+                <a href="javascript:void(0)" class="js-tag color3">HashMap</a>
               </li>
             
             <div class="clearfix"></div>
