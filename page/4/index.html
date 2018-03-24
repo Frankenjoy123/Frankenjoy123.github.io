@@ -151,6 +151,114 @@
           <div id="js-content" class="content-ll">
             
   
+    <article id="post-Dubbo直连调试" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2017/11/14/Dubbo直连调试/">Dubbo直连调试</a>
+    </h1>
+  
+
+        
+        <a href="/2017/11/14/Dubbo直连调试/" class="archive-article-date">
+  	<time datetime="2017-11-14T04:50:29.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2017-11-14</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p><strong>服务端：</strong></p>
+<figure class="highlight dust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="xml"><span class="php"><span class="meta">&lt;?</span>xml version=<span class="string">"1.0"</span> encoding=<span class="string">"UTF-8"</span><span class="meta">?&gt;</span></span></span></span><br><span class="line"><span class="xml"></span></span><br><span class="line"><span class="xml"><span class="tag">&lt;<span class="name">beans</span> <span class="attr">xmlns</span>=<span class="string">"http://www.springframework.org/schema/beans"</span></span></span></span><br><span class="line"><span class="xml">       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"</span></span><br><span class="line"><span class="xml">       xmlns:context="http://www.springframework.org/schema/context"</span></span><br><span class="line"><span class="xml">       xmlns:dubbo="http://code.alibabatech.com/schema/dubbo"</span></span><br><span class="line"><span class="xml">       xsi:schemaLocation="http://www.springframework.org/schema/beans</span></span><br><span class="line"><span class="xml">         http://www.springframework.org/schema/beans/spring-beans.xsd</span></span><br><span class="line"><span class="xml">         http://www.springframework.org/schema/context</span></span><br><span class="line"><span class="xml">         http://www.springframework.org/schema/context/spring-context.xsd</span></span><br><span class="line"><span class="xml">         http://code.alibabatech.com/schema/dubbo</span></span><br><span class="line"><span class="xml">         http://code.alibabatech.com/schema/dubbo/dubbo.xsd" default-autowire="byName"&gt;</span></span><br><span class="line"><span class="xml"></span></span><br><span class="line"><span class="xml">    <span class="tag">&lt;<span class="name">dubbo:provider</span> <span class="attr">group</span>=<span class="string">"xxx"</span>/&gt;</span></span></span><br><span class="line"><span class="xml"><span class="comment">&lt;!-- 提供方应用信息，用于计算依赖关系 --&gt;</span></span></span><br><span class="line"><span class="xml">    <span class="tag">&lt;<span class="name">dubbo:application</span> <span class="attr">name</span>=<span class="string">"sports-basic-provider"</span>/&gt;</span></span></span><br><span class="line"><span class="xml">    <span class="comment">&lt;!-- 使用zookeeper注册中心暴露服务地址 --&gt;</span></span></span><br><span class="line"><span class="xml">    <span class="tag">&lt;<span class="name">dubbo:registry</span> <span class="attr">protocol</span>=<span class="string">"zookeeper"</span> <span class="attr">address</span>=<span class="string">"$</span></span></span><span class="template-variable">&#123;dubbo.registry.address&#125;</span><span class="xml"><span class="tag"><span class="string">"</span>/&gt;</span></span></span><br><span class="line"><span class="xml">    <span class="comment">&lt;!-- 使用dubbo协议在20880端口暴露服务 --&gt;</span></span></span><br><span class="line"><span class="xml">    <span class="tag">&lt;<span class="name">dubbo:protocol</span> <span class="attr">name</span>=<span class="string">"dubbo"</span> <span class="attr">port</span>=<span class="string">"20880"</span>/&gt;</span></span></span><br><span class="line"><span class="xml">    <span class="comment">&lt;!-- basic start --&gt;</span></span></span><br><span class="line"><span class="xml">    <span class="tag">&lt;<span class="name">dubbo:service</span> <span class="attr">interface</span>=<span class="string">"com.xxx.basic.manage.service.OrganizationService"</span> <span class="attr">ref</span>=<span class="string">"organizationService"</span> <span class="attr">timeout</span>=<span class="string">"10000"</span>/&gt;</span></span></span><br><span class="line"><span class="xml">    <span class="tag">&lt;<span class="name">dubbo:service</span> <span class="attr">interface</span>=<span class="string">"com.xxx.basic.manage.service.ResourceService"</span> <span class="attr">ref</span>=<span class="string">"resourceService"</span> <span class="attr">timeout</span>=<span class="string">"10000"</span>/&gt;</span></span></span><br><span class="line"><span class="xml">    <span class="tag">&lt;<span class="name">dubbo:service</span> <span class="attr">interface</span>=<span class="string">"com.xxx.basic.manage.service.SysRoleService"</span> <span class="attr">ref</span>=<span class="string">"sysRoleService"</span> <span class="attr">timeout</span>=<span class="string">"10000"</span>/&gt;</span></span></span><br><span class="line"><span class="xml">    <span class="tag">&lt;<span class="name">dubbo:service</span> <span class="attr">interface</span>=<span class="string">"com.xxx.basic.manage.service.SysUserService"</span> <span class="attr">ref</span>=<span class="string">"sysUserService"</span> <span class="attr">timeout</span>=<span class="string">"10000"</span>/&gt;</span></span></span><br><span class="line"><span class="xml"></span></span><br><span class="line"><span class="xml"><span class="tag">&lt;/<span class="name">beans</span>&gt;</span></span></span><br></pre></td></tr></table></figure>
+<p><strong>消费端：</strong></p>
+<p>增加url=”dubbo://localhost:20880”即可。</p>
+<figure class="highlight dust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="xml"><span class="php"><span class="meta">&lt;?</span>xml version=<span class="string">"1.0"</span> encoding=<span class="string">"UTF-8"</span><span class="meta">?&gt;</span></span></span></span><br><span class="line"><span class="xml"><span class="tag">&lt;<span class="name">beans</span> <span class="attr">xmlns</span>=<span class="string">"http://www.springframework.org/schema/beans"</span></span></span></span><br><span class="line"><span class="xml">       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dubbo="http://code.alibabatech.com/schema/dubbo"</span></span><br><span class="line"><span class="xml">       xsi:schemaLocation="http://www.springframework.org/schema/beans</span></span><br><span class="line"><span class="xml">            http://www.springframework.org/schema/beans/spring-beans.xsd</span></span><br><span class="line"><span class="xml">            http://code.alibabatech.com/schema/dubbo</span></span><br><span class="line"><span class="xml">            http://code.alibabatech.com/schema/dubbo/dubbo.xsd" default-autowire="byName"&gt;</span></span><br><span class="line"><span class="xml"></span></span><br><span class="line"><span class="xml">    <span class="tag">&lt;<span class="name">dubbo:application</span> <span class="attr">name</span>=<span class="string">"$</span></span></span><span class="template-variable">&#123;dubbo.application.name&#125;</span><span class="xml"><span class="tag"><span class="string">"</span>/&gt;</span></span></span><br><span class="line"><span class="xml">    <span class="tag">&lt;<span class="name">dubbo:registry</span> <span class="attr">address</span>=<span class="string">"$</span></span></span><span class="template-variable">&#123;dubbo.registry.address&#125;</span><span class="xml"><span class="tag"><span class="string">"</span> <span class="attr">timeout</span>=<span class="string">"$</span></span></span><span class="template-variable">&#123;dubbo.consumer.timeout&#125;</span><span class="xml"><span class="tag"><span class="string">"</span> /&gt;</span></span></span><br><span class="line"><span class="xml">    <span class="tag">&lt;<span class="name">dubbo:consumer</span> <span class="attr">retries</span>=<span class="string">"$</span></span></span><span class="template-variable">&#123;dubbo.consumer.retries&#125;</span><span class="xml"><span class="tag"><span class="string">"</span> <span class="attr">group</span>=<span class="string">"oa"</span> /&gt;</span></span></span><br><span class="line"><span class="xml"></span></span><br><span class="line"><span class="xml">    <span class="comment">&lt;!-- basic start --&gt;</span></span></span><br><span class="line"><span class="xml">    <span class="tag">&lt;<span class="name">dubbo:reference</span>  <span class="attr">interface</span>=<span class="string">"com.xxx.basic.manage.service.SysRoleService"</span> <span class="attr">id</span>=<span class="string">"sysRoleService"</span> <span class="attr">check</span>=<span class="string">"false"</span> <span class="attr">url</span>=<span class="string">"dubbo://localhost:20880"</span>/&gt;</span></span></span><br><span class="line"><span class="xml">    <span class="tag">&lt;<span class="name">dubbo:reference</span>  <span class="attr">interface</span>=<span class="string">"com.xxx.basic.manage.service.ResourceService"</span> <span class="attr">id</span>=<span class="string">"resourceService"</span> <span class="attr">check</span>=<span class="string">"false"</span> <span class="attr">url</span>=<span class="string">"dubbo://localhost:20880"</span> /&gt;</span></span></span><br><span class="line"><span class="xml">    <span class="tag">&lt;<span class="name">dubbo:reference</span>  <span class="attr">interface</span>=<span class="string">"com.xxx.basic.manage.service.OrganizationService"</span> <span class="attr">id</span>=<span class="string">"organizationService"</span> <span class="attr">check</span>=<span class="string">"false"</span> <span class="attr">url</span>=<span class="string">"dubbo://localhost:20880"</span> /&gt;</span></span></span><br><span class="line"><span class="xml">    <span class="tag">&lt;<span class="name">dubbo:reference</span>  <span class="attr">interface</span>=<span class="string">"com.xxx.basic.manage.service.SysUserService"</span> <span class="attr">id</span>=<span class="string">"sysUserService"</span> <span class="attr">check</span>=<span class="string">"false"</span> <span class="attr">url</span>=<span class="string">"dubbo://localhost:20880"</span>/&gt;</span></span></span><br><span class="line"><span class="xml">   </span></span><br><span class="line"><span class="xml"></span></span><br><span class="line"><span class="xml"><span class="tag">&lt;/<span class="name">beans</span>&gt;</span></span></span><br></pre></td></tr></table></figure>
+<p>开发调试</p>
+<p>我们启动远程服务提供者</p>
+<p><img src="http://img.blog.csdn.net/20160416092012422?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQv/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center" alt="img"></p>
+<p>我启动web-boss，这里调用是远程提供者服务<img src="http://img.blog.csdn.net/20160416092824966?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQv/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center" alt="img"></p>
+<p>查看user-service,provider方的配置</p>
+<p><img src="http://img.blog.csdn.net/20160416175917158?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQv/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center" alt="img"></p>
+<p>配置consumer方调用本地dubbo服务，进行直连调试</p>
+<dubbo:reference interface="edu.facade.user.service.PmsUserFacade" id="pmsUserFacade" timeout="2000" check="false" url="dubbo://localhost:20880">
+
+<p>我们启动本地 dubbo服务,以debug模式启动</p>
+<p><img src="http://img.blog.csdn.net/20160416180939014?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQv/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center" alt="img"></p>
+<p>在dubbo管理控制台查看dubbo服务</p>
+<p><img src="http://img.blog.csdn.net/20160416093608853?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQv/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center" alt="img"></p>
+<p>启动消费端，web-boss我们进行直连调试</p>
+<p>consumer控制台信息</p>
+<p><img src="http://img.blog.csdn.net/20160416180650028?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQv/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center" alt="img"></p>
+<p>我们再访问登录，会发现已调用本地dubbo模式，进入debug调试模式</p>
+<p><img src="http://img.blog.csdn.net/20160416095253344?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQv/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center" alt="img"></p>
+<p>我们在Dubbo管理控制台把provider禁用，发现也是调用本地dubbo服务，绕过了注册中心，这就是直连提供者</p>
+<p><img src="http://img.blog.csdn.net/20160416095448407?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQv/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center" alt="img"></p>
+<p>我们在${user.home}下配置直接提供者属性也是可以的(推荐使用）</p>
+<p>dubbo-resolve.properties</p>
+<p>内容 ：</p>
+<p>edu.facade.user.service.PmsUserFacade=dubbo://localhost:20880</p>
+<p>注意点：</p>
+<p>1、 直连提供者只需要在消费端设置 </p>
+<p>2、 ${user.home}指的是当前操作系统用户目录，如 Win7系统 Administrator的用户目录就是 C:\Users\Administrator</p>
+</dubbo:reference>
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">Dubbo</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+      
+
+      <div style="font-size: 12px;">
+        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
+      </div>
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2017/11/14/Dubbo直连调试/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
     <article id="post-mac命令" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
@@ -671,84 +779,6 @@ git merge 则不会显示 feature，只保留单条分支记录。
 
 
   
-    <article id="post-Mac笔记本快捷键" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2017/11/08/Mac笔记本快捷键/">Mac笔记本快捷键</a>
-    </h1>
-  
-
-        
-        <a href="/2017/11/08/Mac笔记本快捷键/" class="archive-article-date">
-  	<time datetime="2017-11-08T05:23:49.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2017-11-08</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <figure class="highlight mathematica"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Command + <span class="keyword">K</span> 清屏</span><br><span class="line"><span class="keyword">Control</span> + <span class="keyword">C</span> 退出命令</span><br></pre></td></tr></table></figure>
-<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">⌘ Command</span><br><span class="line">⇧ Shift</span><br><span class="line">⌥ Option</span><br><span class="line">⌃ Control</span><br><span class="line">↩︎ Return/Enter</span><br><span class="line">⌫ Delete</span><br><span class="line">⌦ 向前删除键（Fn+Delete）</span><br><span class="line">↑ 上箭头</span><br><span class="line">↓ 下箭头</span><br><span class="line">← 左箭头</span><br><span class="line">→ 右箭头</span><br><span class="line">⇞<span class="built_in"> Page </span>Up（Fn+↑）</span><br><span class="line">⇟<span class="built_in"> Page </span>Down（Fn+↓）</span><br><span class="line">Home Fn + ←</span><br><span class="line">End Fn + →</span><br><span class="line">⇥ 右制表符（Tab键）</span><br><span class="line">⇤ 左制表符（Shift+Tab）</span><br><span class="line">⎋ Escape (Esc)</span><br></pre></td></tr></table></figure>
-
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">快捷键</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-      
-
-      <div style="font-size: 12px;">
-        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
-      </div>
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2017/11/08/Mac笔记本快捷键/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
     <article id="post-JVM性能优化" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
@@ -826,6 +856,84 @@ jstack -l [pid] 查看程序的线程情况
       
         <p class="article-more-link">
           <a class="article-more-a" href="/2017/11/08/JVM性能优化/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
+    <article id="post-Mac笔记本快捷键" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2017/11/08/Mac笔记本快捷键/">Mac笔记本快捷键</a>
+    </h1>
+  
+
+        
+        <a href="/2017/11/08/Mac笔记本快捷键/" class="archive-article-date">
+  	<time datetime="2017-11-08T05:23:49.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2017-11-08</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <figure class="highlight mathematica"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Command + <span class="keyword">K</span> 清屏</span><br><span class="line"><span class="keyword">Control</span> + <span class="keyword">C</span> 退出命令</span><br></pre></td></tr></table></figure>
+<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">⌘ Command</span><br><span class="line">⇧ Shift</span><br><span class="line">⌥ Option</span><br><span class="line">⌃ Control</span><br><span class="line">↩︎ Return/Enter</span><br><span class="line">⌫ Delete</span><br><span class="line">⌦ 向前删除键（Fn+Delete）</span><br><span class="line">↑ 上箭头</span><br><span class="line">↓ 下箭头</span><br><span class="line">← 左箭头</span><br><span class="line">→ 右箭头</span><br><span class="line">⇞<span class="built_in"> Page </span>Up（Fn+↑）</span><br><span class="line">⇟<span class="built_in"> Page </span>Down（Fn+↓）</span><br><span class="line">Home Fn + ←</span><br><span class="line">End Fn + →</span><br><span class="line">⇥ 右制表符（Tab键）</span><br><span class="line">⇤ 左制表符（Shift+Tab）</span><br><span class="line">⎋ Escape (Esc)</span><br></pre></td></tr></table></figure>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">快捷键</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+      
+
+      <div style="font-size: 12px;">
+        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
+      </div>
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2017/11/08/Mac笔记本快捷键/">展开全文 >></a>
         </p>
       
 
@@ -1046,83 +1154,6 @@ jstack -l [pid] 查看程序的线程情况
 
 
   
-    <article id="post-mac-chrome快捷键" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2017/08/29/mac-chrome快捷键/">mac chrome 快捷键</a>
-    </h1>
-  
-
-        
-        <a href="/2017/08/29/mac-chrome快捷键/" class="archive-article-date">
-  	<time datetime="2017-08-29T08:50:49.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2017-08-29</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <figure class="highlight mipsasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">⌘-<span class="keyword">Shift-J	</span>打开“下载内容”页。</span><br><span class="line">⌘-<span class="keyword">Shift-Delete	</span>打开“清除浏览数据”对话框。</span><br><span class="line">⌘-R	重新载入当前网页。</span><br><span class="line">⌘-,	停止载入当前网页。</span><br><span class="line">⌘-Option-I	打开“开发人员工具”。</span><br><span class="line">⌘-Option-<span class="keyword">J	</span>打开“<span class="keyword">JavaScript </span>控制台”。</span><br><span class="line">⌘-Option-U	打开当前网页的源代码。</span><br><span class="line">⌘-D	将当前网页保存为书签。</span><br><span class="line">⌘-<span class="keyword">Shift-D	</span>将所有打开的标签页以书签的形式保存在新文件夹中。</span><br><span class="line">⌘-<span class="keyword">Shift-F	</span>在全屏模式下打开网页。再按一次 ⌘-<span class="keyword">Shift-F </span>可退出全屏模式。</span><br><span class="line">⌘-+	放大网页上的所有内容。</span><br><span class="line">⌘ 和 -	缩小网页上的所有内容。</span><br><span class="line">⌘-<span class="number">0</span>	将网页上的所有内容恢复到正常大小。</span><br><span class="line">⌘-<span class="keyword">Shift-H	</span>在当前标签页中打开主页。</span><br><span class="line">空格键	向下滚动网页。</span><br><span class="line">⌘-Option-F	搜索网页。</span><br></pre></td></tr></table></figure>
-
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">快捷键</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-      
-
-      <div style="font-size: 12px;">
-        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
-      </div>
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2017/08/29/mac-chrome快捷键/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
   
     <nav id="page-nav">
       <a class="extend prev" rel="prev" href="/page/3/">&laquo; Prev</a><a class="page-number" href="/">1</a><a class="page-number" href="/page/2/">2</a><a class="page-number" href="/page/3/">3</a><span class="page-number current">4</span><a class="page-number" href="/page/5/">5</a><a class="page-number" href="/page/6/">6</a><a class="page-number" href="/page/7/">7</a><a class="extend next" rel="next" href="/page/5/">Next &raquo;</a>
@@ -1228,6 +1259,10 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">git</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">java</a>
               </li>
              
@@ -1236,19 +1271,7 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">git</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">性能优化</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">java内存模型</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">linux</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1256,7 +1279,7 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">快捷键</a>
+                <a href="javascript:void(0)" class="js-tag color4">java内存模型</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1264,7 +1287,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">mysql</a>
+                <a href="javascript:void(0)" class="js-tag color1">linux</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">快捷键</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1272,7 +1299,7 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">spring</a>
+                <a href="javascript:void(0)" class="js-tag color1">mysql</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1281,6 +1308,10 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">react</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">spring</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1296,15 +1327,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">guava</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">influxdb</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">rest</a>
+                <a href="javascript:void(0)" class="js-tag color1">guava</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1312,11 +1339,15 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">jdk工具命令，jstack</a>
+                <a href="javascript:void(0)" class="js-tag color5">rest</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">idk</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">jdk工具命令，jstack</a>
               </li>
              
               <li class="article-tag-list-item">
