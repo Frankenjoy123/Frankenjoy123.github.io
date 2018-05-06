@@ -151,6 +151,202 @@
           <div id="js-content" class="content-ll">
             
   
+    <article id="post-elastic-job的原理简介和使用" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2017/11/12/elastic-job的原理简介和使用/">elastic-job的原理简介和使用</a>
+    </h1>
+  
+
+        
+        <a href="/2017/11/12/elastic-job的原理简介和使用/" class="archive-article-date">
+  	<time datetime="2017-11-12T05:35:59.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2017-11-12</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>elastic-job是当当开源的一款非常好用的作业框架，在这之前，我们开发定时任务一般都是使用quartz或者spring-task（ScheduledExecutorService），无论是使用quartz还是spring-task，我们都会至少遇到两个痛点：</p>
+<p>1.不敢轻易跟着应用服务多节点部署，可能会重复多次执行而引发系统逻辑的错误。</p>
+<p>2.quartz的集群仅仅只是用来HA，节点数量的增加并不能给我们的每次执行效率带来提升，即不能实现水平扩展。</p>
+<p>本篇博文将会自顶向下地介绍elastic-job，让大家认识了解并且快速搭建起环境。</p>
+<h2 id="elastic-job产品线说明"><a href="#elastic-job产品线说明" class="headerlink" title="elastic-job产品线说明"></a>elastic-job产品线说明</h2><p>elastic-job在2.x之后，出了两个产品线：Elastic-Job-Lite和Elastic-Job-Cloud。我们一般使用Elastic-Job-Lite就能够满足需求，本文也是以Elastic-Job-Lite为主。1.x系列对应的就只有Elastic-Job-Lite，并且在2.x里修改了一些核心类名，差别虽大，原理类似，建议使用2.x系列。写此博文，最新release版本为2.0.5。</p>
+<h2 id="elastic-job-lite原理"><a href="#elastic-job-lite原理" class="headerlink" title="elastic-job-lite原理"></a>elastic-job-lite原理</h2><p>举个典型的job场景，比如余额宝里的昨日收益，系统需要job在每天某个时间点开始，给所有余额宝用户计算收益。如果用户数量不多，我们可以轻易使用quartz来完成，我们让计息job在某个时间点开始执行，循环遍历所有用户计算利息，这没问题。可是，如果用户体量特别大，我们可能会面临着在第二天之前处理不完这么多用户。另外，我们部署job的时候也得注意，我们可能会把job直接放在我们的webapp里，webapp通常是多节点部署的，这样，我们的job也就是多节点，多个job同时执行，很容易造成重复执行，比如用户重复计息，为了避免这种情况，我们可能会对job的执行加锁，保证始终只有一个节点能执行，或者干脆让job从webapp里剥离出来，独自部署一个节点。<br><strong>elastic-job就可以帮助我们解决上面的问题，elastic底层的任务调度还是使用的quartz，通过zookeeper来动态给job节点分片。</strong><br>我们来看：<br><strong><em>很大体量的用户需要在特定的时间段内计息完成</em></strong><br>我们肯定是希望我们的任务可以通过集群达到水平扩展，集群里的每个节点都处理部分用户，不管用户数量有多庞大，我们只要增加机器就可以了，比如单台机器特定时间能处理n个用户，2台机器处理2n个用户，3台3n，4台4n…，再多的用户也不怕了。<br>使用elastic-job开发的作业都是zookeeper的客户端，比如我希望3台机器跑job，我们将任务分成3片，框架通过zk的协调，最终会让3台机器分别分配到0,1,2的任务片，比如server0–&gt;0，server1–&gt;1，server2–&gt;2，当server0执行时，可以只查询id%3==0的用户，server1执行时，只查询id%3==1的用户，server2执行时，只查询id%3==2的用户。<br><strong>任务部署多节点引发重复执行</strong><br>在上面的基础上，我们再增加server3，此时，server3分不到任务分片，因为只有3片，已经分完了。没有分到任务分片的作业程序将不执行。<br>如果此时server2挂了，那么server2的分片项会分配给server3，server3有了分片，就会替代server2执行。<br>如果此时server3也挂了，只剩下server0和server1了，框架也会自动把server3的分片随机分配给server0或者server1，可能会这样，server0–&gt;0，server1–&gt;1,2。<br>这种特性称之为弹性扩容，即elastic-job名称的由来。</p>
+<h2 id="代码演示"><a href="#代码演示" class="headerlink" title="代码演示"></a>代码演示</h2><p>我们搭建环境通过示例代码来演示上面的例子，elastic-job是不支持单机多实例的，通过zk的协调分片是以ip为单元的。很多同学上来可能就是通过单机多实例来学习，结果导致分片和预期不一致。这里没办法，只能通过多机器或者虚拟机，我们这里使用虚拟机，另外，由于资源有限，我们这里仅仅只模拟两台机器。</p>
+<p><strong>节点说明：</strong><br>本地宿主机器<br>zookeeper、job<br>192.168.241.1<br>虚拟机<br>job<br>192.168.241.128<br><strong>环境说明：</strong><br>Java<br>请使用JDK1.7及其以上版本。<br>Zookeeper<br>请使用Zookeeper3.4.6及其以上版本<br>Elastic-Job-Lite<br>2.0.5（2.x系列即可，最好是2.0.4及其以上）<br><strong>需求说明：</strong><br>通过两台机器演示动态分片</p>
+<p><strong>step1. 引入框架的jar包</strong></p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- 引入elastic-job-lite核心模块 --&gt;</span>  </span><br><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span>  </span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.dangdang<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span>  </span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>elastic-job-lite-core<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span>  </span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>2.0.5<span class="tag">&lt;/<span class="name">version</span>&gt;</span>  </span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span>  </span><br><span class="line"><span class="comment">&lt;!-- 使用springframework自定义命名空间时引入 --&gt;</span>  </span><br><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span>  </span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.dangdang<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span>  </span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>elastic-job-lite-spring<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span>  </span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>2.0.5<span class="tag">&lt;/<span class="name">version</span>&gt;</span>  </span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p><strong>step2. 编写job</strong></p>
+<figure class="highlight haxe"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.fanfan.sample001;  </span><br><span class="line">  </span><br><span class="line"><span class="keyword">import</span> com.dangdang.ddframe.job.api.ShardingContext;  </span><br><span class="line"><span class="keyword">import</span> com.dangdang.ddframe.job.api.simple.SimpleJob;  </span><br><span class="line">  </span><br><span class="line"><span class="keyword">import</span> java.util.Date;  </span><br><span class="line">  </span><br><span class="line"><span class="comment">/** </span></span><br><span class="line"><span class="comment"> * Created by fanfan on 2016/12/20. </span></span><br><span class="line"><span class="comment"> */</span>  </span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MySimpleJob</span> <span class="keyword"><span class="keyword">implements</span> <span class="type">SimpleJob</span></span> </span>&#123;  </span><br><span class="line">    @Override  </span><br><span class="line">    <span class="keyword">public</span> void execute(ShardingContext shardingContext) &#123;  </span><br><span class="line">        System.out.println(<span class="keyword">String</span>.format(<span class="string">"------Thread ID: %s, 任务总片数: %s, 当前分片项: %s"</span>,  </span><br><span class="line">                Thread.currentThread().getId(), shardingContext.getShardingTotalCount(), shardingContext.getShardingItem()));  </span><br><span class="line">        <span class="comment">/** </span></span><br><span class="line"><span class="comment">         * 实际开发中，有了任务总片数和当前分片项，就可以对任务进行分片执行了 </span></span><br><span class="line"><span class="comment">         * 比如 SELECT * FROM user WHERE status = 0 AND MOD(id, shardingTotalCount) = shardingItem </span></span><br><span class="line"><span class="comment">         */</span>  </span><br><span class="line">    &#125;  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>Step3. Spring配置</strong></p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="php"><span class="meta">&lt;?</span>xml version=<span class="string">"1.0"</span> encoding=<span class="string">"UTF-8"</span><span class="meta">?&gt;</span></span>  </span><br><span class="line"><span class="tag">&lt;<span class="name">beans</span> <span class="attr">xmlns</span>=<span class="string">"http://www.springframework.org/schema/beans"</span>  </span></span><br><span class="line"><span class="tag">       <span class="attr">xmlns:xsi</span>=<span class="string">"http://www.w3.org/2001/XMLSchema-instance"</span>  </span></span><br><span class="line"><span class="tag">       <span class="attr">xmlns:reg</span>=<span class="string">"http://www.dangdang.com/schema/ddframe/reg"</span>  </span></span><br><span class="line"><span class="tag">       <span class="attr">xmlns:job</span>=<span class="string">"http://www.dangdang.com/schema/ddframe/job"</span>  </span></span><br><span class="line"><span class="tag">       <span class="attr">xsi:schemaLocation</span>=<span class="string">"http://www.springframework.org/schema/beans  </span></span></span><br><span class="line"><span class="tag"><span class="string">                        http://www.springframework.org/schema/beans/spring-beans.xsd  </span></span></span><br><span class="line"><span class="tag"><span class="string">                        http://www.dangdang.com/schema/ddframe/reg  </span></span></span><br><span class="line"><span class="tag"><span class="string">                        http://www.dangdang.com/schema/ddframe/reg/reg.xsd  </span></span></span><br><span class="line"><span class="tag"><span class="string">                        http://www.dangdang.com/schema/ddframe/job  </span></span></span><br><span class="line"><span class="tag"><span class="string">                        http://www.dangdang.com/schema/ddframe/job/job.xsd"</span>&gt;</span>  </span><br><span class="line">    <span class="comment">&lt;!--配置作业注册中心 --&gt;</span>  </span><br><span class="line">    <span class="tag">&lt;<span class="name">reg:zookeeper</span> <span class="attr">id</span>=<span class="string">"regCenter"</span> <span class="attr">server-lists</span>=<span class="string">"192.168.241.1:2181"</span> <span class="attr">namespace</span>=<span class="string">"dd-job"</span>  </span></span><br><span class="line"><span class="tag">                   <span class="attr">base-sleep-time-milliseconds</span>=<span class="string">"1000"</span> <span class="attr">max-sleep-time-milliseconds</span>=<span class="string">"3000"</span> <span class="attr">max-retries</span>=<span class="string">"3"</span> /&gt;</span>  </span><br><span class="line">  </span><br><span class="line">    <span class="comment">&lt;!-- 配置作业--&gt;</span>  </span><br><span class="line">    <span class="tag">&lt;<span class="name">job:simple</span> <span class="attr">id</span>=<span class="string">"mySimpleJob"</span> <span class="attr">class</span>=<span class="string">"com.fanfan.sample001.MySimpleJob"</span> <span class="attr">registry-center-ref</span>=<span class="string">"regCenter"</span>  </span></span><br><span class="line"><span class="tag">                <span class="attr">sharding-total-count</span>=<span class="string">"2"</span> <span class="attr">cron</span>=<span class="string">"0/2 * * * * ?"</span> <span class="attr">overwrite</span>=<span class="string">"true"</span> /&gt;</span>  </span><br><span class="line">  </span><br><span class="line"><span class="tag">&lt;/<span class="name">beans</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<hr>
+<p><strong>Case1. 单节点</strong></p>
+<hr>
+<p><img src="http://img.blog.csdn.net/20170311024524057" alt="img"></p>
+<p><img src="http://img.blog.csdn.net/20170311025909513?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvZmFuZmFuX3Y1/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center" alt="img"></p>
+<p><img src="http://img.blog.csdn.net/20170311025921842?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvZmFuZmFuX3Y1/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center" alt="img"></p>
+<hr>
+<p><strong>Case2. 增加一个节点</strong></p>
+<hr>
+<p><img src="http://img.blog.csdn.net/20170311024527737" alt="img"></p>
+<p><img src="http://img.blog.csdn.net/20170311030002343?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvZmFuZmFuX3Y1/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center" alt="img"></p>
+<p><img src="http://img.blog.csdn.net/20170311030016031?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvZmFuZmFuX3Y1/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center" alt="img"></p>
+<p><img src="http://img.blog.csdn.net/20170311030147401?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvZmFuZmFuX3Y1/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center" alt="img"></p>
+<p><img src="http://img.blog.csdn.net/20170311030410090?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvZmFuZmFuX3Y1/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center" alt="img"></p>
+<hr>
+<p><strong>Case3. 断开一个节点</strong></p>
+<p><img src="http://img.blog.csdn.net/20170311122000364?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvZmFuZmFuX3Y1/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center" alt="img"></p>
+<p><img src="http://img.blog.csdn.net/20170311030441380?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvZmFuZmFuX3Y1/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center" alt="img"></p>
+<p><img src="http://img.blog.csdn.net/20170311030454199?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvZmFuZmFuX3Y1/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center" alt="img"></p>
+<h2 id="作业类型"><a href="#作业类型" class="headerlink" title="作业类型"></a>作业类型</h2><p>elastic-job提供了三种类型的作业：Simple类型作业、Dataflow类型作业、Script类型作业。这里主要讲解前两者。Script类型作业意为脚本类型作业，支持shell，python，perl等所有类型脚本，使用不多，可以参见github文档。<br>SimpleJob需要实现SimpleJob接口，意为简单实现，未经过任何封装，与quartz原生接口相似，比如示例代码中所使用的job。<br>Dataflow类型用于处理数据流，需实现DataflowJob接口。该接口提供2个方法可供覆盖，分别用于抓取(fetchData)和处理(processData)数据。<br>可通过DataflowJobConfiguration配置是否流式处理。<br>流式处理数据只有fetchData方法的返回值为null或集合长度为空时，作业才停止抓取，否则作业将一直运行下去； 非流式处理数据则只会在每次作业执行过程中执行一次fetchData方法和processData方法，随即完成本次作业。<br>实际开发中，Dataflow类型的job还是很有好用的。</p>
+<figure class="highlight dart"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line">package com.fanfan.sample001;  </span><br><span class="line">  </span><br><span class="line"><span class="keyword">import</span> com.dangdang.ddframe.job.api.ShardingContext;  </span><br><span class="line"><span class="keyword">import</span> com.dangdang.ddframe.job.api.dataflow.DataflowJob;  </span><br><span class="line">  </span><br><span class="line"><span class="keyword">import</span> java.util.ArrayList;  </span><br><span class="line"><span class="keyword">import</span> java.util.<span class="built_in">List</span>;  </span><br><span class="line">  </span><br><span class="line"><span class="comment"><span class="markdown">/** </span></span></span><br><span class="line"><span class="comment"><span class="markdown"> * Created by fanfan on 2016/12/23. </span></span></span><br><span class="line"><span class="comment"><span class="markdown"> */</span></span>  </span><br><span class="line">public <span class="class"><span class="keyword">class</span> <span class="title">MyDataFlowJob</span> <span class="keyword">implements</span> <span class="title">DataflowJob</span>&lt;<span class="title">User</span>&gt; </span>&#123;  </span><br><span class="line">  </span><br><span class="line">    <span class="comment">/* </span></span><br><span class="line"><span class="comment">        status </span></span><br><span class="line"><span class="comment">        0：待处理 </span></span><br><span class="line"><span class="comment">        1：已处理 </span></span><br><span class="line"><span class="comment">     */</span>  </span><br><span class="line">  </span><br><span class="line">    <span class="meta">@Override</span>  </span><br><span class="line">    public <span class="built_in">List</span>&lt;User&gt; fetchData(ShardingContext shardingContext) &#123;  </span><br><span class="line">        <span class="built_in">List</span>&lt;User&gt; users = <span class="keyword">null</span>;  </span><br><span class="line">        <span class="comment"><span class="markdown">/** </span></span></span><br><span class="line"><span class="comment"><span class="markdown"><span class="code">         * users = SELECT * FROM user WHERE status = 0 AND MOD(id, shardingTotalCount) = shardingItem Limit 0, 30 </span></span></span></span><br><span class="line"><span class="comment"><span class="markdown"><span class="code">         */</span></span></span>  </span><br><span class="line">        <span class="keyword">return</span> users;  </span><br><span class="line">    &#125;  </span><br><span class="line">  </span><br><span class="line">    <span class="meta">@Override</span>  </span><br><span class="line">    public <span class="keyword">void</span> processData(ShardingContext shardingContext, <span class="built_in">List</span>&lt;User&gt; data) &#123;  </span><br><span class="line">        <span class="keyword">for</span> (User user: data) &#123;  </span><br><span class="line">            System.out.println(<span class="built_in">String</span>.format(<span class="string">"用户 %s 开始计息"</span>, user.getUserId()));  </span><br><span class="line">            user.setStatus(<span class="number">1</span>);  </span><br><span class="line">            <span class="comment"><span class="markdown">/** </span></span></span><br><span class="line"><span class="comment"><span class="markdown"><span class="code">             * update user </span></span></span></span><br><span class="line"><span class="comment"><span class="markdown"><span class="code">             */</span></span></span>  </span><br><span class="line">        &#125;  </span><br><span class="line">    &#125;  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">&lt;job:dataflow <span class="attribute">id</span>=<span class="string">"myDataFlowJob"</span> <span class="attribute">class</span>=<span class="string">"com.fanfan.sample001.MyDataFlowJob"</span> <span class="attribute">registry-center-ref</span>=<span class="string">"regCenter"</span>  </span><br><span class="line">              <span class="attribute">sharding-total-count</span>=<span class="string">"2"</span> <span class="attribute">cron</span>=<span class="string">"0 0 02 * * ?"</span> <span class="attribute">streaming-process</span>=<span class="string">"true"</span> <span class="attribute">overwrite</span>=<span class="string">"true"</span> /&gt;</span><br></pre></td></tr></table></figure>
+<h2 id="其它功能"><a href="#其它功能" class="headerlink" title="其它功能"></a>其它功能</h2><p>上述介绍的是最精简常用的功能。elastic-job的功能集还不止这些，比如像作业事件追踪、任务监听等，另外，elastic-job-lite-console作为一个独立的运维平台还提供了用来查询和操作任务的web页面。<br>这些增强的功能读者可以在github/elastic-job上自行学习，相信有了本篇博文的基础，再阅读那些文档就特别简单了。</p>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color2">elastic-job</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+      
+	<div class="article-category tagcloud">
+		<i class="icon-book icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="/categories/elastic-job//" class="article-tag-list-link color2">elastic-job</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+
+      <div style="font-size: 12px;">
+        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
+      </div>
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2017/11/12/elastic-job的原理简介和使用/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
+    <article id="post-cron详解" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2017/11/10/cron详解/">cron详解</a>
+    </h1>
+  
+
+        
+        <a href="/2017/11/10/cron详解/" class="archive-article-date">
+  	<time datetime="2017-11-10T14:07:43.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2017-11-10</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>Cron表达式是一个字符串，字符串以5或6个空格隔开，分为6或7个域，每一个域代表一个含义，Cron有如下两种语法格式： </p>
+<p><em>Seconds Minutes Hours DayofMonth Month DayofWeek Year</em></p>
+<p><em>或 Seconds Minutes Hours DayofMonth Month DayofWeek</em></p>
+<p>每一个域可出现的字符如下：<br>Seconds:可出现”, - <em> /“四个字符，有效范围为0-59的整数<br>Minutes:可出现”, - </em> /“四个字符，有效范围为0-59的整数<br>Hours:可出现”, - <em> /“四个字符，有效范围为0-23的整数<br>DayofMonth:可出现”, - </em> / ? L W C”八个字符，有效范围为0-31的整数<br>Month:可出现”, - <em> /“四个字符，有效范围为1-12的整数或JAN-DEc<br>DayofWeek:可出现”, - </em> / ? L C #”四个字符，有效范围为1-7的整数或SUN-SAT两个范围。1表示星期天，2表示星期一， 依次类推<br>Year:可出现”, - * /“四个字符，有效范围为1970-2099年</p>
+<p>每一个域都使用数字，但还可以出现如下特殊字符，它们的含义是：<br>(1)<em>：表示匹配该域的任意值，假如在Minutes域使用</em>, 即表示每分钟都会触发事件。</p>
+<p>(2)?:只能用在DayofMonth和DayofWeek两个域。它也匹配域的任意值，但实际不会。因为DayofMonth和 DayofWeek会相互影响。例如想在每月的20日触发调度，不管20日到底是星期几，则只能使用如下写法： 13 13 15 20 <em> ?, 其中最后一位只能用？，而不能使用</em>，如果使用*表示不管星期几都会触发，实际上并不是这样。<br>(3)-:表示范围，例如在Minutes域使用5-20，表示从5分到20分钟每分钟触发一次<br>(4)/：表示起始时间开始触发，然后每隔固定时间触发一次，例如在Minutes域使用5/20,则意味着5分钟触发一次，而25，45等分别触发一次.<br>(5),:表示列出枚举值值。例如：在Minutes域使用5,20，则意味着在5和20分每分钟触发一次。<br>(6)L:表示最后，只能出现在DayofWeek和DayofMonth域，如果在DayofWeek域使用5L,意味着在最后的一个星期四触发。<br>(7)W: 表示有效工作日(周一到周五),只能出现在DayofMonth域，系统将在离指定日期的最近的有效工作日触发事件。例如：在 DayofMonth使用5W，如果5日是星期六，则将在最近的工作日：星期五，即4日触发。如果5日是星期天，则在6日(周一)触发；如果5日在星期一 到星期五中的一天，则就在5日触发。另外一点，W的最近寻找不会跨过月份<br>(8)LW:这两个字符可以连用，表示在某个月最后一个工作日，即最后一个星期五。<br>(9)#:用于确定每个月第几个星期几，只能出现在DayofMonth域。例如在4#2，表示某月的第二个星期三。</p>
+<p>举几个例子:<br>0 0 2 1 <em> ? </em> 表示在每月的1日的凌晨2点调度任务<br>0 15 10 ? * MON-FRI 表示周一到周五每天上午10：15执行作业<br>0 15 10 ? 6L 2002-2006 表示2002-2006年的每个月的最后一个星期五上午10:15执行作</p>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+      
+
+      <div style="font-size: 12px;">
+        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
+      </div>
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2017/11/10/cron详解/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
     <article id="post-Git-教程" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
@@ -319,84 +515,6 @@ git merge 则不会显示 feature，只保留单条分支记录。
 
 
   
-    <article id="post-Mac笔记本快捷键" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2017/11/08/Mac笔记本快捷键/">Mac笔记本快捷键</a>
-    </h1>
-  
-
-        
-        <a href="/2017/11/08/Mac笔记本快捷键/" class="archive-article-date">
-  	<time datetime="2017-11-08T05:23:49.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2017-11-08</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <figure class="highlight mathematica"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Command + <span class="keyword">K</span> 清屏</span><br><span class="line"><span class="keyword">Control</span> + <span class="keyword">C</span> 退出命令</span><br></pre></td></tr></table></figure>
-<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">⌘ Command</span><br><span class="line">⇧ Shift</span><br><span class="line">⌥ Option</span><br><span class="line">⌃ Control</span><br><span class="line">↩︎ Return/Enter</span><br><span class="line">⌫ Delete</span><br><span class="line">⌦ 向前删除键（Fn+Delete）</span><br><span class="line">↑ 上箭头</span><br><span class="line">↓ 下箭头</span><br><span class="line">← 左箭头</span><br><span class="line">→ 右箭头</span><br><span class="line">⇞<span class="built_in"> Page </span>Up（Fn+↑）</span><br><span class="line">⇟<span class="built_in"> Page </span>Down（Fn+↓）</span><br><span class="line">Home Fn + ←</span><br><span class="line">End Fn + →</span><br><span class="line">⇥ 右制表符（Tab键）</span><br><span class="line">⇤ 左制表符（Shift+Tab）</span><br><span class="line">⎋ Escape (Esc)</span><br></pre></td></tr></table></figure>
-
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">快捷键</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-      
-
-      <div style="font-size: 12px;">
-        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
-      </div>
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2017/11/08/Mac笔记本快捷键/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
     <article id="post-JVM性能优化" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
@@ -474,6 +592,84 @@ jstack -l [pid] 查看程序的线程情况
       
         <p class="article-more-link">
           <a class="article-more-a" href="/2017/11/08/JVM性能优化/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
+    <article id="post-Mac笔记本快捷键" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2017/11/08/Mac笔记本快捷键/">Mac笔记本快捷键</a>
+    </h1>
+  
+
+        
+        <a href="/2017/11/08/Mac笔记本快捷键/" class="archive-article-date">
+  	<time datetime="2017-11-08T05:23:49.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2017-11-08</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <figure class="highlight mathematica"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Command + <span class="keyword">K</span> 清屏</span><br><span class="line"><span class="keyword">Control</span> + <span class="keyword">C</span> 退出命令</span><br></pre></td></tr></table></figure>
+<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">⌘ Command</span><br><span class="line">⇧ Shift</span><br><span class="line">⌥ Option</span><br><span class="line">⌃ Control</span><br><span class="line">↩︎ Return/Enter</span><br><span class="line">⌫ Delete</span><br><span class="line">⌦ 向前删除键（Fn+Delete）</span><br><span class="line">↑ 上箭头</span><br><span class="line">↓ 下箭头</span><br><span class="line">← 左箭头</span><br><span class="line">→ 右箭头</span><br><span class="line">⇞<span class="built_in"> Page </span>Up（Fn+↑）</span><br><span class="line">⇟<span class="built_in"> Page </span>Down（Fn+↓）</span><br><span class="line">Home Fn + ←</span><br><span class="line">End Fn + →</span><br><span class="line">⇥ 右制表符（Tab键）</span><br><span class="line">⇤ 左制表符（Shift+Tab）</span><br><span class="line">⎋ Escape (Esc)</span><br></pre></td></tr></table></figure>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">快捷键</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+      
+
+      <div style="font-size: 12px;">
+        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
+      </div>
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2017/11/08/Mac笔记本快捷键/">展开全文 >></a>
         </p>
       
 
@@ -933,211 +1129,9 @@ jstack -l [pid] 查看程序的线程情况
 
 
   
-    <article id="post-排序算法相关(java)" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2017/08/10/排序算法相关(java)/">排序算法相关(java)</a>
-    </h1>
-  
-
-        
-        <a href="/2017/08/10/排序算法相关(java)/" class="archive-article-date">
-  	<time datetime="2017-08-09T16:00:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2017-08-10</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h1 id="常见的内部排序算法"><a href="#常见的内部排序算法" class="headerlink" title="常见的内部排序算法"></a>常见的内部排序算法</h1><p>插入排序、希尔排序、选择排序、冒泡排序、归并排序、快速排序、堆排序、基数排序等<br><figure class="highlight less"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="selector-tag">public</span> <span class="selector-tag">class</span> <span class="selector-tag">SortingDemo</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="selector-tag">public</span> <span class="selector-tag">static</span> <span class="selector-tag">void</span> <span class="selector-tag">main</span>(String[] args) &#123;</span><br><span class="line">        <span class="comment">/* 简单排序 */</span></span><br><span class="line">        <span class="selector-tag">EasySort</span><span class="selector-class">.bubbleList</span>();<span class="comment">// 冒泡</span></span><br><span class="line">        <span class="selector-tag">EasySort</span><span class="selector-class">.bubbleArray</span>();<span class="comment">// 冒泡</span></span><br><span class="line">        <span class="selector-tag">EasySort</span><span class="selector-class">.xuanze</span>();<span class="comment">// 选择</span></span><br><span class="line">        <span class="selector-tag">EasySort</span><span class="selector-class">.charu</span>();<span class="comment">// 插入</span></span><br><span class="line"></span><br><span class="line">        <span class="comment">/* 高效排序 */</span></span><br><span class="line">        <span class="selector-tag">QuickSort</span><span class="selector-class">.quickSort</span>();<span class="comment">// 快排</span></span><br><span class="line">        <span class="selector-tag">MergeSort</span><span class="selector-class">.mergeSort</span>();<span class="comment">// 归并排序(分治递归思想)</span></span><br><span class="line">        <span class="selector-tag">ShellSort</span><span class="selector-class">.shellSort</span>();<span class="comment">// 希尔排序(插入排序的一种高效率的实现，也叫缩小增量排序)</span></span><br><span class="line">        <span class="comment">// 堆排序(升序排序就使用大顶堆，反之使用小顶堆)</span></span><br><span class="line"></span><br><span class="line">        <span class="comment">/* 线性排序 */</span></span><br><span class="line">        <span class="comment">// 计数排序</span></span><br><span class="line">        <span class="comment">// 桶排序</span></span><br><span class="line">        <span class="comment">// 基数排序</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<p><img src="http://upload-images.jianshu.io/upload_images/2419179-2804b792efe11837.gif?imageMogr2/auto-orient/strip" alt=""><br><img src="http://upload-images.jianshu.io/upload_images/2419179-8403919aa4a9383a.gif?imageMogr2/auto-orient/strip" alt=""><br><img src="http://upload-images.jianshu.io/upload_images/2419179-b703fa5194694a5f.gif?imageMogr2/auto-orient/strip" alt=""><br><figure class="highlight lsl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">* 简单排序</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line">class EasySort &#123;</span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">    * 冒泡排序 List</span></span><br><span class="line"><span class="comment">    * &lt;p&gt;</span></span><br><span class="line"><span class="comment">    * 算法思想：遍历待排序的数组，每次遍历比较相邻的两个元素，如果他们的排列顺序错误就交换他们的位置，</span></span><br><span class="line"><span class="comment">    * 经过一趟排序后，最大的元素会浮置数组的末端。重复操作，直到排序完成。</span></span><br><span class="line"><span class="comment">    */</span></span><br><span class="line">    static void bubbleList() &#123;</span><br><span class="line">        List&lt;Integer&gt; <span class="type">list</span> = Arrays.asList(<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span>, <span class="number">8</span>, <span class="number">9</span>);</span><br><span class="line">        Collections.shuffle(<span class="type">list</span>);<span class="comment">// list随机打乱</span></span><br><span class="line">        System.out.println(<span class="type">list</span>);</span><br><span class="line"></span><br><span class="line">        for (int i = <span class="number">0</span>; i &lt; <span class="type">list</span>.size(); i++) &#123;</span><br><span class="line">            for (int j = <span class="number">0</span>; j &lt; <span class="type">list</span>.size() - <span class="number">1</span> - i; j++) &#123;</span><br><span class="line">                int current = <span class="type">list</span>.get(j);</span><br><span class="line">                int comp = <span class="type">list</span>.get(j + <span class="number">1</span>);</span><br><span class="line">                if (current &gt; comp) &#123;</span><br><span class="line">                    int temp = <span class="type">list</span>.get(j + <span class="number">1</span>);</span><br><span class="line">                    <span class="type">list</span>.set(j + <span class="number">1</span>, <span class="type">list</span>.get(j));</span><br><span class="line">                    <span class="type">list</span>.set(j, temp);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">            System.out.println(<span class="type">list</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">    * 冒泡排序 Array (循环最大值置顶)</span></span><br><span class="line"><span class="comment">    * &lt;p&gt;</span></span><br><span class="line"><span class="comment">    * 算法思想：遍历待排序的数组，每次遍历比较相邻的两个元素，如果他们的排列顺序错误就交换他们的位置，</span></span><br><span class="line"><span class="comment">    * 经过一趟排序后，最大的元素会浮置数组的末端。重复操作，直到排序完成。</span></span><br><span class="line"><span class="comment">    */</span></span><br><span class="line">    static void bubbleArray() &#123;</span><br><span class="line">        List&lt;Integer&gt; <span class="type">list</span> = Arrays.asList(<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span>, <span class="number">8</span>, <span class="number">9</span>);</span><br><span class="line">        Collections.shuffle(<span class="type">list</span>);<span class="comment">// list随机打乱</span></span><br><span class="line">        Integer[] values = (Integer[]) <span class="type">list</span>.toArray();</span><br><span class="line">        System.out.println(Arrays.asList(values));</span><br><span class="line"></span><br><span class="line">        for (int i = <span class="number">0</span>; i &lt; values.length; i++) &#123;</span><br><span class="line">            for (int j = <span class="number">0</span>; j &lt; values.length - <span class="number">1</span> - i; j++) &#123;</span><br><span class="line">                int current = values[j];</span><br><span class="line">                int comp = values[j + <span class="number">1</span>];</span><br><span class="line">                if (current &gt; comp) &#123;</span><br><span class="line">                    int temp = values[j + <span class="number">1</span>];</span><br><span class="line">                    values[j + <span class="number">1</span>] = values[j];</span><br><span class="line">                    values[j] = temp;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">            System.out.println(Arrays.asList(values));</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">    * 选择排序</span></span><br><span class="line"><span class="comment">    * &lt;p&gt;</span></span><br><span class="line"><span class="comment">    * 算法思想：重待排序的数组中选择一个最小的元素，将它与数组的第一个位置的元素交换位置。</span></span><br><span class="line"><span class="comment">    * 然后从剩下的元素中选择一个最小的元素，将它与第二个位置的元素交换位置，</span></span><br><span class="line"><span class="comment">    * 如果最小元素就是该位置的元素，就将它和自身交换位置，依次类推，直到排序完成。</span></span><br><span class="line"><span class="comment">    */</span></span><br><span class="line">    static void xuanze() &#123;</span><br><span class="line">        List&lt;Integer&gt; <span class="type">list</span> = Arrays.asList(<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span>, <span class="number">8</span>, <span class="number">9</span>);</span><br><span class="line">        Collections.shuffle(<span class="type">list</span>);<span class="comment">// list随机打乱</span></span><br><span class="line">        Integer[] values = (Integer[]) <span class="type">list</span>.toArray();</span><br><span class="line">        System.out.println(Arrays.asList(values));</span><br><span class="line"></span><br><span class="line">        Integer[] array = values;</span><br><span class="line">        for (int i = <span class="number">0</span>; i &lt; values.length; i++) &#123;</span><br><span class="line">            int courrentMinIndex = i;<span class="comment">// 当前最小值下标</span></span><br><span class="line"></span><br><span class="line">            <span class="comment">// 从当前下标到最后的范围,找出最小的值</span></span><br><span class="line">            for (int j = i + <span class="number">1</span>; j &lt; values.length; j++) &#123;</span><br><span class="line">                if (values[j] &lt; values[courrentMinIndex]) &#123;</span><br><span class="line">                    courrentMinIndex = j;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            <span class="comment">// 当前位与最小值位交换</span></span><br><span class="line">            int temp = values[i];</span><br><span class="line">            values[i] = values[courrentMinIndex];</span><br><span class="line">            values[courrentMinIndex] = temp;</span><br><span class="line"></span><br><span class="line">            System.out.println(Arrays.asList(array));</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">    * 插入排序(优先保障currentIndex前置有序)</span></span><br><span class="line"><span class="comment">    * &lt;p&gt;</span></span><br><span class="line"><span class="comment">    * 算法思想:从数组的第二个元素开始遍历，将该元素与前面的元素比较，如果该元素比前面的元素小，</span></span><br><span class="line"><span class="comment">    * 将该元素保存进临时变量中，依次将前面的元素后移，然后将该元素插入到合适的位置。</span></span><br><span class="line"><span class="comment">    * 每次排序完成后，索引左边的元素一定是有序的，但是还可以移动。对于倒置越少的数组，该算法的排序效率越高。</span></span><br><span class="line"><span class="comment">    */</span></span><br><span class="line">    static void charu() &#123;</span><br><span class="line">        List&lt;Integer&gt; <span class="type">list</span> = Arrays.asList(<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span>, <span class="number">8</span>, <span class="number">9</span>);</span><br><span class="line">        Collections.shuffle(<span class="type">list</span>);<span class="comment">// list随机打乱</span></span><br><span class="line">        Integer[] values = (Integer[]) <span class="type">list</span>.toArray();</span><br><span class="line">        System.out.println(Arrays.asList(values));</span><br><span class="line"></span><br><span class="line">        for (int i = <span class="number">1</span>; i &lt; values.length; i++) &#123;</span><br><span class="line">            for (int j = <span class="number">0</span>; j &lt; i; j++) &#123;</span><br><span class="line">                int current = values[i];</span><br><span class="line">                int comp = values[j];</span><br><span class="line">                if (current &lt; comp) &#123;</span><br><span class="line">                    int third = values[i];</span><br><span class="line">                    values[i] = values[j];</span><br><span class="line">                    values[j] = third;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">            System.out.println(Arrays.asList(values));</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<p><img src="http://upload-images.jianshu.io/upload_images/2419179-3b6bbe9a5b4a3c22.gif?imageMogr2/auto-orient/strip" alt=""><br><img src="http://upload-images.jianshu.io/upload_images/675733-58e22d5b09c167f2.gif?imageMogr2/auto-orient/strip" alt=""><br><figure class="highlight arduino"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">* 快速排序</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line">class QuickSort &#123;</span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">    * 快速排序的基本思想：通过一趟排序将待排序记录分割成独立的两部分，其中一部分记录的关键字均比另一部分关键字小，</span></span><br><span class="line"><span class="comment">    * 则分别对这两部分继续进行排序，直到整个序列有序。</span></span><br><span class="line"><span class="comment">    */</span></span><br><span class="line">    <span class="keyword">static</span> <span class="keyword">void</span> quickSort() &#123;</span><br><span class="line">        List&lt;Integer&gt; list = Arrays.asList(<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span>, <span class="number">8</span>, <span class="number">9</span>);</span><br><span class="line">        Collections.shuffle(list);<span class="comment">// list随机打乱</span></span><br><span class="line">        System.out.<span class="built_in">println</span>(<span class="string">"======(分区)"</span>);</span><br><span class="line">        Integer[] values = (Integer[]) list.toArray();</span><br><span class="line">        System.out.<span class="built_in">println</span>(Arrays.asList(values));</span><br><span class="line">        quickSortEasy(values, <span class="number">0</span>, values.length - <span class="number">1</span>);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">        System.out.<span class="built_in">println</span>(<span class="string">"======(交换)"</span>);</span><br><span class="line">        values = (Integer[]) list.toArray();</span><br><span class="line">        System.out.<span class="built_in">println</span>(Arrays.asList(values));</span><br><span class="line">        quickSortSwap(values, <span class="number">0</span>, values.length - <span class="number">1</span>);</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">    * 分治法-分区(方便理解)</span></span><br><span class="line"><span class="comment">    *</span></span><br><span class="line"><span class="comment">    * @param values</span></span><br><span class="line"><span class="comment">    * @param begin</span></span><br><span class="line"><span class="comment">    * @param end</span></span><br><span class="line"><span class="comment">    */</span></span><br><span class="line">    <span class="keyword">static</span> <span class="keyword">void</span> quickSortEasy(Integer[] values, <span class="keyword">int</span> <span class="built_in">begin</span>, <span class="keyword">int</span> <span class="built_in">end</span>) &#123;</span><br><span class="line">        <span class="built_in">if</span> (<span class="built_in">begin</span> &gt;= <span class="built_in">end</span>) <span class="built_in">return</span>;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">int</span> middleIndex = quickSortMiddleEasy(values, <span class="built_in">begin</span>, <span class="built_in">end</span>);</span><br><span class="line"></span><br><span class="line">        System.out.printf(<span class="string">"begin:%d end:%d middleIndex:%d(value=%d) %n"</span>, <span class="built_in">begin</span>, <span class="built_in">end</span>, middleIndex, values[middleIndex]);</span><br><span class="line">        System.out.<span class="built_in">println</span>(Arrays.asList(values));<span class="comment">// 定位中位数时,已经完成分治</span></span><br><span class="line"></span><br><span class="line">        quickSortEasy(values, <span class="built_in">begin</span>, middleIndex - <span class="number">1</span>);</span><br><span class="line">        quickSortEasy(values, middleIndex + <span class="number">1</span>, <span class="built_in">end</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">static</span> <span class="keyword">int</span> quickSortMiddleEasy(Integer[] values, <span class="keyword">int</span> <span class="built_in">begin</span>, <span class="keyword">int</span> <span class="built_in">end</span>) &#123;</span><br><span class="line">        <span class="comment">// 第一步,以最低位值作为中轴,将其它数进行两边分治法.结束后,中轴位不再参与后续排序(因为位置已经确定了)</span></span><br><span class="line">        <span class="comment">// 示例:[6, 2, 1, 8, 5, 4, 9, 3, 7]中轴值为6,分治法结果[32145]6[987](交换)/[21543]6[897](分区)</span></span><br><span class="line">        <span class="keyword">int</span> middleValue = values[<span class="built_in">begin</span>];</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 第二步,分治法.先腾出中轴值位置[0],并保持中轴值.</span></span><br><span class="line">        List&lt;Integer&gt; left = <span class="keyword">new</span> ArrayList&lt;&gt;();</span><br><span class="line">        List&lt;Integer&gt; right = <span class="keyword">new</span> ArrayList&lt;&gt;();</span><br><span class="line">        left.addAll(Arrays.asList(Arrays.copyOfRange(values, <span class="number">0</span>, <span class="built_in">begin</span>)));<span class="comment">// 排序区间前</span></span><br><span class="line">        <span class="built_in">for</span> (<span class="keyword">int</span> i = <span class="built_in">begin</span>; i &lt; <span class="built_in">end</span> + <span class="number">1</span>; i++) &#123;</span><br><span class="line">            <span class="built_in">if</span> (values[i] &lt; middleValue) &#123;</span><br><span class="line">                left.add(values[i]); <span class="comment">// 排序区间左区</span></span><br><span class="line">            &#125; <span class="built_in">else</span> <span class="built_in">if</span> (values[i] &gt; middleValue) &#123;</span><br><span class="line">                right.add(values[i]);<span class="comment">// 排序区间右区</span></span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        left.add(middleValue);<span class="comment">// 排序区间中轴</span></span><br><span class="line">        <span class="keyword">int</span> middleIndex = left.<span class="built_in">size</span>() - <span class="number">1</span>;</span><br><span class="line">        left.addAll(right);<span class="comment">// 排序区间右区也合并到单个集合</span></span><br><span class="line">        left.addAll(Arrays.asList(Arrays.copyOfRange(values, <span class="built_in">end</span> + <span class="number">1</span>, values.length)));<span class="comment">// 排序区间后</span></span><br><span class="line"></span><br><span class="line">        values = left.toArray(values);<span class="comment">// 重写原数组</span></span><br><span class="line">        <span class="built_in">return</span> middleIndex;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">    * 分治法-交换(节省内存空间)</span></span><br><span class="line"><span class="comment">    * @param values</span></span><br><span class="line"><span class="comment">    * @param begin</span></span><br><span class="line"><span class="comment">    * @param end</span></span><br><span class="line"><span class="comment">    */</span></span><br><span class="line">    <span class="keyword">static</span> <span class="keyword">void</span> quickSortSwap(Integer[] values, <span class="keyword">int</span> <span class="built_in">begin</span>, <span class="keyword">int</span> <span class="built_in">end</span>) &#123;</span><br><span class="line">        <span class="built_in">if</span> (<span class="built_in">begin</span> &gt;= <span class="built_in">end</span>) <span class="built_in">return</span>;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">int</span> middleIndex = getMiddle(values, <span class="built_in">begin</span>, <span class="built_in">end</span>);</span><br><span class="line"></span><br><span class="line">        System.out.printf(<span class="string">"begin:%d end:%d middleIndex:%d(value=%d) %n"</span>, <span class="built_in">begin</span>, <span class="built_in">end</span>, middleIndex, values[middleIndex]);</span><br><span class="line">        System.out.<span class="built_in">println</span>(Arrays.asList(values));<span class="comment">// 定位中位数时,已经完成分治</span></span><br><span class="line"></span><br><span class="line">        quickSortSwap(values, <span class="built_in">begin</span>, middleIndex - <span class="number">1</span>);</span><br><span class="line">        quickSortSwap(values, middleIndex + <span class="number">1</span>, <span class="built_in">end</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">int</span> getMiddle(Integer[] numbers, <span class="keyword">int</span> low, <span class="keyword">int</span> high) &#123;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 示例:[6, 2, 1, 8, 5, 4, 9, 3, 7]中轴值为6,分治法结果[32145]6[987](交换)/[21543]6[897](分区)</span></span><br><span class="line"></span><br><span class="line">        <span class="keyword">int</span> temp = numbers[low]; <span class="comment">// 数组的第一个作为中轴</span></span><br><span class="line">        numbers[low] = null;<span class="comment">// 原位置值已经转移,未来也会被分治法的新值覆盖,可省略.但标记null,方便理解</span></span><br><span class="line">        <span class="built_in">while</span> (low &lt; high) &#123;</span><br><span class="line">            <span class="built_in">while</span> (low &lt; high &amp;&amp; numbers[high] &gt; temp) &#123;<span class="comment">// 先最高位与中轴值比较</span></span><br><span class="line">                high--;</span><br><span class="line">            &#125;</span><br><span class="line">            numbers[low] = numbers[high];<span class="comment">// 比中轴小的记录移到低端</span></span><br><span class="line">            numbers[high] = null;<span class="comment">// 原位置值已经转移,未来也会被分治法的新值覆盖,可省略.但标记null,方便理解</span></span><br><span class="line">            <span class="built_in">while</span> (low &lt; high &amp;&amp; numbers[low] &lt; temp) &#123;</span><br><span class="line">                low++;</span><br><span class="line">            &#125;</span><br><span class="line">            numbers[high] = numbers[low]; <span class="comment">//比中轴大的记录移到高端</span></span><br><span class="line">            numbers[low] = null;<span class="comment">// 原位置值已经转移,未来也会被分治法的新值覆盖,可省略.但标记null,方便理解</span></span><br><span class="line">        &#125;</span><br><span class="line">        numbers[low] = temp; <span class="comment">//中轴记录到尾</span></span><br><span class="line">        <span class="built_in">return</span> low; <span class="comment">// 返回中轴的位置</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<p><img src="http://upload-images.jianshu.io/upload_images/2419179-ced6d60c4e8aa5d9.gif?imageMogr2/auto-orient/strip" alt=""><br><img src="http://upload-images.jianshu.io/upload_images/675733-07c5e4edb9b0f8b7.gif?imageMogr2/auto-orient/strip" alt=""></p>
-<hr>
-<h1 id="归并排序"><a href="#归并排序" class="headerlink" title="归并排序"></a>归并排序</h1><ul>
-<li>基本思想:<br>先递归划分子问题，然后合并结果。把待排序列看成由两个有序的子序列，然后合并两个子序列，然后把子序列看成由两个有序序列。<br>倒着来看，其实就是先两两合并，然后四四合并，最终形成有序序列。</li>
-<li>做法(建议sublime中编辑,方便符号对其):<figure class="highlight lisp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">int mid = (<span class="name">beginIndex</span> + endIndex) / <span class="number">2</span><span class="comment">;// 取中位index</span></span><br><span class="line">middleSort(<span class="name">values</span>, beginIndex, mid)<span class="comment">;// 左侧递归再分,到不可再分</span></span><br><span class="line">middleSort(<span class="name">values</span>, mid + <span class="number">1</span>, endIndex)<span class="comment">;// 右侧递归再分,到不可再分</span></span><br></pre></td></tr></table></figure>
-</li>
-</ul>
-<p><img src="http://upload-images.jianshu.io/upload_images/675733-a1330ae9ce4293a4.gif?imageMogr2/auto-orient/strip" alt=""><br><figure class="highlight lsl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">7</span>, <span class="number">6</span>, <span class="number">5</span>, <span class="number">2</span>, <span class="number">1</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">9</span>, <span class="number">8</span></span><br><span class="line">-  -  -  -  -  -  -  -  <span class="number">-8</span></span><br><span class="line">-  -  -  -  <span class="number">-4</span></span><br><span class="line">-  -  <span class="number">-2</span></span><br><span class="line">-  <span class="number">-1</span></span><br><span class="line">        -  <span class="number">-3</span></span><br><span class="line">                -  -  -  <span class="number">-7</span></span><br><span class="line">                -  <span class="number">-5</span></span><br><span class="line">                        -  <span class="number">-6</span></span><br></pre></td></tr></table></figure></p>
-<ul>
-<li><code>比较交换,方法一</code>:<br>mid左侧第一位开始与mid右侧第一位开始比较,小的添加到新array.最后再按区间更新原array<br>如:<code>[5, 6, 7, 1, 2]</code>(中位数两侧事前已经经过排序)会拆位<code>[5,6,7][1,2]</code>(进行合并)<br>5&lt;&gt;1 =&gt; <code>1(小)</code> tempArray=[1]<br>5&lt;&gt;2 =&gt; <code>2(小)</code> tempArray=[1,2]<br>把没有到tempArray的大值添加进去: tempArray=<code>[1,2,5,6,7]</code></li>
-</ul>
-<p>见: <code>★面试中的排序算法总结 - 简书</code> - 归并排序`<br><a href="http://www.jianshu.com/p/c360a58db21d" target="_blank" rel="external">http://www.jianshu.com/p/c360a58db21d</a></p>
-<ul>
-<li><code>比较交换,方法二(推荐)</code>: 对待合并数据[5, 6, 7][1, 2]直接仅需插入排序.<figure class="highlight perl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">// 待合并的二分数据,已经基本有序,所有使用<span class="string">`插入排序`</span>进行合并,具备更高的性能(因为移动的位置较少)且不需要更多的内存仅需一个交换变量.</span><br><span class="line"><span class="keyword">for</span> (<span class="keyword">int</span> i = beginIndex + <span class="number">1</span>; i &lt; endIndex; i++) &#123;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> j = beginIndex; j &lt; i; j++) &#123;</span><br><span class="line">        <span class="keyword">if</span> (<span class="keyword">values</span>[i] &lt; <span class="keyword">values</span>[j]) &#123;</span><br><span class="line">            <span class="keyword">int</span> temp = <span class="keyword">values</span>[j];</span><br><span class="line">            <span class="keyword">values</span>[j] = <span class="keyword">values</span>[i];</span><br><span class="line">            <span class="keyword">values</span>[i] = temp;</span><br><span class="line">            System.out.println(<span class="string">"markNum:"</span>+markNum++);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line">System.out.println(Arrays.asList(<span class="keyword">values</span>));</span><br></pre></td></tr></table></figure>
-</li>
-</ul>
-<p>见: <code>myServer/@java/demo-sorting/SortingDemo.java</code><br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">* 归并排序</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">MergeSort</span> &#123;</span></span><br><span class="line">    <span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title">mergeSort</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        List&lt;Integer&gt; <span class="built_in">list</span> = Arrays.asList(<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span>, <span class="number">8</span>, <span class="number">9</span>);</span><br><span class="line">        Collections.shuffle(<span class="built_in">list</span>);<span class="comment">// list随机打乱</span></span><br><span class="line">        Integer[] values = (Integer[]) <span class="built_in">list</span>.toArray();</span><br><span class="line">        System.out.println(Arrays.asList(values));</span><br><span class="line"></span><br><span class="line">        middleSort(values, <span class="number">0</span>, values.length);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">static</span> <span class="keyword">int</span> markNum=<span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title">middleSort</span><span class="params">(Integer[] values, <span class="keyword">int</span> beginIndex, <span class="keyword">int</span> endIndex)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (!(beginIndex &lt; endIndex))</span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">int</span> mid = (beginIndex + endIndex) / <span class="number">2</span>;<span class="comment">// 取中位index</span></span><br><span class="line"></span><br><span class="line">        middleSort(values, beginIndex, mid);<span class="comment">// 左侧递归再分,到不可再分</span></span><br><span class="line">        middleSort(values, mid + <span class="number">1</span>, endIndex);<span class="comment">// 右侧递归再分,到不可再分</span></span><br><span class="line"></span><br><span class="line">        <span class="comment">// 对最近的二分数据进行合并. 如:[5,6,7][1,2]</span></span><br><span class="line">        <span class="comment">// 待合并的二分数据,已经基本有序,所有使用`插入排序`进行合并,具备更高的性能(因为移动的位置较少)且不需要更多的内存仅需一个交换变量.</span></span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = beginIndex + <span class="number">1</span>; i &lt; endIndex; i++) &#123;</span><br><span class="line">            <span class="keyword">for</span> (<span class="keyword">int</span> j = beginIndex; j &lt; i; j++) &#123;</span><br><span class="line">                <span class="keyword">if</span> (values[i] &lt; values[j]) &#123;</span><br><span class="line">                    <span class="keyword">int</span> temp = values[j];</span><br><span class="line">                    values[j] = values[i];</span><br><span class="line">                    values[i] = temp;</span><br><span class="line">                    System.out.println(<span class="string">"markNum:"</span>+markNum++);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        System.out.println(Arrays.asList(values));</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<hr>
-<h1 id="希尔排序"><a href="#希尔排序" class="headerlink" title="希尔排序"></a>希尔排序</h1><p>基本思想是：先将整个待排记录序列分割成为若干子序列，分别进行直接插入排序。待整个序列中的记录基本有序时，再对全体记录进行一次直接插入排序。<br><img src="http://upload-images.jianshu.io/upload_images/675733-4ea6e4e8613f769f.gif?imageMogr2/auto-orient/strip" alt=""><br><img src="http://upload-images.jianshu.io/upload_images/675733-873e48115b182525.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt=""><br><figure class="highlight lsl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">8</span>, <span class="number">7</span>, <span class="number">4</span>, <span class="number">1</span>, <span class="number">3</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">2</span>, <span class="number">9</span></span><br><span class="line">length/<span class="number">2</span>=<span class="number">4</span></span><br><span class="line">-          -</span><br><span class="line">  -          -</span><br><span class="line">      -          -</span><br><span class="line">        -              -</span><br><span class="line">            -          -</span><br><span class="line"><span class="number">3</span>, <span class="number">5</span>, <span class="number">4</span>, <span class="number">1</span>, <span class="number">8</span>, <span class="number">7</span>, <span class="number">6</span>, <span class="number">2</span>, <span class="number">9</span></span><br><span class="line"><span class="number">4</span>/<span class="number">2</span>=<span class="number">2</span></span><br><span class="line">-    -</span><br><span class="line">  -    -</span><br><span class="line">      -    -</span><br><span class="line">        -    -</span><br><span class="line">      -    -    -</span><br><span class="line">        -    -    -</span><br><span class="line">      -    -    -    -</span><br><span class="line">x    x</span><br><span class="line">  <span class="number">1</span>    <span class="number">5</span></span><br><span class="line">      x    <span class="number">8</span></span><br><span class="line">        x    <span class="number">7</span></span><br><span class="line">      x    <span class="number">6</span>    <span class="number">8</span></span><br><span class="line">        <span class="number">2</span>    <span class="number">5</span>    <span class="number">7</span></span><br><span class="line">      x    x    x    <span class="number">9</span></span><br><span class="line"><span class="number">3</span>, <span class="number">1</span>, <span class="number">4</span>, <span class="number">2</span>, <span class="number">6</span>, <span class="number">5</span>, <span class="number">8</span>, <span class="number">7</span>, <span class="number">9</span></span><br><span class="line"><span class="number">2</span>/<span class="number">2</span>=<span class="number">1</span></span><br><span class="line">-  -</span><br><span class="line">  -  -</span><br><span class="line">  -  -  -</span><br><span class="line">  -  -  -  -</span><br><span class="line">  -  -  -  -  -</span><br><span class="line">  -  -  -  -  -  -</span><br><span class="line">  -  -  -  -  -  -  -</span><br><span class="line">  -  -  -  -  -  -  -  -</span><br><span class="line"><span class="number">1</span>  <span class="number">3</span> i=<span class="number">1</span></span><br><span class="line">  x  x i=<span class="number">2</span></span><br><span class="line">  <span class="number">2</span>  <span class="number">3</span>  <span class="number">4</span> i=<span class="number">3</span>  </span><br><span class="line">  x  x  x  <span class="number">6</span> i=<span class="number">4</span></span><br><span class="line">  x  x  x  <span class="number">5</span>  <span class="number">6</span> i=<span class="number">5</span></span><br><span class="line">  x  x  x  x  X  <span class="number">8</span> i=<span class="number">6</span></span><br><span class="line">  x  x  x  x  X  <span class="number">7</span>  <span class="number">8</span> i=<span class="number">7</span></span><br><span class="line">  x  x  x  x  X  x  x  x  <span class="number">9</span> i=<span class="number">8</span></span><br></pre></td></tr></table></figure></p>
-<figure class="highlight cs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">* 希尔排序</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="keyword">class</span> <span class="title">ShellSort</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title">shellSort</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">        List&lt;Integer&gt; list = Arrays.asList(<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span>, <span class="number">8</span>, <span class="number">9</span>);</span><br><span class="line">        Collections.shuffle(list);<span class="comment">// list随机打乱</span></span><br><span class="line">        Integer[] values = (Integer[]) list.toArray();<span class="comment">// List 转 Array</span></span><br><span class="line">        System.<span class="keyword">out</span>.println(Arrays.asList(values));</span><br><span class="line"></span><br><span class="line">        <span class="keyword">int</span>[] valuesI = <span class="keyword">new</span> <span class="keyword">int</span>[values.length];</span><br><span class="line">        Arrays.stream(values).forEachOrdered(i -&gt; valuesI[i - <span class="number">1</span>] = values[i - <span class="number">1</span>].intValue());<span class="comment">// 封装数组转基础数组(Integer[] 转 int[])</span></span><br><span class="line">        Arrays.stream(valuesI).forEach(<span class="keyword">value</span> -&gt; System.<span class="keyword">out</span>.print(<span class="keyword">value</span> + <span class="string">", "</span>));<span class="comment">// 打印基础类型数组(int[])</span></span><br><span class="line">        System.<span class="keyword">out</span>.println();</span><br><span class="line"></span><br><span class="line">        <span class="keyword">int</span>[] valuesI2 = <span class="keyword">new</span> <span class="keyword">int</span>[]&#123;<span class="number">8</span>, <span class="number">7</span>, <span class="number">4</span>, <span class="number">1</span>, <span class="number">3</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">2</span>, <span class="number">9</span>&#125;;<span class="comment">// 自定义</span></span><br><span class="line">        shellSort(valuesI2);</span><br><span class="line">        Arrays.stream(valuesI2).forEach(<span class="keyword">value</span> -&gt; System.<span class="keyword">out</span>.print(<span class="keyword">value</span> + <span class="string">", "</span>));<span class="comment">// 打印基础类型数组(int[])</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">    * 希尔排序的一趟插入</span></span><br><span class="line"><span class="comment">    *</span></span><br><span class="line"><span class="comment">    * @param arr 待排数组</span></span><br><span class="line"><span class="comment">    * @param d  增量</span></span><br><span class="line"><span class="comment">    */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">shellInsert</span>(<span class="params"><span class="keyword">int</span>[] arr, <span class="keyword">int</span> d</span>) </span>&#123;</span><br><span class="line">        System.<span class="keyword">out</span>.println(<span class="string">"d:"</span> + d);</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = d; i &lt; arr.length; i++) &#123;</span><br><span class="line">            <span class="keyword">int</span> j = i - d;</span><br><span class="line">            <span class="keyword">int</span> temp = arr[i];    <span class="comment">//记录要插入的数据</span></span><br><span class="line">            <span class="keyword">while</span> (j &gt;= <span class="number">0</span> &amp;&amp; arr[j] &gt; temp) &#123;  <span class="comment">//从后向前，找到比其小的数的位置</span></span><br><span class="line">                arr[j + d] = arr[j];    <span class="comment">//向后挪动</span></span><br><span class="line">                j -= d;</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            <span class="keyword">if</span> (j != i - d)    <span class="comment">//存在比其小的数</span></span><br><span class="line">                arr[j + d] = temp;</span><br><span class="line"></span><br><span class="line">            Arrays.stream(arr).forEach(<span class="keyword">value</span> -&gt; System.<span class="keyword">out</span>.print(<span class="keyword">value</span> + <span class="string">", "</span>));<span class="comment">// 打印基础类型数组(int[])</span></span><br><span class="line">            System.<span class="keyword">out</span>.println();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">shellSort</span>(<span class="params"><span class="keyword">int</span>[] arr</span>) </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (arr == <span class="literal">null</span> || arr.length == <span class="number">0</span>)</span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">        <span class="keyword">int</span> d = arr.length / <span class="number">2</span>;</span><br><span class="line">        <span class="keyword">while</span> (d &gt;= <span class="number">1</span>) &#123;</span><br><span class="line">            shellInsert(arr, d);</span><br><span class="line">            d /= <span class="number">2</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<hr>
-<h1 id="时间复杂度-空间复杂度-稳定性"><a href="#时间复杂度-空间复杂度-稳定性" class="headerlink" title="时间复杂度,空间复杂度,稳定性"></a>时间复杂度,空间复杂度,稳定性</h1><p><img src="http://upload-images.jianshu.io/upload_images/675733-f9bd437a4a3eeab7.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt=""></p>
-<ul>
-<li><p>关于时间复杂度：<br><code>平方阶(O(n2))排序</code>：各类简单排序:直接插入、直接选择和冒泡排序。<br><code>线性对数阶(O(nlog2n))排序</code>：快速排序、堆排序和归并排序。<br><code>O(n1+§))排序</code>：§是介于0和1之间的常数。<br><code>线性阶(O(n))排序</code>：基数排序，此外还有桶、箱排序。</p>
-</li>
-<li><p>关于稳定性：<br><code>稳定的排序算法</code>：冒泡排序、插入排序、归并排序和基数排序；<br><code>不是稳定的排序算法</code>：选择排序、快速排序、希尔排序、堆排序。</p>
-</li>
-</ul>
-<hr>
-<h1 id="平均时间-最坏情况-辅助存储"><a href="#平均时间-最坏情况-辅助存储" class="headerlink" title="平均时间,最坏情况,辅助存储"></a>平均时间,最坏情况,辅助存储</h1><p><img src="http://upload-images.jianshu.io/upload_images/675733-3f48f14f89392094.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt=""></p>
-<ul>
-<li><code>平均时间</code>来看，<code>快速排序</code>是效率最高的。但快速排序在最坏情况下的时间性能，不如堆排序和归并排序。而后者相比较的结果是在n较大时，归并排序使用时间较少，但使用辅助空间较多。</li>
-<li><code>简单排序</code>，包括除希尔排序之外的所有冒泡排序、插入排序、简单选择排序。其中<code>直接插入</code>排序最简单。但<code>序列基本有序或者n较小时，直接插入排序是好的方法</code>。因此常将它和其他的排序方法，如<code>快速排序、归并排序</code>等结合在一起使用。</li>
-<li><code>基数排序</code>的时间复杂度也可以写成O(d*n)。因此它最使用于n值很大而关键字较小的的序列。若关键字也很大，而序列中大多数记录的最高关键字均不同，则亦可先按最高关键字不同，将序列分成若干小的子序列，而后进行直接插入排序。</li>
-<li>从方法的<code>稳定性</code>来比较，<code>基数排序是稳定的内排方法</code>，所有时间复杂度为O(n^2)的简单排序也是稳定的。但是快速排序、堆排序、希尔排序等时间性能较好的排序方法都是不稳定的。稳定性需要根据具体需求选择。</li>
-<li>上面的算法实现大多数是使用<code>线性存储结构</code>，像插入排序这种算法，用<code>链表</code>实现更好，省去了移动元素的时间。具体的存储结构，在具体的实现版本中也是不同的。</li>
-</ul>
-<hr>
-<p><strong>参考</strong><br><code>★面试中的排序算法总结 - 简书</code><br><a href="http://www.jianshu.com/p/c360a58db21d" target="_blank" rel="external">http://www.jianshu.com/p/c360a58db21d</a></p>
-<p><code>排序算法图形化比较：快速排序、插入排序、选择排序、冒泡排序 - 简书</code><br><a href="http://www.jianshu.com/p/70619984fbc6" target="_blank" rel="external">http://www.jianshu.com/p/70619984fbc6</a><br><code>完全二叉树实现优先队列与堆排序 - 简书</code><br><a href="http://www.jianshu.com/p/9a456d1b59b5" target="_blank" rel="external">http://www.jianshu.com/p/9a456d1b59b5</a></p>
-<p><code>8大排序算法图文讲解</code><br><a href="http://www.jianshu.com/p/e6ad4423efcd" target="_blank" rel="external">http://www.jianshu.com/p/e6ad4423efcd</a></p>
-<p><code>八大排序算法 - guisu，程序人生。 逆水行舟，不进则退。 - CSDN博客</code><br><a href="http://blog.csdn.net/hguisu/article/details/7776068" target="_blank" rel="external">http://blog.csdn.net/hguisu/article/details/7776068</a></p>
-
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">排序算法</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-      
-
-      <div style="font-size: 12px;">
-        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
-      </div>
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2017/08/10/排序算法相关(java)/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
-    <article id="post-服务docker化示例" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2017/08/03/服务docker化示例/">服务docker化示例</a>
-    </h1>
-  
-
-        
-        <a href="/2017/08/03/服务docker化示例/" class="archive-article-date">
-  	<time datetime="2017-08-03T08:36:23.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2017-08-03</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>转至元数据结尾<br>以lss-gateway为例子<br>运行环境:</p>
-<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="selector-tag">Docker</span> <span class="selector-tag">Version</span>:  1<span class="selector-class">.10</span><span class="selector-class">.3</span></span><br><span class="line"><span class="selector-tag">API</span> <span class="selector-tag">version</span>:     1<span class="selector-class">.22</span></span><br></pre></td></tr></table></figure>
-<p>Dockerfile</p>
-<figure class="highlight dockerfile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">FROM</span> ristory/jre8-with-jce</span><br><span class="line"><span class="keyword">MAINTAINER</span> Ristory &lt;w@zenzet.com&gt;</span><br><span class="line"><span class="keyword">RUN</span><span class="bash"> <span class="built_in">cd</span> /opt/ &amp;&amp;\</span></span><br><span class="line"><span class="bash">    wget ftp://ftp@ftp.zenzet.com/docker/lss-gateway-2.0.10.zip &amp;&amp;\</span></span><br><span class="line"><span class="bash">    unzip lss-gateway-2.0.10.zip &amp;&amp;\</span></span><br><span class="line"><span class="bash">    rm lss-gateway-2.0.10.zip</span></span><br><span class="line"><span class="bash">WORKDIR /opt/lss-gateway-2.0.10</span></span><br><span class="line"><span class="bash">EXPOSE 6500</span></span><br><span class="line"><span class="bash">ENTRYPOINT /opt/lss-gateway-2.0.10/startServer.sh start &amp;&amp; tail -f /opt/lss-gateway-2.0.10/startServer.sh</span></span><br></pre></td></tr></table></figure>
-<p>构建和启动</p>
-<figure class="highlight dockerfile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">docker build -t gateway .</span><br><span class="line">docker <span class="keyword">run</span><span class="bash"> -d -p 6500:6500 gateway</span></span><br></pre></td></tr></table></figure>
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">shell</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-      
-
-      <div style="font-size: 12px;">
-        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
-      </div>
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2017/08/03/服务docker化示例/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
   
     <nav id="page-nav">
-      <a class="extend prev" rel="prev" href="/page/5/">&laquo; Prev</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/4/">4</a><a class="page-number" href="/page/5/">5</a><span class="page-number current">6</span><a class="page-number" href="/page/7/">7</a><a class="page-number" href="/page/8/">8</a><a class="extend next" rel="next" href="/page/7/">Next &raquo;</a>
+      <a class="extend prev" rel="prev" href="/page/5/">&laquo; Prev</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/4/">4</a><a class="page-number" href="/page/5/">5</a><span class="page-number current">6</span><a class="page-number" href="/page/7/">7</a><a class="page-number" href="/page/8/">8</a><a class="page-number" href="/page/9/">9</a><a class="extend next" rel="next" href="/page/7/">Next &raquo;</a>
     </nav>
   
 
@@ -1252,11 +1246,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">性能优化</a>
+                <a href="javascript:void(0)" class="js-tag color1">Maven</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">Maven</a>
+                <a href="javascript:void(0)" class="js-tag color5">性能优化</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1272,10 +1266,6 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">redis</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">test</a>
               </li>
              
@@ -1284,11 +1274,19 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">redis</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Python</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">限流</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">react</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1301,10 +1299,6 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">shell</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">react</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1328,11 +1322,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">jdk工具命令，jstack</a>
+                <a href="javascript:void(0)" class="js-tag color4">idk</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">idk</a>
+                <a href="javascript:void(0)" class="js-tag color5">jdk工具命令，jstack</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1376,11 +1370,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">科学上网</a>
+                <a href="javascript:void(0)" class="js-tag color5">排序算法</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">排序算法</a>
+                <a href="javascript:void(0)" class="js-tag color5">科学上网</a>
               </li>
              
               <li class="article-tag-list-item">
