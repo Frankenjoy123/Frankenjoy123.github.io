@@ -151,6 +151,119 @@
           <div id="js-content" class="content-ll">
             
   
+    <article id="post-zookeeper详解" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2017/11/26/zookeeper详解/">zookeeper详解</a>
+    </h1>
+  
+
+        
+        <a href="/2017/11/26/zookeeper详解/" class="archive-article-date">
+  	<time datetime="2017-11-26T13:47:28.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2017-11-26</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="start"><a href="#start" class="headerlink" title="start"></a>start</h1><figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">bin/zkServer<span class="selector-class">.sh</span> start</span><br><span class="line"></span><br><span class="line">$ bin/zkCli<span class="selector-class">.sh</span> -server <span class="number">127.0</span>.<span class="number">0.1</span>:<span class="number">2181</span></span><br></pre></td></tr></table></figure>
+<h1 id="zk-client-操作"><a href="#zk-client-操作" class="headerlink" title="zk client 操作"></a>zk client 操作</h1><pre><code>stat path [watch]
+set path data [version]
+ls path [watch]
+delquota [-n|-b] path
+ls2 path [watch]
+setAcl path acl
+setquota -n|-b val path
+history
+redo cmdno
+printwatches on|off
+delete path [version]
+sync path
+listquota path
+rmr path
+get path [watch]
+create [-s] [-e] path data acl
+addauth scheme auth
+quit
+getAcl path
+close
+connect host:port
+</code></pre><h1 id="伪集群搭建"><a href="#伪集群搭建" class="headerlink" title="伪集群搭建"></a>伪集群搭建</h1><p>参考：<a href="http://zookeeper.apache.org/doc/trunk/zookeeperStarted.html" target="_blank" rel="external">http://zookeeper.apache.org/doc/trunk/zookeeperStarted.html</a></p>
+<p><strong>集群配置：</strong></p>
+<p>1、配置文件conf/zoo.cfg，除了单机模式的配置之外，还需要新加server.x信息，如下所示。</p>
+<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">tickTime</span>=2000</span><br><span class="line"><span class="attribute">dataDir</span>=D:\09tmp\zookeeper\data</span><br><span class="line"><span class="attribute">clientPort</span>=2181</span><br><span class="line"><span class="attribute">initLimit</span>=5</span><br><span class="line"><span class="attribute">syncLimit</span>=2</span><br><span class="line">server.<span class="attribute">1</span>=zoo1:2888:3888</span><br><span class="line">server.<span class="attribute">2</span>=zoo2:2888:3888</span><br><span class="line">server.<span class="attribute">3</span>=zoo3:2888:3888</span><br></pre></td></tr></table></figure>
+<p>​    zoox表示的是zookeeper服务器的IP地址，第一个端口2888：在zookeeper服务器之间及和leader连接时使用，第二个端口号：3888是在进行leader选举时使用。</p>
+<p>2、同时需要在配置项dataDir所指示目录下创建文件myid文件，其内容为该1中server.x中的x，表示该zookeeper服务器的编号。 </p>
+<p>3、为了降低更新的延迟，需要为事物日志的存放专门指定存储路径，该配置项为：dataLogDir    </p>
+<figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># The number of milliseconds of each tick</span></span><br><span class="line"><span class="attr">tickTime</span>=<span class="number">2000</span></span><br><span class="line"><span class="comment"># The number of ticks that the initial </span></span><br><span class="line"><span class="comment"># synchronization phase can take</span></span><br><span class="line"><span class="attr">initLimit</span>=<span class="number">10</span></span><br><span class="line"><span class="comment"># The number of ticks that can pass between </span></span><br><span class="line"><span class="comment"># sending a request and getting an acknowledgement</span></span><br><span class="line"><span class="attr">syncLimit</span>=<span class="number">5</span></span><br><span class="line"><span class="comment"># the directory where the snapshot is stored.</span></span><br><span class="line"><span class="comment"># do not use /tmp for storage, /tmp here is just </span></span><br><span class="line"><span class="comment"># example sakes.</span></span><br><span class="line"><span class="attr">dataDir</span>=D:\\<span class="number">09</span>tmp\\zookeeper\\data</span><br><span class="line"><span class="attr">dataLogDir</span>=D:\\<span class="number">09</span>tmp\\zookeeper\\log</span><br></pre></td></tr></table></figure>
+<p><strong>伪集群配置：</strong></p>
+<p>1、由于所有zookeeper服务器都在一台物理机器上，因此zoo1.cfg中配置项server.x的端口信息，不能相同。且配置项dataDir和dataLogDir也需要为伪服务器单独指定。配置项clientPort在三个服务器中也要配置不同的值，示例如下：</p>
+<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">tickTime</span>=2000</span><br><span class="line"><span class="attribute">dataDir</span>=D:\09tmp\zookeeper\data\\1</span><br><span class="line"><span class="attribute">dataLogDir</span>=D:\09tmp\zookeeper\log\\1</span><br><span class="line"><span class="attribute">clientPort</span>=2181</span><br><span class="line"><span class="attribute">initLimit</span>=5</span><br><span class="line"><span class="attribute">syncLimit</span>=2</span><br><span class="line">server.<span class="attribute">1</span>=localhost:2888:3888</span><br><span class="line">server.<span class="attribute">2</span>=localhost:2889:3889</span><br><span class="line">server.<span class="attribute">3</span>=localhost:2890:3890</span><br></pre></td></tr></table></figure>
+<p>2、同时需要准备zoo2.cfg和zoo3.cfg配置文件，参考1进行配置</p>
+<p>3、在D:\09tmp\zookeeper\data\1、D:\09tmp\zookeeper\data\2和D:\09tmp\zookeeper\data\3中分别创建文件myid，里面填写对应的zookeeper服务器编号。</p>
+<p>4、创建三个文件：zkEnv1.cmd、zkEnv2.cmd和zkEnv3.cmd分别用来指定使用不同的zoo.cfg。</p>
+<p>5、创建三个文件：zkServer1.cmd、zkServer2.cmd和zkServer3.cmd分别用来指定不同的文件zkEnv.cmd。</p>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">zookeeper</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+      
+
+      <div style="font-size: 12px;">
+        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
+      </div>
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2017/11/26/zookeeper详解/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
     <article id="post-Mockito浅谈" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
@@ -1005,174 +1118,6 @@
 
 
   
-    <article id="post-Git-教程" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2017/11/08/Git-教程/">Git 教程</a>
-    </h1>
-  
-
-        
-        <a href="/2017/11/08/Git-教程/" class="archive-article-date">
-  	<time datetime="2017-11-08T05:35:59.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2017-11-08</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h3 id="配置作者邮件"><a href="#配置作者邮件" class="headerlink" title="配置作者邮件"></a>配置作者邮件</h3><figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"> git<span class="built_in"> config </span>--global --<span class="builtin-name">edit</span> </span><br><span class="line"> </span><br><span class="line"> git<span class="built_in"> config </span>--global user.name <span class="string">"your name"</span></span><br><span class="line">git<span class="built_in"> config </span>--global user.email <span class="string">"your email"</span></span><br></pre></td></tr></table></figure>
-<pre><code>HEAD指向的版本就是当前版本，因此，Git允许我们在版本的历史之间穿梭，使用命令
-git reset --hard commit_id。
-git reset --hard HEAD^
-
-穿梭前，用git log可以查看提交历史，以便确定要回退到哪个版本。
-git log --pretty=oneline
-
-要重返未来，用git reflog查看命令历史，以便确定要回到未来的哪个版本。
-git reflog
-</code></pre><h3 id="git-同步github上fork的项目"><a href="#git-同步github上fork的项目" class="headerlink" title="git 同步github上fork的项目"></a>git 同步github上fork的项目</h3><figure class="highlight crmsh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">git checkout <span class="literal">master</span></span><br><span class="line">git remote -v</span><br><span class="line">git remote add leader git@github.com:MyCATApache/tcp-proxy.git</span><br><span class="line">git fetch leader</span><br><span class="line">git merge leader/<span class="literal">master</span></span><br><span class="line">git push origin <span class="literal">master</span></span><br></pre></td></tr></table></figure>
-<p>同步远程服务器，本地复制一份origin</p>
-<pre><code>git fetch origin
-</code></pre><p>建立本地分支 dev -&gt; origin/dev</p>
-<pre><code>git checkout -b dev  origin/dev
-</code></pre><p>git checkout -b [分支名] [远程名]/[分支名]。</p>
-<p>如果你有 1.6.2 以上版本的 Git，还可以用 –track 选项简化：</p>
-<pre><code>$ git checkout --track origin/serverfix
-</code></pre><p>创建分支(remeber)</p>
-<pre><code>git branch iss53
-</code></pre><p>checkout分支(remeber)</p>
-<pre><code>git checkout iss53
-</code></pre><p>创建并checkout分支</p>
-<pre><code>git branch -b iss53
-</code></pre><p>查看所有分支</p>
-<pre><code>git branch -a
-</code></pre><p>推送本地分支到服务器分支<br><code>git push [远程名]  [本地分支]:[远程分支]</code></p>
-<p>删除远程分支  </p>
-<pre><code>git branch -r -d origin/branch-name  
-git push origin :branch-name  
-</code></pre><p>删除本地分支<br><code>git branch -d iss53</code></p>
-<p>当你在 master 下</p>
-<pre><code>$ git pull
-# 等于 fetch origin，然后 merge origin/master
-</code></pre><p>当你在 develop 下</p>
-<pre><code>$ git pull
-# 等于 fetch origin，然后 merge origin/develop
-</code></pre><p>在master分支中</p>
-<pre><code>$ git checkout -b hotfix
-$ vim index.html
-$ git commit -a -m &apos;fixed the broken email address&apos;
-$ git checkout master
-$ git merge hotfix
-$ git branch -d hotfix
-
-git checkout iss53
-Vim index.html
-Git commit -a -m ‘your message’
-
-git merge master. 可以合并master中hotfix的更新
-
-git checkout master
-git merge iss53  可以用git status查看合并产生冲突的文件   git add表示解决，保存到暂存区，再git commit即可
-git branch -d is53
-</code></pre><p>相比git reset，它不会改变现在的提交历史。因此，git revert可以用在公共分支上，git reset应该用在私有分支上。<br>你也可以把git revert当作撤销已经提交的更改，而git reset HEAD用来撤销没有提交的更改。<br>就像git checkout 一样，git revert 也有可能会重写文件。所以，Git会在你执行revert之前要求你提交或者缓存你工作目录中的更改。</p>
-<p>强制重写本地master分支</p>
-<pre><code>git fetch origin master
-git reset --hard FETCH_HEAD
-git clean -df
-</code></pre><p>强制删除远程分支的某个文件</p>
-<pre><code>git rm --cached --force .idea/libraries/Maven__org_springframework_spring_core_4_1_6_RELEASE.xml
-</code></pre><p>​<br>​    </p>
-<h4 id="git-修改remote地址"><a href="#git-修改remote地址" class="headerlink" title="git 修改remote地址"></a>git 修改remote地址</h4><figure class="highlight dsconfig"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">	方法有三种：</span><br><span class="line">1.修改命令</span><br><span class="line"><span class="string">git </span><span class="string">remote </span><span class="built_in">set-url</span> <span class="string">origin </span>[<span class="string">url]</span></span><br><span class="line">例如：<span class="string">Git </span><span class="string">remote </span><span class="built_in">set-url</span> <span class="string">origin </span><span class="string">gitlab@</span><span class="string">gitlab.</span><span class="string">chumob.</span><span class="string">com:PHP/</span><span class="string">hasoffer.</span><span class="string">git</span></span><br><span class="line"><span class="string">2.</span>先删后加</span><br><span class="line"><span class="string">git </span><span class="string">remote </span><span class="string">rm </span><span class="string">origin</span></span><br><span class="line"><span class="string">git </span><span class="string">remote </span><span class="string">add </span><span class="string">origin </span>[<span class="string">url]</span></span><br><span class="line">3.直接修改<span class="string">config文</span>件</span><br></pre></td></tr></table></figure>
-<h4 id="git-diff"><a href="#git-diff" class="headerlink" title="git diff"></a>git diff</h4><pre><code>旧的在前，新的在后
-git diff d1afe9 b588527d &gt; ~/Desktop/patch.diff
-
-git apply --reject ~/Desktop/patch.diff
-
-$ git diff 608e120 4abe32e --name-only
-$ git diff 608e120 4abe32e --name-only | xargs zip update.zip
-</code></pre><h4 id="git-mergetool"><a href="#git-mergetool" class="headerlink" title="git mergetool"></a>git mergetool</h4><figure class="highlight stata"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">下载diffmerge（http:<span class="comment">//download.sourcegear.com/DiffMerge/4.2.1/DiffMerge.4.2.1.1013.intel.stable.pkg）</span></span><br><span class="line">配置git</span><br><span class="line"></span><br><span class="line">确保/usr/<span class="keyword">local</span>/bin/diffmerge存在，若不存在，建立符号链接（ln /Applications/DiffMerge.<span class="keyword">app</span>/Contents/MacOS/DiffMerge /usr/<span class="keyword">local</span>/bin/diffmerge）</span><br><span class="line">git config --<span class="keyword">global</span> diff.tool diffmerge</span><br><span class="line">git config --<span class="keyword">global</span> difftool.diffmerge.cmd <span class="string">"/usr/local/bin/diffmerge \"</span>\<span class="variable">$LOCAL</span>\<span class="string">" \"</span>\<span class="variable">$REMOTE</span>\<span class="string">""</span></span><br><span class="line">git config --<span class="keyword">global</span> <span class="keyword">merge</span>.tool diffmerge</span><br><span class="line">git config --<span class="keyword">global</span> mergetool.diffmerge.trustExitCode true</span><br><span class="line">git config --<span class="keyword">global</span> mergetool.diffmerge.cmd <span class="string">"/usr/local/bin/diffmerge --merge --result=\"</span>\<span class="variable">$MERGED</span>\<span class="string">" \"</span>\<span class="variable">$LOCAL</span>\<span class="string">" \"</span>\<span class="variable">$BASE</span>\<span class="string">" \"</span>\<span class="variable">$REMOTE</span>\<span class="string">""</span></span><br><span class="line">冲突发生后使用 git mergetool 进行<span class="keyword">merge</span></span><br></pre></td></tr></table></figure>
-<h3 id="git-tag"><a href="#git-tag" class="headerlink" title="git tag"></a>git tag</h3><pre><code>$ git tag -a v1.4 -m &apos;my version 1.4&apos;
-$ git tag
-v0.1
-v1.3
-v1.4
-</code></pre><h4 id="git-merge"><a href="#git-merge" class="headerlink" title="git merge"></a>git merge</h4><pre><code>Git merge –no-ff 可以保存你之前的分支历史。能够更好的查看 merge历史，以及branch 状态。
-
-git merge 则不会显示 feature，只保留单条分支记录。    
-</code></pre><p>####添加子项目<br><figure class="highlight jboss-cli"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">git submodule add <span class="params">--name</span> tools <span class="params">--force</span> http:<span class="string">//git.zenzet.com/lss-server/lss-data-mining-tools</span></span><br><span class="line"><span class="keyword">cd</span> tools</span><br><span class="line">git submodule init</span><br><span class="line">git submodule update</span><br><span class="line">git clone <span class="params">--recursive</span> https:<span class="string">//github.com/chaconinc/MainProject</span></span><br></pre></td></tr></table></figure></p>
-<h2 id="git-stash"><a href="#git-stash" class="headerlink" title="git stash"></a>git stash</h2><figure class="highlight stata"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">git stash [<span class="keyword">save</span> message] [-k|--<span class="keyword">no</span>-<span class="keyword">keep</span>-index] [--patch]</span><br><span class="line"></span><br><span class="line">这是git stash保存进度的完整命令形式</span><br><span class="line">使用<span class="keyword">save</span>可以对进度添加备注</span><br><span class="line"># git stash <span class="keyword">save</span> <span class="string">"这是保存的进度"</span></span><br><span class="line"></span><br><span class="line">现在执行<span class="keyword">list</span>，会发现后面会出现自定义的被合租</span><br><span class="line"># git stash <span class="keyword">list</span></span><br><span class="line">stash@&#123;0&#125;: <span class="keyword">On</span> master: 这是保存的进度</span><br><span class="line"></span><br><span class="line">-k和--<span class="keyword">no</span>-<span class="keyword">keep</span>-index指定保存进度后，是否重置暂存区</span><br><span class="line">--patch 会显示工作区和HEAD的差异,通过编辑差异文件，排除不需要保存的内容。和git add -p命令类似</span><br></pre></td></tr></table></figure>
-<figure class="highlight fsharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">git stash  对当前的暂存区和工作区状态进行保存。 </span><br><span class="line">git stash list  列出所有保存的进度列表。 </span><br><span class="line">git stash pop [--index] <span class="meta">[&lt;stash&gt;]</span> 恢复工作进度</span><br><span class="line"></span><br><span class="line">--index 参数：不仅恢复工作区，还恢复暂存区</span><br><span class="line">&lt;stash&gt; 指定恢复某一个具体进度。如果没有这个参数，默认恢复最新进度</span><br><span class="line"></span><br><span class="line">如：以下命令恢复编号为<span class="number">0</span>的进度的工作区和暂存区</span><br><span class="line"># git stash pop --index stash@&#123;<span class="number">0</span>&#125;</span><br></pre></td></tr></table></figure>
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">git</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-      
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/git//" class="article-tag-list-link color4">git</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-
-      <div style="font-size: 12px;">
-        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
-      </div>
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2017/11/08/Git-教程/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
   
     <nav id="page-nav">
       <a class="extend prev" rel="prev" href="/page/4/">&laquo; Prev</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/3/">3</a><a class="page-number" href="/page/4/">4</a><span class="page-number current">5</span><a class="page-number" href="/page/6/">6</a><a class="page-number" href="/page/7/">7</a><a class="page-number" href="/page/8/">8</a><a class="extend next" rel="next" href="/page/6/">Next &raquo;</a>
@@ -1282,15 +1227,7 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">Maven</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">java</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">性能优化</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1298,7 +1235,19 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">性能优化</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">Maven</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">java内存模型</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">linux</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1307,10 +1256,6 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">redis</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">linux</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1330,19 +1275,7 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">react</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">shell</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">spring</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">elastic-job</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1350,11 +1283,19 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">guava</a>
+                <a href="javascript:void(0)" class="js-tag color1">shell</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">debug</a>
+                <a href="javascript:void(0)" class="js-tag color1">react</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">elastic-job</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">guava</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1362,11 +1303,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">rest</a>
+                <a href="javascript:void(0)" class="js-tag color1">debug</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">idk</a>
+                <a href="javascript:void(0)" class="js-tag color5">rest</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1374,7 +1315,7 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">Mac</a>
+                <a href="javascript:void(0)" class="js-tag color4">idk</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1382,11 +1323,27 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">mybatis</a>
+                <a href="javascript:void(0)" class="js-tag color4">Mac</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">maven</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">mybatis</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">vi</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">zookeeper</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">分布式锁</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1402,7 +1359,7 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">vi</a>
+                <a href="javascript:void(0)" class="js-tag color5">科学上网</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1414,15 +1371,7 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">科学上网</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">jvm</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">单例</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1430,7 +1379,7 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">zookeeper</a>
+                <a href="javascript:void(0)" class="js-tag color3">单例</a>
               </li>
             
             <div class="clearfix"></div>

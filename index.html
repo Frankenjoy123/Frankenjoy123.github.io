@@ -151,6 +151,128 @@
           <div id="js-content" class="content-ll">
             
   
+    <article id="post-使用redis实现分布式锁实践" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2018/05/06/使用redis实现分布式锁实践/">使用redis实现分布式锁实践</a>
+    </h1>
+  
+
+        
+        <a href="/2018/05/06/使用redis实现分布式锁实践/" class="archive-article-date">
+  	<time datetime="2018-05-06T14:40:15.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-05-06</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p><img src="http://p3.pstatp.com/large/pgc-image/1525577245216006a030f0d" alt="使用redis实现分布式锁实践"></p>
+<p>分布式锁在多实例部署,分布式系统中经常会使用到,这是因为基于jvm的锁无法满足多实例中锁的需求,本篇将讲下redis如何通过Lua脚本实现分布式锁,不同于网上的redission,完全是手动实现的</p>
+<p>我们先来看一个无锁的情况下会导致什么问题:</p>
+<p>这是一个普通的更新用户年龄的功能,各层代码如下,访问controller层,一个更新,一个查询</p>
+<p><img src="http://p3.pstatp.com/large/pgc-image/1525577245300d6b4ba688e" alt="使用redis实现分布式锁实践"></p>
+<p>这是service层,我们使用contdownlatch发令枪来模拟线程同时并发的情况,发令枪设为32,即32个线程同时去请求修改年龄,</p>
+<p><img src="http://p9.pstatp.com/large/pgc-image/15255772453050353afbd45" alt="使用redis实现分布式锁实践"></p>
+<p>这里使用线程池来提交多线程任务,看代码知道,这里我们已经有了判断年龄的操作,当查询用户查询大于0时,才去调更新用户年龄-1的方法,等下看看有没有用</p>
+<p><img src="http://p1.pstatp.com/large/pgc-image/15255772455100eb9a742aa" alt="使用redis实现分布式锁实践"></p>
+<p>这里是sql,可以看到两个sql,一个查询用户年龄,一个会执行用户年龄每次减1 ,</p>
+<p><img src="http://p3.pstatp.com/large/pgc-image/1525577245426fece8542f5" alt="使用redis实现分布式锁实践"></p>
+<p>这里是用户数据,我们可以看到,用户UID为UR12324的用户,他的年龄是30,接着我们来调32个线程来操作减他年龄</p>
+<p><img src="http://p3.pstatp.com/large/pgc-image/1525577245326426475964f" alt="使用redis实现分布式锁实践"></p>
+<p>我们请求下这个方法</p>
+<p><img src="http://p9.pstatp.com/large/pgc-image/15255772453534c74916aca" alt="使用redis实现分布式锁实践"></p>
+<p>然后看看结果:</p>
+<p><img src="http://p9.pstatp.com/large/pgc-image/1525577245371cd2ab4fb92" alt="使用redis实现分布式锁实践"></p>
+<p><img src="http://p3.pstatp.com/large/pgc-image/1525577245397080653b35e" alt="使用redis实现分布式锁实践"></p>
+<p>可以看到库中年龄已被减为-2,在未加锁的情况下,查询较验并没有什么作用,此时如果加个synchronized或lock锁肯定能避免这种情况,但我们本文讨论的是多实例或分布式环境中,此加锁方式仍然会产生问题,感兴趣的可以试下是不是</p>
+<p>下面我们开始实现一个redis分布式锁,来避免这种情况发生,先说说实现思路:</p>
+<p>1,线程请求访问前先调用加锁的方法,加锁就去里生成一个随机数同时保存在线程本地变量和redis的某key中,此key设有效期为200ms,具体值根据业务执行时间自行调整,加锁成功;</p>
+<p>2.其它线程试着访问拿出它本地变量与redis中某key进行比较,如果不一致,则说明有锁,此线程休眠一段时间,再试着加锁;</p>
+<p>3.加锁成功的线程在操作结束后删掉它持有锁(用lua实现,保证原子性,在它比对和删除锁的过程中,其它线程不会加锁成功),让其它线程再次加锁以执行任务;</p>
+<p>说明:锁的时间为200ms可预防线程挂掉之后死锁,200ms后会自动释放</p>
+<p>下面看看我们写的锁代码:</p>
+<p>片段1:使用redislock 实现lock来复写它的方法</p>
+<p><img src="http://p3.pstatp.com/large/pgc-image/1525577245501a99cfea50b" alt="使用redis实现分布式锁实践"></p>
+<p>片段2:试着加锁的方法</p>
+<p><img src="http://p9.pstatp.com/large/pgc-image/1525577245572b878463b14" alt="使用redis实现分布式锁实践"></p>
+<p>片段3:解锁方法,此处首先从线程本地变量获取它的随机数,然后调用lua脚本,与redis中key相比较,如果相同则删除,否则返回0;</p>
+<p><img src="http://p1.pstatp.com/large/pgc-image/1525577245614230673e2dd" alt="使用redis实现分布式锁实践"></p>
+<p>此为lua脚本方法,用此方法可以保证判断和删除的原子性,在此过程中没有线程可以操作此key</p>
+<p><img src="http://p3.pstatp.com/large/pgc-image/152557724561267daa09ca0" alt="使用redis实现分布式锁实践"></p>
+<p>到此为止,我们锁基本写完,来测试下有没有用:</p>
+<p><img src="http://p3.pstatp.com/large/pgc-image/152557724563138748e9e57" alt="使用redis实现分布式锁实践"></p>
+<p>我们在此方法前后分别加入加锁和解锁方法,使用方式和lock锁一样, 我们重新把年龄恢复到30后来测试一下吧</p>
+<p>先看看日志</p>
+<p><img src="http://p3.pstatp.com/large/pgc-image/1525577245640ca379362f7" alt="使用redis实现分布式锁实践"></p>
+<p>这里可以看到各个线程争夺锁的情况,再看看执行结果</p>
+<p><img src="http://p1.pstatp.com/large/pgc-image/1525577245717677655ba56" alt="使用redis实现分布式锁实践"></p>
+<p><img src="http://p1.pstatp.com/large/pgc-image/15255772457044fb33fcc98" alt="使用redis实现分布式锁实践"></p>
+<p>这里我们可以看到虽然是32个线程并发执行,但此值并不会变为负数,加锁成功.</p>
+<p>我们可以看到最后2个线程并没有执行方法</p>
+<p><img src="http://p9.pstatp.com/large/pgc-image/1525577245690a191cc80f9" alt="使用redis实现分布式锁实践"></p>
+<p><img src="http://p3.pstatp.com/large/pgc-image/152557724586592f2e563bd" alt="使用redis实现分布式锁实践"></p>
+<p>此时说明加锁成功,大家可以在分布式环境中测试更明显,有关极端情况下解锁失败后应该做什么也可以由我们自己决定,比redission要灵活,带锁的redis最好是单实例,在集群中可能会出问题,有机会我们再用zk实现下.</p>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">分布式锁</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+      
+
+      <div style="font-size: 12px;">
+        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
+      </div>
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2018/05/06/使用redis实现分布式锁实践/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
     <article id="post-RateLimit-使用guava来做接口限流" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
@@ -1722,132 +1844,6 @@
 
 
   
-    <article id="post-maven-pom-xml与settings-xml" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2018/03/28/maven-pom-xml与settings-xml/">maven pom.xml与settings.xml</a>
-    </h1>
-  
-
-        
-        <a href="/2018/03/28/maven-pom-xml与settings-xml/" class="archive-article-date">
-  	<time datetime="2018-03-28T14:15:47.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-03-28</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p><strong>pom.xml与settings.xml</strong></p>
-<p>pom.xml与setting.xml，可以说是Maven中最重要的两个配置文件，决定了Maven的核心功能，虽然之前的文章零零碎碎有提到过pom.xml和settings.xml里面的内容，但都是大略带过，学习与研究地并不细致，本文的目的就是详细研究下这两个Maven重要的配置文件，从这两个配置文件可以牵出非常多的Maven话题。</p>
-<p><strong>Maven坐标</strong></p>
-<p>首先谈一下为什么要使用Maven坐标。</p>
-<p>Maven世界拥有数量非常巨大的构件，也就是平时使用的一些jar、war等文件，在Maven为这些构件引入坐标概念之前，我们无法使用任何一种方式来唯一标识所有这些构件。因此，如果需要使用Spring依赖，那么就去Spring官网寻找；如果需要使用log4j依赖，那么又去Apache官网寻找。又因为各个网站风格迥异，大量时间花费在了搜索和浏览网页的工作上。<strong>没有统一规范与法则，工作就无法自动化，重复性的劳动本来就应该交给机器来做</strong>。</p>
-<p>Maven定义了这样一组规则：<strong>世界上任何一个构件都可以使用Maven坐标唯一标识</strong>，Maven坐标元素包括groupId、artifactId、version、packaging、classifier，现在只要我们提供正确的元素坐标，Maven就能找到对应的构件。至于去哪里下载，Maven本身内置了一个中央仓库的地址”<a href="http://repo1.maven.org/maven2&quot;，该中央仓库包含了世界上绝大部分流行的开源项目构件，Mavne会在需要的时候去那里下载，当然也可以配置自己的中央仓库地址，去自己的中央仓库下载构件。" target="_blank" rel="external">http://repo1.maven.org/maven2&quot;，该中央仓库包含了世界上绝大部分流行的开源项目构件，Mavne会在需要的时候去那里下载，当然也可以配置自己的中央仓库地址，去自己的中央仓库下载构件。</a></p>
-<p>举个例子，Spring的context：</p>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-context<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>4.2.6.RELEASE<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span></span></span><br></pre></td></tr></table></figure>
-<p>看一下下属的各个元素：</p>
-<ul>
-<li>groupId：定义当前Maven项目隶属的实际项目。由于Maven项目和实际项目未必是一对一的关系，比如SpringFramework这个实际项目可能对应的Maven项目有很多，像core、context、expression等等，因此<strong>groupId不应该对应项目隶属的公司或组织</strong>，否则artifact将很难定义</li>
-<li>artifactId：定义实际项目中的一个Maven模块，推荐的做法是使用实际项目名称作为artifactId的前缀，这样会很方便去寻找实际构件</li>
-<li>version：定义Maven项目当前所处的版本，如上面的spring-context就是4.2.6的，RELEASE表示正式发行版本</li>
-<li>packing：定义Maven项目的打包方式，这项不是必须的，没列出来，不定义默认就是jar的打包方式</li>
-<li>classifier：帮助定义构件输出的一些附属构件，比如xxx-javadoc.jar、xxx-sources.jar，附属构件与主构件对应，这项是不能直接定义的</li>
-</ul>
-<p>Maven坐标的概念大致上就是这样，理解Maven坐标，是理解Maven很重要的一步。</p>
-<p><strong>传递性依赖</strong></p>
-<p>什么是传递性依赖，以Spring举一个例子。使用Spring的时候会依赖于其他开源的类库，此时有两种做法：</p>
-<p>1、下载一个很大的.zip包，里面包含了所有Spring的jar，但是这么做往往就引入了许多不必要的依赖</p>
-<p>2、只下载spring相关的.zip包，不包含依赖，实际使用的时候根据出错信息，加入需要的其他依赖</p>
-<p>显然这两种做法都非常麻烦，Maven的传递性依赖机制很好地解决了这一问题。打开spring-core-4.1.0.RELEASE的pom.xml，我截取一段关键部分：</p>
-<p><a href="javascript:void(0" target="_blank" rel="external"><img src="https://common.cnblogs.com/images/copycode.gif" alt="复制代码"></a>;)</p>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependencies</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>commons-codec<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>commons-codec<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">version</span>&gt;</span>1.9<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">scope</span>&gt;</span>compile<span class="tag">&lt;/<span class="name">scope</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">optional</span>&gt;</span>true<span class="tag">&lt;/<span class="name">optional</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>commons-logging<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>commons-logging<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">version</span>&gt;</span>1.1.3<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">scope</span>&gt;</span>compile<span class="tag">&lt;/<span class="name">scope</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">    ...</span><br><span class="line"><span class="tag">&lt;/<span class="name">dependencies</span>&gt;</span></span><br></pre></td></tr></table></figure>
-<p><a href="javascript:void(0" target="_blank" rel="external"><img src="https://common.cnblogs.com/images/copycode.gif" alt="复制代码"></a>;)</p>
-<p>比如A项目依赖了spring-core，spring-core又依赖了commons-codec和commons-logging，那么commons-codec和commons-logging就是A项目的一个传递性依赖。有了传递性依赖机制，在使用spring-core的时候就不用去考虑它依赖了什么，也不用担心引入多余的依赖，Maven会解析各个直接依赖的POM，将那些必要的间接依赖，以传递性依赖的形式引入到当前的项目中去。</p>
-<p>有了传递性依赖机制，一方面大大简化和方便了依赖声明，另一方面在大部分情况下我们只需要关心项目的直接依赖是什么而不用考虑这些直接依赖会引入什么传递性依赖，不过有时候传递性依赖也会有一些问题，此时我们就需要清除地知道该传递性依赖是从哪条路径引入的，这就叫依赖调解，依赖调解主要有两点原则：</p>
-<p>1、A-&gt;B-&gt;C-&gt;X(1.0)，A-&gt;D-&gt;X(2.0)，此时两条依赖路径上有两个版本的X，此时遵循<strong>路径最近者优先</strong>，因此X(2.0)将被解析使用</p>
-<p>2、A-&gt;B-&gt;Y(1.0)，A-&gt;C-&gt;Y(2.0)，Y(1.0)和Y(2.0)的依赖长度是一样的，从Maven2.0.9开始，此时遵循<strong>第一声明者优先</strong>，即顺序最靠前的那个依赖优先</p>
-<p><strong>排除依赖</strong></p>
-<p>传递性依赖会给项目隐式地引入很多依赖，这极大地简化了项目依赖的管理，但是有时候这种特性也会带来问题。比如有种情况：</p>
-<figure class="highlight dns"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">当前项目依赖<span class="keyword">A</span>，<span class="keyword">A</span>由于某些原因依赖了另外一个类库的SNAPSHOT版本，那么这个SNAPSHOT就会成为当前项目的传递性依赖，二SNAPSHOT的不稳定性将直接影响到当前的项目，此时就需要排除该SNAPSHOT，并且在当前项目中声明该类库的某个正式发布的版本</span><br></pre></td></tr></table></figure>
-<p>排除依赖很简单，看一下写法：</p>
-<p><a href="javascript:void(0" target="_blank" rel="external"><img src="https://common.cnblogs.com/images/copycode.gif" alt="复制代码"></a>;)</p>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.alibaba.rocketmq<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>rocketmq-client<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>3.2.7<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">exclusions</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">exclusion</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>apache-lang<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>commons-lang<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">exclusion</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">exclusions</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
-<p><a href="javascript:void(0" target="_blank" rel="external"><img src="https://common.cnblogs.com/images/copycode.gif" alt="复制代码"></a>;)</p>
-<p>这里我引入了rocketmq的依赖，但是我不想依赖rocketmq里面的apache-lang，而想要自己引入依赖，所以我就把apache-lang给排除了。</p>
-<p>这里需要注意的是，声明exclusion的时候只需要groupId和artifactId即可，而不需要version元素，这是因为只需要groupId和artifactId就能唯一定位依赖图中的某个依赖。换句话说，Maven解析后的依赖中，不可能出现groupId和artifactId相同，但是version不同的两个依赖。</p>
-<p><strong>settings.xml</strong></p>
-<p>settings.xml里面是Maven的基本配置，元素比较多，逐一看一下</p>
-<p><strong>1、proxy</strong></p>
-<p>proxy表示Maven的代理，看一下写法：</p>
-<p><a href="javascript:void(0" target="_blank" rel="external"><img src="https://common.cnblogs.com/images/copycode.gif" alt="复制代码"></a>;)</p>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">proxies</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">proxy</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">id</span>&gt;</span>optional<span class="tag">&lt;/<span class="name">id</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">active</span>&gt;</span>true<span class="tag">&lt;/<span class="name">active</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">protocol</span>&gt;</span>http<span class="tag">&lt;/<span class="name">protocol</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">username</span>&gt;</span>proxyuser<span class="tag">&lt;/<span class="name">username</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">password</span>&gt;</span>proxypass<span class="tag">&lt;/<span class="name">password</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">host</span>&gt;</span>proxy.host.net<span class="tag">&lt;/<span class="name">host</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">port</span>&gt;</span>80<span class="tag">&lt;/<span class="name">port</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">nonProxyHosts</span>&gt;</span>local.net|some.host.com<span class="tag">&lt;/<span class="name">nonProxyHosts</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">proxy</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">proxies</span>&gt;</span></span><br></pre></td></tr></table></figure>
-<p><a href="javascript:void(0" target="_blank" rel="external"><img src="https://common.cnblogs.com/images/copycode.gif" alt="复制代码"></a>;)</p>
-<p>需要proxy是因为很多时候你所在的公司基于安全因素考虑，要求你使用通过安全认证的代理访问因特网。这种情况下，就需要为Maven配置HTTP代理，才能让它正常访问外部仓库，以下载所需要的资源。proxies下可以配置多个proxy元素，如果声明了多个proxy元素，则默认情况下第一个被激活的proxy会生效。active为true表示激活该代理，protocol表示使用的代理协议，当然最重要的是指定正确的主机名（host）和端口（port），如果代理服务器需要认证则配置username和password，nonProxyHost元素表示指定哪些主机名不需要代理，可以用”|”分隔多个主机名，也支持通配符”*”。</p>
-<p><strong>2、repository</strong></p>
-<p>repository表示Maven的中央仓库，因为尽管默认的远程仓库中的构件非常庞大，但是总归会有不满足我们需求的时候，这时候就要用到别的中央仓库了。看一下写法：</p>
-<p><a href="javascript:void(0" target="_blank" rel="external"><img src="https://common.cnblogs.com/images/copycode.gif" alt="复制代码"></a>;)</p>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">repository</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">id</span>&gt;</span>public<span class="tag">&lt;/<span class="name">id</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">name</span>&gt;</span>local private nexus<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">url</span>&gt;</span>http://192.168.1.6:8081/nexus/content/groups/public<span class="tag">&lt;/<span class="name">url</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">releases</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">enabled</span>&gt;</span>true<span class="tag">&lt;/<span class="name">enabled</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">releases</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">snapshots</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">enabled</span>&gt;</span>false<span class="tag">&lt;/<span class="name">enabled</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">snapshots</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">repository</span>&gt;</span></span><br></pre></td></tr></table></figure>
-<p><a href="javascript:void(0" target="_blank" rel="external"><img src="https://common.cnblogs.com/images/copycode.gif" alt="复制代码"></a>;)</p>
-<p>可以声明多个repository。id必须是唯一的，尤其注意，Maven自带的中央仓库使用的id为central，如果其他仓库声明也用该id，就会覆盖中央仓库的配置。releases和snapshots比较重要，前者表示开启仓库的发布版本下载支持，后者表示关闭仓库的快照版本下载支持，这样一来，Maven就会去仓库下载发布版本的构件而不会下载快照版本的构件了。</p>
-<p><strong>3、server</strong></p>
-<p>大部分远程仓库无须认证就可以访问，但是有时候处于安全方面的因素考虑，需要提供认证信息才能访问一些远程仓库，处于安全考虑，认证信息一般只放在settings.xml中，server就是认证元素。看一下配置：</p>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">server</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">id</span>&gt;</span>nexus-releases<span class="tag">&lt;/<span class="name">id</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">username</span>&gt;</span>deployment<span class="tag">&lt;/<span class="name">username</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">password</span>&gt;</span>deployment<span class="tag">&lt;/<span class="name">password</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">server</span>&gt;</span></span><br></pre></td></tr></table></figure>
-<p>这里的关键是id，这个id必须与需要认证的repository元素的id完全一致才行，换句话说，正式这个id将认证信息和仓库配置联系在了一起。</p>
-<p><strong>4、mirror</strong></p>
-<p>如果仓库X可以提供仓库Y存储的所有内容，那么就可以认为仓库X是仓库Y的一个镜像（mirror），换句话说，任何一个可以从Y中获取到的构件够可以从X中获取到。举个例子，”<a href="http://maven.net.cn/content/groups/public/&quot;是中央仓库&quot;http://repo1.maven.org/maven2/&quot;在中国的镜像，由于地理位置的因素，该镜像往往能够提供比中央仓库更快的服务，这就是为什么要使用mirror的原因。" target="_blank" rel="external">http://maven.net.cn/content/groups/public/&quot;是中央仓库&quot;http://repo1.maven.org/maven2/&quot;在中国的镜像，由于地理位置的因素，该镜像往往能够提供比中央仓库更快的服务，这就是为什么要使用mirror的原因。</a></p>
-<p>看一下mirror的配置：</p>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">mirror</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">id</span>&gt;</span>nexus<span class="tag">&lt;/<span class="name">id</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">name</span>&gt;</span>internal nexus repository<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">url</span>&gt;</span>http://192.168.1.6:8081/nexus/content/groups/public<span class="tag">&lt;/<span class="name">url</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">mirrorOf</span>&gt;</span>*<span class="tag">&lt;/<span class="name">mirrorOf</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">mirror</span>&gt;</span></span><br></pre></td></tr></table></figure>
-<p>该例子中，mirrof为*，表示该配置为所有中央仓库的镜像，任何对于中央仓库的请求都会转至该镜像。另外三个元素id、name、url与一般仓库配置无异，表示该镜像仓库的唯一标识符、名称以及地址。类似的，如果该镜像需要认证，也可以基于该id配置仓库认证。</p>
-
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-      
-
-      <div style="font-size: 12px;">
-        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
-      </div>
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2018/03/28/maven-pom-xml与settings-xml/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
   
     <nav id="page-nav">
       <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="page-number" href="/page/3/">3</a><span class="space">&hellip;</span><a class="page-number" href="/page/8/">8</a><a class="extend next" rel="next" href="/page/2/">Next &raquo;</a>
@@ -1957,15 +1953,7 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">Maven</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">java</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">性能优化</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1973,7 +1961,19 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">性能优化</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">Maven</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">java内存模型</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">linux</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1982,10 +1982,6 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">redis</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">linux</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -2005,19 +2001,7 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">react</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">shell</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">spring</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">elastic-job</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -2025,11 +2009,19 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">guava</a>
+                <a href="javascript:void(0)" class="js-tag color1">shell</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">debug</a>
+                <a href="javascript:void(0)" class="js-tag color1">react</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">elastic-job</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">guava</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -2037,11 +2029,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">rest</a>
+                <a href="javascript:void(0)" class="js-tag color1">debug</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">idk</a>
+                <a href="javascript:void(0)" class="js-tag color5">rest</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -2049,7 +2041,7 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">Mac</a>
+                <a href="javascript:void(0)" class="js-tag color4">idk</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -2057,11 +2049,27 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">mybatis</a>
+                <a href="javascript:void(0)" class="js-tag color4">Mac</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">maven</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">mybatis</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">vi</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">zookeeper</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">分布式锁</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -2077,7 +2085,7 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">vi</a>
+                <a href="javascript:void(0)" class="js-tag color5">科学上网</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -2089,15 +2097,7 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">科学上网</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">jvm</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">单例</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -2105,7 +2105,7 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">zookeeper</a>
+                <a href="javascript:void(0)" class="js-tag color3">单例</a>
               </li>
             
             <div class="clearfix"></div>
