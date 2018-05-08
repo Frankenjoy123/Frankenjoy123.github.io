@@ -151,6 +151,281 @@
           <div id="js-content" class="content-ll">
             
   
+    <article id="post-centos7一键部署java和node环境" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2017/08/03/centos7一键部署java和node环境/">centos7一键部署java和node环境</a>
+    </h1>
+  
+
+        
+        <a href="/2017/08/03/centos7一键部署java和node环境/" class="archive-article-date">
+  	<time datetime="2017-08-03T08:09:15.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2017-08-03</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>root下执行<br><figure class="highlight livecodeserver"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl -o- <span class="keyword">ftp</span>://<span class="keyword">ftp</span>@<span class="keyword">ftp</span>.zenzet.com/<span class="built_in">shell</span>/initCentos7.sh | bash</span><br></pre></td></tr></table></figure></p>
+<h4 id="initCentos7-sh内容"><a href="#initCentos7-sh内容" class="headerlink" title="initCentos7.sh内容"></a>initCentos7.sh内容</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#!/bin/bash</span></span><br><span class="line"><span class="comment">#author: ristory</span></span><br><span class="line"><span class="comment">#modified: Sun Yu @2016-11-24</span></span><br><span class="line"><span class="comment">#description: init development environment</span></span><br><span class="line">yum update -y</span><br><span class="line">yum install -y lrzsz wget curl unzip net-tools gcc.x86_64 gcc-c++ </span><br><span class="line"><span class="comment">#jdk env(jdk8+jce8)</span></span><br><span class="line">mkdir -p /root/java</span><br><span class="line"><span class="built_in">cd</span> /root/java</span><br><span class="line">wget ftp://ftp@ftp.zenzet.com/docker/jdk-8u102-linux-x64.rpm</span><br><span class="line">rpm -ivh jdk-8u102-linux-x64.rpm</span><br><span class="line">rm jdk-8u102-linux-x64.rpm</span><br><span class="line">sed -i <span class="string">'$a #set java environment'</span> /etc/profile</span><br><span class="line">sed -i <span class="string">'$a export JAVA_HOME=/usr/java/latest'</span> /etc/profile</span><br><span class="line">sed -i <span class="string">'$a export CLASSPATH=.:$JAVA_HOME/lib/dt.jar:$JAVA_HOME/lib/tools.jar'</span> /etc/profile</span><br><span class="line">sed -i <span class="string">'$a export PATH=$PATH:$JAVA_HOME/bin'</span> /etc/profile</span><br><span class="line">sed -i <span class="string">'$a export NVM_DIR=/root/.nvm'</span> /etc/profile</span><br><span class="line">sed -i <span class="string">'$a export NVM_DIR JAVA_HOME CLASSPATH PATH'</span> /etc/profile</span><br><span class="line"><span class="built_in">source</span> /etc/profile</span><br><span class="line"><span class="built_in">cd</span> /usr/bin</span><br><span class="line">ln -s -f /usr/java/latest/bin/java</span><br><span class="line">java -version</span><br><span class="line"><span class="built_in">echo</span> <span class="string">"========================================="</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">"===				JDK8 ok				==="</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">"========================================="</span></span><br><span class="line"><span class="built_in">cd</span> /root/java</span><br><span class="line">wget ftp://ftp@ftp.zenzet.com/docker/jce_policy-8.zip</span><br><span class="line">unzip jce_policy-8.zip</span><br><span class="line"><span class="built_in">cd</span> /usr/java/latest/jre/lib/security</span><br><span class="line">mv local_policy.jar local_policy.jar.bak</span><br><span class="line">mv US_export_policy.jar US_export_policy.jar.bak</span><br><span class="line">cp /root/java/UnlimitedJCEPolicyJDK8/local_policy.jar /usr/java/latest/jre/lib/security</span><br><span class="line">cp /root/java/UnlimitedJCEPolicyJDK8/US_export_policy.jar /usr/java/latest/jre/lib/security</span><br><span class="line">rm -rf /root/java/UnlimitedJCEPolicyJDK8</span><br><span class="line">rm -rf jce_policy-8.zip</span><br><span class="line"><span class="built_in">echo</span> <span class="string">"========================================="</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">"===				JCE8 ok				==="</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">"========================================="</span></span><br><span class="line">su - deployer -c <span class="string">"curl -o- ftp://ftp@ftp.zenzet.com/shell/initNodeJS.sh | bash"</span></span><br><span class="line">rm -rf install.sh</span><br><span class="line">systemctl stop firewalld.service</span><br><span class="line"><span class="built_in">echo</span> <span class="string">"========================================="</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">"===		    Stop firewall ok    	==="</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">"========================================="</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">"========================================="</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">"===	 100% Done. Pls reconnect ssh  	==="</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">"========================================="</span></span><br><span class="line"><span class="built_in">exit</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight crmsh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#!/bin/bash</span></span><br><span class="line"><span class="comment">#author: Sun Yu</span></span><br><span class="line"><span class="comment">#description: init development environment#node env(v0.10.48+v6.9.1withcnpm+pm2)</span></span><br><span class="line">cd /home/deployer</span><br><span class="line">wget -O- https://raw.githubusercontent.com/aliyun-<span class="keyword">node</span><span class="title">/tnvm</span>/<span class="literal">master</span>/install.sh | bash</span><br><span class="line">source /home/deployer/.bashrc</span><br><span class="line">tnvm install <span class="keyword">node</span><span class="title">-v0</span>.<span class="number">10.48</span></span><br><span class="line">tnvm use <span class="keyword">node</span><span class="title">-v0</span>.<span class="number">10.48</span></span><br><span class="line">echo <span class="string">"========================================="</span></span><br><span class="line">echo <span class="string">"===           Node v0.10.48 ok        ==="</span></span><br><span class="line">echo <span class="string">"========================================="</span></span><br><span class="line">tnvm install <span class="keyword">node</span><span class="title">-v6</span>.<span class="number">9.1</span></span><br><span class="line">tnvm use <span class="keyword">node</span><span class="title">-v6</span>.<span class="number">9.1</span></span><br><span class="line">npm install cnpm -g --<span class="attr">registry=</span>https://registry.npm.taobao.org</span><br><span class="line">cnpm install -g pm2</span><br><span class="line">echo <span class="string">"========================================="</span></span><br><span class="line">echo <span class="string">"===    Node v6.9.1 + cnpm + pm2 ok    ==="</span></span><br><span class="line">echo <span class="string">"========================================="</span></span><br><span class="line">rm -rf install.sh</span><br><span class="line">exit</span><br></pre></td></tr></table></figure>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">shell</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+      
+
+      <div style="font-size: 12px;">
+        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
+      </div>
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2017/08/03/centos7一键部署java和node环境/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
+    <article id="post-Spring Bean的初始化启动方式" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2017/08/01/Spring Bean的初始化启动方式/">Spring Bean的初始化启动方式</a>
+    </h1>
+  
+
+        
+        <a href="/2017/08/01/Spring Bean的初始化启动方式/" class="archive-article-date">
+  	<time datetime="2017-07-31T16:00:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2017-08-01</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="方式一-xml-lt-bean-init-method-quot-init-quot"><a href="#方式一-xml-lt-bean-init-method-quot-init-quot" class="headerlink" title="方式一: xml &lt;bean init-method=&quot;init&quot;"></a>方式一: <code>xml &lt;bean init-method=&quot;init&quot;</code></h1><figure class="highlight dust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="xml"><span class="tag">&lt;<span class="name">bean</span> <span class="attr">class</span>=<span class="string">"cn.fraudmetrix.billing.consumer.FlowConsumer"</span> <span class="attr">init-method</span>=<span class="string">"init"</span> <span class="attr">destroy-method</span>=<span class="string">"destroy"</span>&gt;</span></span></span><br><span class="line"><span class="xml">    <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"kafkaTopics"</span> <span class="attr">value</span>=<span class="string">"$</span></span></span><span class="template-variable">&#123;billing.kafka.topics&#125;</span><span class="xml"><span class="tag"><span class="string">"</span>/&gt;</span></span></span><br><span class="line"><span class="xml">    <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"debug"</span> <span class="attr">value</span>=<span class="string">"$</span></span></span><span class="template-variable">&#123;billing.flow.consumer.debug&#125;</span><span class="xml"><span class="tag"><span class="string">"</span>/&gt;</span></span></span><br><span class="line"><span class="xml"><span class="tag">&lt;/<span class="name">bean</span>&gt;</span></span></span><br></pre></td></tr></table></figure>
+<h1 id="方式二-implements-InitializingBean"><a href="#方式二-implements-InitializingBean" class="headerlink" title="方式二: implements InitializingBean"></a>方式二: <code>implements InitializingBean</code></h1><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">DisconfPropertiesFactory</span> <span class="keyword">implements</span> <span class="title">FactoryBean</span>&lt;<span class="title">Properties</span>&gt;, <span class="title">InitializingBean</span> </span>&#123;</span><br><span class="line">    ...</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">afterPropertiesSet</span><span class="params">()</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (<span class="keyword">this</span>.singleton) &#123;</span><br><span class="line">            <span class="keyword">this</span>.singletonInstance = <span class="keyword">this</span>.createProperties();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    ...</span><br></pre></td></tr></table></figure>
+<h1 id="方式三-注解-PostConstruct-PreDestroy"><a href="#方式三-注解-PostConstruct-PreDestroy" class="headerlink" title="方式三:注解@PostConstruct @PreDestroy"></a>方式三:<code>注解@PostConstruct @PreDestroy</code></h1><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.myapp.core.annotation.init;  </span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> javax.annotation.PostConstruct;  </span><br><span class="line"><span class="keyword">import</span> javax.annotation.PreDestroy;  </span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">PersonService</span> </span>&#123;  </span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> String message;  </span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">getMessage</span><span class="params">()</span> </span>&#123;  </span><br><span class="line">        <span class="keyword">return</span> message;  </span><br><span class="line">    &#125;  </span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setMessage</span><span class="params">(String message)</span> </span>&#123;  </span><br><span class="line">        <span class="keyword">this</span>.message = message;  </span><br><span class="line">    &#125;  </span><br><span class="line"></span><br><span class="line">    <span class="meta">@PostConstruct</span>  </span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">init</span><span class="params">()</span></span>&#123;  </span><br><span class="line">        System.out.println(<span class="string">"I'm init method using @PostConstrut...."</span>+message);  </span><br><span class="line">    &#125;  </span><br><span class="line"></span><br><span class="line">    <span class="meta">@PreDestroy</span>  </span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">dostory</span><span class="params">()</span></span>&#123;  </span><br><span class="line">        System.out.println(<span class="string">"I'm destory method using @PreDestroy....."</span>+message);  </span><br><span class="line">    &#125;  </span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<hr>
+<h2 id="bean-factory负责bean创建的最初四步，然后移交给应用上下文做后续创建过程："><a href="#bean-factory负责bean创建的最初四步，然后移交给应用上下文做后续创建过程：" class="headerlink" title="bean factory负责bean创建的最初四步，然后移交给应用上下文做后续创建过程："></a>bean factory负责bean创建的最初四步，然后移交给应用上下文做后续创建过程：</h2><ul>
+<li>1.Spring初始化bean</li>
+<li>2.Spring将值和其他bean的引用注入（inject）到当前bean的对应属性中；</li>
+<li>3.如果Bean实现了BeanNameAware接口，Spring会传入bean的ID来调用setBeanName方法；</li>
+<li>4.如果Bean实现了BeanFactoryAware接口，Spring传入bean factory的引用来调用setBeanFactory方法；</li>
+<li>5.如果Bean实现了ApplicationContextAware接口，Spring将传入应用上下文的引用来调用setApplicationContext方法；</li>
+<li>6.如果Bean实现了BeanPostProcessor接口，则Spring调用postProcessBeforeInitialization方法，这个方法在初始化和属性注入之后调用，在任何初始化代码之前调用；</li>
+<li>7.如果Bean实现了InitializingBean接口，则需要调用该接口的afterPropertiesSet方法；如果在bean定义的时候设置了init-method属性，则需要调用该属性指定的初始化方法；</li>
+<li>8.如果Bean实现了BeanPostProcessor接口，则Spring调用postProcessAfterInitialization方法</li>
+<li>9.在这个时候bean就可以用于在应用上下文中使用了，当上下文退出时bean也会被销毁；</li>
+<li>10.如果Bean实现了DisposableBean接口，Spring会调用destroy()方法;如果在bean定义的时候设置了destroy-method， 则此时需要调用指定的方法。</li>
+</ul>
+<p><code>Spring实战1：Spring初探 - 简书</code><br><a href="http://www.jianshu.com/p/9370707091ef" target="_blank" rel="external">http://www.jianshu.com/p/9370707091ef</a></p>
+<hr>
+<p><strong>参考</strong><br><code>13 Spring Bean init-method 和 destroy-method实例 - 简书</code><br><a href="http://www.jianshu.com/p/30a0a74cd31f" target="_blank" rel="external">http://www.jianshu.com/p/30a0a74cd31f</a></p>
+<p><code>通过Spring @PostConstruct 和 @PreDestroy 方法 实现初始化和销毁bean之前进行的操作 - 安德里亚的成长 - CSDN博客</code><br><a href="http://blog.csdn.net/topwqp/article/details/8681497" target="_blank" rel="external">http://blog.csdn.net/topwqp/article/details/8681497</a></p>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color2">spring</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+      
+
+      <div style="font-size: 12px;">
+        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
+      </div>
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2017/08/01/Spring Bean的初始化启动方式/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
+    <article id="post-科学上网 - Shadowsocks for Mac" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2017/07/25/科学上网 - Shadowsocks for Mac/">科学上网 - Shadowsocks for Mac</a>
+    </h1>
+  
+
+        
+        <a href="/2017/07/25/科学上网 - Shadowsocks for Mac/" class="archive-article-date">
+  	<time datetime="2017-07-24T16:00:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2017-07-25</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="一-安装工具"><a href="#一-安装工具" class="headerlink" title="一.安装工具"></a>一.安装工具</h1><p><a href="https://github.com/shadowsocksr/ShadowsocksX-NG/releases" target="_blank" rel="external">https://github.com/shadowsocksr/ShadowsocksX-NG/releases</a> ★<br>(更多详见下文：科学上网 - Shadowsocks 工具集.md)</p>
+<h1 id="二-快速添加-amp-导入配置"><a href="#二-快速添加-amp-导入配置" class="headerlink" title="二.快速添加 &amp; 导入配置"></a>二.快速添加 &amp; 导入配置</h1><ul>
+<li><p>快速添加：服务器-<code>扫描屏幕上的二维码</code><br><img src="http://7xnbs3.com1.z0.glb.clouddn.com/17-7-25/57288223.jpg" alt=""></p>
+</li>
+<li><p>导入配置：下载配置 <code>gui-config.json</code>  【<code>服务器-导入服务器配置文件</code>】<br><img src="http://7xnbs3.com1.z0.glb.clouddn.com/17-7-25/46603758.jpg" alt=""></p>
+</li>
+<li><p>测速（服务器测速）<br><img src="http://7xnbs3.com1.z0.glb.clouddn.com/17-7-25/31937761.jpg" alt=""></p>
+</li>
+</ul>
+<h1 id="三-确认打开状态和链接方式"><a href="#三-确认打开状态和链接方式" class="headerlink" title="三.确认打开状态和链接方式"></a>三.确认打开状态和链接方式</h1><ul>
+<li>PAC自动模式（GFW List范围）</li>
+<li>全局模式<br><img src="http://7xnbs3.com1.z0.glb.clouddn.com/17-7-25/30541527.jpg" alt=""></li>
+</ul>
+<h1 id="四-体验科学上网"><a href="#四-体验科学上网" class="headerlink" title="四.体验科学上网"></a>四.体验<code>科学上网</code></h1><p><img src="http://7xnbs3.com1.z0.glb.clouddn.com/17-7-25/24067632.jpg" alt=""><br><img src="http://7xnbs3.com1.z0.glb.clouddn.com/17-7-25/27674388.jpg" alt=""></p>
+<hr>
+<p>说明：仅<code>交流科学上网方法及工具</code>,限学习交流使用。<br>代理服务器网上很多. 极客们可以<code>用Docker快速自建服务端</code><br><code>docker run -d -p 80:51348 --restart=always -e PASSWORD=通讯密码 breakwa11/shadowsocksr</code><br><img src="http://7xnbs3.com1.z0.glb.clouddn.com/17-7-25/81881150.jpg" alt=""></p>
+<hr>
+<h1 id="科学上网-Shadowsocks-工具集-md"><a href="#科学上网-Shadowsocks-工具集-md" class="headerlink" title="科学上网 - Shadowsocks 工具集.md"></a>科学上网 - Shadowsocks 工具集.md</h1><h2 id="MAC"><a href="#MAC" class="headerlink" title="MAC"></a>MAC</h2><p><a href="https://github.com/shadowsocksr/ShadowsocksX-NG/releases" target="_blank" rel="external">https://github.com/shadowsocksr/ShadowsocksX-NG/releases</a> ★<br><a href="https://github.com/shadowsocks/ShadowsocksX-NG/releases" target="_blank" rel="external">https://github.com/shadowsocks/ShadowsocksX-NG/releases</a></p>
+<h2 id="Windows"><a href="#Windows" class="headerlink" title="Windows"></a>Windows</h2><p><a href="https://github.com/shadowsocksr/shadowsocksr-csharp/releases" target="_blank" rel="external">https://github.com/shadowsocksr/shadowsocksr-csharp/releases</a> ★<br><a href="https://github.com/shadowsocks/shadowsocks-windows" target="_blank" rel="external">https://github.com/shadowsocks/shadowsocks-windows</a></p>
+<h2 id="Android"><a href="#Android" class="headerlink" title="Android"></a>Android</h2><p><a href="https://github.com/shadowsocks/shadowsocks-android/releases" target="_blank" rel="external">https://github.com/shadowsocks/shadowsocks-android/releases</a> ★<br><a href="https://github.com/shadowsocksr/shadowsocksr-android/releases" target="_blank" rel="external">https://github.com/shadowsocksr/shadowsocksr-android/releases</a></p>
+<h2 id="IOS"><a href="#IOS" class="headerlink" title="IOS"></a>IOS</h2><p><a href="https://itunes.apple.com/us/app/shadowrocket/id932747118" target="_blank" rel="external">https://itunes.apple.com/us/app/shadowrocket/id932747118</a></p>
+<hr>
+<p>Docker: <a href="https://hub.docker.com/r/breakwa11/shadowsocksr/" target="_blank" rel="external">https://hub.docker.com/r/breakwa11/shadowsocksr/</a><br>路由器:<br>刷入<a href="http://www.right.com.cn/forum/thread-161324-1-1.html" target="_blank" rel="external"><code>Padavan固件</code></a>，然后 SSH 登陆路由器，执行以下命令<br><figure class="highlight crystal"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">wget -O- <span class="symbol">https:</span>/<span class="regexp">/capsule.cf/link</span><span class="regexp">/oTxxvI5tIPTxUlCI | bash &amp;&amp; echo -e "\n0 */</span><span class="number">3</span> * * * wget -O- <span class="symbol">https:</span>/<span class="regexp">/capsule.cf/link</span><span class="regexp">/oTxxvI5tIPTxUlCI | bash\n"&gt;&gt; /etc</span><span class="regexp">/storage/cron</span><span class="regexp">/crontabs/admin</span> &amp;&amp; killall crond &amp;&amp; crond</span><br></pre></td></tr></table></figure></p>
+<p>更多详见：<a href="https://github.com/breakwa11/shadowsocks-rss" target="_blank" rel="external">https://github.com/breakwa11/shadowsocks-rss</a></p>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">科学上网</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+      
+
+      <div style="font-size: 12px;">
+        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
+      </div>
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2017/07/25/科学上网 - Shadowsocks for Mac/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
     <article id="post-面试第一题 - HashMap" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
@@ -921,570 +1196,6 @@
 
 
   
-    <article id="post-科学上网" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2016/03/29/科学上网/">科学上网</a>
-    </h1>
-  
-
-        
-        <a href="/2016/03/29/科学上网/" class="archive-article-date">
-  	<time datetime="2016-03-28T16:00:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2016-03-29</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h1 id="客户端-win"><a href="#客户端-win" class="headerlink" title="客户端 win"></a>客户端 win</h1><p><code>PJM～Free VPN</code> 【dekaron vpn】</p>
-<p><a href="http://qqhonbao.com/" target="_blank" rel="external">http://qqhonbao.com/</a></p>
-<h1 id="hosts"><a href="#hosts" class="headerlink" title="hosts"></a>hosts</h1><p><strong>手动</strong><br><code>内容</code> <a href="https://raw.githubusercontent.com/racaljk/hosts/master/hosts" target="_blank" rel="external">https://raw.githubusercontent.com/racaljk/hosts/master/hosts</a></p>
-<p><code>更新文件</code> C:\Windows\System32\drivers\etc\hosts</p>
-<p><strong>自动</strong></p>
-<p><code>下载</code>  <a href="https://github.com/racaljk/hosts/releases" target="_blank" rel="external">https://github.com/racaljk/hosts/releases</a></p>
-<ul>
-<li>自动更新: hosts-1.0\scripts\script_tool_for_windows.bat</li>
-<li>自动更新:hosts\tools\windows.bat</li>
-</ul>
-<p><code>zip Package</code> (Include <code>tool.exe</code> and <code>choose.exe</code>)</p>
-<ul>
-<li><a href="https://git.io/vozMx" target="_blank" rel="external">点我来下载</a><figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">Hosts Tool</span><br><span class="line">这个工具可以帮助你全自动的更换 备份原来的hosts文件</span><br><span class="line">所有麻烦的事情只需要打开一个程序就能搞定</span><br><span class="line">如果你愿意，程序还可以作为服务安装随系统启动</span><br><span class="line">每次开机后每隔30分钟会自动检测hosts文件的更新噢！</span><br></pre></td></tr></table></figure>
-</li>
-</ul>
-<hr>
-<h1 id="更多-github搜索-host"><a href="#更多-github搜索-host" class="headerlink" title="更多-github搜索:host"></a>更多-github搜索:host</h1><h1 id="hosts-tips"><a href="#hosts-tips" class="headerlink" title="hosts tips"></a>hosts tips</h1><p><code>Win+R&gt;</code> <code>cmd&gt;</code><br><code>start https://raw.githubusercontent.com/racaljk/hosts/master/hosts &amp; start C:\Windows\System32\drivers\etc\hosts</code><br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> Copyright (c) 2014-2016, racaljk.</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> https://github.com/racaljk/hosts</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> Last updated: 2016-4-27 &lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt; 持续更新,每小时</span></span><br><span class="line"> </span><br><span class="line"><span class="meta">#</span><span class="bash"> This work is licensed under a CC BY-NC-SA 4.0 International License.</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> https://creativecommons.org/licenses/by-nc-sa/4.0/</span></span><br><span class="line"> </span><br><span class="line"><span class="meta">#</span><span class="bash"> Localhost (DO NOT REMOVE)</span></span><br><span class="line">127.0.0.1    localhost</span><br><span class="line">255.255.255.255    broadcasthost</span><br><span class="line">::1    localhost</span><br><span class="line">fe80::1%lo0    localhost</span><br><span class="line"> </span><br><span class="line"><span class="meta">#</span><span class="bash"> Modified hosts start</span></span><br><span class="line"> </span><br><span class="line"><span class="meta">#</span><span class="bash"> Amazon AWS Start</span></span><br><span class="line">27.0.1.125    ap-northeast-1.console.aws.amazon.com</span><br><span class="line">54.240.226.19    ap-southeast-1.console.aws.amazon.com</span><br><span class="line">54.240.195.197    ap-southeast-2.console.aws.amazon.com</span><br><span class="line">176.32.100.36    aws.amazon.com</span><br><span class="line">...</span><br></pre></td></tr></table></figure></p>
-<h1 id="更多web-hosts"><a href="#更多web-hosts" class="headerlink" title="更多web - hosts"></a>更多web - hosts</h1><p><a href="https://github.com/racaljk/hosts/blob/master/hosts" target="_blank" rel="external">https://github.com/racaljk/hosts/blob/master/hosts</a></p>
-<p><a href="https://raw.githubusercontent.com/racaljk/hosts/master/hosts" target="_blank" rel="external">https://raw.githubusercontent.com/racaljk/hosts/master/hosts</a></p>
-<p><a href="https://github.com/StevenBlack/hosts/blob/master/hosts" target="_blank" rel="external">https://github.com/StevenBlack/hosts/blob/master/hosts</a></p>
-<h1 id="Ping-VPN"><a href="#Ping-VPN" class="headerlink" title="Ping VPN"></a>Ping VPN</h1><p>liuxiang.1227@qq.com&gt;&lt;google</p>
-<h1 id="壁虎漫步-chrome浏览器插件"><a href="#壁虎漫步-chrome浏览器插件" class="headerlink" title="壁虎漫步 (chrome浏览器插件)"></a>壁虎漫步 (chrome浏览器插件)</h1><p><a href="http://45.124.67.101:8080/?code=JTCB136VTElC4fEvYQrxt1avWqWdrhdO&amp;index=0" target="_blank" rel="external">http://45.124.67.101:8080/?code=JTCB136VTElC4fEvYQrxt1avWqWdrhdO&amp;index=0</a></p>
-<h1 id="开眼-chrome浏览器插件"><a href="#开眼-chrome浏览器插件" class="headerlink" title="开眼   (chrome浏览器插件)"></a>开眼   (chrome浏览器插件)</h1><p>开眼chrome插件官方及下载地址:seeworld.co<br><a href="https://chrome.google.com/webstore/detail/%E5%BC%80%E7%9C%BC/kpamljbkjaaljbcgobdealnpalcgicna" target="_blank" rel="external">https://chrome.google.com/webstore/detail/%E5%BC%80%E7%9C%BC/kpamljbkjaaljbcgobdealnpalcgicna</a></p>
-<h1 id="更多chrome插件-青杏-枸杞-云游-穿越"><a href="#更多chrome插件-青杏-枸杞-云游-穿越" class="headerlink" title="更多chrome插件: 青杏,枸杞,云游,穿越"></a>更多chrome插件: 青杏,枸杞,云游,穿越</h1><h1 id="windows-蓝灯-Lantern"><a href="#windows-蓝灯-Lantern" class="headerlink" title="windows | 蓝灯(Lantern)"></a>windows | 蓝灯(Lantern)</h1><hr>
-<h1 id="多态-（付费）-20元-月-10GB"><a href="#多态-（付费）-20元-月-10GB" class="headerlink" title="多态  （付费）  20元/月 10GB"></a>多态  （付费）  20元/月 10GB</h1><p><a href="https://duotai.org/" target="_blank" rel="external">https://duotai.org/</a></p>
-<h1 id="windows-会玩（付费）-1GB-5元"><a href="#windows-会玩（付费）-1GB-5元" class="headerlink" title="windows | 会玩（付费） 1GB/5元"></a>windows | 会玩（付费） 1GB/5元</h1><p><a href="https://flipwalls.com.cn" target="_blank" rel="external">https://flipwalls.com.cn</a></p>
-<h1 id="绿豆VPN-18月"><a href="#绿豆VPN-18月" class="headerlink" title="绿豆VPN(18月)"></a>绿豆VPN(18月)</h1><p><a href="http://www.lvdou777.com/pay/" target="_blank" rel="external">http://www.lvdou777.com/pay/</a></p>
-<hr>
-<p><strong>更多</strong><br><code>Chrome 网上应用店 - 网络加速</code><br><a href="https://chrome.google.com/webstore/search/%E7%BD%91%E7%BB%9C%E5%8A%A0%E9%80%9F?_category=extensions" target="_blank" rel="external">https://chrome.google.com/webstore/search/%E7%BD%91%E7%BB%9C%E5%8A%A0%E9%80%9F?_category=extensions</a><br><code>Chrome 网上应用店 - 网站加速</code><br><a href="https://chrome.google.com/webstore/search/%E7%BD%91%E7%AB%99%E5%8A%A0%E9%80%9F?_category=extensions" target="_blank" rel="external">https://chrome.google.com/webstore/search/%E7%BD%91%E7%AB%99%E5%8A%A0%E9%80%9F?_category=extensions</a></p>
-<p><code>科学上网-光的传人博客</code><br><a href="http://www.liu16.com/catalog.asp?tags=%E7%A7%91%E5%AD%A6%E4%B8%8A%E7%BD%91" target="_blank" rel="external">http://www.liu16.com/catalog.asp?tags=%E7%A7%91%E5%AD%A6%E4%B8%8A%E7%BD%91</a></p>
-        
-          <a class="article-more-a" href="/2016/03/29/科学上网/#more">more >></a>
-        
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">科学上网，hosts</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-      
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/科学上网//" class="article-tag-list-link color5">科学上网</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-
-      <div style="font-size: 12px;">
-        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
-      </div>
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2016/03/29/科学上网/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
-    <article id="post-JVM参数配置" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2015/10/07/JVM参数配置/">JVM参数配置</a>
-    </h1>
-  
-
-        
-        <a href="/2015/10/07/JVM参数配置/" class="archive-article-date">
-  	<time datetime="2015-10-06T19:00:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2015-10-07</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h2 id="常见配置"><a href="#常见配置" class="headerlink" title="常见配置"></a>常见配置</h2><figure class="highlight vala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta"># 4G内存:</span></span><br><span class="line">JAVA_OPTS=<span class="string">"$JAVA_OPTS -server -Xms2500m -Xmx2500m -XX:PermSize=256M -XX:MaxPermSize=512m"</span></span><br></pre></td></tr></table></figure>
-<figure class="highlight vala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta"># 机器内存分配结构：</span></span><br><span class="line"><span class="meta">#    核心应用占用内存（可通过监控查看出合适的大小，配置太高用不到也是浪费）</span></span><br><span class="line"><span class="meta">#    系统及非核心应用占用内存（在核心应用未启用时，top所占用内存。此基础上还需弹性空间）</span></span><br><span class="line"><span class="meta">#    注:日常状态内存尽量控制在70%以内,预留内存以备处理‘内存针刺’的业务</span></span><br><span class="line"><span class="meta"># (服务器一般设置-Xms、-Xmx相等以避免在每次GC后调整堆的大小)</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">-Xms128m                #JVM初始分配的堆内存</span><br><span class="line">-Xmx512m                #JVM最大允许分配的堆内存，按需分配</span><br><span class="line">-XX:PermSize=<span class="number">64</span>M        #JVM初始分配的非堆内存</span><br><span class="line">-XX:MaxPermSize=<span class="number">128</span>M    #JVM最大允许分配的非堆内存，按需分配</span><br></pre></td></tr></table></figure>
-        
-          <a class="article-more-a" href="/2015/10/07/JVM参数配置/#more">more >></a>
-        
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">java</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">JVM</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-      
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/coding//" class="article-tag-list-link color2">coding</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-
-      <div style="font-size: 12px;">
-        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
-      </div>
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2015/10/07/JVM参数配置/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
-    <article id="post-善用佳软" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2013/05/30/善用佳软/">善用佳软@liuxiang</a>
-    </h1>
-  
-
-        
-        <a href="/2013/05/30/善用佳软/" class="archive-article-date">
-  	<time datetime="2013-05-29T16:00:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2013-05-30</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h1 id="效率工具"><a href="#效率工具" class="headerlink" title="效率工具"></a>效率工具</h1><p>| 软件类型 | soft | site</p>
-<p>| ———— | ———— | ———— |</p>
-<p>| 本地文件搜索 | Everything Search Engine| <a href="http://www.voidtools.com/" target="_blank" rel="external">http://www.voidtools.com/</a> |<br>| 本地文件搜索 | 极客桌面搜索 | <a href="http://f.jicer.cn/" target="_blank" rel="external">http://f.jicer.cn/</a> |<br>| 本地文件搜索 | 光速搜索 |<br>| 本地全文检索 | filelocatorpro | <a href="http://www.mythicsoft.com/filelocatorpro" target="_blank" rel="external">http://www.mythicsoft.com/filelocatorpro</a>  |<br>|  快速启动器   | win +Ｒ（环境变量）|<br>|  快速启动 器   | Wow |   <a href="http://www.getwox.com/" target="_blank" rel="external">http://www.getwox.com/</a>  |<br>|  快速启动 器   |  Rolan  |   <a href="https://www.irolan.com/" target="_blank" rel="external">https://www.irolan.com/</a>  |<br>|  快速启动 器   | AutoHotkey自定义快捷键, |</p>
-<p>|  桌面布局   | Fences 栅栏， TAGO-Fences  |<br>| 系统程序转托盘图标 | Minime SaphuA |<br>| 系统程序栏位置调整 | Taskbar Shuffle |<br>| 隐藏任务栏程序 | Minime ，App Hide ，Trayconizer, Hide Taskbar[Ctrl+Esc].exe |<br>| 轻松调整任务栏图标 | 网生代 |</p>
-<p>| [快速查看文件夹大小] | Welcome to JAM Software|</p>
-<p>| [快速查看文件夹大小] | Quick View Folder Size|<br>| [快速查看文件夹大小] | TreeSize Free |<br>| [快速查看文件夹大小] | TDP x-Ray Lite(饼状图磁盘管理工具)|<br>| 文件批量重命名 | antrenamer2 |</p>
-<p>| 文件批量重命名  |  renamer  |<br>| 思维导图 | xMind |<br>| 下载工具 |  aria2(多线程多协议并发下载工具) |  <a href="https://aria2.github.io/" target="_blank" rel="external">https://aria2.github.io/</a>  <br> <a href="http://ziahamza.github.io/webui-aria2/" target="_blank" rel="external">http://ziahamza.github.io/webui-aria2/</a><br>| 差异比较工具 |  BCompare |<br>| OCR | 汉王PDF |<br>| OCR | 文通TH-OCR |<br>| 小游戏 | 超级无敌五子棋.exe |<br>| 录屏 | GifCam.exe<br>| 录屏 | screen_recorder_setup 录屏.exe</p>
-<p>| 录屏 | ScreenToGif -  Preview 7.exe<br>| TXT文件分割器 | TXTCutter</p>
-<p>| U盘 | AS SSD Benchmark<br>| U盘 | ATTO Disk Benchmarks</p>
-<p>| U盘 | 金山U盘卫士4.0 提取版.zip</p>
-<p>| U盘 |  chipgenius_v4_00_0030.exe </p>
-<p>| U盘 |  FlashGenius.exe</p>
-<p>| U盘 | MyDiskTest.exe</p>
-<p>| U盘 |  sdktest 慧荣方案主控更新CDROM和格式化工具 SMI.exe</p>
-<p>| 环境变量工具 | 环境变量 rapidee.exe<br>| 局域网共享 | 局域网共享设置超级工具.exe</p>
-<p>| 局域网共享 |  局域网共享设置.exe</p>
-<p>| 图片压缩 | Caesium_boxed 中文绿色单文件版.exe<br>| 整站下载器 | HTTrack_Portable<br>| 软件变速 | [变速精灵]speeder.exe<br>| [单文件执行程序制作] | quick bfc.rar<br>| [单文件执行程序制作] |   Cameyo-1.7.597.exe</p>
-<p>| [制作exe文件] | ExeScript211.exe</p>
-<p>| 记录应用使用时间 |Hronos.exe<br>| [截图工具] | SnippingTool.exe</p>
-<p>|[在线远程] | TeamViewer，WebConnector |<br>| 环境变量 | 快速环境编辑器(Rapid Environment Editor)  | <a href="https://www.rapidee.com/en/download" target="_blank" rel="external">https://www.rapidee.com/en/download</a></p>
-<h1 id="科学上网"><a href="#科学上网" class="headerlink" title="科学上网"></a>科学上网</h1><p>| 软件类型 | soft | site<br>| 科学上网  |  shadowsocks|<br>| 科学上网  |    sockscap64(应用网络代理为 socks ) +  shadowsocks（ socks 网络翻墙） | <a href="https://www.sockscap64.com/" target="_blank" rel="external">https://www.sockscap64.com/</a><br>| 科学上网 |  冰果VPN | </p>
-<p>| 科学上网 |  BINET</p>
-<p>| 科学上网 |  实时更新的hosts.cmd | </p>
-<p>| 科学上网 |  MASS | </p>
-<hr>
-<h1 id="开发相关工具"><a href="#开发相关工具" class="headerlink" title="开发相关工具"></a>开发相关工具</h1><table>
-<thead>
-<tr>
-<th>软件类型</th>
-<th>soft</th>
-<th>site</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>[JD-GUI]v3.3.0</td>
-<td>[JD-GUI]Suggestions Java Decompiler</td>
-</tr>
-<tr>
-<td>数据库工具</td>
-<td>PDMReader数据字典阅读器(PowerDesigner的辅助工具)</td>
-</tr>
-<tr>
-<td>数据库工具</td>
-<td>dbeaver-3.4.4-win32.win32.x86_64.zip</td>
-</tr>
-</tbody>
-</table>
-<p>| 数据库工具 |  datagrip-2016.3.4.exe<br>| 数据库工具 |  sqlexplorer_rcp-3.6.1.win32.win32.x86-JRE.zip<br>| 数据库工具 | SQLyog10.zip</p>
-<p>| 数据库工具-mysql |  HeidiSQL_9.1_Portable.zip</p>
-<p>| 数据库工具-mysql |  navicat111_premium</p>
-<p>| 数据库工具-mysql |  phpMyAdmin-4.3.6-all-languages.zip</p>
-<p>| 数据库工具-oracle | oracle客户端  instantclient-basic-windows.x64-12.1.0.2.0.zip</p>
-<p>| 数据库工具-oracle | plsql<br>| ionic |  Ionic小助手 V1.7.rar<br>| wiki | jamwiki-1.3.2-src.zip<br>| 内网隧道 | ngrok</p>
-<p>| 网络调试 | postman<br>| UML 建模 | UML Lab Modeling IDE 效果图.png<br>| UML 建模 | edrawmax-cn 亿图</p>
-<p>| UML 建模 | ERWin 7.3.zip</p>
-<p>| UML 建模 | Navicat Data Modeler mysql数据库模型</p>
-<p>| UML 建模 | powerdesign</p>
-<p>| UML 建模 | StarUML 类图-韩国</p>
-<p>| UML 建模 | yEd UML 流程图</p>
-<p>| web服务容器 | nginx<br>| web服务容器 |  yWebServer</p>
-<p>| web服务容器 |  MyWebServer</p>
-<h1 id="wosai"><a href="#wosai" class="headerlink" title="wosai"></a>wosai</h1><table>
-<thead>
-<tr>
-<th>soft</th>
-<th>desc</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>wosai 车联网</td>
-<td>OpenGTS</td>
-</tr>
-<tr>
-<td>wosai 车联网</td>
-<td>exlive</td>
-</tr>
-</tbody>
-</table>
-<h1 id="linux工具"><a href="#linux工具" class="headerlink" title="linux工具"></a>linux工具</h1><table>
-<thead>
-<tr>
-<th>soft</th>
-<th>desc</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>linux工具</td>
-<td>Xshell5 0991.exe</td>
-</tr>
-</tbody>
-</table>
-<p>| linux工具 | SecureCRT-v7.3.4.zip</p>
-<h1 id="java性能问题分析工具"><a href="#java性能问题分析工具" class="headerlink" title="java性能问题分析工具"></a>java性能问题分析工具</h1><table>
-<thead>
-<tr>
-<th>soft</th>
-<th>desc</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>[GC分析]gcviewer-1.29-bin.tar.gz</td>
-<td><a href="https://github.com/chewiebug/GCViewer" target="_blank" rel="external">https://github.com/chewiebug/GCViewer</a>   <a href="http://sourceforge.net/projects/gcviewer/" target="_blank" rel="external">http://sourceforge.net/projects/gcviewer/</a></td>
-</tr>
-<tr>
-<td>堆栈分析-IBM</td>
-<td>Java Memory Analyzer Tool (MAT) <a href="https://www.ibm.com/developerworks/" target="_blank" rel="external">https://www.ibm.com/developerworks/</a></td>
-</tr>
-<tr>
-<td>堆栈分析-diy</td>
-<td>jstackAnalyse.java</td>
-</tr>
-<tr>
-<td>堆栈分析</td>
-<td>TAD <a href="https://java.net/projects/tda" target="_blank" rel="external">https://java.net/projects/tda</a></td>
-</tr>
-<tr>
-<td>[堆栈分析]IBM</td>
-<td>jca.rar</td>
-</tr>
-<tr>
-<td>[堆栈分析] jhat</td>
-<td>apache-tomcat-7.0.39/conf# <code>jhat tomcat.bin</code> </td>
-</tr>
-<tr>
-<td>[堆栈分析]samurai.zip</td>
-<td>samurai.jar v2.1.6</td>
-<td>发布处:<a href="http://yusuke.homeip.net/samurai/en/index.html" target="_blank" rel="external">http://yusuke.homeip.net/samurai/en/index.html</a> </td>
-</tr>
-<tr>
-<td>[堆栈分析]samurai.zip</td>
-<td>samurai.bat &gt; <code>java -jar samurai.jar</code></td>
-<td><a href="http://yusuke.homeip.net/samurai/en/samurai.jar" target="_blank" rel="external">http://yusuke.homeip.net/samurai/en/samurai.jar</a></td>
-</tr>
-<tr>
-<td>[dump内存分析]</td>
-<td>IBM HeapAnalyzer (MAT) <a href="https://www.ibm.com/developerworks/" target="_blank" rel="external">https://www.ibm.com/developerworks/</a></td>
-</tr>
-<tr>
-<td>[dump内存分析]</td>
-<td>Memory Analyzer (MAT)， MemoryAnalyzer</td>
-<td><a href="http://www.eclipse.org/mat/" target="_blank" rel="external">http://www.eclipse.org/mat/</a></td>
-</tr>
-<tr>
-<td>各分析工具(tad,jca,HeapAnalyzer… )分享</td>
-<td>The Dumps ,terIngo Rockel’s Blog博客 <a href="http://www.jroller.com/dumpster/" target="_blank" rel="external">http://www.jroller.com/dumpster/</a></td>
-</tr>
-</tbody>
-</table>
-<ul>
-<li>有时你dump出来的堆很大，在启动时会报堆空间不足的错误，可以使用如下参数:<br><code>jhat -J-Xmx512m &lt;heap dump file&gt;</code></li>
-</ul>
-<h1 id="java服务器资源监控"><a href="#java服务器资源监控" class="headerlink" title="java服务器资源监控"></a>java服务器资源监控</h1><table>
-<thead>
-<tr>
-<th>soft</th>
-<th>desc</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>jprofiler</td>
-<td><a href="http://www.ej-technologies.com/" target="_blank" rel="external">http://www.ej-technologies.com/</a></td>
-</tr>
-<tr>
-<td>Perfino</td>
-<td>JVM的强大的监控解决方案</td>
-</tr>
-<tr>
-<td>YourKit</td>
-<td><a href="https://www.yourkit.com/java/profiler/index.jsp" target="_blank" rel="external">https://www.yourkit.com/java/profiler/index.jsp</a></td>
-</tr>
-<tr>
-<td>jvisualvm &amp; jconsole</td>
-<td>JDK 自带监控工具</td>
-</tr>
-</tbody>
-</table>
-<h1 id="java中类与类之间的关系工具-eclipse"><a href="#java中类与类之间的关系工具-eclipse" class="headerlink" title="java中类与类之间的关系工具(eclipse)"></a>java中类与类之间的关系工具(eclipse)</h1><table>
-<thead>
-<tr>
-<th>类型</th>
-<th>soft</th>
-<th>site</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>java类模型</td>
-<td>CDA</td>
-<td><a href="http://www.dependency-analyzer.org/" target="_blank" rel="external">http://www.dependency-analyzer.org/</a></td>
-</tr>
-<tr>
-<td>java类模型</td>
-<td>CAP（Code Analysis Plugin）</td>
-<td><a href="http://cap.xore.de/" target="_blank" rel="external">http://cap.xore.de/</a></td>
-</tr>
-<tr>
-<td>java类模型</td>
-<td>ModelGoon（Java 包的依赖分析的Eclipse插件）</td>
-</tr>
-<tr>
-<td>java类模型</td>
-<td>Snowberry(Eclipse的Java类图插件 Snowberry)</td>
-</tr>
-</tbody>
-</table>
-<h1 id="system-Tool"><a href="#system-Tool" class="headerlink" title="system Tool"></a>system Tool</h1><table>
-<thead>
-<tr>
-<th>类型</th>
-<th>soft</th>
-<th>site</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td></td>
-</tr>
-</tbody>
-</table>
-<p>| 磁盘分区 | 傲梅分区 |</p>
-<p>| 磁盘分区 | Acronis Disk Director Suite V11.0.0.216 |</p>
-<p>| TDP x-Ray Lite | 饼状图磁盘管理工具 |</p>
-<p>| 系统任务|SystemExplorer|<br>| 硬件瓶颈 | SystemMonitor|<br>| 系统优化 | Dism++10.1.6.3A_Full |</p>
-<p>| 网卡工具 | MMSU 纵横网络多网卡工具(双网卡同时上网) mmsu_setup.exe|</p>
-<h1 id="安全工具"><a href="#安全工具" class="headerlink" title="安全工具"></a>安全工具</h1><table>
-<thead>
-<tr>
-<th>类型</th>
-<th>soft</th>
-<th>site</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td></td>
-</tr>
-</tbody>
-</table>
-<p>| 抓包 |  fiddler |<br>| 抓包 |  wsexplorer  |<br>| 抓包 |  Wireshark  |<br>| 抓包 |  HTTP Analyzer Full Edition  |<br>| 抓包 |  Betwixt-windows |</p>
-<p>| 抓包 |  smsniff TCPIP网络数据包捕获 |</p>
-<h1 id="it资源分享"><a href="#it资源分享" class="headerlink" title="it资源分享"></a>it资源分享</h1><table>
-<thead>
-<tr>
-<th>类型</th>
-<th>soft</th>
-<th>site</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>在线ppt</td>
-<td>slideshare</td>
-<td><a href="https://www.slideshare.net/" target="_blank" rel="external">https://www.slideshare.net/</a></td>
-</tr>
-</tbody>
-</table>
-        
-          <a class="article-more-a" href="/2013/05/30/善用佳软/#more">more >></a>
-        
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">善用佳软</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-      
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/善用佳软//" class="article-tag-list-link color5">善用佳软</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-
-      <div style="font-size: 12px;">
-        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
-      </div>
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2013/05/30/善用佳软/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
   
     <nav id="page-nav">
       <a class="extend prev" rel="prev" href="/page/7/">&laquo; Prev</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/6/">6</a><a class="page-number" href="/page/7/">7</a><span class="page-number current">8</span><a class="page-number" href="/page/9/">9</a><a class="extend next" rel="next" href="/page/9/">Next &raquo;</a>
@@ -1614,7 +1325,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">redis</a>
+                <a href="javascript:void(0)" class="js-tag color3">java并发包</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">快捷键</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1622,7 +1337,7 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">快捷键</a>
+                <a href="javascript:void(0)" class="js-tag color1">redis</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1638,15 +1353,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">限流</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">react</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">tomcat</a>
+                <a href="javascript:void(0)" class="js-tag color3">限流</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1654,11 +1365,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">shell</a>
+                <a href="javascript:void(0)" class="js-tag color2">tomcat</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">elastic-job</a>
+                <a href="javascript:void(0)" class="js-tag color1">shell</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1666,11 +1377,15 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">debug</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">influxdb</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">debug</a>
+                <a href="javascript:void(0)" class="js-tag color2">elastic-job</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1686,11 +1401,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">Mac</a>
+                <a href="javascript:void(0)" class="js-tag color2">python</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">python</a>
+                <a href="javascript:void(0)" class="js-tag color4">Mac</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1706,11 +1421,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">zookeeper</a>
+                <a href="javascript:void(0)" class="js-tag color5">分布式锁</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">分布式锁</a>
+                <a href="javascript:void(0)" class="js-tag color5">zookeeper</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1742,11 +1457,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">HashMap</a>
+                <a href="javascript:void(0)" class="js-tag color3">单例</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">单例</a>
+                <a href="javascript:void(0)" class="js-tag color3">HashMap</a>
               </li>
             
             <div class="clearfix"></div>

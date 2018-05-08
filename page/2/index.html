@@ -151,6 +151,830 @@
           <div id="js-content" class="content-ll">
             
   
+    <article id="post-Grafana-mysql体验" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2018/04/09/Grafana-mysql体验/">Grafana mysql体验</a>
+    </h1>
+  
+
+        
+        <a href="/2018/04/09/Grafana-mysql体验/" class="archive-article-date">
+  	<time datetime="2018-04-09T10:29:11.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-04-09</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h1><p>在时序分析及监控展现领域，Grafana无疑是开源解决方案中的翘楚，其灵活的插件机制，支持各种漂亮的面板、丰富的数据源以及强大的应用。典型的面板有Graph、Text、Singlestat、PieChart、Table、Histogram等，支持的数据源有<code>ES</code>、Graphite、<code>InfluxDB</code>、OpenTSDB、<code>MySQL</code>、Druid 、<code>Prometheus</code>、<code>SimpleJson</code>等，提供的应用有Zabbix、K8s等</p>
+<ul>
+<li>+Elasticsearch<br>印象中Grafana是 InfluxDB 可视化工具，但基于Grafana良好的架构，DataSource可以变得多样性了，现在是支持ElasticSearch作为DataSource的。 Grafana的安装也非常简单，解压启动就可以了。DataSource都是动态添加上去的。Grafana作为一个纯粹的可视化工具，灵活性做到了极致。使用ElasticSearch作为DataSource，指定对应的Index，就可以建立DashBoard就行数据可视化了。相比Kibana，Grafana的template功能能把数据按照任意的维度进行切分展示，这就是它的强大之处。</li>
+</ul>
+<hr>
+<h1 id="部署"><a href="#部署" class="headerlink" title="部署"></a>部署</h1><p>Github地址：<a href="https://github.com/Grafana/Grafana" target="_blank" rel="external">https://github.com/Grafana/Grafana</a></p>
+<ul>
+<li><p>下载<br><a href="https://grafana.com/grafana/download" target="_blank" rel="external">https://grafana.com/grafana/download</a></p>
+</li>
+<li><p>mac安装</p>
+<p>| 12   | brew updatebrew install grafana |<br>| —- | ——————————- |<br>|      |                                 |</p>
+</li>
+</ul>
+<p><a href="http://docs.grafana.org/installation/mac/" target="_blank" rel="external">http://docs.grafana.org/installation/mac/</a><br><a href="http://docs.grafana.org/installation/configuration/" target="_blank" rel="external">http://docs.grafana.org/installation/configuration/</a></p>
+<ul>
+<li><p>启动Grafana</p>
+<p>| 12345678910111213 | 要启动Grafana使用自制服务首先确保安装了自制软件/服务。brew tap homebrew/services然后开始Grafana使用：brew services start grafana- 配置配置文件应该位于/usr/local/etc/grafana/grafana.ini。- 日志日志文件应该位于/usr/local/var/log/grafana/grafana.log。- 插件如果你想手动安装一个插件放在这里：/usr/local/var/lib/grafana/plugins。- 数据库默认的sqlite数据库位于 /usr/local/var/lib/grafana |<br>| —————– | ———————————————————— |<br>|                   |                                                              |</p>
+</li>
+<li><p>汉化(非必要)</p>
+<p>| 12   | git clone <a href="https://github.com/moonstack/grafana-for-chinese.git备份原有的" target="_blank" rel="external">https://github.com/moonstack/grafana-for-chinese.git备份原有的</a> /public/app/boot.js /public/app/features/org/prefs_control.js 再将master中的两个文件覆盖到对应的目录 刷新浏览器即可 |<br>| —- | ———————————————————— |<br>|      |                                                              |</p>
+</li>
+</ul>
+<p><a href="https://github.com/moonstack/grafana-for-chinese" target="_blank" rel="external">https://github.com/moonstack/grafana-for-chinese</a><br><a href="https://github.com/heruihong/gf-frontend" target="_blank" rel="external">https://github.com/heruihong/gf-frontend</a></p>
+<ul>
+<li>访问<br><a href="http://0.0.0.0:3000/" target="_blank" rel="external">http://0.0.0.0:3000/</a> ，默认账号/密码：admin/admin</li>
+<li>添加数据源<br><a href="http://docs.grafana.org/features/datasources/elasticsearch/" target="_blank" rel="external">http://docs.grafana.org/features/datasources/elasticsearch/</a><br><a href="http://docs.grafana.org/features/datasources/mysql/" target="_blank" rel="external">http://docs.grafana.org/features/datasources/mysql/</a></li>
+<li>导入dashboard/查看dashboard<br><a href="https://grafana.com/dashboards?dataSource=mysql" target="_blank" rel="external">https://grafana.com/dashboards?dataSource=mysql</a><br><a href="https://grafana.com/dashboards?dataSource=elasticsearch" target="_blank" rel="external">https://grafana.com/dashboards?dataSource=elasticsearch</a></li>
+</ul>
+<hr>
+<h1 id="制图-mysql"><a href="#制图-mysql" class="headerlink" title="制图(mysql)"></a>制图(mysql)</h1><p><code>Grafana + mysql数据源 - laomei - CSDN博客</code><br><a href="http://blog.csdn.net/sweatott/article/details/78278011" target="_blank" rel="external">http://blog.csdn.net/sweatott/article/details/78278011</a></p>
+<h2 id="图表数据展示规则-edit-Metrics"><a href="#图表数据展示规则-edit-Metrics" class="headerlink" title="图表数据展示规则 - edit - Metrics"></a>图表数据展示规则 - <code>edit - Metrics</code></h2><table>
+<thead>
+<tr>
+<th>123456789</th>
+<th>SELECTDATE_FORMAT(gmt_create,’%Y-%m-%d’),UNIX_TIMESTAMP(DATE_FORMAT(gmt_create,’%Y-%m-%d’)) as time_sec, – x轴:时间count(treaty_no) as value, – y轴:数值partner_code as metric – y轴分组:数据分组FROM treatyWHERE 1=1group by DATE_FORMAT(gmt_create,’%Y-%m-%d’)ORDER BY id ASC</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>更多文档见:<a href="http://docs.grafana.org/features/datasources/mysql/" target="_blank" rel="external">http://docs.grafana.org/features/datasources/mysql/</a><br><img src="http://7xnbs3.com1.z0.glb.clouddn.com/18-2-8/29820002.jpg" alt="img"></p>
+<h2 id="各报表面板设置"><a href="#各报表面板设置" class="headerlink" title="各报表面板设置"></a>各报表面板设置</h2><p><a href="http://docs.grafana.org/features/panels/graph/" target="_blank" rel="external">http://docs.grafana.org/features/panels/graph/</a> <code>图表</code><br><a href="http://docs.grafana.org/features/panels/singlestat/" target="_blank" rel="external">http://docs.grafana.org/features/panels/singlestat/</a> <code>仪图</code></p>
+<h2 id="templating-模板"><a href="#templating-模板" class="headerlink" title="templating 模板"></a>templating 模板</h2><p><a href="http://docs.grafana.org/reference/templating/" target="_blank" rel="external">http://docs.grafana.org/reference/templating/</a><br><a href="http://docs.grafana.org/features/datasources/mysql/#query-variable" target="_blank" rel="external">http://docs.grafana.org/features/datasources/mysql/#query-variable</a> <code>mysql的查询表达式</code><br><img src="http://7xnbs3.com1.z0.glb.clouddn.com/18-2-8/86842944.jpg" alt="img"></p>
+<p><img src="http://7xnbs3.com1.z0.glb.clouddn.com/18-3-19/55292517.jpg" alt="img"><br><img src="http://7xnbs3.com1.z0.glb.clouddn.com/18-3-19/45274927.jpg" alt="img"></p>
+<ul>
+<li><p>在查询中使用变量<br><a href="http://docs.grafana.org/features/datasources/mysql/#using-variables-in-queries" target="_blank" rel="external">http://docs.grafana.org/features/datasources/mysql/#using-variables-in-queries</a></p>
+<p>| 123456789 | SELECTDATE_FORMAT(gmt_create,’%Y-%m-%d’),UNIX_TIMESTAMP(DATE_FORMAT(gmt_create,’%Y-%m-%d’)) as time_sec, – x轴:时间count(treaty_no) as value, – y轴:数值partner_code as metric – y轴分组:数据分组FROM treatyWHERE 1=1 and partner_code in ($partner)group by DATE_FORMAT(gmt_create,’%Y-%m-%d’)ORDER BY id ASC |<br>| ——— | ———————————————————— |<br>|           |                                                              |</p>
+</li>
+<li><p>效果<br><img src="http://7xnbs3.com1.z0.glb.clouddn.com/18-2-8/52927063.jpg" alt="img"></p>
+</li>
+</ul>
+<hr>
+<h1 id="报警"><a href="#报警" class="headerlink" title="报警"></a>报警</h1><p><a href="http://docs.grafana.org/alerting/notifications/" target="_blank" rel="external">http://docs.grafana.org/alerting/notifications/</a><br><img src="http://7xnbs3.com1.z0.glb.clouddn.com/18-2-8/8688942.jpg" alt="img"></p>
+<ul>
+<li>Grafana添加<code>Webhook channel</code><br><a href="https://www.tuicool.com/articles/VZf6JjF" target="_blank" rel="external">https://www.tuicool.com/articles/VZf6JjF</a></li>
+<li>[图表-alert]设置数据触警规则</li>
+<li>[图表-alert]Notifications 定义发送渠道</li>
+</ul>
+<hr>
+<h1 id="问题"><a href="#问题" class="headerlink" title="问题"></a>问题</h1><h2 id="安装grafana-Homebrew出现”go-version-missing-for-“gotools”-resource-”的解决方案"><a href="#安装grafana-Homebrew出现”go-version-missing-for-“gotools”-resource-”的解决方案" class="headerlink" title="安装grafana,Homebrew出现”go: version missing for “gotools” resource!”的解决方案"></a>安装grafana,Homebrew出现”go: version missing for “gotools” resource!”的解决方案</h2><table>
+<thead>
+<tr>
+<th>12</th>
+<th>➜ Desktop brew install grafanaError: go: version missing for “gotools” resource!</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>尝试解决:</p>
+<table>
+<thead>
+<tr>
+<th>12</th>
+<th>git -C “$(brew –repo)” fetch –tagsbrew update –force</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>或 <code>git -C &quot;$(brew --repo)&quot; fetch --tags brew update --force</code><br><a href="http://blog.csdn.net/lanadeus/article/details/78271240" target="_blank" rel="external">http://blog.csdn.net/lanadeus/article/details/78271240</a><br><a href="https://github.com/Homebrew/homebrew-core/issues/19221" target="_blank" rel="external">https://github.com/Homebrew/homebrew-core/issues/19221</a><br><a href="https://blog.labbit.jp/%E8%AC%8E%E3%82%A8%E3%83%A9%E3%83%BCgotools%E3%81%AE%E8%A7%A3%E6%B6%88%E6%B3%95/" target="_blank" rel="external">https://blog.labbit.jp/%E8%AC%8E%E3%82%A8%E3%83%A9%E3%83%BCgotools%E3%81%AE%E8%A7%A3%E6%B6%88%E6%B3%95/</a></p>
+<p>实际解决: 重装brew</p>
+<table>
+<thead>
+<tr>
+<th>1</th>
+<th>/usr/bin/ruby -e “$(curl -fsSL <a href="https://raw.githubusercontent.com/Homebrew/install/master/install" target="_blank" rel="external">https://raw.githubusercontent.com/Homebrew/install/master/install</a>)”</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h2 id="新建template-query-错误"><a href="#新建template-query-错误" class="headerlink" title="新建template query 错误"></a>新建template query 错误</h2><table>
+<thead>
+<tr>
+<th>12</th>
+<th>TemplatingTemplate variables could not be initialized: sql: Scan error on column index 0: unsupported Scan, storing driver.Value type <nil> into type *string</nil></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>原因: 存在null值<br>解决: <code>where column is not null</code></p>
+<hr>
+<p>参考<br><code>基于Grafana+SimpleJson的灵活报表解决方案</code><br><a href="https://www.tuicool.com/articles/EBjUfmi" target="_blank" rel="external">https://www.tuicool.com/articles/EBjUfmi</a></p>
+<p><code>监控数据的可视化分析神器 Grafana - 推酷</code><br><a href="https://www.tuicool.com/articles/VZf6JjF" target="_blank" rel="external">https://www.tuicool.com/articles/VZf6JjF</a></p>
+<p><code>Kibana and Grafana - 推酷</code><br><a href="https://www.tuicool.com/articles/rURRF3U" target="_blank" rel="external">https://www.tuicool.com/articles/rURRF3U</a></p>
+<p><code>使用Prometheus+Grafana搭建监控系统实践 - 推酷</code><br><a href="https://www.tuicool.com/articles/QZRjAv3" target="_blank" rel="external">https://www.tuicool.com/articles/QZRjAv3</a></p>
+<p><code>监控数据的可视化分析神器 Grafana - 推酷</code> - <code>OneAlert 云告警</code><br><a href="https://www.tuicool.com/articles/VZf6JjF" target="_blank" rel="external">https://www.tuicool.com/articles/VZf6JjF</a></p>
+<p><code>grafana + influxdb + telegraf , 构建linux性能监控平台 - 推酷</code><br><a href="https://www.tuicool.com/articles/nyM3qyq" target="_blank" rel="external">https://www.tuicool.com/articles/nyM3qyq</a></p>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+      
+
+      <div style="font-size: 12px;">
+        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
+      </div>
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2018/04/09/Grafana-mysql体验/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
+    <article id="post-Kibana-Elasticsearch体验" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2018/04/09/Kibana-Elasticsearch体验/">Kibana + Elasticsearch体验</a>
+    </h1>
+  
+
+        
+        <a href="/2018/04/09/Kibana-Elasticsearch体验/" class="archive-article-date">
+  	<time datetime="2018-04-09T10:27:33.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-04-09</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="安装kibana"><a href="#安装kibana" class="headerlink" title="安装kibana"></a>安装kibana</h1><h2 id="下载"><a href="#下载" class="headerlink" title="下载"></a>下载</h2><p><a href="https://www.elastic.co/downloads/kibana" target="_blank" rel="external">https://www.elastic.co/downloads/kibana</a><br><code>wget https://artifacts.elastic.co/downloads/kibana/kibana-6.1.3-darwin-x86_64.tar.gz</code></p>
+<h2 id="准备elasticsearch服务"><a href="#准备elasticsearch服务" class="headerlink" title="准备elasticsearch服务"></a>准备elasticsearch服务</h2><p>见: Elasticsearch相关.md</p>
+<ul>
+<li>Elasticsearch<br>Kibana安装非常方便，官网下载，并配置下ES的URL就可以连上了。Kibana使用的时候会有副作用，它会在你的ES里面创建一个它所需要的Index，并会有较为频繁的query。如果是生产环境，ES存的是核心数据要慎用了。安装好启动指定需要分析的Index，就能看到以下几个Tab</li>
+</ul>
+<h2 id="配置-config-kibana-yml"><a href="#配置-config-kibana-yml" class="headerlink" title="配置 config/kibana.yml"></a>配置 config/kibana.yml</h2><table>
+<thead>
+<tr>
+<th>1234567891011</th>
+<th>server.port: 5601# The host to bind the server to.server.host: “”# If you are running kibana behind a proxy, and want to mount it at a path,# specify that path here. The basePath can’t end in a slash.# server.basePath: “”# The Elasticsearch instance to use for all your queries.elasticsearch.url: “<a href="http://0.0.0.0:9200" target="_blank" rel="external">http://0.0.0.0:9200</a>“ #这里是elasticsearch的访问地址</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h2 id="汉化"><a href="#汉化" class="headerlink" title="汉化"></a>汉化</h2><p><a href="https://github.com/anbai-inc/Kibana_Hanization" target="_blank" rel="external">https://github.com/anbai-inc/Kibana_Hanization</a><br><code>python main.py &lt;kibana目录&gt;</code></p>
+<h2 id="启动"><a href="#启动" class="headerlink" title="启动"></a>启动</h2><table>
+<thead>
+<tr>
+<th>12</th>
+<th>./kibana //不能关闭终端nohup ./kibana &gt; /nohub.out &amp; //可关闭终端，在nohup.out中查看log</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h2 id="访问-http-0-0-0-0-5601"><a href="#访问-http-0-0-0-0-5601" class="headerlink" title="访问 http://0.0.0.0:5601/"></a>访问 <a href="http://0.0.0.0:5601/" target="_blank" rel="external">http://0.0.0.0:5601/</a></h2><hr>
+<h1 id="使用"><a href="#使用" class="headerlink" title="使用"></a>使用</h1><h2 id="新建索引模式"><a href="#新建索引模式" class="headerlink" title="新建索引模式"></a>新建索引模式</h2><p><a href="http://0.0.0.0:5601/app/kibana#/management/kibana/indices" target="_blank" rel="external">http://0.0.0.0:5601/app/kibana#/management/kibana/indices</a></p>
+<h2 id="新建图表-amp-设置xy轴数据列"><a href="#新建图表-amp-设置xy轴数据列" class="headerlink" title="新建图表&amp;设置xy轴数据列"></a>新建图表&amp;设置xy轴数据列</h2><p><a href="http://0.0.0.0:5601/app/kibana#/visualize/new?_g=(" target="_blank" rel="external">http://0.0.0.0:5601/app/kibana#/visualize/new?_g=(</a>)<br><img src="http://7xnbs3.com1.z0.glb.clouddn.com/18-2-8/98836357.jpg" alt="img"></p>
+<h2 id="仪表盘集成图表"><a href="#仪表盘集成图表" class="headerlink" title="仪表盘集成图表"></a>仪表盘集成图表</h2><p><img src="http://7xnbs3.com1.z0.glb.clouddn.com/18-2-8/81140044.jpg" alt="img"></p>
+<hr>
+<p>参考<br><code>Kibana and Grafana - 推酷</code><br><a href="https://www.tuicool.com/articles/rURRF3U" target="_blank" rel="external">https://www.tuicool.com/articles/rURRF3U</a></p>
+<p><code>kibana介绍 - CSDN博客</code><br><a href="http://blog.csdn.net/eff666/article/details/63251710?locationNum=3&amp;fps=1" target="_blank" rel="external">http://blog.csdn.net/eff666/article/details/63251710?locationNum=3&amp;fps=1</a></p>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+      
+
+      <div style="font-size: 12px;">
+        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
+      </div>
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2018/04/09/Kibana-Elasticsearch体验/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
+    <article id="post-API-gateway实践" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2018/04/09/API-gateway实践/">API gateway实践</a>
+    </h1>
+  
+
+        
+        <a href="/2018/04/09/API-gateway实践/" class="archive-article-date">
+  	<time datetime="2018-04-09T10:25:50.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-04-09</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="一-API-Gateway-场景及作用"><a href="#一-API-Gateway-场景及作用" class="headerlink" title="一.API Gateway 场景及作用"></a>一.API Gateway 场景及作用</h1><p>初衷: 企业微服务,统一<code>流量管理,前后置任务,动态路由,安全防护</code>等API相关的通用能力.</p>
+<ul>
+<li>前置（Pre）<ul>
+<li>鉴权、安全、增加请求参数,恶意请求拦截</li>
+<li>隔离机制 (Hystrix | 限流(ip,url,user)-线程池,信号量)</li>
+</ul>
+</li>
+<li>路由（Route）<ul>
+<li>OriginServer(源服务访问)、请求转发、流量拷贝</li>
+<li>重试机制(幂等考虑:只重试网络错误)</li>
+<li>灰度发布</li>
+</ul>
+</li>
+<li>后置（Post）<ul>
+<li>统计返回值和调用时间、记录日志、增加跨域头等</li>
+</ul>
+</li>
+<li>错误（Error）<ul>
+<li>过程中断</li>
+</ul>
+</li>
+</ul>
+<h2 id="业务网关"><a href="#业务网关" class="headerlink" title="业务网关"></a><a href="http://0.0.0.0:4000/2018/03/15/%EF%BB%BFAPI%20Gateway%20%E5%AE%9E%E8%B7%B5%E4%BD%93%E9%AA%8C/#%E4%B8%9A%E5%8A%A1%E7%BD%91%E5%85%B3" target="_blank" rel="external">业务网关</a></h2><p>当业务系统所在分布式,集群组合环境中,如需对流量进行统一管理.那么业务API Gateway就出现了.</p>
+<blockquote>
+<p>动态路由、业务数据过滤、统一鉴权、流量复制、环境差异(dev,test,production). 等业务视角的API Gateway能力</p>
+</blockquote>
+<p><img src="http://wiki.tongdun.me/download/attachments/23771641/image2018-3-19%200%3A35%3A2.png?version=1&amp;modificationDate=1521390903000&amp;api=v2" alt="img"></p>
+<h2 id="常见选型"><a href="#常见选型" class="headerlink" title="常见选型"></a><a href="http://0.0.0.0:4000/2018/03/15/%EF%BB%BFAPI%20Gateway%20%E5%AE%9E%E8%B7%B5%E4%BD%93%E9%AA%8C/#%E5%B8%B8%E8%A7%81%E9%80%89%E5%9E%8B" target="_blank" rel="external">常见选型</a></h2><p>对于 API Gateway，常见的选型有基于 <code>Openresty 的 Kong</code>、基于 <code>Go 的 Tyk</code>和基于 <code>Java 的 Zuul</code>.<br>基本是技术栈的差异.</p>
+<ul>
+<li><p>OpenResty Kong</p>
+<blockquote>
+<p>OpenResty® 是一个基于 Nginx 与 Lua 的高性能 Web 平台，其内部集成了大量精良的 Lua 库、第三方模块以及大多数的依赖项。用于方便地搭建能够处理超高并发、扩展性极高的动态 Web 应用、Web 服务和动态网关<br>详见: <a href="http://openresty.org/cn/" target="_blank" rel="external">http://openresty.org/cn/</a></p>
+</blockquote>
+</li>
+<li><p>Zuul</p>
+<blockquote>
+<p>Zuul通过使用其他Netflix OSS组件给予我们很多洞察力，灵活性和灵活性：<br><code>Hystrix</code> 被用来包装呼叫到我们的来源，这使我们能够在发生问题时减少流量并划分优先级<br><code>Ribbon</code> 用于处理来自Zuul的所有出站请求，它提供了有关网络性能和错误的详细信息，并处理负载均衡的软件负载平衡<br><code>Turbine</code> 实时聚合精细度量指标，以便我们可以快速观察并对问题做出反应<br><code>Archaius</code> 处理配置并提供动态更改属性的功能<br>详见: <a href="https://github.com/Netflix/zuul/wiki/How-We-Use-Zuul-At-Netflix" target="_blank" rel="external">https://github.com/Netflix/zuul/wiki/How-We-Use-Zuul-At-Netflix</a></p>
+</blockquote>
+</li>
+</ul>
+<hr>
+<h1 id="二-Zuul-概述"><a href="#二-Zuul-概述" class="headerlink" title="二.Zuul 概述"></a><a href="http://0.0.0.0:4000/2018/03/15/%EF%BB%BFAPI%20Gateway%20%E5%AE%9E%E8%B7%B5%E4%BD%93%E9%AA%8C/#%E4%BA%8C-Zuul-%E6%A6%82%E8%BF%B0" target="_blank" rel="external">二.Zuul 概述</a></h1><ul>
+<li>技术本质: web servlet应用. <code>入口: ZuulController extends ServletWrappingController</code></li>
+<li>框架能力: 实现了基础的流操作(接管,解析,转发,异常控制), 还设计以filter为切面,供开发者按需扩展的机制.</li>
+</ul>
+<h2 id="过滤器-机制"><a href="#过滤器-机制" class="headerlink" title="过滤器,机制"></a><a href="http://0.0.0.0:4000/2018/03/15/%EF%BB%BFAPI%20Gateway%20%E5%AE%9E%E8%B7%B5%E4%BD%93%E9%AA%8C/#%E8%BF%87%E6%BB%A4%E5%99%A8-%E6%9C%BA%E5%88%B6" target="_blank" rel="external">过滤器,机制</a></h2><p><img src="http://blog.didispace.com/content/images/posts/spring-cloud-zuul-exception-3-4.png" alt="img"></p>
+<ul>
+<li>内置过滤器:</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>类型</th>
+<th>顺序</th>
+<th>过滤器</th>
+<th>功能</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>pre</td>
+<td>-3</td>
+<td>ServletDetectionFilter</td>
+<td>标记处理Servlet的类型</td>
+</tr>
+<tr>
+<td>pre</td>
+<td>-2</td>
+<td>Servlet30WrapperFilter</td>
+<td>包装HttpServletRequest请求</td>
+</tr>
+<tr>
+<td>pre</td>
+<td>-1</td>
+<td>FormBodyWrapperFilter</td>
+<td>包装请求体</td>
+</tr>
+<tr>
+<td>pre</td>
+<td>1</td>
+<td>DebugFilter</td>
+<td>标记调试标志</td>
+</tr>
+<tr>
+<td>pre</td>
+<td>5</td>
+<td>PreDecorationFilter</td>
+<td>处理请求上下文供后续使用</td>
+</tr>
+<tr>
+<td>route</td>
+<td>10</td>
+<td>RibbonRoutingFilter</td>
+<td>serviceId请求转发</td>
+</tr>
+<tr>
+<td>route</td>
+<td>100</td>
+<td>SimpleHostRoutingFilter</td>
+<td>url请求转发</td>
+</tr>
+<tr>
+<td>route</td>
+<td>500</td>
+<td>SendForwardFilter</td>
+<td>forward请求转发</td>
+</tr>
+<tr>
+<td>post</td>
+<td>0</td>
+<td>SendErrorFilter</td>
+<td>处理有错误的请求响应</td>
+</tr>
+<tr>
+<td>post</td>
+<td>500</td>
+<td>SendForwardFilter</td>
+<td>处理forward</td>
+</tr>
+<tr>
+<td>post</td>
+<td>1000</td>
+<td>SendResponseFilter</td>
+<td>处理正常的请求响应</td>
+</tr>
+</tbody>
+</table>
+<p>详见:org.springframework.cloud.netflix.zuul.filters.support.FilterConstants#DEBUG_FILTER_ORDER</p>
+<h2 id="扩展实现方向"><a href="#扩展实现方向" class="headerlink" title="扩展实现方向"></a><a href="http://0.0.0.0:4000/2018/03/15/%EF%BB%BFAPI%20Gateway%20%E5%AE%9E%E8%B7%B5%E4%BD%93%E9%AA%8C/#%E6%89%A9%E5%B1%95%E5%AE%9E%E7%8E%B0%E6%96%B9%E5%90%91" target="_blank" rel="external">扩展实现方向</a></h2><ul>
+<li><code>验证与安全保障</code>: 识别面向各类资源的验证要求并拒绝那些与要求不符的请求。</li>
+<li><code>审查与监控</code>: 在边缘位置追踪有意义数据及统计结果，从而为我们带来准确的生产状态结论。</li>
+<li><code>动态路由</code>: 以动态方式根据需要将请求路由至不同后端集群处。</li>
+<li><code>压力测试</code>: 逐渐增加指向集群的负载流量，从而计算性能水平。</li>
+<li><code>负载分配</code>: 为每一种负载类型分配对应容量，并弃用超出限定值的请求。</li>
+<li><code>静态响应处理</code>: 在边缘位置直接建立部分响应，从而避免其流入内部集群。</li>
+<li><code>多区域弹性</code>跨越AWS区域进行请求路由，旨在实现ELB使用多样化并保证边缘位置与使用者尽可能接近。</li>
+</ul>
+<p><code>单个实现均可以独立展开总结</code></p>
+<hr>
+<h1 id="三-Zuul-应用"><a href="#三-Zuul-应用" class="headerlink" title="三.Zuul 应用"></a><a href="http://0.0.0.0:4000/2018/03/15/%EF%BB%BFAPI%20Gateway%20%E5%AE%9E%E8%B7%B5%E4%BD%93%E9%AA%8C/#%E4%B8%89-Zuul-%E5%BA%94%E7%94%A8" target="_blank" rel="external">三.Zuul 应用</a></h1><h2 id="系统设计"><a href="#系统设计" class="headerlink" title="系统设计"></a><a href="http://0.0.0.0:4000/2018/03/15/%EF%BB%BFAPI%20Gateway%20%E5%AE%9E%E8%B7%B5%E4%BD%93%E9%AA%8C/#%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1" target="_blank" rel="external">系统设计</a></h2><p><img src="http://7xnbs3.com1.z0.glb.clouddn.com/18-3-19/45541994.jpg" alt="img"></p>
+<h2 id="功能"><a href="#功能" class="headerlink" title="功能"></a><a href="http://0.0.0.0:4000/2018/03/15/%EF%BB%BFAPI%20Gateway%20%E5%AE%9E%E8%B7%B5%E4%BD%93%E9%AA%8C/#%E5%8A%9F%E8%83%BD" target="_blank" rel="external">功能</a></h2><ul>
+<li>集群及节点管理:对接triton，定时刷新-可配</li>
+<li>健康检查:故障节点管理(失效,恢复机制)</li>
+<li>负载均衡:权重（Weighted Round-Robin）</li>
+<li>集群路由:合作方与集群关系 见:<code>SELECT business_code, partner_code,cluster FROM forseti.partner_cluster WHERE status=1;</code></li>
+<li>冠军挑战者: 见:<code>forseti.policy_set where challenged_uuid IS NOT NULL</code></li>
+<li>缓存技术方案:启动时加载,可配定时更新. [ChallengerCache,ClusterNodeCache,PartnerConfigCache]</li>
+<li>流量拷贝(http Copy):见shutter配置<code>forseti-gateway-observe.properties</code>-<code>httpcopy.register:***</code></li>
+<li>内部请求头处理: 非内网访问清理测试标记</li>
+<li>超时控制</li>
+<li>环境控制:stg环境不需要httpCopy,且无集群路由(固定集群),但有挑战者集群</li>
+<li>特殊合作方处理:大麦504转200</li>
+<li>日志管理:整体控制日志量,access日志独立</li>
+<li>监控管理:gateway,filter,业务,异常等.metrics采样,供grafana制图.</li>
+</ul>
+<hr>
+<h2 id="基本实现"><a href="#基本实现" class="headerlink" title="基本实现"></a><a href="http://0.0.0.0:4000/2018/03/15/%EF%BB%BFAPI%20Gateway%20%E5%AE%9E%E8%B7%B5%E4%BD%93%E9%AA%8C/#%E5%9F%BA%E6%9C%AC%E5%AE%9E%E7%8E%B0" target="_blank" rel="external">基本实现</a></h2><h3 id="使用zuul-filter"><a href="#使用zuul-filter" class="headerlink" title="使用zuul filter"></a><a href="http://0.0.0.0:4000/2018/03/15/%EF%BB%BFAPI%20Gateway%20%E5%AE%9E%E8%B7%B5%E4%BD%93%E9%AA%8C/#%E4%BD%BF%E7%94%A8zuul-filter" target="_blank" rel="external">使用zuul filter</a></h3><table>
+<thead>
+<tr>
+<th>1234567891011</th>
+<th>PreHeaderFilterPrePartnerClusterFilterRouteChallengerDispatchFilterRouteHttpCopyFilterRoutePartnerDispatchFilterErrorFilterPostAccessLogFilterPostHeaderFilter</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td></td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><p>PreHeaderFilter</p>
+<p>| 123456789101112131415161718192021222324252627282930313233343536373839404142434445464748495051525354555657 | /<em>** 内部请求头处理(测试标记、超时)</em>/@SuppressWarnings(“SpringJavaInjectionPointsAutowiringInspection”)@Servicepublic class PreHeaderFilter extends ZuulFilter {public final static Logger logger = LoggerFactory.getLogger(PreHeaderFilter.class);@AutowiredShutterObserve shutterObserve;@AutowiredSimpleDiscoveryClient simpleDiscoveryClient;@Overridepublic String filterType() {return FilterConstants.PRE_TYPE; // 可以在请求被路由之前调用}@Overridepublic int filterOrder() {return FilterConstants.DEBUG_FILTER_ORDER+1;}@Overridepublic boolean shouldFilter() {return true;// 是否执行该过滤器，此处为true，说明需要过滤}@Overridepublic Object run() {RequestContext ctx = RequestContext.getCurrentContext();HttpServletRequest request = ctx.getRequest();// 当前会话的超时设置 TODO 依据合作方设置有困难// 仅办公网&amp;内网支持.客户不支持 “service-type”, “x-perf-test”, “test-flag”,对非公网测试标记访问,进行处理:剔除标记String clientHost = request.getRemoteHost();if (Arrays.asList(shutterObserve.getAddress_internal().split(“,”)).contains(clientHost)|| IpUtil.isInRange(clientHost, “10.0.0.0/8”)// 10.0.0.0/8,172.16.0.0/12,192.168.0.0/16|| IpUtil.isInRange(clientHost, “172.16.0.0/12”)|| IpUtil.isInRange(clientHost, “192.168.0.0/17”)) {return null;}// 非内网访问,清理测试标记ctx.addZuulRequestHeader(“service-type”, null);ctx.addZuulRequestHeader(“x-perf-test”, null);ctx.addZuulRequestHeader(“test-flag”, null);return null;}} |<br>| ———————————————————— | ———————————————————— |<br>|                                                              |                                                              |</p>
+</li>
+</ul>
+<h3 id="对接triton-用作服务发现-替代方案-Netflix-eureka"><a href="#对接triton-用作服务发现-替代方案-Netflix-eureka" class="headerlink" title="对接triton,用作服务发现 (替代方案:Netflix/eureka)"></a><a href="http://0.0.0.0:4000/2018/03/15/%EF%BB%BFAPI%20Gateway%20%E5%AE%9E%E8%B7%B5%E4%BD%93%E9%AA%8C/#%E5%AF%B9%E6%8E%A5triton-%E7%94%A8%E4%BD%9C%E6%9C%8D%E5%8A%A1%E5%8F%91%E7%8E%B0-%E6%9B%BF%E4%BB%A3%E6%96%B9%E6%A1%88-Netflix-eureka" target="_blank" rel="external">对接triton,用作服务发现 (替代方案:Netflix/eureka)</a></h3><table>
+<thead>
+<tr>
+<th>1</th>
+<th><a href="http://10.57.18.211/api/v1/apps/ips?app_name=forseti-api&amp;env=production" target="_blank" rel="external">http://10.57.18.211/api/v1/apps/ips?app_name=forseti-api&amp;env=production</a></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>eureka应用参考见:<code>微服务：Eureka+Zuul+Ribbon+Feign+Hystrix构建微服务架构</code><br><a href="http://blog.csdn.net/qq_18675693/article/details/53282031" target="_blank" rel="external">http://blog.csdn.net/qq_18675693/article/details/53282031</a><br>wiki: <a href="https://github.com/Netflix/eureka/wiki/Configuring-Eureka" target="_blank" rel="external">https://github.com/Netflix/eureka/wiki/Configuring-Eureka</a></p>
+<h3 id="引入Ribbon-实现集群负载管理"><a href="#引入Ribbon-实现集群负载管理" class="headerlink" title="引入Ribbon,实现集群负载管理"></a><a href="http://0.0.0.0:4000/2018/03/15/%EF%BB%BFAPI%20Gateway%20%E5%AE%9E%E8%B7%B5%E4%BD%93%E9%AA%8C/#%E5%BC%95%E5%85%A5Ribbon-%E5%AE%9E%E7%8E%B0%E9%9B%86%E7%BE%A4%E8%B4%9F%E8%BD%BD%E7%AE%A1%E7%90%86" target="_blank" rel="external">引入Ribbon,实现集群负载管理</a></h3><table>
+<thead>
+<tr>
+<th>12345678910111213141516171819202122</th>
+<th># Max number of retries on the same server (excluding the first try)sample-client.ribbon.MaxAutoRetries=1# Max number of next servers to retry (excluding the first server)sample-client.ribbon.MaxAutoRetriesNextServer=1# Whether all operations can be retried for this clientsample-client.ribbon.OkToRetryOnAllOperations=true# Interval to refresh the server list from the sourcesample-client.ribbon.ServerListRefreshInterval=2000# Connect timeout used by Apache HttpClientsample-client.ribbon.ConnectTimeout=3000# Read timeout used by Apache HttpClientsample-client.ribbon.ReadTimeout=3000# Initial list of servers, can be changed via Archaius dynamic property at runtimesample-client.ribbon.listOfServers=www.microsoft.com:80,www.yahoo.com:80,www.google.com:80详见:<a href="https://github.com/Netflix/ribbon/wiki/Getting-Started" target="_blank" rel="external">https://github.com/Netflix/ribbon/wiki/Getting-Started</a></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td></td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><p>示例:</p>
+<p>| 1234567891011121314151617181920 | # Routes定义<code>origin</code>zuul.routes.origin.stripPrefix=falsezuul.routes.origin.path=/greeting/**zuul.routes.origin.serviceId=originService# Ribbon Service定义originService.ribbon.NFLoadBalancerClassName=com.netflix.loadbalancer.DynamicServerListLoadBalancer## 设置(默认:AvailabilityFilteringRule)originService.ribbon.NFLoadBalancerRuleClassName=cn.fraudmetrix.forseti.gateway.rule.CustomWeightedResponseTimeRule## Initial list of servers, can be changed via Archaius dynamic property at runtimeoriginService.ribbon.listOfServers=localhost:8090,localhost:8091## 连接超时(default:2000) Connect timeout used by Apache HttpClientoriginService.ribbon.ConnectTimeout=1000## 响应超时(default:5000) Read timeout used by Apache HttpClientoriginService.ribbon.ReadTimeout=60000详见: <a href="https://github.com/Netflix/ribbon/wiki/Working-with-load-balancers" target="_blank" rel="external">https://github.com/Netflix/ribbon/wiki/Working-with-load-balancers</a> |<br>| ——————————- | ———————————————————— |<br>|                                 |                                                              |</p>
+</li>
+</ul>
+<h3 id="异常响应控制-org-springframework-boot-autoconfigure-web"><a href="#异常响应控制-org-springframework-boot-autoconfigure-web" class="headerlink" title="异常响应控制 (org.springframework.boot.autoconfigure.web)"></a><a href="http://0.0.0.0:4000/2018/03/15/%EF%BB%BFAPI%20Gateway%20%E5%AE%9E%E8%B7%B5%E4%BD%93%E9%AA%8C/#%E5%BC%82%E5%B8%B8%E5%93%8D%E5%BA%94%E6%8E%A7%E5%88%B6-org-springframework-boot-autoconfigure-web-%E6%8F%90%E4%BE%9B" target="_blank" rel="external">异常响应控制 (org.springframework.boot.autoconfigure.web)</a></h3><table>
+<thead>
+<tr>
+<th>123456789101112</th>
+<th>@Componentpublic class CustomErrorAttribute extends DefaultErrorAttributes {@Overridepublic Map<string, object=""> getErrorAttributes(RequestAttributes requestAttributes, boolean includeStackTrace) {Map<string, object=""> result = super.getErrorAttributes(requestAttributes, includeStackTrace);result.put(“status”, 500);result.put(“error”, “error”);result.put(“exception”, “exception”);result.put(“message”, “message”);return result;}}</string,></string,></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3 id="自定义权重轮训"><a href="#自定义权重轮训" class="headerlink" title="自定义权重轮训"></a><a href="http://0.0.0.0:4000/2018/03/15/%EF%BB%BFAPI%20Gateway%20%E5%AE%9E%E8%B7%B5%E4%BD%93%E9%AA%8C/#%E8%87%AA%E5%AE%9A%E4%B9%89%E6%9D%83%E9%87%8D%E8%BD%AE%E8%AE%AD" target="_blank" rel="external">自定义权重轮训</a></h3><h4 id="基于权重随机"><a href="#基于权重随机" class="headerlink" title="基于权重随机"></a><a href="http://0.0.0.0:4000/2018/03/15/%EF%BB%BFAPI%20Gateway%20%E5%AE%9E%E8%B7%B5%E4%BD%93%E9%AA%8C/#%E5%9F%BA%E4%BA%8E%E6%9D%83%E9%87%8D%E9%9A%8F%E6%9C%BA" target="_blank" rel="external">基于权重随机</a></h4><table>
+<thead>
+<tr>
+<th>12345678910</th>
+<th>int n = 0, resultIndex = 0;double random = new Random().nextDouble() * prizeArea.get(prizeArea.size()-1);for (Integer inte : prizeArea) {if (inte &gt;= random) {resultIndex = n;System.out.println(“命中(“ + random + “):” + inte);break;}n++;}</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h4 id="基于加权轮询"><a href="#基于加权轮询" class="headerlink" title="基于加权轮询"></a><a href="http://0.0.0.0:4000/2018/03/15/%EF%BB%BFAPI%20Gateway%20%E5%AE%9E%E8%B7%B5%E4%BD%93%E9%AA%8C/#%E5%9F%BA%E4%BA%8E%E5%8A%A0%E6%9D%83%E8%BD%AE%E8%AF%A2" target="_blank" rel="external">基于加权轮询</a></h4><table>
+<thead>
+<tr>
+<th>1234567891011121314151617181920212223242526272829</th>
+<th>/<em>** 算法流程：</em> 假设有一组服务器 S = {S0, S1, …, Sn-1}<em> 有相应的权重，变量currentIndex表示上次选择的服务器</em> 权值currentWeight初始化为0，currentIndex初始化为-1 ，当第一次的时候返回 权值取最大的那个服务器，<em> 通过权重的不断递减 寻找 适合的服务器返回</em>/public Server getServer( ) {while (true) {currentIndex = (currentIndex + 1) % serverCount;// 每次从上一次命中节点,的下个节点开始权值比较if (currentIndex == 0) {// 第0台,第size台机器,取余才会得0 (让外部所有节点权值都进行权值比较,至找到合适的权值节点)// 当前权值减最大公约数(gcd)相比每次减(1,2,最大公差,n)的优点:<code>维持整数比例关系</code>的<code>最小值表现</code>.公约数可保持权重平衡,最大公约数可最快的轮换节点.currentWeight = currentWeight - gcdWeight;// max - gcd (权值衰减直到近一个合适的权重,才会换节点)if (currentWeight &lt;= 0) {// 首次:0 - gcd = 负值 / 权重衰减至最大公约数时-gcd = 0值,此时需要重置最大权值currentWeight = maxWeight;// 为负时,取重置为最大权重(从最大权重节点开始递减选择)if (currentWeight == 0) {return null;}}}if (servers.get(currentIndex).getWeight() &gt;= currentWeight) {// 第一次:节点1~size权重&gt;currentWeight(maxWeight),返回节点:最大权值return servers.get(currentIndex);}}}详见: <a href="http://zh.linuxvirtualserver.org/node/37" target="_blank" rel="external">http://zh.linuxvirtualserver.org/node/37</a></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p><img src="http://7xnbs3.com1.z0.glb.clouddn.com/18-3-19/68971967.jpg" alt="img"></p>
+<ul>
+<li><p>最大公约数的意义</p>
+<p>| 12345 | 公约数在加权轮询中的意义: 在保持权重平衡(整数倍)的情况下,转换为更小值得表现(即减少”层高”),从而加速轮询周期(一圈)最大公约数在加权轮询中的意义: 平衡基础的最小值表现,最快的轮询周期.(思考上图:仅调用6次情况下,有公约数处理可以提前达到负载均衡)减最大公约数(gcd)相比每次减(1,2,最大公差,n)的优点:<code>维持整数比例关系</code>的<code>最小值表现</code>.公约数可保持权重平衡,最大公约数可最快的轮换节点.关键字:<code>公约数保平衡</code>, <code>最大公约数得最小比例值</code>, <code>最大公约数做差可最快轮询周期,更少数量调用的均衡实现</code> |<br>| —– | ———————————————————— |<br>|       |                                                              |</p>
+</li>
+</ul>
+<hr>
+<h1 id="四-Zuul-Ribbon-源码分析"><a href="#四-Zuul-Ribbon-源码分析" class="headerlink" title="四.Zuul,Ribbon 源码分析"></a><a href="http://0.0.0.0:4000/2018/03/15/%EF%BB%BFAPI%20Gateway%20%E5%AE%9E%E8%B7%B5%E4%BD%93%E9%AA%8C/#%E5%9B%9B-Zuul-Ribbon-%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90" target="_blank" rel="external">四.Zuul,Ribbon 源码分析</a></h1><h2 id="1-filter调用栈"><a href="#1-filter调用栈" class="headerlink" title="1.filter调用栈"></a><a href="http://0.0.0.0:4000/2018/03/15/%EF%BB%BFAPI%20Gateway%20%E5%AE%9E%E8%B7%B5%E4%BD%93%E9%AA%8C/#1-filter%E8%B0%83%E7%94%A8%E6%A0%88" target="_blank" rel="external">1.filter调用栈</a></h2><ul>
+<li><p>入口servlet: <code>ZuulController extends ServletWrappingController</code></p>
+<p>| 123  | setServletClass(ZuulServlet.class);return super.handleRequestInternal(request, response); |<br>| —- | ———————————————————— |<br>|      |                                                              |</p>
+</li>
+<li><p>ZuulServlet: com.netflix.zuul.http.ZuulServlet#service</p>
+<p>| 123456789101112131415161718192021222324252627282930313233343536 | @Overridepublic void service(javax.servlet.ServletRequest servletRequest, javax.servlet.ServletResponse servletResponse) throws ServletException, IOException {try {init((HttpServletRequest) servletRequest, (HttpServletResponse) servletResponse);// Marks this request as having passed through the “Zuul engine”, as opposed to servlets// explicitly bound in web.xml, for which requests will not have the same data attachedRequestContext context = RequestContext.getCurrentContext();context.setZuulEngineRan();try {preRoute();} catch (ZuulException e) {error(e);postRoute();return;}try {route();} catch (ZuulException e) {error(e);postRoute();return;}try {postRoute();} catch (ZuulException e) {error(e);return;}} catch (Throwable e) {error(new ZuulException(e, 500, “UNHANDLED<em>EXCEPTION</em>“ + e.getClass().getName()));} finally {RequestContext.getCurrentContext().unset();} |<br>| ———————————————————— | ———————————————————— |<br>|                                                              |                                                              |</p>
+</li>
+<li><p>FilterProcessor: com.netflix.zuul.FilterProcessor#runFilters</p>
+<p>| 1234567891011121314151617 | public Object runFilters(String sType) throws Throwable {if (RequestContext.getCurrentContext().debugRouting()) {Debug.addRoutingDebug(“Invoking {“ + sType + “} type filters”);}boolean bResult = false;List<zuulfilter> list = FilterLoader.getInstance().getFiltersByType(sType);if (list != null) {for (int i = 0; i &lt; list.size(); i++) {ZuulFilter zuulFilter = list.get(i);Object result = processZuulFilter(zuulFilter);if (result != null &amp;&amp; result instanceof Boolean) {bResult |= ((Boolean) result);}}}return bResult;} |<br>| ————————- | ———————————————————— |<br>|                           |                                                              |</zuulfilter></p>
+</li>
+<li><p>ZuulFilter: com.netflix.zuul.ZuulFilter#runFilter</p>
+<p>| 123456789101112131415161718192021 | public ZuulFilterResult runFilter() {ZuulFilterResult zr = new ZuulFilterResult();if (!isFilterDisabled()) {if (shouldFilter()) {Tracer t = TracerFactory.instance().startMicroTracer(“ZUUL::” + this.getClass().getSimpleName());try {Object res = run();zr = new ZuulFilterResult(res, ExecutionStatus.SUCCESS);} catch (Throwable e) {t.setName(“ZUUL::” + this.getClass().getSimpleName() + “ failed”);zr = new ZuulFilterResult(ExecutionStatus.FAILED);zr.setException(e);} finally {t.stopAndLog();}} else {zr = new ZuulFilterResult(ExecutionStatus.SKIPPED);}}return zr;} |<br>| ——————————— | ———————————————————— |<br>|                                   |                                                              |</p>
+</li>
+<li><p>PreHeaderFilter (自定义实现filter)</p>
+<p>| 1234567891011121314151617181920212223 | public class PreHeaderFilter extends ZuulFilter {@Overridepublic String filterType() {return FilterConstants.PRE_TYPE; // 可以在请求被路由之前调用}@Overridepublic int filterOrder() {return FilterConstants.DEBUG_FILTER_ORDER+1;}@Overridepublic boolean shouldFilter() {return true;// 是否执行该过滤器，此处为true，说明需要过滤}@Overridepublic Object run() {return null;}} |<br>| ————————————- | ———————————————————— |<br>|                                       |                                                              |</p>
+</li>
+<li><p>至此,以上调用栈可以通过自有filter断点卡住,观察线程栈.</p>
+</li>
+</ul>
+<h2 id="2-Route路由控制-forward"><a href="#2-Route路由控制-forward" class="headerlink" title="2.Route路由控制(forward)"></a><a href="http://0.0.0.0:4000/2018/03/15/%EF%BB%BFAPI%20Gateway%20%E5%AE%9E%E8%B7%B5%E4%BD%93%E9%AA%8C/#2-Route%E8%B7%AF%E7%94%B1%E6%8E%A7%E5%88%B6-forward" target="_blank" rel="external">2.Route路由控制(forward)</a></h2><h3 id="情况一-route直接关系host"><a href="#情况一-route直接关系host" class="headerlink" title="情况一: route直接关系host"></a><a href="http://0.0.0.0:4000/2018/03/15/%EF%BB%BFAPI%20Gateway%20%E5%AE%9E%E8%B7%B5%E4%BD%93%E9%AA%8C/#%E6%83%85%E5%86%B5%E4%B8%80-route%E7%9B%B4%E6%8E%A5%E5%85%B3%E7%B3%BBhost" target="_blank" rel="external">情况一: route直接关系host</a></h3><table>
+<thead>
+<tr>
+<th>123</th>
+<th>zuul.routes.riskService.stripPrefix=falsezuul.routes.riskService.path=/riskService/**zuul.routes.riskService.routeHost=localhost:8090</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td></td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><p>进入SimpleHostRoutingFilter</p>
+<p>| 12345678910111213141516 | public class SimpleHostRoutingFilter extends ZuulFilter {@Overridepublic boolean shouldFilter() {return RequestContext.getCurrentContext().getRouteHost() != null&amp;&amp; RequestContext.getCurrentContext().sendZuulResponse();}@Overridepublic Object run() {…CloseableHttpResponse response = forward(this.httpClient, verb, uri, request,headers, params, requestEntity);…}} |<br>| ———————– | ———————————————————— |<br>|                         |                                                              |</p>
+</li>
+</ul>
+<h3 id="情况二-route关系到serviceId-类集群"><a href="#情况二-route关系到serviceId-类集群" class="headerlink" title="情况二: route关系到serviceId(类集群)"></a><a href="http://0.0.0.0:4000/2018/03/15/%EF%BB%BFAPI%20Gateway%20%E5%AE%9E%E8%B7%B5%E4%BD%93%E9%AA%8C/#%E6%83%85%E5%86%B5%E4%BA%8C-route%E5%85%B3%E7%B3%BB%E5%88%B0serviceId-%E7%B1%BB%E9%9B%86%E7%BE%A4" target="_blank" rel="external">情况二: route关系到serviceId(类集群)</a></h3><table>
+<thead>
+<tr>
+<th>123</th>
+<th>zuul.routes.riskService.stripPrefix=falsezuul.routes.riskService.path=/riskService/**zuul.routes.riskService.serviceId=originService</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td></td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><p>进入RibbonRoutingFilter</p>
+<p>| 1234567891011121314151617 | public class RibbonRoutingFilter extends ZuulFilter {@Overridepublic boolean shouldFilter() {RequestContext ctx = RequestContext.getCurrentContext();return (ctx.getRouteHost() == null &amp;&amp; ctx.get(SERVICE_ID_KEY) != null &amp;&amp; ctx.sendZuulResponse());}@Overridepublic Object run() {…RibbonCommandContext commandContext = buildCommandContext(context);ClientHttpResponse response = forward(commandContext);…}} |<br>| ————————- | ———————————————————— |<br>|                           |                                                              |</p>
+</li>
+<li><p>forward中还有<code>自定义负载均衡实现</code>. (怎么过来的,断点了解)</p>
+<p>| 123456 | public class CustomWeightedResponseTimeRule extends RoundRobinRule {@Overridepublic Server choose(ILoadBalancer lb, Object key) {…}} |<br>| —— | ———————————————————— |<br>|        |                                                              |</p>
+</li>
+</ul>
+<hr>
+<h2 id="3-Ribbon结构"><a href="#3-Ribbon结构" class="headerlink" title="3.Ribbon结构"></a><a href="http://0.0.0.0:4000/2018/03/15/%EF%BB%BFAPI%20Gateway%20%E5%AE%9E%E8%B7%B5%E4%BD%93%E9%AA%8C/#3-Ribbon%E7%BB%93%E6%9E%84" target="_blank" rel="external">3.Ribbon结构</a></h2><h3 id="核心类-BaseLoadBalancer-默认实现"><a href="#核心类-BaseLoadBalancer-默认实现" class="headerlink" title="核心类: BaseLoadBalancer 默认实现"></a><a href="http://0.0.0.0:4000/2018/03/15/%EF%BB%BFAPI%20Gateway%20%E5%AE%9E%E8%B7%B5%E4%BD%93%E9%AA%8C/#%E6%A0%B8%E5%BF%83%E7%B1%BB-BaseLoadBalancer-%E9%BB%98%E8%AE%A4%E5%AE%9E%E7%8E%B0" target="_blank" rel="external">核心类: BaseLoadBalancer 默认实现</a></h3><table>
+<thead>
+<tr>
+<th>123456</th>
+<th>IClientConfig ribbonClientConfig: DefaultClientConfigImpl配置IRule ribbonRule: RoundRobinRule 轮询策略IPing ribbonPing: DummyPingServerList ribbonServerList: ConfigurationBasedServerListServerListFilter ribbonServerListFilter: ZonePreferenceServerListFilterILoadBalancer ribbonLoadBalancer: ZoneAwareLoadBalancer</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3 id="配置及可选项"><a href="#配置及可选项" class="headerlink" title="配置及可选项"></a><a href="http://0.0.0.0:4000/2018/03/15/%EF%BB%BFAPI%20Gateway%20%E5%AE%9E%E8%B7%B5%E4%BD%93%E9%AA%8C/#%E9%85%8D%E7%BD%AE%E5%8F%8A%E5%8F%AF%E9%80%89%E9%A1%B9" target="_blank" rel="external">配置及可选项</a></h3><table>
+<thead>
+<tr>
+<th>12345</th>
+<th>NFLoadBalancerClassNameNFLoadBalancerRuleClassNameNFLoadBalancerPingClassNameNIWSServerListClassNameNIWSServerListFilterClassName</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3 id="NFLoadBalancerRuleClassName可选项-负载均衡"><a href="#NFLoadBalancerRuleClassName可选项-负载均衡" class="headerlink" title="NFLoadBalancerRuleClassName可选项(负载均衡)"></a><a href="http://0.0.0.0:4000/2018/03/15/%EF%BB%BFAPI%20Gateway%20%E5%AE%9E%E8%B7%B5%E4%BD%93%E9%AA%8C/#NFLoadBalancerRuleClassName%E5%8F%AF%E9%80%89%E9%A1%B9-%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1" target="_blank" rel="external">NFLoadBalancerRuleClassName可选项(负载均衡)</a></h3><table>
+<thead>
+<tr>
+<th>1234567891011121314</th>
+<th># BestAvailableRule ：最佳使用性规则，选择正在请求中的并发数最小的那个server，除非这个server在熔断中。# ZoneAvoidanceRule：区域敏感性规则，如果这个ip区域内有一个或多个实例不可达或响应变慢，都会降低该ip区域内其他ip被选中的权重。# AvailabilityFilteringRule：可用性敏感规则，首先轮询选择一个server，如果该server没有熔断并且正在请求中的数量没有达到限制，则选中它。# WeightedResponseTimeRule：响应平均值规则，起始为轮训算法，并开启一个计时器，每三十秒收集一次每个server的平均响应时间，当信息足够时，给每个server附上一个权重，并按权重随机选择server，高权重的server会被高概率选中。# ConsistentHashRule：hash一致性规则，如果http请求的header中存在一个key[‘rest_consistent_key’]，则按它的value进行一致性hash选择相同的那个server，如果不存在，则使用服务启动时随机生成的一个字符串作为key。</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3 id="Pinger-工作机制-可作为健康检查"><a href="#Pinger-工作机制-可作为健康检查" class="headerlink" title="Pinger 工作机制(可作为健康检查)"></a><a href="http://0.0.0.0:4000/2018/03/15/%EF%BB%BFAPI%20Gateway%20%E5%AE%9E%E8%B7%B5%E4%BD%93%E9%AA%8C/#Pinger-%E5%B7%A5%E4%BD%9C%E6%9C%BA%E5%88%B6-%E5%8F%AF%E4%BD%9C%E4%B8%BA%E5%81%A5%E5%BA%B7%E6%A3%80%E6%9F%A5" target="_blank" rel="external">Pinger 工作机制(可作为健康检查)</a></h3><p><code>BaseLoadBalancer.PingTask</code> 10s的自动检测 / 每30s的service刷新检查</p>
+<table>
+<thead>
+<tr>
+<th>12345</th>
+<th>PingUrl 真实的去ping 某个url，判断其是否alivePingConstant 固定返回某服务是否可用，默认返回true，即可用NoOpPing 不去ping,直接返回true,即可用。DummyPing 直接返回true，并实现了initWithNiwsConfig方法。NIWSDiscoveryPing，根据DiscoveryEnabledServer的InstanceInfo的InstanceStatus去判断，如果为InstanceStatus.UP，则为可用，否则不可用。</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3 id="动态创建Ribbon-client"><a href="#动态创建Ribbon-client" class="headerlink" title="动态创建Ribbon client"></a><a href="http://0.0.0.0:4000/2018/03/15/%EF%BB%BFAPI%20Gateway%20%E5%AE%9E%E8%B7%B5%E4%BD%93%E9%AA%8C/#%E5%8A%A8%E6%80%81%E5%88%9B%E5%BB%BARibbon-client" target="_blank" rel="external">动态创建Ribbon client</a></h3><table>
+<thead>
+<tr>
+<th>1234567891011121314151617181920212223</th>
+<th>// 不存在时会自动创建默认ClientIClientConfig iClientConfig = springClientFactory.getClientConfig(serviceName);// IClientConfig iClientConfig = ClientFactory.getNamedConfig(serviceName);logger.debug(“initWithNiwsConfig [{}] before:{}”, serviceName, iClientConfig);String loadBalancer = “com.netflix.loadbalancer.DynamicServerListLoadBalancer”;String rule = “cn.fraudmetrix.forseti.gateway.rule.CustomWeightedResponseTimeRule”;// 自定义权重轮询// 方式一:不可覆盖设置// iClientConfig.set(CommonClientConfigKey.NFLoadBalancerClassName, loadBalancer);// iClientConfig.set(CommonClientConfigKey.ListOfServers, listOfServers);// iClientConfig.set(CommonClientConfigKey.NFLoadBalancerRuleClassName, rule);// 加权轮训// 方式二:可以覆盖设置ConcurrentCompositeConfiguration config = ((ConcurrentCompositeConfiguration) ConfigurationManager.getConfigInstance());config.setOverrideProperty(serviceName + “.ribbon.NFLoadBalancerClassName”, loadBalancer);// TODO 配置生效,实例未生效(暂无影响)config.setOverrideProperty(serviceName + “.ribbon.listOfServers”, String.join(“,”, listOfServers));config.setOverrideProperty(serviceName + “.ribbon.NFLoadBalancerRuleClassName”, rule);// 负载均衡规则:加权轮训config.setOverrideProperty(serviceName + “.ribbon.ConnectTimeout”, 1000);// 留意稳定性config.setOverrideProperty(serviceName + “.ribbon.ReadTimeout”, 60000);//2000DynamicServerListLoadBalancer dynamicServerListLoadBalancer = (DynamicServerListLoadBalancer) springClientFactory.getLoadBalancer(serviceName);// 运行实例dynamicServerListLoadBalancer.initWithNiwsConfig(dynamicServerListLoadBalancer.getClientConfig());</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3 id="基础轮询算法"><a href="#基础轮询算法" class="headerlink" title="基础轮询算法"></a><a href="http://0.0.0.0:4000/2018/03/15/%EF%BB%BFAPI%20Gateway%20%E5%AE%9E%E8%B7%B5%E4%BD%93%E9%AA%8C/#%E5%9F%BA%E7%A1%80%E8%BD%AE%E8%AF%A2%E7%AE%97%E6%B3%95" target="_blank" rel="external">基础轮询算法</a></h3><ul>
+<li><p>RoundRobinRule</p>
+<p>| 12345678910111213141516 | private AtomicInteger nextServerCyclicCounter;/<strong>* Inspired by the implementation of {@link AtomicInteger#incrementAndGet()}.</strong> @param modulo The modulo to bound the value of the counter.<em> @return The next value.</em>/private int incrementAndGetModulo(int modulo) {for (;;) {int current = nextServerCyclicCounter.get();int next = (current + 1) % modulo;if (nextServerCyclicCounter.compareAndSet(current, next))return next;}} |<br>| ———————– | ———————————————————— |<br>|                         |                                                              |</p>
+</li>
+<li><p>RoundRobinRuleTest</p>
+<p>| 1234567891011121314151617181920212223242526 | import java.util.concurrent.atomic.AtomicInteger;public class RoundRobinRuleTest {private static AtomicInteger nextServerCyclicCounter;/<strong>* Inspired by the implementation of {@link AtomicInteger#incrementAndGet()}.</strong> @param modulo The modulo to bound the value of the counter.<em> @return The next value.</em>/private static int incrementAndGetModulo(int modulo) {for (; ;) {int current = nextServerCyclicCounter.get();int next = (current + 1) % modulo;if (nextServerCyclicCounter.compareAndSet(current, next))return next;}}public static void main(String[] args) {nextServerCyclicCounter = new AtomicInteger(0);for (int i = 0; i &lt; 100; i++) {System.out.println(incrementAndGetModulo(3));}}} |<br>| ——————————————- | ———————————————————— |<br>|                                             |                                                              |</p>
+</li>
+</ul>
+<hr>
+<p>参考<br><code>Getting Started · Netflix/ribbon Wiki · GitHub</code><br><a href="https://github.com/Netflix/ribbon/wiki/Getting-Started" target="_blank" rel="external">https://github.com/Netflix/ribbon/wiki/Getting-Started</a></p>
+<p><code>使用负载平衡器·Netflix / Ribbon Wiki·GitHub</code><br><a href="https://github.com/Netflix/ribbon/wiki/Working-with-load-balancers" target="_blank" rel="external">https://github.com/Netflix/ribbon/wiki/Working-with-load-balancers</a></p>
+<p><code>端到端示例·Netflix / ribbon维基·GitHub</code><br><a href="https://github.com/Netflix/ribbon/wiki/End-to-End-Examples" target="_blank" rel="external">https://github.com/Netflix/ribbon/wiki/End-to-End-Examples</a></p>
+<p><code>深入理解Ribbon之源码解析</code><br><a href="http://blog.csdn.net/forezp/article/details/74820899" target="_blank" rel="external">http://blog.csdn.net/forezp/article/details/74820899</a></p>
+<hr>
+<h1 id="五-工具-amp-监控-metrics采样-grafana制图及报警"><a href="#五-工具-amp-监控-metrics采样-grafana制图及报警" class="headerlink" title="五. 工具 &amp; 监控 (metrics采样,grafana制图及报警)"></a><a href="http://0.0.0.0:4000/2018/03/15/%EF%BB%BFAPI%20Gateway%20%E5%AE%9E%E8%B7%B5%E4%BD%93%E9%AA%8C/#%E4%BA%94-%E5%B7%A5%E5%85%B7-amp-%E7%9B%91%E6%8E%A7-metrics%E9%87%87%E6%A0%B7-grafana%E5%88%B6%E5%9B%BE%E5%8F%8A%E6%8A%A5%E8%AD%A6" target="_blank" rel="external">五. 工具 &amp; 监控 (metrics采样,grafana制图及报警)</a></h1><h2 id="工具"><a href="#工具" class="headerlink" title="工具"></a><a href="http://0.0.0.0:4000/2018/03/15/%EF%BB%BFAPI%20Gateway%20%E5%AE%9E%E8%B7%B5%E4%BD%93%E9%AA%8C/#%E5%B7%A5%E5%85%B7" target="_blank" rel="external">工具</a></h2><ul>
+<li>网关基础状态观察页(gateway工作状态,故障节点情况)<ul>
+<li><a href="http://localhost:8080/watchNowRoute" target="_blank" rel="external">http://localhost:8080/watchNowRoute</a></li>
+<li><a href="http://localhost:8080/watchNowServiceSpring" target="_blank" rel="external">http://localhost:8080/watchNowServiceSpring</a></li>
+<li><a href="http://localhost:8080/cache" target="_blank" rel="external">http://localhost:8080/cache</a></li>
+<li><a href="http://localhost:8080/cache/refresh" target="_blank" rel="external">http://localhost:8080/cache/refresh</a></li>
+<li><a href="http://localhost:8080/cache/setClusterNodeWeighted?cluster=originService&amp;server=localhost:8090&amp;weighted=150" target="_blank" rel="external">http://localhost:8080/cache/setClusterNodeWeighted?cluster=originService&amp;server=localhost:8090&amp;weighted=150</a></li>
+</ul>
+</li>
+</ul>
+<h2 id="监控-metrics采样-grafana制图及报警"><a href="#监控-metrics采样-grafana制图及报警" class="headerlink" title="监控 (metrics采样,grafana制图及报警)"></a><a href="http://0.0.0.0:4000/2018/03/15/%EF%BB%BFAPI%20Gateway%20%E5%AE%9E%E8%B7%B5%E4%BD%93%E9%AA%8C/#%E7%9B%91%E6%8E%A7-metrics%E9%87%87%E6%A0%B7-grafana%E5%88%B6%E5%9B%BE%E5%8F%8A%E6%8A%A5%E8%AD%A6" target="_blank" rel="external">监控 (metrics采样,grafana制图及报警)</a></h2><p>详见: <a href="http://10.57.17.82:3000/dashboard/db/forseti-gateway?orgId=1&amp;from=now-30m&amp;to=now&amp;var-interval=10s" target="_blank" rel="external">http://10.57.17.82:3000/dashboard/db/forseti-gateway?orgId=1&amp;from=now-30m&amp;to=now&amp;var-interval=10s</a></p>
+<table>
+<thead>
+<tr>
+<th>12345</th>
+<th>forseti.gateway.clusterforseti.gateway.countforseti.gateway.filterforseti.gateway.zuulforseti.gateway.exception</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p><img src="http://7xnbs3.com1.z0.glb.clouddn.com/18-3-19/6378748.jpg" alt="img"></p>
+<hr>
+<h1 id="六-指标情况-基准测试"><a href="#六-指标情况-基准测试" class="headerlink" title="六.指标情况(基准测试)"></a><a href="http://0.0.0.0:4000/2018/03/15/%EF%BB%BFAPI%20Gateway%20%E5%AE%9E%E8%B7%B5%E4%BD%93%E9%AA%8C/#%E5%85%AD-%E6%8C%87%E6%A0%87%E6%83%85%E5%86%B5-%E5%9F%BA%E5%87%86%E6%B5%8B%E8%AF%95" target="_blank" rel="external">六.指标情况(基准测试)</a></h1><h2 id="压测结果"><a href="#压测结果" class="headerlink" title="压测结果"></a><a href="http://0.0.0.0:4000/2018/03/15/%EF%BB%BFAPI%20Gateway%20%E5%AE%9E%E8%B7%B5%E4%BD%93%E9%AA%8C/#%E5%8E%8B%E6%B5%8B%E7%BB%93%E6%9E%9C" target="_blank" rel="external">压测结果</a></h2><p>local测试: forseti-gateway rt : 1~10ms. 平均2ms</p>
+<p>TODO 待压测出详细指标…</p>
+<p>…</p>
+<h2 id="网摘-仅供参考-绩效基准汇总如下"><a href="#网摘-仅供参考-绩效基准汇总如下" class="headerlink" title="网摘(仅供参考) : 绩效基准汇总如下"></a><a href="http://0.0.0.0:4000/2018/03/15/%EF%BB%BFAPI%20Gateway%20%E5%AE%9E%E8%B7%B5%E4%BD%93%E9%AA%8C/#%E7%BD%91%E6%91%98-%E4%BB%85%E4%BE%9B%E5%8F%82%E8%80%83-%E7%BB%A9%E6%95%88%E5%9F%BA%E5%87%86%E6%B1%87%E6%80%BB%E5%A6%82%E4%B8%8B" target="_blank" rel="external">网摘(仅供参考) : 绩效基准汇总如下</a></h2><p>1.Micro - 单核CPU情况下：</p>
+<table>
+<thead>
+<tr>
+<th>123</th>
+<th>（1）直接访问：每秒6519.68个请求，每个请求花费时间30.676ms（2）Nginx：每秒4888.24个请求, 每个请求花费时间40.915ms（3）Zuul: 每秒950.57个请求, 每个请求花费时间210.399ms</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>2.在M4.Large - 双核CPU情况下：</p>
+<table>
+<thead>
+<tr>
+<th>12</th>
+<th>（1）Nginx：每秒6187.14个请求，每个请求花费时间32.325ms（2）Zuul: 每秒2099.93个请求，每个请求花费时间95.241ms</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>3.在M4.2xLarge - 8核CPU情况下：</p>
+<table>
+<thead>
+<tr>
+<th>1234</th>
+<th>（1）zuul:每秒7036.9个请求，每个请求花费时间28.422ms（2）Linkerd: 每秒6995个请求，每个请求花费时间28.592ms（3）Nginx: 每秒6233.4个请求，每个请求花费时间32.085ms（4）Spring Cloud Gateway：每秒873.14个请求，每个请求花费时间229.058ms</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>Spring Cloud Gateway每秒可以处理873个请求，每个请求的平均时间为229ms。根据我们的测试，Spring Cloud Gateway的性能无法达到Zuul，Linkerd和Nginx的水平，至少在Github的当前代码库就是这种情况。</p>
+<p>参考<br><code>微服务API网关NGINX、ZUUL、Spring Cloud Gateway与 - 推酷</code><br><a href="https://www.tuicool.com/articles/Fbu26jM" target="_blank" rel="external">https://www.tuicool.com/articles/Fbu26jM</a></p>
+<p><code>Netflix Zuul与Nginx 性能对比</code> - Zuul的原始性能非常接近于Nginx<br><a href="https://www.tuicool.com/articles/ErEVZf6" target="_blank" rel="external">https://www.tuicool.com/articles/ErEVZf6</a></p>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+      
+
+      <div style="font-size: 12px;">
+        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
+      </div>
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2018/04/09/API-gateway实践/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
     <article id="post-分布式一致性算法paxos" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
@@ -1300,563 +2124,6 @@
 
 
   
-    <article id="post-java范型通配符" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2018/03/08/java范型通配符/">java范型使用小结</a>
-    </h1>
-  
-
-        
-        <a href="/2018/03/08/java范型通配符/" class="archive-article-date">
-  	<time datetime="2018-03-08T08:33:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-03-08</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h1 id="范型通配符"><a href="#范型通配符" class="headerlink" title="范型通配符"></a>范型通配符</h1><ol>
-<li>&lt;? extends Hero&gt;</li>
-</ol>
-<p>ArrayList heroList&lt;? extends Hero&gt; 表示<br>只能放子类<br>所以 可以确凿的是，从heroList取出来的对象，一定是可以转型成Hero的</p>
-<ol>
-<li>&lt;? super Hero&gt;</li>
-</ol>
-<p>ArrayList heroList&lt;? super Hero&gt; 表示<br>heroList的泛型可能是Hero<br>heroList的泛型可能是Object<br>可以往里面插入Hero以及Hero的子类<br>但是取出来有风险，因为不确定取出来是Hero还是Object</p>
-<ol>
-<li>泛型通配符?</li>
-</ol>
-<p>泛型通配符? 代表任意泛型<br>既然?代表任意泛型，那么换句话说，这个容器什么泛型都有可能<br>所以只能以Object的形式取出来<br>并且不能往里面放对象，因为不知道到底是一个什么泛型的容器</p>
-<p>一、泛型由来<br>Java语言类型包括八种基本类型(byte short int long float double boolean char)和复杂类型，复杂类型包括类和数组。<br>早期Java版本（1.4之前）如果要代指某个泛化类对象，只能使用Object，这样写出来的代码需要增加强转，而且缺少类型检查，代码缺少健壮性。在1.5之后，Java引入了泛型(Generic)的概念，提供了一套抽象的类型表示方法。利用泛型，我们可以：<br>1、表示多个可变类型之间的相互关系：HashMap<t,s>表示类型T与S的映射，HashMap<t, s="" extends="" t="">表示T的子类与T的映射关系</t,></t,s></p>
-<p>2、细化类的能力：ArrayList<t> 可以容纳任何指定类型T的数据，当T代指人，则是人的有序列表，当T代指杯子，则是杯子的有序列表，所有对象个体可以共用相同的操作行为</t></p>
-<p>3、复杂类型被细分成更多类型：List<people>和List<cup>是两种不同的类型，这意味着List<people> listP = new ArrayList<cup>()是不可编译的。后面会提到，这种检查基于编译而非运行，所以说是不可编译并非不可运行，因为运行时ArrayList不保留Cup信息。另外要注意，即使People继承自Object，List<object> listO = new ArrayList<people>()也是不可编译的，应理解为两种不同类型。因为listO可以容纳任意类型，而实例化的People列表只能接收People实例，这会破坏数据类型完整性。</people></object></cup></people></cup></people></p>
-<p>4、简化代码实现：假设有一个执行过程，对不同类型的数据，进行某些流程一致的处理，不引入泛型的实现方法为：<br>[java] view plain copy<br>public void addToArray(Integer data, Integer array[], int pos) {<br>    array[pos] = data;<br>}<br>public void addToArray(Long data, Long array[], int pos) {<br>    array[pos] = data;<br>}<br>这是一种典型的多态行为——重载，但是不够简化。引入泛型的写法更优雅：<br>[java] view plain copy<br>public <t> void addToArray(T data, T array[], int pos) {<br>    array[pos] = data;<br>}  </t></p>
-<p>二、泛型定义与使用（泛型类和泛型方法）<br>1、泛型参数的命名风格：<br>1）尽量用简便的命名来命名泛型，若类型无特定意义，尽量使用一个字符<br>2）尽量使用全大写来命名泛型形参，以此与其他类型区分开<br>3）单字母的泛型建议用T命名，如果有多个泛型，可以取T周围的大写字母，注意，如果泛型本身有意义，可以不遵守这一条，比如缓存管理CacheManager<param, data="">，该类负责管理缓存查询条件与数据的映射，用单字母就不太合适，使用多字母更好<br>4）对于泛型函数或者泛型内部类在某个泛型类中出现的情况，建议泛型函数和内部类的泛型形参名称与外层类的泛型名称保持不同，否则容易引起混淆。类似这种：<br>[java] view plain copy<br>public class GenericClass<t> {<br>     public <t> void testGenericMethod(T t) {<br>     }<br>}  </t></t></param,></p>
-<p>其实testGenericMethod方法的形参与外面GenericClass的形参完全没有关系。换句话说，泛型方法的泛型是优先使用方法泛型定义的。这种更应该写成：<br>[java] view plain copy<br>public class GenericClass<t> {<br>     public <s> void testGenericMethod(S s) {<br>     }<br>}  </s></t></p>
-<p>2、泛型存在两种用法：泛型类和泛型方法</p>
-<p>1）泛型类<br>定义泛型类时，在类名后加&lt;&gt;，尖括号内可以定义一个或多个泛型参数，并指定泛型参数的取值范围，多个参数用逗号(,)分割<br>泛型类中定义的泛型全类可用（静态方法、静态代码块、静态成员变量除外）<br>父类定义的泛型参数子类无法继承，所以子类得自己写<br>[java] view plain copy<br>public class GenericClass<t extends="" aclass=""> {<br>    T data;<br>    void setData(T t) {<br>        data = t;<br>    }<br>    T getData() {<br>        return data;<br>    }<br>}  </t></p>
-<p>2）泛型方法<br>定义泛型方法，在方法修饰符后，返回参数前加上&lt;&gt;，尖括号内可以定义一个或多个泛型参数，并指定泛型参数取值范围，多个参数用逗号(,)分割<br>泛型方法中定义的泛型作用域在方法内<br>[java] view plain copy<br>public class GenericMethodClass {<br>    public <t extends="" aclass,="" s="" t=""> T setData(T t, S s) {<br>        //do something<br>        return t;<br>    }<br>}  </t></p>
-<p>定义泛型方法，更多是为了表达返回值和方法形参间的关系，本例中方法第一个参数T继承AClass，第二个参数S继承T，返回值是第一个参数。<br>如果仅仅是为了实现了多态，应优先使用通配符。类似如下：<br>[java] view plain copy<br>public void addList(List&lt;?&gt; list) {<br>    //todo<br>}  </p>
-<p>3、定义了多个泛型类型参数时，一定要在使用时都指定类型，否则会编译出错。</p>
-<p>4、对泛型类的类型参数赋值包含两种方法：<br>1）类变量或实例化：<br>List<string> listS;<br>listS = new ArrayList<string>();</string></string></p>
-<p>2）继承<br>public class MyList<s> extends ArrayList<s> implements IMyInterface<s> {<br>}<br>S是对ArrayList内部定义的泛型E的赋值。</s></s></s></p>
-<p>5、对泛型方法的赋值：<br>[java] view plain copy<br>public <t> T testMethod1(T t, List<t> list) {<br>}  </t></t></p>
-<p>public <t> T testMethod2(List<t> list1, List<t> list2){<br>}  </t></t></t></p>
-<p>People n = null;  </p>
-<p>List<people> list1 = null;<br>testMethod1(n, list1);//此时泛型参数T为People  </people></p>
-<p>List<integer> list2 = null;<br>testMethod2(list1, list2);//编译报错  </integer></p>
-<p>三、通配符<br>1）上述泛型赋值都是赋予泛型参数确定值，我们还可以赋予泛型参数不确定值，也就是通配符?。使用通配符?表示一个未知的类型。类似如下：<br>List&lt;?&gt; list;存放任意的对象<br>List&lt;? extends AClass&gt; listSubAClass; //存放AClass的子类<br>List&lt;? extends BClass&gt; listSuperBClass; //存放BClass的父类</p>
-<p>2）通配符通常与泛型关键字一起使用。</p>
-<p>3）在Java集合框架中，对于未知类型的容器类，只能读取其中元素，不能添加元素。这是因为，对不确定的参数类型，编译器无法识别添加元素的类型和容器的类型是否兼容，唯一的例外是NULL。同时，其读取的元素只能用Object来存储。</p>
-<p>4）通配符不能用在泛型类和泛型方法声明中，类似如下：<br>[java] view plain copy<br>public class GenericClass&lt;?&gt; { //编译错误<br>  public &lt;?&gt; void testGenericMethod(? t) { //编译错误<br>  }<br>}  </p>
-<p>四、泛型关键字<br>1、泛型关键字有二个 extends和super，分别表示类型上界和类型下界<br>T extends AClass 表示T继承自AClass类<br>? super AClass 表示?是AClass的父类，注意：super只能与通配符?搭配使用，我们不能写：<br>public class GenericClass<t super="" aclass=""> { //错误<br>}<br>此例子中super换成extends是正确的，表示泛型T继承自AClass，T换成通配符?也是可以的，表示未知类型的下界是AClass。</t></p>
-<p>2、通配符与泛型关键字组合使用</p>
-<p>举两个例子：<br>下界：<br>[java] view plain copy<br>List&lt;? super People&gt; list = new ArrayList&lt;&gt;();<br>People people = new People();<br>list.add(people);<br>People data= list.get(0 ); //编译出错，报错Object不能转为People  </p>
-<p>上界：<br>[java] view plain copy<br>List&lt;? extends People&gt; list = new ArrayList&lt;&gt;();<br>People people = new People();<br>list.add(people);// 编译出错，不能向容器中添加确定的元素<br>People data= list.get( 0);  </p>
-<p>总结就是：上界添加(add)受限，下界查询(get)受限</p>
-<p>五、泛型实现原理<br>1、Java泛型是编译时技术，在运行时不包含类型信息，仅其实例中包含类型参数的定义信息。<br>2、Java利用编译器擦除（erasure，前端处理）实现泛型，基本上就是泛型版本源码到非泛型版本源码的转化。<br>3、擦除去掉了所有的泛型类内所有的泛型类型信息，所有在尖括号之间的类型信息都被扔掉.<br>举例来说：List<string>类型被转换为List，所有对类型变量String的引用被替换成类型变量的上限(通常是Object)。<br>而且，无论何时结果代码类型不正确，会插入一个到合适类型的转换。<br>[java] view plain copy</string></p>
-<p><t> T badCast(T t, Object o) {<br>return (T) o; // unchecked warning<br>}<br>这说明String类型参数在List运行时并不存在。它们也就不会添加任何的时间或者空间上的负担。但同时，这也意味着你不能依靠他们进行类型转换。</t></p>
-<p>4、一个泛型类被其所有调用共享<br>对于上文中的GenericClass，在编译后其内部是不存入泛型信息的，也就是说：<br>[java] view plain copy<br>GenericClass<aclass> gclassA = new GenericClass<aclass>();<br>GenericClass<bclass> gclassB = new GenericClass<bclass>();<br>gClassA.getClass() == gClassB.getClass()<br>这个判断返回的值是true，而非false，因为一个泛型类所有实例运行时具有相同的运行时类，其实际类型参数被擦除了。</bclass></bclass></aclass></aclass></p>
-<p>那么是不是GenericClass里完全不存AClass的信息呢？这个也不是，它内部存储的是泛型向上父类的引用，比如：<br>GenericClass<aclass extends="" charsequence="">, 其编译后内部存储的泛型替代是Charsequence，而不是Object。</aclass></p>
-<p>那么我们编码时的泛型的类型判断是怎么实现的呢？<br>其实这个过程是编译时检查的，也就是说限制gClassA.add(new BClass()) 这样的使用的方式的主体，不是运行时代码，而是编译时监测。</p>
-<p>泛型的意义就在于，对所有其支持的类型参数，有相同的行为，从而可以被当作不同类型使用；类的静态变量和方法在所有实例间共享使用，所以不能使用泛型。</p>
-<p>5、泛型与instanceof<br>泛型擦除了类型信息，所以使用instanceof检查某个实例是否是特定类型的泛型类是不可行的：<br>GenericClass genericClass = new GenericClass<string>();<br>if (genericClass instanceof GenericClass<string>) {} // 编译错误</string></string></p>
-<p>同时：<br>GenericClass<string> class1 = (GenericClass<string>) genericClass； //会报警告</string></string></p>
-<p>六、Class与泛型（摘自网络）<br>从Java1.5后Class类就改为了泛型实现，Class类内定义的泛型T指的是Class对象代表的类型。比如说String.class类型代表Class<string>，People.class类型代表Class<people>。<br>主要用于提高反射代码的类型安全。</people></string></p>
-<p>Class类的newInstance返回泛型T的对象，故而可以在反射时创建更精确的类型。<br>举例来说：假定你要写一个工具方法来进行一个数据库查询，给定一个SQL语句，并返回一个数据库中符合查询条件<br>的对象集合(collection)。<br>一个方法是显式的传递一个工厂对象，像下面的代码：<br>[java] view plain copy<br>interface Factory<t> {<br>    public T[] make();<br>}<br>public <t> Collection<t> select(Factory<t> factory, String statement) {<br>     Collection<t> result = new ArrayList<t>();<br>     /<em> run sql query using jdbc </em>/<br>     for ( int i=0; i&lt;10; i++ ) { /<em> iterate over jdbc results </em>/<br>         T item = factory.make();<br>         /<em> use reflection and set all of item’s fields from sql results </em>/<br>         result.add( item );<br>      }<br>      return result;<br>}  </t></t></t></t></t></t></p>
-<p>你可以这样调用：<br>[java] view plain copy<br>select(new Factory<empinfo>() {<br>      public EmpInfo make() {<br>          return new EmpInfo();<br>      }<br>  } , ”selection string”);<br>也可以声明一个类 EmpInfoFactory 来支持接口 Factory：<br>[java] view plain copy<br>class EmpInfoFactory implements Factory<empinfo> {<br>      …<br>      public EmpInfo make() {<br>            return new EmpInfo();<br>      }<br>}<br>然后调用：<br>[java] view plain copy<br>select(getMyEmpInfoFactory(), “selection string”);  </empinfo></empinfo></p>
-<p>这个解决方案的缺点是它需要下面的二者之一：<br>调用处那冗长的匿名工厂类，或为每个要使用的类型声明一个工厂类并传递其对象给调用的地方<br>这很不自然。<br>使用class类型参数值是非常自然的，它可以被反射使用。没有泛型的代码可能是：<br>[java] view plain copy<br>Collection emps = sqlUtility.select(EmpInfo.class, ”select <em> from emps”);<br>…<br>public static Collection select(Class c, String sqlStatement) {<br>          Collection result = new ArrayList();<br>          /</em> run sql query using jdbc <em>/<br>          for ( /</em> iterate over jdbc results <em>/ ) {<br>                Object item = c.newInstance();<br>                /</em> use reflection and set all of item’s fields from sql results */<br>                result.add(item);<br>          }<br>          return result;<br>   }<br>}  </p>
-<p>但是这不能给我们返回一个我们要的精确类型的集合。现在Class是泛型的，我们可以写：<br>[java] view plain copy<br>Collection<empinfo> emps=sqlUtility.select(EmpInfo.class, ”select <em> from emps”);<br>…<br>public static <t> Collection<t> select(Class<t>c, String sqlStatement) {<br>     Collection<t> result = new ArrayList<t>();<br>     /</t></t></t></t></t></em> run sql query using jdbc <em>/<br>     for ( /</em> iterate over jdbc results <em>/ ) {<br>         T item = c.newInstance();<br>         /</em> use reflection and set all of item’s fields from sql results */<br>         result.add(item);<br>     }<br>     return result;<br>}  </empinfo></p>
-<p>籍此以类型安全的方式获取我们需要的集合。<br>这项技术是一个非常有用的技巧，在处理注释(annotations)的新API中被广泛使用。</p>
-<p>七、容器与泛型<br>Java泛型的最深入人心的应用就是容器（Collections）了。容器不需要考虑它要装什么东西，它的职责就是表达它装的东西的集合所具有的功能。因此是天然的泛型支持者。<br>在没有泛型时，如果要封装一个列表，简化应该是这样的：<br>[java] view plain copy<br>public class ArrayList {<br>    Object[] array = new Object[10];<br>    int i = 0;<br>    public void add(Object object) {<br>          array[i++] = object;<br>    }  </p>
-<pre><code>public Object get(int index) {  
-      return array[index];  
-}  
-</code></pre><p>}  </p>
-<p>这意味着我们把元素存进去，取出来还要强转，类型安全无法保证（存入一个Integer再存一个Long，转出时强转成Integer就崩溃了）。用泛型可以在编译时保证不能存入非泛型支持的数据，保证类型安全。<br>按照我们之前说的，ArrayList内不存储泛型信息，而是存储泛型的最近父类，对ArrayList<t>而言就是Object，所以其内部代码是：<br>[java] view plain copy<br>public class ArrayList<t> {<br>    Object[] array = new Object[10];<br>    int i = 0;<br>    public void add(T object) {<br>          array[i++] = object;<br>    }  </t></t></p>
-<pre><code>public T get(int index) {  
-      return (T)array[index];  
-}  
-</code></pre><p>}  </p>
-<p>保证我们加进去和取出来的数据都是经过类型检查的。</p>
-<p>八、总结<br>1、泛型是Java为类型安全而做的一个优化，它在内部保证了数据类型一致性，细化了可变参数的类型，且能更好的表示类型间的相关性。<br>2、泛型是编译时技术，其起作用的时机是编译时，完善的编译器会报告错误的泛型使用，保证代码不能编译通过。<br>3、平常写代码时，要认真思考是否有使用泛型的必要。通常来讲，如果方法或类描述的是数据类型无关的逻辑，且其数据类型可变时，则应该使用泛型。</p>
-
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-      
-
-      <div style="font-size: 12px;">
-        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
-      </div>
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2018/03/08/java范型通配符/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
-    <article id="post-influxdb用法" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2018/03/07/influxdb用法/">influxdb用法</a>
-    </h1>
-  
-
-        
-        <a href="/2018/03/07/influxdb用法/" class="archive-article-date">
-  	<time datetime="2018-03-07T07:57:59.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-03-07</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><hr>
-<p>influxdb是目前比较流行的时间序列数据库。</p>
-<ul>
-<li>何谓时间序列数据库？<br>什么是时间序列数据库，最简单的定义就是数据格式里包含Timestamp字段的数据，比如某一时间环境的温度，CPU的使用率等。但是，有什么数据不包含Timestamp呢？几乎所有的数据其实都可以打上一个Timestamp字段。时间序列数据的更重要的一个属性是如何去查询它，包括数据的过滤，计算等等。</li>
-</ul>
-<h4 id="Influxdb"><a href="#Influxdb" class="headerlink" title="Influxdb"></a>Influxdb</h4><p>Influxdb是一个开源的分布式时序、时间和指标数据库，使用go语言编写，无需外部依赖。<br>它有三大特性：</p>
-<ol>
-<li>时序性（Time Series）：与时间相关的函数的灵活使用（诸如最大、最小、求和等）；</li>
-<li>度量（Metrics）：对实时大量数据进行计算；</li>
-<li>事件（Event）：支持任意的事件数据，换句话说，任意事件的数据我们都可以做操作。</li>
-</ol>
-<p>同时，它有以下几大特点：</p>
-<ul>
-<li>schemaless(无结构)，可以是任意数量的列；</li>
-<li>min, max, sum, count, mean, median 一系列函数，方便统计；</li>
-<li>Native HTTP API, 内置http支持，使用http读写；</li>
-<li>Powerful Query Language 类似sql；</li>
-<li>Built-in Explorer 自带管理工具。</li>
-</ul>
-<h3 id="Influxdb安装"><a href="#Influxdb安装" class="headerlink" title="Influxdb安装"></a>Influxdb安装</h3><hr>
-<blockquote>
-<p>注：本文使用的influxdb version是1.0.2</p>
-</blockquote>
-<p>在讲解具体的安装步骤之前，先说说influxdb的两个http端口：8083和8086</p>
-<ul>
-<li>port 8083：管理页面端口，访问localhost:8083可以进入你本机的influxdb管理页面；</li>
-<li>port 8086：http连接influxdb client端口，一般使用该端口往本机的influxdb读写数据。</li>
-</ul>
-<p><strong>OS X</strong></p>
-<figure class="highlight mipsasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">brew </span>update</span><br><span class="line"><span class="keyword">brew </span><span class="keyword">install </span>influxdb</span><br></pre></td></tr></table></figure>
-<p><strong>Docker Image</strong></p>
-<figure class="highlight ebnf"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">docker pull influxdb</span></span><br></pre></td></tr></table></figure>
-<p><strong>Ubuntu &amp; Debian</strong></p>
-<figure class="highlight vim"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">wget http<span class="variable">s:</span>//<span class="keyword">dl</span>.influxdata.<span class="keyword">com</span>/influxdb/releases/influxdb_1.<span class="number">0.2</span>_amd64.<span class="keyword">deb</span></span><br><span class="line">sudo dpkg -i influxdb_1.<span class="number">0.2</span>_amd64.<span class="keyword">deb</span></span><br></pre></td></tr></table></figure>
-<p><strong>RedHat &amp; CentOS</strong></p>
-<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">wget https:<span class="comment">//dl.influxdata.com/influxdb/releases/influxdb-1.0.2.x86_64.rpm</span></span><br><span class="line">sudo yum localinstall influxdb-<span class="number">1.0</span>.<span class="number">2</span><span class="selector-class">.x86_64</span><span class="selector-class">.rpm</span></span><br></pre></td></tr></table></figure>
-<p><strong>Standalone Linux Binaries (64-bit)</strong></p>
-<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">wget https:<span class="comment">//dl.influxdata.com/influxdb/releases/influxdb-1.0.2_linux_amd64.tar.gz  </span></span><br><span class="line">tar xvfz influxdb-<span class="number">1.0</span>.<span class="number">2</span>_linux_amd64<span class="selector-class">.tar</span><span class="selector-class">.gz</span></span><br></pre></td></tr></table></figure>
-<p><strong>Standalone Linux Binaries (32-bit)</strong></p>
-<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">wget https:<span class="comment">//dl.influxdata.com/influxdb/releases/influxdb-1.0.2_linux_i386.tar.gz</span></span><br><span class="line">tar xvfz influxdb-<span class="number">1.0</span>.<span class="number">2</span>_linux_i386<span class="selector-class">.tar</span><span class="selector-class">.gz</span></span><br></pre></td></tr></table></figure>
-<p><strong>Standalone Linux Binaries (ARM)</strong></p>
-<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">wget https:<span class="comment">//dl.influxdata.com/influxdb/releases/influxdb-1.0.2_linux_armhf.tar.gz</span></span><br><span class="line">tar xvfz influxdb-<span class="number">1.0</span>.<span class="number">2</span>_linux_armhf<span class="selector-class">.tar</span><span class="selector-class">.gz</span></span><br></pre></td></tr></table></figure>
-<p><strong>How to start？</strong><br>安装完之后，如何启动呢？</p>
-<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo<span class="built_in"> service </span>influxdb start</span><br></pre></td></tr></table></figure>
-<p>到这里influxdb安装启动完成，可以访问influxdb管理页面：<a href="https://link.jianshu.com?t=http://localhost:8083" target="_blank" rel="external">本地管理页面</a>，该版本没有登录用户及密码，可以自行设置读写的用户名和密码。</p>
-<p><strong>如何在命令行使用</strong><br>安装完毕之后，如何在命令行使用呢？</p>
-<p><img src="http://upload-images.jianshu.io/upload_images/3994601-9cc22a93bb379d76.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/573" alt="img"></p>
-<p>influxdb在命令行中使用</p>
-<h3 id="influxdb基本操作"><a href="#influxdb基本操作" class="headerlink" title="influxdb基本操作"></a>influxdb基本操作</h3><hr>
-<h4 id="名词解释"><a href="#名词解释" class="headerlink" title="名词解释"></a>名词解释</h4><p>在具体的讲解influxdb的相关操作之前先说说influxdb的一些专有名词，这些名词代表什么。</p>
-<h5 id="influxdb相关名词"><a href="#influxdb相关名词" class="headerlink" title="influxdb相关名词"></a>influxdb相关名词</h5><ul>
-<li>database：数据库；</li>
-<li>measurement：数据库中的表；</li>
-<li>points：表里面的一行数据。</li>
-</ul>
-<h5 id="influxDB中独有的一些概念"><a href="#influxDB中独有的一些概念" class="headerlink" title="influxDB中独有的一些概念"></a>influxDB中独有的一些概念</h5><p>Point由<strong>时间戳</strong>（time）、<strong>数据</strong>（field）和<strong>标签</strong>（tags）组成。</p>
-<ul>
-<li>time：每条数据记录的时间，也是数据库自动生成的主索引；</li>
-<li>fields：各种记录的值；</li>
-<li>tags：各种有索引的属性。</li>
-</ul>
-<p>还有一个重要的名词：<strong>series</strong><br>所有在数据库中的数据，都需要通过图表来表示，series表示这个表里面的所有的数据可以在图标上画成几条线（注：线条的个数由tags排列组合计算出来）<br>举个简单的小栗子：<br>有如下数据：</p>
-<p><img src="http://upload-images.jianshu.io/upload_images/3994601-f528ff65d64cf860.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/569" alt="img"></p>
-<p>error_time</p>
-<p>它的series为：</p>
-<p><img src="http://upload-images.jianshu.io/upload_images/3994601-cb52cbd8bf20d41b.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/569" alt="img"></p>
-<p>error_time_series</p>
-<h4 id="influxdb基本操作-1"><a href="#influxdb基本操作-1" class="headerlink" title="influxdb基本操作"></a>influxdb基本操作</h4><ul>
-<li><strong>数据库与表的操作</strong><br>可以直接在web管理页面做操作，当然也可以命令行。</li>
-</ul>
-<figure class="highlight vala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#创建数据库</span></span><br><span class="line">create database <span class="string">"db_name"</span></span><br><span class="line"><span class="meta">#显示所有的数据库</span></span><br><span class="line">show databases</span><br><span class="line"><span class="meta">#删除数据库</span></span><br><span class="line">drop database <span class="string">"db_name"</span></span><br><span class="line"><span class="meta">#使用数据库</span></span><br><span class="line">use db_name</span><br><span class="line"><span class="meta">#显示该数据库中所有的表</span></span><br><span class="line">show measurements</span><br><span class="line"><span class="meta">#创建表，直接在插入数据的时候指定表名</span></span><br><span class="line">insert test,host=<span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>,monitor_name=test count=<span class="number">1</span></span><br><span class="line"><span class="meta">#删除表</span></span><br><span class="line">drop measurement <span class="string">"measurement_name"</span></span><br></pre></td></tr></table></figure>
-<ul>
-<li><p>增</p>
-<p>​</p>
-<p>向数据库中插入数据。</p>
-<ul>
-<li>通过命令行</li>
-</ul>
-</li>
-</ul>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">use</span> testDb</span><br><span class="line"><span class="keyword">insert</span> <span class="keyword">test</span>,host=<span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>,monitor_name=<span class="keyword">test</span> <span class="keyword">count</span>=<span class="number">1</span></span><br></pre></td></tr></table></figure>
-<ul>
-<li>通过http接口</li>
-</ul>
-<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl -<span class="selector-tag">i</span> -XPOST <span class="string">'http://127.0.0.1:8086/write?db=testDb'</span> --data-binary <span class="string">'test,host=127.0.0.1,monitor_name=test count=1'</span></span><br></pre></td></tr></table></figure>
-<p>读者看到这里可能会观察到插入的数据的格式貌似比较奇怪，这是因为influxDB存储数据采用的是Line Protocol格式。那么何谓Line Protoco格式？</p>
-<p><strong>Line Protocol格式：</strong>写入数据库的Point的固定格式。<br>在上面的两种插入数据的方法中都有这样的一部分：</p>
-<figure class="highlight lsl"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">test,host=<span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>,monitor_name=test count=<span class="number">1</span></span><br></pre></td></tr></table></figure>
-<p>其中：</p>
-<ol>
-<li>test：表名；</li>
-<li>host=127.0.0.1,monitor_name=test：tag；</li>
-<li>count=1：field</li>
-</ol>
-<p>想对此格式有详细的了解参见<a href="https://link.jianshu.com?t=https://docs.influxdata.com/influxdb/v0.10/write_protocols/line/" target="_blank" rel="external">官方文档</a></p>
-<ul>
-<li><p>查</p>
-<p>​</p>
-<p>查询数据库中的数据。</p>
-<ul>
-<li>通过命令行</li>
-</ul>
-</li>
-</ul>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> <span class="keyword">test</span> <span class="keyword">order</span> <span class="keyword">by</span> <span class="keyword">time</span> <span class="keyword">desc</span></span><br></pre></td></tr></table></figure>
-<ul>
-<li>通过http接口</li>
-</ul>
-<figure class="highlight jboss-cli"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl -G 'http:<span class="string">//localhost</span><span class="function">:8086</span>/query?pretty=<span class="literal">true</span>' <span class="params">--data-urlencode</span> <span class="string">"db=testDb"</span> <span class="params">--data-urlencode</span> <span class="string">"q=select * from test order by time desc"</span></span><br></pre></td></tr></table></figure>
-<p>influxDB是支持类sql语句的，具体的查询语法都差不多，这里就不再做详细的赘述了。</p>
-<ul>
-<li><strong>数据保存策略（Retention Policies）</strong><br>influxDB是没有提供直接删除数据记录的方法，但是提供数据保存策略，主要用于指定数据保留时间，超过指定时间，就删除这部分数据。<ul>
-<li>查看当前数据库Retention Policies</li>
-</ul>
-</li>
-</ul>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">show</span> <span class="keyword">retention</span> policies <span class="keyword">on</span> <span class="string">"db_name"</span></span><br></pre></td></tr></table></figure>
-<p><img src="http://upload-images.jianshu.io/upload_images/3994601-4dbf9942cc0f671a.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/574" alt="img"></p>
-<p>retention_policies</p>
-<ul>
-<li>创建新的Retention Policies</li>
-</ul>
-<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">create retention<span class="built_in"> policy </span><span class="string">"rp_name"</span> on <span class="string">"db_name"</span> duration 3w replication 1 default</span><br></pre></td></tr></table></figure>
-<figure class="highlight haml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">-<span class="ruby">  rp_name：策略名；</span></span><br><span class="line"><span class="ruby">- db_name：具体的数据库名；</span></span><br><span class="line"><span class="ruby">- <span class="number">3</span>w：保存<span class="number">3</span>周，<span class="number">3</span>周之前的数据将被删除，influxdb具有各种事件参数，比如：h（小时），d（天），w（星期）；</span></span><br><span class="line"><span class="ruby">- replication <span class="number">1</span>：副本个数，一般为<span class="number">1</span>就可以了；</span></span><br><span class="line"><span class="ruby">- default：设置为默认策略</span></span><br></pre></td></tr></table></figure>
-<ul>
-<li>修改Retention Policies</li>
-</ul>
-<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">alter retention<span class="built_in"> policy </span><span class="string">"rp_name"</span> on <span class="string">"db_name"</span> duration 30d default</span><br></pre></td></tr></table></figure>
-<ul>
-<li>删除Retention Policies</li>
-</ul>
-<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">drop retention<span class="built_in"> policy </span><span class="string">"rp_name"</span></span><br></pre></td></tr></table></figure>
-<ul>
-<li><p>连续查询（Continous Queries）</p>
-<p>​</p>
-<p>当数据超过保存策略里指定的时间之后就会被删除，但是这时候可能并不想数据被完全删掉，怎么办？</p>
-<p>​</p>
-<p>influxdb提供了联系查询，可以做数据统计采样。</p>
-<ul>
-<li>查看数据库的Continous Queries</li>
-</ul>
-</li>
-</ul>
-<figure class="highlight ebnf"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">show continuous queries</span></span><br></pre></td></tr></table></figure>
-<p><img src="http://upload-images.jianshu.io/upload_images/3994601-d0d2b55ee261869d.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/440" alt="img"></p>
-<p>continuous_queries.</p>
-<ul>
-<li>创建新的Continous Queries</li>
-</ul>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">create</span> continous <span class="keyword">query</span> cq_name <span class="keyword">on</span> db_name <span class="keyword">begin</span> <span class="keyword">select</span> <span class="keyword">sum</span>(<span class="keyword">count</span>) <span class="keyword">into</span> new_table_name <span class="keyword">from</span> table_name <span class="keyword">group</span> <span class="keyword">by</span> <span class="keyword">time</span>(<span class="number">30</span>m) <span class="keyword">end</span></span><br></pre></td></tr></table></figure>
-<figure class="highlight haml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">-<span class="ruby"> cq_name：连续查询名字；</span></span><br><span class="line"><span class="ruby">- db_name：数据库名字；</span></span><br><span class="line"><span class="ruby">- sum(count)：计算总和；</span></span><br><span class="line"><span class="ruby">- table_name：当前表名；</span></span><br><span class="line"><span class="ruby">- new_table_name：存新的数据的表名；</span></span><br><span class="line"><span class="ruby">- <span class="number">30</span>m：时间间隔为<span class="number">30</span>分钟</span></span><br></pre></td></tr></table></figure>
-<ul>
-<li>删除Continous Queries</li>
-</ul>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">drop</span> continous <span class="keyword">query</span> cp_name <span class="keyword">on</span> db_name</span><br></pre></td></tr></table></figure>
-<ul>
-<li><strong>用户管理</strong><br>可以直接在web管理页面做操作，也可以命令行。</li>
-</ul>
-<figure class="highlight clean"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">#显示用户  </span><br><span class="line">show users</span><br><span class="line">#创建用户</span><br><span class="line">create user <span class="string">"username"</span> <span class="keyword">with</span> password <span class="string">'password'</span></span><br><span class="line">#创建管理员权限用户create user <span class="string">"username"</span> <span class="keyword">with</span> password <span class="string">'password'</span> <span class="keyword">with</span> all privileges</span><br><span class="line">#删除用户</span><br><span class="line">drop user <span class="string">"username"</span></span><br></pre></td></tr></table></figure>
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">influxdb</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-      
-
-      <div style="font-size: 12px;">
-        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
-      </div>
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2018/03/07/influxdb用法/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
-    <article id="post-Java内存模型" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2018/03/06/Java内存模型/">Java内存模型FAQ</a>
-    </h1>
-  
-
-        
-        <a href="/2018/03/06/Java内存模型/" class="archive-article-date">
-  	<time datetime="2018-03-06T07:22:44.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-03-06</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h1 id="什么是内存模型"><a href="#什么是内存模型" class="headerlink" title="什么是内存模型"></a>什么是内存模型</h1><p><a href="http://www.cs.umd.edu/~pugh/java/memoryModel/jsr-133-faq.html" target="_blank" rel="external">http://www.cs.umd.edu/~pugh/java/memoryModel/jsr-133-faq.html</a></p>
-<p>在多核系统中，处理器一般有一层或者多层的缓存，这些的缓存通过加速数据访问（因为数据距离处理器更近）和降低共享内存在总线上的通讯（因为本地缓存能够满足许多内存操作）来提高CPU性能。缓存能够大大提升性能，但是它们也带来了许多挑战。例如，当两个CPU同时检查相同的内存地址时会发生什么？在什么样的条件下它们会看到相同的值？</p>
-<p>在处理器层面上，内存模型定义了一个充要条件，<strong>“让当前的处理器可以看到其他处理器写入到内存的数据”以及其他处理器可以看到当前处理器写入到内存的数据”</strong>。有些处理器有<strong>很强的内存模型(strong memory model)</strong>，能够让所有的处理器在任何时候任何指定的内存地址上都可以看到完全相同的值。而另外一些处理器则<strong>有较弱的内存模型（weaker memory model）</strong>，在这种处理器中，必须使用<strong>内存屏障（一种特殊的指令）</strong>来<u>刷新本地处理器缓存并使本地处理器缓存无效</u>，目的是为了让当前处理器能够看到其他处理器的写操作或者让其他处理器能看到当前处理器的写操作。这些内存屏障通常在lock和unlock操作的时候完成。内存屏障在高级语言中对程序员是不可见的。</p>
-<p>在强内存模型下，有时候编写程序可能会更容易，因为减少了对内存屏障的依赖。但是即使在一些最强的内存模型下，内存屏障仍然是必须的。设置内存屏障往往与我们的直觉并不一致。<u>近来处理器设计的趋势更倾向于弱的内存模型，因为弱内存模型削弱了缓存一致性</u>，所以在多处理器平台和更大容量的内存下可以实现更好的可伸缩性</p>
-<p>“一个线程的写操作对其他线程可见”这个问题是因为编译器对代码进行重排序导致的。<strong>例如，只要代码移动不会改变程序的语义，当编译器认为程序中移动一个写操作到后面会更有效的时候，编译器就会对代码进行移动。</strong>如果编译器推迟执行一个操作，其他线程可能在这个操作执行完之前都不会看到该操作的结果，这反映了缓存的影响。</p>
-<p><strong>此外，写入内存的操作能够被移动到程序里更前的时候。在这种情况下，其他的线程在程序中可能看到一个比它实际发生更早的写操作。</strong>所有的这些灵活性的设计是为了通过给编译器，运行时或硬件灵活性使其能在最佳顺序的情况下来执行操作。在内存模型的限定之内，我们能够获取到更高的性能。</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">Class Reordering &#123;</span><br><span class="line">  <span class="keyword">int</span> x = <span class="number">0</span>, y = <span class="number">0</span>;</span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">writer</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    x = <span class="number">1</span>;</span><br><span class="line">    y = <span class="number">2</span>;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">reader</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">int</span> r1 = y;</span><br><span class="line">    <span class="keyword">int</span> r2 = x;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>让我们看在两个并发线程中执行这段代码，读取<em>Y</em>变量将会得到2这个值。因为这个写入比写到<em>X</em>变量更晚一些，程序员可能认为读取<em>X</em>变量将肯定会得到1。<strong>但是，写入操作可能被重排序过。</strong>如果重排序发生了，那么，就能发生对<em>Y</em>变量的写入操作，读取两个变量的操作紧随其后，而且写入到X这个操作能发生。程序的结果可能是r1变量的值是2，但是r2变量的值为0。</p>
-<p>Java内存模型描述了在多线程代码中哪些行为是合法的，以及线程如何通过内存进行交互。它描述了“程序中的变量“ 和 ”从内存或者寄存器获取或存储它们的底层细节”之间的关系。Java内存模型通过使用各种各样的硬件和编译器的优化来正确实现以上事情。</p>
-<p>Java包含了几个语言级别的关键字，包括：<strong>volatile, final以及synchronized，目的是为了帮助程序员向编译器描述一个程序的并发需求</strong>。Java内存模型定义了volatile和synchronized的行为，更重要的是保证了同步的java程序在所有的处理器架构下面都能正确的运行。</p>
-<h1 id="其他语言，像C-，也有内存模型吗"><a href="#其他语言，像C-，也有内存模型吗" class="headerlink" title="其他语言，像C++，也有内存模型吗"></a>其他语言，像C++，也有内存模型吗</h1><p>大部分其他的语言，像C和C++，都没有被设计成直接支持多线程。这些语言对于发生在编译器和处理器平台架构的重排序行为的保护机制会严重的依赖于程序中所使用的线程库（例如pthreads），编译器，以及代码所运行的平台所提供的保障。</p>
-<p>#JSR133是什么</p>
-<p>从1997年以来，人们不断发现Java语言规范的17章定义的Java内存模型中的一些严重的缺陷。这些缺陷会导致一些使人迷惑的行为（例如final字段会被观察到值的改变）和破坏编译器常见的优化能力。</p>
-<p>Java内存模型是一个雄心勃勃的计划，它是编程语言规范第一次尝试合并一个能够在各种处理器架构中为并发提供一致语义的内存模型。不过，定义一个既一致又直观的内存模型远比想象要更难。JSR133为Java语言定义了一个新的内存模型，它修复了早期内存模型中的缺陷。为了实现JSR133，final和volatile的语义需要重新定义。</p>
-<p>完整的语义见：<a href="http://www.cs.umd.edu/users/pugh/java/memoryModel" target="_blank" rel="external">http://www.cs.umd.edu/users/pugh/java/memoryModel</a>，但是正式的语义不是小心翼翼的，它是令人惊讶和清醒的，目的是让人意识到一些看似简单的概念（如同步）其实有多复杂。幸运的是，你不需要懂得这些正式语义的细节——JSR133的目的是创建一组正式语义，这些正式语义提供了volatile、synchronzied和final如何工作的直观框架。</p>
-<p>JSR 133的目标包含了：</p>
-<ul>
-<li>保留已经存在的安全保证（像类型安全）以及强化其他的安全保证。例如，变量值不能凭空创建：线程观察到的每个变量的值必须是被其他线程合理的设置的。</li>
-</ul>
-<ul>
-<li>正确同步的程序的语义应该尽量简单和直观。</li>
-</ul>
-<ul>
-<li>应该定义未完成或者未正确同步的程序的语义，主要是为了把潜在的安全危害降到最低。</li>
-</ul>
-<ul>
-<li>程序员应该能够自信的推断多线程程序如何同内存进行交互的。</li>
-</ul>
-<ul>
-<li>能够在现在许多流行的硬件架构中设计正确以及高性能的JVM实现。</li>
-</ul>
-<ul>
-<li>应该能提供 <em>安全地初始化</em>的保证。如果一个对象正确的构建了（意思是它的引用没有在构建的时候逸出，那么所有能够看到这个对象的引用的线程，在不进行同步的情况下，也将能看到在构造方法中中设置的final字段的值。</li>
-</ul>
-<ul>
-<li>应该尽量不影响现有的代码</li>
-</ul>
-<h1 id="重排序意味着什么？"><a href="#重排序意味着什么？" class="headerlink" title="重排序意味着什么？"></a>重排序意味着什么？</h1><p>在很多情况下，访问一个程序变量（对象实例字段，类静态字段和数组元素）可能会使用不同的顺序执行，而不是程序语义所指定的顺序执行。编译器能够自由的以优化的名义去改变指令顺序。在特定的环境下，处理器可能会次序颠倒的执行指令。数据可能在寄存器，处理器缓冲区和主内存中以不同的次序移动，而不是按照程序指定的顺序。</p>
-<p>例如，<strong>如果一个线程写入值到字段a，然后写入值到字段b，而且b的值不依赖于a的值，那么，处理器就能够自由的调整它们的执行顺序，而且缓冲区能够在a之前刷新b的值到主内存。</strong>有许多潜在的重排序的来源，例如编译器，JIT以及缓冲区。</p>
-<p><strong>编译器，运行时和硬件被期望一起协力创建好像是顺序执行的语义的假象，这意味着在单线程的程序中，程序应该是不能够观察到重排序的影响的。</strong><u>但是，重排序在没有正确同步了的多线程程序中开始起作用，在这些多线程程序中，一个线程能够观察到其他线程的影响，也可能检测到其他线程将会以一种不同于程序语义所规定的执行顺序来访问变量。</u></p>
-<p>大部分情况下，一个线程不会关注其他线程正在做什么，<strong>但是当它需要关注的时候，这时候就需要同步了。</strong></p>
-<h1 id="旧的内存模型有什么问题"><a href="#旧的内存模型有什么问题" class="headerlink" title="旧的内存模型有什么问题"></a>旧的内存模型有什么问题</h1><p>旧的内存模型中有几个严重的问题。这些问题很难理解，因此被广泛的违背。例如，旧的存储模型在许多情况下，不允许JVM发生各种重排序行为。旧的内存模型中让人产生困惑的因素造就了JSR-133规范的诞生。</p>
-<p>例如，一个被广泛认可的概念就是，如果使用final字段，那么就没有必要在多个线程中使用同步来保证其他线程能够看到这个字段的值。尽管这是一个合理的假设和明显的行为，也是我们所期待的结果。实际上，在旧的内存模型中，我们想让程序正确运行起来却是不行的。<strong>在旧的内存模型中，final字段并没有同其他字段进行区别对待</strong>——这意味着同步是保证所有线程看到一个在构造方法中初始化的final字段的唯一方法。结果——如果没有正确同步的话，对一个线程来说，它可能看到一个字段的默认值，然后在稍后的时间里，又能够看到构造方法中设置的值。这意味着，一些不可变的对象，例如String，能够改变它们值——这实在很让人郁闷。</p>
-<p>旧的内存模型允许volatile变量的写操作和非volaitle变量的读写操作一起进行重排序，这和大多数的开发人员对于volatile变量的直观感受是不一致的，因此会造成迷惑。</p>
-<p>最后，我们将看到的是，程序员对于程序没有被正确同步的情况下将会发生什么的直观感受通常是错误的。JSR-133的目的之一就是要引起这方面的注意。</p>
-<p>There were several serious problems with the old memory model. It was difficult to understand, and therefore widely violated. For example, the old model did not, in many cases, allow the kinds of reorderings that took place in every JVM. This confusion about the implications of the old model was what compelled the formation of JSR-133.</p>
-<p>One widely held belief, for example, was that if final fields were used, then synchronization between threads was unnecessary to guarantee another thread would see the value of the field. While this is a reasonable assumption and a sensible behavior, and indeed how we would want things to work, under the old memory model, it was simply not true. <strong>Nothing in the old memory model treated final fields differently from any other field — meaning synchronization was the only way to ensure that all threads see the value of a final field that was written by the constructor.</strong> As a result, it was possible for a thread to see the default value of the field, and then at some later time see its constructed value. This means, for example, that immutable objects like String can appear to change their value — a disturbing prospect indeed.</p>
-<p>The old memory model allowed for volatile writes to be reordered with nonvolatile reads and writes, which was not consistent with most developers intuitions about volatile and therefore caused confusion.</p>
-<p>Finally, as we shall see, programmers’ intuitions about what can occur when their programs are incorrectly synchronized are often mistaken. One of the goals of JSR-133 is to call attention to this fact.</p>
-<h1 id="没有正确同步的含义是什么"><a href="#没有正确同步的含义是什么" class="headerlink" title="没有正确同步的含义是什么"></a>没有正确同步的含义是什么</h1><p>没有正确同步的代码对于不同的人来说可能会有不同的理解。在Java内存模型这个语义环境下，我们谈到“没有正确同步”，我们的意思是：</p>
-<ol>
-<li>一个线程中有一个对变量的写操作，</li>
-<li>另外一个线程对同一个变量有读操作，</li>
-<li>而且写操作和读操作没有通过同步来保证顺序。</li>
-</ol>
-<p>当这些规则被违反的时候，我们就说在这个变量上有一个“数据竞争”(data race)。一个有数据竞争的程序就是一个没有正确同步的程序。</p>
-<p>Incorrectly synchronized code can mean different things to different people. When we talk about incorrectly synchronized code in the context of the Java Memory Model, we mean any code where</p>
-<ol>
-<li>there is a write of a variable by one thread,</li>
-<li>there is a read of the same variable by another thread and</li>
-<li>the write and read are not ordered by synchronization</li>
-</ol>
-<p>When these rules are violated, we say we have a <em>data race</em> on that variable. <strong>A program with a data race is an incorrectly synchronized program.</strong></p>
-<h1 id="同步会干些什么呢"><a href="#同步会干些什么呢" class="headerlink" title="同步会干些什么呢"></a>同步会干些什么呢</h1><p>同步有几个方面的作用。最广为人知的就是互斥 ——一次只有一个线程能够获得一个监视器，因此，在一个监视器上面同步意味着一旦一个线程进入到监视器保护的同步块中，其他的线程都不能进入到同一个监视器保护的块中间，除非第一个线程退出了同步块。</p>
-<p>但是同步的含义比互斥更广。同步保证了一个线程在同步块之前或者在同步块中的一个内存写入操作以可预知的方式对其他有相同监视器的线程可见。当我们退出了同步块，我们就<strong>释放</strong>了这个监视器，这个监视器有刷新缓冲区到主内存的效果，因此该线程的写入操作能够为其他线程所见。<strong>在我们进入一个同步块之前，我们需要获取监视器，监视器有使本地处理器缓存失效的功能，因此变量会从主存重新加载，于是其它线程对共享变量的修改对当前线程来说就变得可见了。</strong></p>
-<p>依据缓存来讨论同步，可能听起来这些观点仅仅会影响到多处理器的系统。但是，重排序效果能够在单一处理器上面很容易见到。对编译器来说，在获取之前或者释放之后移动你的代码是不可能的。当我们谈到在缓冲区上面进行的获取和释放操作，我们使用了简述的方式来描述大量可能的影响。</p>
-<p>新的内存模型语义在内存操作（读取字段，写入字段，锁，解锁）以及其他线程的操作（start 和 join）中创建了一个部分排序，在这些操作中，一些操作被称为<em>happen before</em>其他操作。当一个操作在另外一个操作之前发生，第一个操作保证能够排到前面并且对第二个操作可见。这些排序的规则如下：</p>
-<ul>
-<li>线程中的每个操作<em>happens before</em>该线程中在程序顺序上后续的每个操作。</li>
-</ul>
-<ul>
-<li>解锁一个监视器的操作<em>happens before</em>随后对<strong>相同</strong>监视器进行锁的操作。</li>
-</ul>
-<ul>
-<li>对volatile字段的写操作<em>happens **before</em>后续对<strong>相同</strong>volatile字段的读取操作。</li>
-</ul>
-<ul>
-<li>线程上调用start()方法<em>happens **before</em>这个线程启动后的任何操作。</li>
-</ul>
-<ul>
-<li>一个线程中所有的操作都<em>happens before</em>从这个线程join()方法成功返回的任何其他线程。（注意思是其他线程等待一个线程的jion()方法完成，那么，这个线程中的所有操作<em>happens **before</em>其他线程中的所有操作）</li>
-</ul>
-<p>这意味着：任何内存操作，这个内存操作在退出一个同步块前对一个线程是可见的，对任何线程在它进入一个被相同的监视器保护的同步块后都是可见的，因为所有内存操作happens before释放监视器以及释放监视器happens before获取监视器。</p>
-<p>其他如下模式的实现被一些人用来强迫实现一个内存屏障的，不会生效：</p>
-<figure class="highlight processing"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">synchronized</span> (<span class="keyword">new</span> <span class="keyword">Object</span>()) &#123;&#125;</span><br></pre></td></tr></table></figure>
-<p>这段代码其实不会执行任何操作，你的编译器会把它完全移除掉，因为编译器知道没有其他的线程会使用相同的监视器进行同步。要看到其他线程的结果，你必须为一个线程建立happens before关系。</p>
-<p><strong>重点注意</strong>：对两个线程来说，为了正确建立happens before关系而在相同监视器上面进行同步是非常重要的。以下观点是错误的：当线程A在对象X上面同步的时候，所有东西对线程A可见，线程B在对象Y上面进行同步的时候，所有东西对线程B也是可见的。释放监视器和获取监视器必须匹配（也就是说要在相同的监视器上面完成这两个操作），否则，代码就会存在“数据竞争”。</p>
-<p>Synchronization has several aspects. The most well-understood is mutual exclusion — only one thread can hold a monitor at once, so synchronizing on a monitor means that once one thread enters a synchronized block protected by a monitor, no other thread can enter a block protected by that monitor until the first thread exits the synchronized block.</p>
-<p>But there is more to synchronization than mutual exclusion. Synchronization ensures that memory writes by a thread before or during a synchronized block are made visible in a predictable manner to other threads which synchronize on the same monitor. <u>After we exit a synchronized block, we <strong>release </strong>the monitor, which has the effect of flushing the cache to main memory, so that writes made by this thread can be visible to other threads.</u> <strong>Before we can enter a synchronized block, we acquire the monitor, which has the effect of invalidating the local processor cache so that variables will be reloaded from main memory.</strong> We will then be able to see all of the writes made visible by the previous release.</p>
-<p>Discussing this in terms of caches, it may sound as if these issues only affect multiprocessor machines. However, the reordering effects can be easily seen on a single processor. It is not possible, for example, for the compiler to move your code before an acquire or after a release. When we say that acquires and releases act on caches, we are using shorthand for a number of possible effects.</p>
-<p>The new memory model semantics create a partial ordering on memory operations (read field, write field, lock, unlock) and other thread operations (start and join), where some actions are said to <em>happen before</em> other operations. When one action happens before another, the first is guaranteed to be ordered before and visible to the second. The rules of this ordering are as follows:</p>
-<ul>
-<li>Each action in a thread happens before every action in that thread that comes later in the program’s order.</li>
-<li>An <strong>unlock</strong> on a monitor happens before every subsequent <strong>lock</strong> on <strong>that same</strong> monitor.</li>
-<li>A <strong>write to a volatile</strong> field happens before every subsequent <strong>read</strong> of <strong>that same</strong> volatile.</li>
-<li>A call to <code>start()</code> on a thread happens before any actions in the started thread.</li>
-<li>All actions in a thread happen before any other thread successfully returns from a <code>join()</code>on that thread.</li>
-</ul>
-<p>This means that any memory operations which were visible to a thread before exiting a synchronized block are visible to any thread after it enters a synchronized block protected by the same monitor, since all the memory operations happen before the release, and the release happens before the acquire.</p>
-<p>Another implication is that the following pattern, which some people use to force a memory barrier, doesn’t work:</p>
-<figure class="highlight processing"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">synchronized</span> (<span class="keyword">new</span> <span class="keyword">Object</span>()) &#123;&#125;</span><br></pre></td></tr></table></figure>
-<p>This is actually a no-op, and your compiler can remove it entirely, because the compiler knows that no other thread will synchronize on the same monitor. You have to set up a happens-before relationship for one thread to see the results of another.</p>
-<p><strong>Important Note:</strong> Note that it is important for both threads to synchronize on the same monitor in order to set up the happens-before relationship properly. It is not the case that everything visible to thread A when it synchronizes on object X becomes visible to thread B after it synchronizes on object Y. The release and acquire have to “match” (i.e., be performed on the same monitor) to have the right semantics. Otherwise, the code has a data race.</p>
-<h1 id="在新的Java内存模型中，final字段是如何工作的"><a href="#在新的Java内存模型中，final字段是如何工作的" class="headerlink" title="在新的Java内存模型中，final字段是如何工作的"></a>在新的Java内存模型中，final字段是如何工作的</h1><h1 id="How-can-final-fields-appear-to-change-their-values"><a href="#How-can-final-fields-appear-to-change-their-values" class="headerlink" title="How can final fields appear to change their values?"></a>How can final fields appear to change their values?</h1><p>One of the best examples of how final fields’ values can be seen to change involves one particular implementation of the <code>String</code> class.</p>
-<p>A <code>String</code> can be implemented as an object with three fields — a character array, an offset into that array, and a length. The rationale for implementing <code>String</code> this way, instead of having only the character array, is that it lets multiple <code>String</code> and <code>StringBuffer</code>objects share the same character array and avoid additional object allocation and copying. So, for example, the method <code>String.substring()</code> can be implemented by creating a new string which shares the same character array with the original <code>String</code> and merely differs in the length and offset fields. For a <code>String</code>, these fields are all final fields.</p>
-<figure class="highlight armasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">String </span><span class="built_in">s1</span> = <span class="string">"/usr/tmp"</span><span class="comment">;</span></span><br><span class="line"><span class="keyword">String </span><span class="built_in">s2</span> = <span class="built_in">s1</span>.<span class="keyword">substring(4);</span></span><br></pre></td></tr></table></figure>
-<p>The string <code>s2</code> will have an offset of 4 and a length of 4. But, under the old model, it was possible for another thread to see the offset as having the default value of 0, and then later see the correct value of 4, it will appear as if the string “/usr” changes to “/tmp”.</p>
-<p>The original Java Memory Model allowed this behavior; several JVMs have exhibited this behavior. The new Java Memory Model makes this illegal.</p>
-<p>一个对象的final字段值是在它的构造方法里面设置的。假设对象被正确的构造了，一旦对象被构造，在构造方法里面设置给final字段的的值在没有同步的情况下对所有其他的线程都会可见。另外，引用这些final字段的对象或数组都将会看到final字段的最新值。</p>
-<p>对一个对象来说，被正确的构造是什么意思呢？简单来说，它意味着这个正在构造的对象的引用在构造期间没有被允许逸出。（参见<a href="http://www.ibm.com/developerworks/java/library/j-jtp0618/index.html" target="_blank" rel="external">安全构造技术</a>）。换句话说，不要让其他线程在其他地方能够看见一个构造期间的对象引用。不要指派给一个静态字段，不要作为一个listener注册给其他对象等等。这些操作应该在构造方法之后完成，而不是构造方法中来完成。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">FinalFieldExample</span> </span>&#123;</span><br><span class="line">  <span class="keyword">final</span> <span class="keyword">int</span> x;</span><br><span class="line">  <span class="keyword">int</span> y;</span><br><span class="line">  <span class="keyword">static</span> FinalFieldExample f;</span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="title">FinalFieldExample</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    x = <span class="number">3</span>;</span><br><span class="line">    y = <span class="number">4</span>;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title">writer</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    f = <span class="keyword">new</span> FinalFieldExample();</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title">reader</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (f != <span class="keyword">null</span>) &#123;</span><br><span class="line">      <span class="keyword">int</span> i = f.x;</span><br><span class="line">      <span class="keyword">int</span> j = f.y;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>上面的类展示了final字段应该如何使用。一个正在执行reader方法的线程保证看到f.x的值为3，因为它是final字段。它不保证看到f.y的值为4，因为f.y不是final字段。如果FinalFieldExample的构造方法像这样：</p>
-<figure class="highlight cs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="title">FinalFieldExample</span>(<span class="params"></span>) </span>&#123; <span class="comment">// bad!</span></span><br><span class="line">  x = <span class="number">3</span>;</span><br><span class="line">  y = <span class="number">4</span>;</span><br><span class="line">  <span class="comment">// bad construction - allowing this to escape</span></span><br><span class="line">  <span class="keyword">global</span>.obj = <span class="keyword">this</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>那么，从global.obj中读取this的引用线程不会保证读取到的x的值为3。</p>
-<p>能够看到字段的正确的构造值固然不错，但是，如果字段本身就是一个引用，那么，你还是希望你的代码能够看到引用所指向的这个对象（或者数组）的最新值。如果你的字段是final字段，那么这是能够保证的。因此，当一个final指针指向一个数组，你不需要担心线程能够看到引用的最新值却看不到引用所指向的数组的最新值。重复一下，这儿的“正确的”的意思是“对象构造方法结尾的最新的值”而不是“最新可用的值”。</p>
-<p>现在，在讲了如上的这段之后，如果在一个线程构造了一个不可变对象之后（对象仅包含final字段），你希望保证这个对象被其他线程正确的查看，你仍然需要使用同步才行。例如，没有其他的方式可以保证不可变对象的引用将被第二个线程看到。使用final字段的程序应该仔细的调试，这需要深入而且仔细的理解并发在你的代码中是如何被管理的。</p>
-<p>如果你使用JNI来改变你的final字段，这方面的行为是没有定义的。</p>
-
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">java内存模型</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-      
-
-      <div style="font-size: 12px;">
-        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
-      </div>
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2018/03/06/Java内存模型/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
   
     <nav id="page-nav">
       <a class="extend prev" rel="prev" href="/">&laquo; Prev</a><a class="page-number" href="/">1</a><span class="page-number current">2</span><a class="page-number" href="/page/3/">3</a><a class="page-number" href="/page/4/">4</a><span class="space">&hellip;</span><a class="page-number" href="/page/9/">9</a><a class="extend next" rel="next" href="/page/3/">Next &raquo;</a>
@@ -1986,7 +2253,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">redis</a>
+                <a href="javascript:void(0)" class="js-tag color3">java并发包</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">快捷键</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1994,7 +2265,7 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">快捷键</a>
+                <a href="javascript:void(0)" class="js-tag color1">redis</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -2010,15 +2281,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">限流</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">react</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">tomcat</a>
+                <a href="javascript:void(0)" class="js-tag color3">限流</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -2026,11 +2293,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">shell</a>
+                <a href="javascript:void(0)" class="js-tag color2">tomcat</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">elastic-job</a>
+                <a href="javascript:void(0)" class="js-tag color1">shell</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -2038,11 +2305,15 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">debug</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">influxdb</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">debug</a>
+                <a href="javascript:void(0)" class="js-tag color2">elastic-job</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -2058,11 +2329,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">Mac</a>
+                <a href="javascript:void(0)" class="js-tag color2">python</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">python</a>
+                <a href="javascript:void(0)" class="js-tag color4">Mac</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -2078,11 +2349,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">zookeeper</a>
+                <a href="javascript:void(0)" class="js-tag color5">分布式锁</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">分布式锁</a>
+                <a href="javascript:void(0)" class="js-tag color5">zookeeper</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -2114,11 +2385,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">HashMap</a>
+                <a href="javascript:void(0)" class="js-tag color3">单例</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">单例</a>
+                <a href="javascript:void(0)" class="js-tag color3">HashMap</a>
               </li>
             
             <div class="clearfix"></div>
