@@ -151,87 +151,6 @@
           <div id="js-content" class="content-ll">
             
   
-    <article id="post-服务docker化示例" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2017/08/03/服务docker化示例/">服务docker化示例</a>
-    </h1>
-  
-
-        
-        <a href="/2017/08/03/服务docker化示例/" class="archive-article-date">
-  	<time datetime="2017-08-03T08:36:23.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2017-08-03</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>转至元数据结尾<br>以lss-gateway为例子<br>运行环境:</p>
-<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="selector-tag">Docker</span> <span class="selector-tag">Version</span>:  1<span class="selector-class">.10</span><span class="selector-class">.3</span></span><br><span class="line"><span class="selector-tag">API</span> <span class="selector-tag">version</span>:     1<span class="selector-class">.22</span></span><br></pre></td></tr></table></figure>
-<p>Dockerfile</p>
-<figure class="highlight dockerfile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">FROM</span> ristory/jre8-with-jce</span><br><span class="line"><span class="keyword">MAINTAINER</span> Ristory &lt;w@zenzet.com&gt;</span><br><span class="line"><span class="keyword">RUN</span><span class="bash"> <span class="built_in">cd</span> /opt/ &amp;&amp;\</span></span><br><span class="line"><span class="bash">    wget ftp://ftp@ftp.zenzet.com/docker/lss-gateway-2.0.10.zip &amp;&amp;\</span></span><br><span class="line"><span class="bash">    unzip lss-gateway-2.0.10.zip &amp;&amp;\</span></span><br><span class="line"><span class="bash">    rm lss-gateway-2.0.10.zip</span></span><br><span class="line"><span class="bash">WORKDIR /opt/lss-gateway-2.0.10</span></span><br><span class="line"><span class="bash">EXPOSE 6500</span></span><br><span class="line"><span class="bash">ENTRYPOINT /opt/lss-gateway-2.0.10/startServer.sh start &amp;&amp; tail -f /opt/lss-gateway-2.0.10/startServer.sh</span></span><br></pre></td></tr></table></figure>
-<p>构建和启动</p>
-<figure class="highlight dockerfile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">docker build -t gateway .</span><br><span class="line">docker <span class="keyword">run</span><span class="bash"> -d -p 6500:6500 gateway</span></span><br></pre></td></tr></table></figure>
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">shell</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-      
-
-      <div style="font-size: 12px;">
-        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
-      </div>
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2017/08/03/服务docker化示例/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
     <article id="post-内网docker集群环境" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
@@ -1030,6 +949,95 @@
 
 
   
+    <article id="post-饿加载单例的误解-类加载机制" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2017/07/07/饿加载单例的误解-类加载机制/">饿加载单例的误解-类加载机制</a>
+    </h1>
+  
+
+        
+        <a href="/2017/07/07/饿加载单例的误解-类加载机制/" class="archive-article-date">
+  	<time datetime="2017-07-06T16:00:03.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2017-07-07</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="饿加载单例-期望是系统启动就自动初始化类-实际并不然"><a href="#饿加载单例-期望是系统启动就自动初始化类-实际并不然" class="headerlink" title="饿加载单例-期望是系统启动就自动初始化类(实际并不然)"></a>饿加载单例-期望是<code>系统启动就自动初始化类</code>(实际并不然)</h1><figure class="highlight cs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title">MySingleton_Static</span> &#123;</span><br><span class="line"> </span><br><span class="line">    <span class="comment">// 初始化时机：当任意static被被访问时,会初始化实例(建议initInstall)。否则将在getInstall访问时才创建(非饿加载)</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">int</span> initInstall = <span class="number">1</span>;<span class="comment">// (理解并不直观,所以不见得好/ 避免此类影响可结合内部类实例化当前类,getInstall中触发.如下文)</span></span><br><span class="line"> </span><br><span class="line">    <span class="comment">/* 考虑类加载机制的初始化条件(被new或内部static被访问),所以启动时并不会实例化*/</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> MySingleton_Static mySingleton = <span class="keyword">new</span> MySingleton_Static();</span><br><span class="line"> </span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="title">MySingleton_Static</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">        System.<span class="keyword">out</span>.println(<span class="string">"Loader"</span>);<span class="comment">// 监控实例化时机</span></span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> MySingleton_Static <span class="title">getInstance</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> mySingleton;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"> </span><br><span class="line"><span class="keyword">class</span> <span class="title">MySingleton_Static_test</span> &#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span>(<span class="params">String[] args</span>) </span>&#123;</span><br><span class="line">        System.<span class="keyword">out</span>.println(<span class="string">"test classLoader "</span>);<span class="comment">// test classLoader (并非第一时间初始化对象)</span></span><br><span class="line">        System.<span class="keyword">out</span>.println(<span class="string">"test classLoader "</span> + MySingleton_Static.initInstall);<span class="comment">// Loader &gt; test classLoader 1</span></span><br><span class="line">        System.<span class="keyword">out</span>.println(<span class="string">"test classLoader "</span> + MySingleton_Static.getInstance());<span class="comment">// [Loader] &gt; test classLoader **@14ae5a5</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h1 id="通过内部类，避免访问静态变量，导致实例被动初始化"><a href="#通过内部类，避免访问静态变量，导致实例被动初始化" class="headerlink" title="通过内部类，避免访问静态变量，导致实例被动初始化"></a>通过内部类，避免访问静态变量，导致实例被动初始化</h1><figure class="highlight cs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title">Singleton</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="title">Singleton</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">        System.<span class="keyword">out</span>.println(<span class="string">"Loader"</span>);<span class="comment">// 监控实例化时机</span></span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    <span class="comment">// 注意：static属性不是对象信息,而是在`方法区-运行时常量池`中。与类对象无关(同理类的序列化也不包含static属性)</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">int</span> initInstall = <span class="number">1</span>;<span class="comment">// 避免访问static触发类的初始化(仅能通过getInstance方法初始化)</span></span><br><span class="line"> </span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">class</span> <span class="title">SingletonHolder</span> &#123;</span><br><span class="line">        <span class="keyword">private</span> <span class="keyword">static</span> final Singleton INSTANCE = <span class="keyword">new</span> Singleton();</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> Singleton <span class="title">getInstance</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> SingletonHolder.INSTANCE;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"> </span><br><span class="line"><span class="keyword">class</span> <span class="title">Singleton_test</span> &#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span>(<span class="params">String[] args</span>) </span>&#123;</span><br><span class="line">        System.<span class="keyword">out</span>.println(<span class="string">"test classLoader "</span>);<span class="comment">// test classLoader (此时还没有初始化,如上文是合理的)</span></span><br><span class="line">        System.<span class="keyword">out</span>.println(<span class="string">"test classLoader "</span> + Singleton.initInstall);<span class="comment">// test classLoader 1 (没有触发类的初始化,因为没有new)</span></span><br><span class="line">        System.<span class="keyword">out</span>.println(<span class="string">"test classLoader "</span> + Singleton.getInstance());<span class="comment">// Loader &gt; test classLoader **@14ae5a5</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h1 id="结论："><a href="#结论：" class="headerlink" title="结论："></a>结论：</h1><p>类在<code>堆中的实例化</code>依赖<code>虚拟机栈</code>的执行，而<code>虚拟机栈的执行</code>依赖<code>类的初始化</code>。<code>饿加载单例</code>本身已经违背了<code>类的初始化条件</code>，所以基本不存在真正意义的饿加载。</p>
+<hr>
+<h1 id="饿加载-与-懒加载的区别"><a href="#饿加载-与-懒加载的区别" class="headerlink" title="饿加载  与 懒加载的区别"></a>饿加载  与 懒加载的区别</h1><p><code>饿加载</code> - 实例化交给了<code>static</code>，static的指令在<code>访问前并不会执行</code>，当<code>任意static</code>被访问时 <code>虚拟机</code>会将先初始化该类的<code>运行时常量池</code>执行该类中所有的static属性指令。其中如有<code>new Object()</code>也将被执行 ，并通过   <code>虚拟机栈-动态链接</code>  获得类的<code>具体实例</code></p>
+<p><code>懒加载</code> - 在static方法getInstance()访问时， 先是通过 <code>虚拟机栈-动态链接</code>找到<code>方法区-flags: ACC_STATIC mathod</code>并立即执行.其中指令将被<code>虚拟机-操作栈</code>执行, 并通过   <code>虚拟机栈-动态链接</code>  获得类的<code>具体实例</code></p>
+<ul>
+<li><code>flags: ACC_STATIC   mathod</code> (如main/ utilMathod )<br>static归属于方法区,虚拟机允许static方法在没有类的初始化前直接访问.<br>作用: <ul>
+<li>[main,getInstance]-用于类的初始化</li>
+<li>[utilMathod]-<code>无状态要求</code>的代码集(<code>调用方法本身,无需产生新对象  性能更好</code>.  直接从方法区中获取指令代码-当然初始化的对象也是从方法区获取指令代码)</li>
+</ul>
+</li>
+</ul>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">单例</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+      
+
+      <div style="font-size: 12px;">
+        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
+      </div>
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2017/07/07/饿加载单例的误解-类加载机制/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
   
     <nav id="page-nav">
       <a class="extend prev" rel="prev" href="/page/8/">&laquo; Prev</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/7/">7</a><a class="page-number" href="/page/8/">8</a><span class="page-number current">9</span><a class="page-number" href="/page/10/">10</a><a class="extend next" rel="next" href="/page/10/">Next &raquo;</a>
@@ -1127,15 +1135,23 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
           <ul class="article-tag-list" q-show="showTags">
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">AngularJS</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">Dubbo</a>
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">AngularJS</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">ops</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">git</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">Maven</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1147,23 +1163,15 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">性能优化</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">Maven</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">git</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">java内存模型</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">java并发包</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">redis</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1175,15 +1183,19 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">mysql</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">test</a>
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">mysql</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Python</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">react</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1195,10 +1207,6 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">react</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">tomcat</a>
               </li>
              
@@ -1207,15 +1215,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">redis</a>
+                <a href="javascript:void(0)" class="js-tag color2">elastic-job</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">guava</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">elastic-job</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1228,14 +1232,6 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">rest</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">idk</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">jdk工具命令，jstack</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1255,7 +1251,7 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">分布式锁</a>
+                <a href="javascript:void(0)" class="js-tag color3">vi</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1263,7 +1259,7 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">vi</a>
+                <a href="javascript:void(0)" class="js-tag color5">分布式锁</a>
               </li>
              
               <li class="article-tag-list-item">

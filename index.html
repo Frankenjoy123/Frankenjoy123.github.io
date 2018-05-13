@@ -836,19 +836,19 @@
 
 
   
-    <article id="post-排查问题常用命令" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+    <article id="post-JDK内置工具补充" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
       <header class="article-header">
         
   
     <h1 itemprop="name">
-      <a class="article-title" href="/2018/05/13/排查问题常用命令/">排查线上问题常用命令脚本</a>
+      <a class="article-title" href="/2018/05/13/JDK内置工具补充/">JAVA线上问题之Full GC问题定位</a>
     </h1>
   
 
         
-        <a href="/2018/05/13/排查问题常用命令/" class="archive-article-date">
+        <a href="/2018/05/13/JDK内置工具补充/" class="archive-article-date">
   	<time datetime="2018-05-13T06:11:17.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-05-13</time>
 </a>
         
@@ -856,20 +856,10 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        <h4 id="1-查看进程pid"><a href="#1-查看进程pid" class="headerlink" title="1. 查看进程pid"></a>1. 查看进程pid</h4><p>ps -ef |grep ‘bbs-service’ | grep -v grep |grep -v ‘python’ | awk ‘{print $2}’</p>
-<h4 id="2-查看线程信息"><a href="#2-查看线程信息" class="headerlink" title="2. 查看线程信息"></a>2. 查看线程信息</h4><p>jstack 27676| grep Druid-ConnectionPool- | wc -l</p>
-<p>jstack 27676| grep Xmemcached-Reactor- </p>
-<p>jstack 27676| grep java.lang.Thread.State </p>
-<p>jstack 27676| grep DubboServerHandler-</p>
-<p>jstack 27676| grep DubboClientHandler-</p>
-<p>top -H -b -n 1  -p 27676 | sed ‘1,/^$/d’ | sed ‘1d;/^$/d’ | grep -v 27676 | sort -nrk9 | head -3</p>
-<p>注：27676 为进程pid</p>
-<h4 id="3-系统"><a href="#3-系统" class="headerlink" title="3. 系统"></a>3. 系统</h4><p>已建立的连接数：</p>
-<p>netstat -ant |grep ESTABLISHED |wc -l</p>
-<p>处于等待状态的连接数：</p>
-<p>netstat -ant |grep TIME_WAIT |wc -l</p>
-<p>各个cpu的资源使用情况：</p>
-<p>mpstat -P ALL</p>
+        <p>####1.查看正在运行的JVM的参数</p>
+<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="selector-tag">jcmd</span> 24684 <span class="selector-tag">VM</span><span class="selector-class">.flags</span></span><br></pre></td></tr></table></figure>
+<p>返回结果：</p>
+<figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">-<span class="string">XX:</span>CICompilerCount=<span class="number">3</span> -<span class="string">XX:</span>ErrorFile=<span class="regexp">/data/</span>program<span class="regexp">/java_error.log -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/</span>data<span class="regexp">/program/</span>java.hprof -<span class="string">XX:</span>InitialHeapSize=<span class="number">130023424</span> -<span class="string">XX:</span>+ManagementServer -<span class="string">XX:</span>MaxHeapSize=<span class="number">2063597568</span> -<span class="string">XX:</span>MaxNewSize=<span class="number">687865856</span> -<span class="string">XX:</span>MinHeapDeltaBytes=<span class="number">524288</span> -<span class="string">XX:</span>NewSize=<span class="number">42991616</span> -<span class="string">XX:</span>OldSize=<span class="number">87031808</span> -<span class="string">XX:</span>+PrintGC -<span class="string">XX:</span>+PrintGCDateStamps -<span class="string">XX:</span>+PrintGCDetails -<span class="string">XX:</span>+PrintGCTimeStamps -<span class="string">XX:</span>+UseCompressedClassPointers -<span class="string">XX:</span>+UseCompressedOops -<span class="string">XX:</span>+UseParallelGC</span><br></pre></td></tr></table></figure>
 
       
 
@@ -896,7 +886,7 @@
       </div>
       
         <p class="article-more-link">
-          <a class="article-more-a" href="/2018/05/13/排查问题常用命令/">展开全文 >></a>
+          <a class="article-more-a" href="/2018/05/13/JDK内置工具补充/">展开全文 >></a>
         </p>
       
 
@@ -1017,19 +1007,19 @@
 
 
   
-    <article id="post-JDK内置工具补充" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+    <article id="post-排查问题常用命令" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
       <header class="article-header">
         
   
     <h1 itemprop="name">
-      <a class="article-title" href="/2018/05/13/JDK内置工具补充/">JAVA线上问题之Full GC问题定位</a>
+      <a class="article-title" href="/2018/05/13/排查问题常用命令/">排查线上问题常用命令脚本</a>
     </h1>
   
 
         
-        <a href="/2018/05/13/JDK内置工具补充/" class="archive-article-date">
+        <a href="/2018/05/13/排查问题常用命令/" class="archive-article-date">
   	<time datetime="2018-05-13T06:11:17.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-05-13</time>
 </a>
         
@@ -1037,10 +1027,20 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        <p>####1.查看正在运行的JVM的参数</p>
-<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="selector-tag">jcmd</span> 24684 <span class="selector-tag">VM</span><span class="selector-class">.flags</span></span><br></pre></td></tr></table></figure>
-<p>返回结果：</p>
-<figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">-<span class="string">XX:</span>CICompilerCount=<span class="number">3</span> -<span class="string">XX:</span>ErrorFile=<span class="regexp">/data/</span>program<span class="regexp">/java_error.log -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/</span>data<span class="regexp">/program/</span>java.hprof -<span class="string">XX:</span>InitialHeapSize=<span class="number">130023424</span> -<span class="string">XX:</span>+ManagementServer -<span class="string">XX:</span>MaxHeapSize=<span class="number">2063597568</span> -<span class="string">XX:</span>MaxNewSize=<span class="number">687865856</span> -<span class="string">XX:</span>MinHeapDeltaBytes=<span class="number">524288</span> -<span class="string">XX:</span>NewSize=<span class="number">42991616</span> -<span class="string">XX:</span>OldSize=<span class="number">87031808</span> -<span class="string">XX:</span>+PrintGC -<span class="string">XX:</span>+PrintGCDateStamps -<span class="string">XX:</span>+PrintGCDetails -<span class="string">XX:</span>+PrintGCTimeStamps -<span class="string">XX:</span>+UseCompressedClassPointers -<span class="string">XX:</span>+UseCompressedOops -<span class="string">XX:</span>+UseParallelGC</span><br></pre></td></tr></table></figure>
+        <h4 id="1-查看进程pid"><a href="#1-查看进程pid" class="headerlink" title="1. 查看进程pid"></a>1. 查看进程pid</h4><p>ps -ef |grep ‘bbs-service’ | grep -v grep |grep -v ‘python’ | awk ‘{print $2}’</p>
+<h4 id="2-查看线程信息"><a href="#2-查看线程信息" class="headerlink" title="2. 查看线程信息"></a>2. 查看线程信息</h4><p>jstack 27676| grep Druid-ConnectionPool- | wc -l</p>
+<p>jstack 27676| grep Xmemcached-Reactor- </p>
+<p>jstack 27676| grep java.lang.Thread.State </p>
+<p>jstack 27676| grep DubboServerHandler-</p>
+<p>jstack 27676| grep DubboClientHandler-</p>
+<p>top -H -b -n 1  -p 27676 | sed ‘1,/^$/d’ | sed ‘1d;/^$/d’ | grep -v 27676 | sort -nrk9 | head -3</p>
+<p>注：27676 为进程pid</p>
+<h4 id="3-系统"><a href="#3-系统" class="headerlink" title="3. 系统"></a>3. 系统</h4><p>已建立的连接数：</p>
+<p>netstat -ant |grep ESTABLISHED |wc -l</p>
+<p>处于等待状态的连接数：</p>
+<p>netstat -ant |grep TIME_WAIT |wc -l</p>
+<p>各个cpu的资源使用情况：</p>
+<p>mpstat -P ALL</p>
 
       
 
@@ -1067,7 +1067,7 @@
       </div>
       
         <p class="article-more-link">
-          <a class="article-more-a" href="/2018/05/13/JDK内置工具补充/">展开全文 >></a>
+          <a class="article-more-a" href="/2018/05/13/排查问题常用命令/">展开全文 >></a>
         </p>
       
 
@@ -1097,19 +1097,19 @@
 
 
   
-    <article id="post-服务器异常案例" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+    <article id="post-常用脚本" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
       <header class="article-header">
         
   
     <h1 itemprop="name">
-      <a class="article-title" href="/2018/05/13/服务器异常案例/">服务器异常案例</a>
+      <a class="article-title" href="/2018/05/13/常用脚本/">常用脚本</a>
     </h1>
   
 
         
-        <a href="/2018/05/13/服务器异常案例/" class="archive-article-date">
+        <a href="/2018/05/13/常用脚本/" class="archive-article-date">
   	<time datetime="2018-05-13T06:11:17.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-05-13</time>
 </a>
         
@@ -1117,42 +1117,32 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        <p>####1.某应用load&gt;7,ssh感到输入命令后,要等待1、2秒 才开始执行</p>
-<ul>
-<li>top命令查看cpu占用率,约70%,不至于导致ssh中命令响应变慢</li>
-<li>tsar查看最近的网络流量，正常</li>
-<li>iostat 1，发现(虚拟机)磁盘tps达到500+非常高</li>
-<li>jstack观察java中一个线程频繁操作磁盘</li>
-<li>lsof命令观察打开文件，并排查代码发现配置项有误导致磁盘上出现很多小的零碎文件，引发频繁的随机访问，修改配置项后问题解决<br>￼￼</li>
-</ul>
-<p>####2.应用Load&gt;10，GC正常，活跃线程数很多，CPU 100%</p>
-<ul>
-<li>ps -efL， 显示所有活跃线程ID和对应时间</li>
-<li>根据对应线程SPID找出jstack中的执行栈</li>
-<li>定位到问题代码，发现一个没同步保护的HashMap频繁并发put/get导致死循环</li>
-</ul>
-<figure class="highlight erlang-repl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">注意：</span><br><span class="line">通常cpu使用率达到了<span class="number">100</span><span class="comment">%，一般是某些线程在某种条件下进入死循环，退不出来</span></span><br></pre></td></tr></table></figure>
-<p>####3.容灾演习之后服务无法启动</p>
-<ul>
-<li>df –h 命令 /home 100%占用，日志文件巨大</li>
-<li>删掉由于断网引起的大量重连日志，重启</li>
-</ul>
-<p>####4.￼某应用机器load狂飙100+，报警不断</p>
-<ul>
-<li>收集各个系统指标，发现除了load之外没有异常，load&gt;进程数，应用响应正常</li>
-<li>jstack中Runnable状态线程很多“at<br>java.io.UnixFileSystem.getBooleanAttributes0(Native Method)”</li>
-<li>ps –Tel 打印所有线程状态，发现大量怨妇进程（状态D，既无法中断又无法继续）</li>
-<li>根据僵尸进程ID再次查找jstack中对应代码，为blocked的文件访问栈</li>
-<li>df命令hang住</li>
-<li>联系PE同学得知NAS故障,修复后重启OK</li>
-</ul>
-<p>####5.Java进程健在，应用运行一段时间失去响应</p>
-<ul>
-<li>jstat各个区域内存正常，应用服务器系统资源正常</li>
-<li>查看应用默认日志文件发现一行“WARN [common] 服务器 已停止运行:12201”</li>
-<li>jstack发现有线程“JBoss Shutdown Hook”健在，查找代码发现居然有二方包代码在抛出异常后调用system.exit(0)</li>
-</ul>
-<p>￼￼￼</p>
+        <p>PS：</p>
+<p>本仓库的脚本（如<code>Java</code>相关脚本）在阿里等公司（如随身云，见<a href="https://github.com/Suishenyun/awesome-scripts" target="_blank" rel="external"><code>awesome-scripts</code>仓库</a>说明）的线上生产环境部署使用。<br>如果你的公司有部署使用，欢迎使用通过<a href="https://github.com/oldratlee/useful-scripts/issues" target="_blank" rel="external">提交Issue</a>告知，方便互相交流反馈～ :cupid:</p>
+<h2 id="beginner-快速下载-amp-使用"><a href="#beginner-快速下载-amp-使用" class="headerlink" title=":beginner: 快速下载&amp;使用"></a>:beginner: 快速下载&amp;使用</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">source</span> &lt;(curl -fsSL https://raw.githubusercontent.com/oldratlee/useful-scripts/master/<span class="built_in">test</span>-cases/self-installer.sh)</span><br></pre></td></tr></table></figure>
+<p>更多下载&amp;使用方式，参见<a href="docs/install.md">下载使用</a>。</p>
+<h2 id="books-使用文档"><a href="#books-使用文档" class="headerlink" title=":books: 使用文档"></a>:books: 使用文档</h2><h3 id="coffee-Java相关脚本"><a href="#coffee-Java相关脚本" class="headerlink" title=":coffee: Java相关脚本"></a>:coffee: <a href="docs/java.md"><code>Java</code>相关脚本</a></h3><ol>
+<li><a href="docs/java.md#beer-show-busy-java-threads">show-busy-java-threads</a><br> 用于快速排查<code>Java</code>的<code>CPU</code>性能问题(<code>top us</code>值过高)，自动查出运行的<code>Java</code>进程中消耗<code>CPU</code>多的线程，并打印出其线程栈，从而确定导致性能问题的方法调用。</li>
+<li><a href="docs/java.md#beer-show-duplicate-java-classes">show-duplicate-java-classes</a><br> 找出<code>jar</code>文件和<code>class</code>目录中的重复类。用于排查<code>Java</code>类冲突问题。</li>
+<li><a href="docs/java.md#beer-find-in-jars">find-in-jars</a><br> 在目录下所有<code>jar</code>文件里，查找类或资源文件。</li>
+</ol>
+<h3 id="shell-Shell相关脚本"><a href="#shell-Shell相关脚本" class="headerlink" title=":shell: Shell相关脚本"></a>:shell: <a href="docs/shell.md"><code>Shell</code>相关脚本</a></h3><p><code>Shell</code>使用加强：</p>
+<ol>
+<li><a href="docs/shell.md#beer-c">c</a><br> 原样命令行输出，并拷贝标准输出到系统剪贴板，省去<code>CTRL+C</code>操作，优化命令行与其它应用之间的操作流。</li>
+<li><a href="docs/shell.md#beer-coat">coat</a><br> 彩色<code>cat</code>出文件行，方便人眼区分不同的行。</li>
+<li><a href="docs/shell.md#beer-a2l">a2l</a><br> 按行彩色输出参数，方便人眼查看。</li>
+<li><a href="docs/shell.md#beer-ap-and-rp">ap and rp</a><br> 批量转换文件路径为绝对路径/相对路径，会自动跟踪链接并规范化路径。</li>
+<li><a href="docs/shell.md#beer-tcp-connection-state-counter">tcp-connection-state-counter</a><br> 统计各个<code>TCP</code>连接状态的个数。用于方便排查系统连接负荷问题。</li>
+<li><a href="docs/shell.md#beer-xpl-and-xpf">xpl and xpf</a><br> 在命令行中快速完成 在文件浏览器中 打开/选中 指定的文件或文件夹的操作，优化命令行与其它应用之间的操作流。</li>
+</ol>
+<p><code>Shell</code>开发/测试加强：</p>
+<ol>
+<li><a href="docs/shell.md#beer-echo-args">echo-args</a><br> 输出脚本收到的参数，在控制台运行时，把参数值括起的括号显示成 <strong>红色</strong>，方便人眼查看。用于调试脚本参数输入。</li>
+<li><a href="docs/shell.md#beer-console-text-color-themessh">console-text-color-themes.sh</a><br> 显示<code>Terminator</code>的全部文字彩色组合的效果及其打印方式，用于开发<code>Shell</code>的彩色输出。</li>
+<li><a href="docs/shell.md#beer-parseoptssh">parseOpts.sh</a><br> 命令行选项解析库，加强支持选项有多个值（即数组）。</li>
+</ol>
+<h3 id="watch-VCS相关脚本"><a href="#watch-VCS相关脚本" class="headerlink" title=":watch: VCS相关脚本"></a>:watch: <a href="docs/vcs.md"><code>VCS</code>相关脚本</a></h3><p>目前<code>VCS</code>的脚本都是<code>svn</code>分支相关的操作。使用更现代的<code>Git</code>吧！ :boom:</p>
+<p>因为不推荐使用<code>svn</code>，这里不再列出有哪些脚本了，如果你有兴趣可以点上面链接去看。</p>
 
       
 
@@ -1179,7 +1169,7 @@
       </div>
       
         <p class="article-more-link">
-          <a class="article-more-a" href="/2018/05/13/服务器异常案例/">展开全文 >></a>
+          <a class="article-more-a" href="/2018/05/13/常用脚本/">展开全文 >></a>
         </p>
       
 
@@ -1401,15 +1391,23 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
           <ul class="article-tag-list" q-show="showTags">
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">AngularJS</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">Dubbo</a>
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">AngularJS</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">ops</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">git</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">Maven</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1421,23 +1419,15 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">性能优化</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">Maven</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">git</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">java内存模型</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">java并发包</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">redis</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1449,15 +1439,19 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">mysql</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">test</a>
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">mysql</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Python</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">react</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1469,10 +1463,6 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">react</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">tomcat</a>
               </li>
              
@@ -1481,15 +1471,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">redis</a>
+                <a href="javascript:void(0)" class="js-tag color2">elastic-job</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">guava</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">elastic-job</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1502,14 +1488,6 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">rest</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">idk</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">jdk工具命令，jstack</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1529,7 +1507,7 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">分布式锁</a>
+                <a href="javascript:void(0)" class="js-tag color3">vi</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1537,7 +1515,7 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">vi</a>
+                <a href="javascript:void(0)" class="js-tag color5">分布式锁</a>
               </li>
              
               <li class="article-tag-list-item">
