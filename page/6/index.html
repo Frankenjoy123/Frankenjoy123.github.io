@@ -151,6 +151,393 @@
           <div id="js-content" class="content-ll">
             
   
+    <article id="post-JVM堆内存和非堆内存" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2018/01/02/JVM堆内存和非堆内存/">JVM堆内存和非堆内存</a>
+    </h1>
+  
+
+        
+        <a href="/2018/01/02/JVM堆内存和非堆内存/" class="archive-article-date">
+  	<time datetime="2018-01-02T03:04:25.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-01-02</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p><strong>堆和非堆内存</strong></p>
+<p>按照官方的说法：“Java 虚拟机具有一个堆(Heap)，堆是运行时数据区域，所有类实例和数组的内存均从此处分配。堆是在 Java 虚拟机启动时创建的。”“在JVM中堆之外的内存称为非堆内存(Non-heap memory)”。</p>
+<p>JVM主要管理两种类型的内存：堆和非堆。</p>
+<p>Heap memory Code Cache</p>
+<p>Eden Space</p>
+<p>Survivor Space</p>
+<p>Tenured Gen</p>
+<p>non-heap memory Perm Gen</p>
+<p>native heap?(I guess)</p>
+<p><strong>堆内存</strong></p>
+<p>Java 虚拟机具有一个堆，堆是运行时数据区域，所有类实例和数组的内存均从此处分配。堆是在 Java 虚拟机启动时创建的。对象的堆内存由称为垃圾回收器的自动内存管理系统回收。</p>
+<p>堆的大小可以固定，也可以扩大和缩小。堆的内存不需要是连续空间。</p>
+<p><strong>非堆内存</strong></p>
+<p>Java 虚拟机管理堆之外的内存（称为非堆内存）。</p>
+<p>Java 虚拟机具有一个由所有线程共享的方法区。方法区属于非堆内存。它存储每个类结构，如运行时常数池、字段和方法数据，以及方法和构造方法的代码。它是在 Java 虚拟机启动时创建的。</p>
+<p>方法区在逻辑上属于堆，但 Java 虚拟机实现可以选择不对其进行回收或压缩。与堆类似，方法区的大小可以固定，也可以扩大和缩小。方法区的内存不需要是连续空间。</p>
+<p>除了方法区外，Java 虚拟机实现可能需要用于内部处理或优化的内存，这种内存也是非堆内存。例如，JIT 编译器需要内存来存储从 Java 虚拟机代码转换而来的本机代码，从而获得高性能。</p>
+<p><strong>几个基本概念</strong></p>
+<p>PermGen space：全称是Permanent Generation space，即永久代。就是说是永久保存的区域,用于存放Class和Meta信息，Class在被Load的时候被放入该区域，GC(Garbage Collection)应该不会对PermGen space进行清理，所以如果你的APP会LOAD很多CLASS的话，就很可能出现PermGen space错误。</p>
+<p>Heap space：存放Instance。</p>
+<p>Java Heap分为3个区，Young即新生代，Old即老生代和Permanent。</p>
+<p>Young保存刚实例化的对象。当该区被填满时，GC会将对象移到Old区。Permanent区则负责保存反射对象。</p>
+<p><strong>堆内存分配</strong></p>
+<ul>
+<li>JVM初始分配的堆内存由-Xms指定，默认是物理内存的1/64；</li>
+<li>JVM最大分配的堆内存由-Xmx指定，默认是物理内存的1/4。</li>
+<li>默认空余堆内存小于40%时，JVM就会增大堆直到-Xmx的最大限制；</li>
+<li>空余堆内存大于70%时，JVM会减少堆直到-Xms的最小限制。</li>
+<li>因此服务器一般设置-Xms、-Xmx 相等以避免在每次GC 后调整堆的大小。</li>
+<li>说明：如果-Xmx 不指定或者指定偏小，应用可能会导致java.lang.OutOfMemory错误，此错误来自JVM，不是Throwable的，无法用try…catch捕捉。</li>
+</ul>
+<p><strong>非堆内存分配</strong></p>
+<p>\1. JVM使用-XX:PermSize设置非堆内存初始值，默认是物理内存的1/64；</p>
+<p>\2. 由XX:MaxPermSize设置最大非堆内存的大小，默认是物理内存的1/4。</p>
+<ul>
+<li>还有一说：MaxPermSize缺省值和-server -client选项相关，-server选项下默认MaxPermSize为64m，-client选项下默认MaxPermSize为32m。这个我没有实验。</li>
+</ul>
+<p>\3. XX:MaxPermSize设置过小会导致java.lang.OutOfMemoryError: PermGen space 就是内存益出。</p>
+<p>\4. 为什么会内存益出：</p>
+<ul>
+<li>这一部分内存用于存放Class和Meta的信息，Class在被 Load的时候被放入PermGen space区域，它和存放Instance的Heap区域不同。</li>
+<li>GC(Garbage Collection)不会在主程序运行期对PermGen space进行清理，所以如果你的APP会LOAD很多CLASS 的话,就很可能出现PermGen space错误。</li>
+</ul>
+<p>\5. 这种错误常见在web服务器对JSP进行pre compile的时候。</p>
+<p><strong>JVM内存限制(最大值)</strong></p>
+<p>\1. 首先JVM内存限制于实际的最大物理内存，假设物理内存无限大的话，JVM内存的最大值跟操作系统有很大的关系。简单的说就32位处理器虽然可控内存空间有4GB,但是具体的操作系统会给一个限制，这个限制一般是2GB-3GB（一般来说Windows系统下为1.5G-2G，Linux系统下为2G-3G），而64bit以上的处理器就不会有限制了。</p>
+<p>\2. 为什么有的机器我将-Xmx和-XX:MaxPermSize都设置为512M之后Eclipse可以启动，而有些机器无法启动？</p>
+<p>通过上面对JVM内存管理的介绍我们已经了解到JVM内存包含两种：堆内存和非堆内存，另外JVM最大内存首先取决于实际的物理内存和操作系统。所以说设置VM参数导致程序无法启动主要有以下几种原因：</p>
+<ul>
+<li>参数中-Xms的值大于-Xmx，或者-XX:PermSize的值大于-XX:MaxPermSize；</li>
+<li>-Xmx的值和-XX:MaxPermSize的总和超过了JVM内存的最大限制，比如当前操作系统最大内存限制，或者实际的物理内存等等。说到实际物理内存这里需要说明一点的是，如果你的内存是1024MB，但实际系统中用到的并不可能是1024MB，因为有一部分被硬件占用了。</li>
+</ul>
+<p>\3. 如果你有一个双核的CPU，也许可以尝试这个参数: -XX:+UseParallelGC 让GC可以更快的执行。（只是JDK 5里对GC新增加的参数）</p>
+<p>\4. 如果你的WEB APP下都用了大量的第三方jar，其大小超过了服务器jvm默认的大小，那么就会产生内存益出问题了。解决方法： 设置MaxPermSize大小。</p>
+<ul>
+<li>增加服务器启动的JVM参数设置： -Xms128m -Xmx256m -XX:PermSize=128M -XX:MaxNewSize=256m -XX:MaxPermSize=256m</li>
+<li>如tomcat，修改TOMCAT_HOME/bin/catalina.sh，在echo “Using CATALINA_BASE: $CATALINA_BASE”上面加入以下行：JAVA_OPTS=”-server -XX:PermSize=64M -XX:MaxPermSize=128m</li>
+</ul>
+<p>\5. 建议：将相同的第三方jar文件移置到tomcat/shared/lib目录下，这样可以减少jar 文档重复占用内存</p>
+<p><strong>JVM内存设置参数</strong></p>
+<ul>
+<li>内存设置参数</li>
+</ul>
+<p><img src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" alt="img"></p>
+<ul>
+<li>说明：</li>
+</ul>
+<ol>
+<li>如果-Xmx不指定或者指定偏小，应用可能会导致java.lang.OutOfMemory错误，此错误来自JVM不是Throwable的，无法用try…catch捕捉。</li>
+<li>PermSize和MaxPermSize指明虚拟机为java永久生成对象（Permanate generation）如，class对象、方法对象这些可反射（reflective）对象分配内存限制，这些内存不包括在Heap（堆内存）区之中。</li>
+<li>-XX:MaxPermSize分配过小会导致：java.lang.OutOfMemoryError: PermGen space。</li>
+<li>MaxPermSize缺省值和-server -client选项相关：-server选项下默认MaxPermSize为64m、-client选项下默认MaxPermSize为32m。</li>
+</ol>
+<ul>
+<li>申请一块内存的过程</li>
+</ul>
+<ol>
+<li>JVM会试图为相关Java对象在Eden中初始化一块内存区域</li>
+<li>当Eden空间足够时，内存申请结束。否则到下一步</li>
+<li>JVM试图释放在Eden中所有不活跃的对象（这属于1或更高级的垃圾回收）；释放后若Eden空间仍然不足以放入新对象，则试图将部分Eden中活跃对象放入Survivor区/OLD区</li>
+<li>Survivor区被用来作为Eden及OLD的中间交换区域，当OLD区空间足够时，Survivor区的对象会被移到Old区，否则会被保留在Survivor区</li>
+<li>当OLD区空间不够时，JVM会在OLD区进行完全的垃圾收集（0级）</li>
+<li>完全垃圾收集后，若Survivor及OLD区仍然无法存放从Eden复制过来的部分对象，导致JVM无法在Eden区为新对象创建内存区域，则出现”out of memory错误”</li>
+</ol>
+<p>resin服务器典型的响应时间优先型的jvm配置：</p>
+<blockquote>
+<p>-Xmx2000M -Xms2000M -Xmn500M</p>
+<p>-XX:PermSize=250M -XX:MaxPermSize=250M</p>
+<p>-Xss256K</p>
+<p>-XX:+DisableExplicitGC</p>
+<p>-XX:SurvivorRatio=1</p>
+<p>-XX:+UseConcMarkSweepGC</p>
+<p>-XX:+UseParNewGC</p>
+<p>-XX:+CMSParallelRemarkEnabled</p>
+<p>-XX:+UseCMSCompactAtFullCollection</p>
+<p>-XX:CMSFullGCsBeforeCompaction=0</p>
+<p>-XX:+CMSClassUnloadingEnabled</p>
+<p>-XX:LargePageSizeInBytes=128M</p>
+<p>-XX:+UseFastAccessorMethods</p>
+<p>-XX:+UseCMSInitiatingOccupancyOnly</p>
+<p>-XX:CMSInitiatingOccupancyFraction=60</p>
+<p>-XX:SoftRefLRUPolicyMSPerMB=0</p>
+<p>-XX:+PrintClassHistogram</p>
+<p>-XX:+PrintGCDetails</p>
+<p>-XX:+PrintGCTimeStamps</p>
+<p>-XX:+PrintHeapAtGC</p>
+<p>-Xloggc:log/gc.log</p>
+</blockquote>
+<p><strong>内存回收算法</strong></p>
+<p>Java中有四种不同的回收算法，对应的启动参数为:</p>
+<blockquote>
+<p>–XX:+UseSerialGC</p>
+<p>–XX:+UseParallelGC</p>
+<p>–XX:+UseParallelOldGC</p>
+<p>–XX:+UseConcMarkSweepGC</p>
+</blockquote>
+<p><strong>Serial Collector</strong></p>
+<p>大部分平台或者强制 java -client 默认会使用这种。</p>
+<p>young generation算法 = serial</p>
+<p>old generation算法 = serial (mark-sweep-compact)</p>
+<p>这种方法的缺点很明显, stop-the-world, 速度慢。服务器应用不推荐使用。</p>
+<p><strong>Parallel Collector</strong></p>
+<p>在linux x64上默认是这种，其他平台要加 java -server 参数才会默认选用这种。</p>
+<p>young = parallel，多个thread同时copy</p>
+<p>old = mark-sweep-compact = 1</p>
+<p>优点：新生代回收更快。因为系统大部分时间做的gc都是新生代的，这样提高了throughput(cpu用于非gc时间)</p>
+<p>缺点：当运行在8G/16G server上old generation live object太多时候pause time过长</p>
+<p><strong>Parallel Compact Collector (ParallelOld)</strong></p>
+<p>young = parallel = 2</p>
+<p>old = parallel，分成多个独立的单元，如果单元中live object少则回收，多则跳过</p>
+<p>优点：old old generation上性能较 parallel 方式有提高</p>
+<p>缺点：大部分server系统old generation内存占用会达到60%-80%, 没有那么多理想的单元live object很少方便迅速回收，同时compact方面开销比起parallel并没明显减少。</p>
+<p><strong>Concurrent Mark-Sweep(CMS) Collector</strong></p>
+<p>young generation = parallel collector = 2</p>
+<p>old = cms</p>
+<p>同时不做 compact 操作。</p>
+<p>优点：pause time会降低, pause敏感但CPU有空闲的场景需要建议使用策略4.</p>
+<p>缺点：cpu占用过多，cpu密集型服务器不适合。另外碎片太多，每个object的存储都要通过链表连续跳n个地方，空间浪费问题也会增大。</p>
+<p><strong>内存监控方法</strong></p>
+<ul>
+<li>jmap -heap 查看java 堆（heap）使用情况</li>
+</ul>
+<blockquote>
+<p>jmap -heap pid </p>
+<p>using thread-local object allocation.</p>
+<p>Parallel GC with 4 thread(s)   #GC 方式</p>
+<p>Heap Configuration:  #堆内存初始化配置</p>
+<p>MinHeapFreeRatio=40  #对应jvm启动参数-XX:MinHeapFreeRatio设置JVM堆最小空闲比率(default 40)</p>
+<p>MaxHeapFreeRatio=70  #对应jvm启动参数 -XX:MaxHeapFreeRatio设置JVM堆最大空闲比率(default 70)</p>
+<p>MaxHeapSize=512.0MB  #对应jvm启动参数-XX:MaxHeapSize=设置JVM堆的最大大小</p>
+<p>NewSize  = 1.0MB     #对应jvm启动参数-XX:NewSize=设置JVM堆的‘新生代’的默认大小</p>
+<p>MaxNewSize =4095MB   #对应jvm启动参数-XX:MaxNewSize=设置JVM堆的‘新生代’的最大大小</p>
+<p>OldSize  = 4.0MB     #对应jvm启动参数-XX:OldSize=<value>:设置JVM堆的‘老生代’的大小</value></p>
+<p>NewRatio  = 8        #对应jvm启动参数-XX:NewRatio=:‘新生代’和‘老生代’的大小比率</p>
+<p>SurvivorRatio = 8    #对应jvm启动参数-XX:SurvivorRatio=设置年轻代中Eden区与Survivor区的大小比值</p>
+<p>PermSize= 16.0MB     #对应jvm启动参数-XX:PermSize=<value>:设置JVM堆的‘永生代’的初始大小</value></p>
+<p>MaxPermSize=64.0MB   #对应jvm启动参数-XX:MaxPermSize=<value>:设置JVM堆的‘永生代’的最大大小</value></p>
+<p>Heap Usage:          #堆内存分步</p>
+<p>PS Young Generation</p>
+<p>Eden Space:         #Eden区内存分布</p>
+<p>capacity = 20381696 (19.4375MB)             #Eden区总容量</p>
+<p>used     = 20370032 (19.426376342773438MB)  #Eden区已使用</p>
+<p>free     = 11664 (0.0111236572265625MB)     #Eden区剩余容量</p>
+<p>99.94277218147106% used                     #Eden区使用比率</p>
+<p>From Space:        #其中一个Survivor区的内存分布</p>
+<p>capacity = 8519680 (8.125MB)</p>
+<p>used     = 32768 (0.03125MB)</p>
+<p>free     = 8486912 (8.09375MB)</p>
+<p>0.38461538461538464% used</p>
+<p>To Space:          #另一个Survivor区的内存分布</p>
+<p>capacity = 9306112 (8.875MB)</p>
+<p>used     = 0 (0.0MB)</p>
+<p>free     = 9306112 (8.875MB)</p>
+<p>0.0% used</p>
+<p>PS Old Generation  #当前的Old区内存分布</p>
+<p>capacity = 366280704 (349.3125MB)</p>
+<p>used     = 322179848 (307.25464630126953MB)</p>
+<p>free     = 44100856 (42.05785369873047MB)</p>
+<p>87.95982001825573% used</p>
+<p>PS Perm Generation #当前的 “永生代” 内存分布</p>
+<p>capacity = 32243712 (30.75MB)</p>
+<p>used     = 28918584 (27.57891082763672MB)</p>
+<p>free     = 3325128 (3.1710891723632812MB)</p>
+<p>89.68751488662348% used</p>
+</blockquote>
+<ul>
+<li>JVM内存监控工具</li>
+</ul>
+<blockquote>
+<p>&lt;%@ page import=”java.lang.management.*” %&gt;</p>
+<p>&lt;%@ page import=”java.util.*” %&gt;</p>
+<html><br><br><head><br><br>  <title>JVM Memory Monitor</title><br><br></head><br><br><body><br><br><table border="0" width="100%"><br><br>​    <tr><td colspan="2" align="center"><h3>Memory MXBean</h3></td></tr><br><br>​    <tr><td width="200">Heap Memory Usage</td><td>&lt;%=ManagementFactory.getMemoryMXBean().getHeapMemoryUsage()%&gt;</td></tr><br><br>​    <tr><td>Non-Heap Memory Usage</td><td>&lt;%=ManagementFactory.getMemoryMXBean().getNonHeapMemoryUsage()%&gt;</td></tr><br><br>​    <tr><td colspan="2"> </td></tr><br><br>​    <tr><td colspan="2" align="center"><h3>Memory Pool MXBeans</h3></td></tr><br><br>&lt;%<br><br>​        Iterator iter = ManagementFactory.getMemoryPoolMXBeans().iterator();<br><br>​        while (iter.hasNext()) {<br><br>​            MemoryPoolMXBean item = (MemoryPoolMXBean) iter.next();<br><br>%&gt;<br><br><tr><td colspan="2"><br><br>​    <table border="0" width="100%" style="border: 1px #98AAB1 solid;"><br><br>​        <tr><td colspan="2" align="center"><b>&lt;%= item.getName() %&gt;</b></td></tr><br><br>​        <tr><td width="200">Type</td><td>&lt;%= item.getType() %&gt;</td></tr><br><br>​        <tr><td>Usage</td><td>&lt;%= item.getUsage() %&gt;</td></tr><br><br>​        <tr><td>Peak Usage</td><td>&lt;%= item.getPeakUsage() %&gt;</td></tr><br><br>​        <tr><td>Collection Usage</td><td>&lt;%= item.getCollectionUsage() %&gt;</td></tr><br><br>​    </table><br><br></td></tr><br><br><tr><td colspan="2"> </td></tr><br><br>&lt;%} %&gt;<br><br></table><br><br></body><br><br></html></blockquote>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">JVM</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+      
+
+      <div style="font-size: 12px;">
+        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
+      </div>
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2018/01/02/JVM堆内存和非堆内存/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
+    <article id="post-mac下删除python" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2018/01/01/mac下删除python/">mac下删除python</a>
+    </h1>
+  
+
+        
+        <a href="/2018/01/01/mac下删除python/" class="archive-article-date">
+  	<time datetime="2018-01-01T06:59:12.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-01-01</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="正文"><a href="#正文" class="headerlink" title="正文"></a>正文</h1><blockquote>
+<p><strong>安装 Python</strong></p>
+</blockquote>
+<p>首先，登录 Python 官网，下载所需版本：<a href="https://www.python.org/" target="_blank" rel="external">Welcome to Python</a>.</p>
+<p><img src="http://img.blog.csdn.net/20171016181741228" alt="0"></p>
+<p>如上图所示，我们下载了<code>python-2.7.14</code>这个版本，双击打开：</p>
+<p><img src="http://img.blog.csdn.net/20171016201729725" alt="1"></p>
+<p>如上图所示，依次进入<code>Introduction</code>、<code>Read Me</code>和<code>License</code>选项，对于这些，感兴趣的同学可以看看，否则的话，狂按<code>Continue</code>即可：</p>
+<p><img src="http://img.blog.csdn.net/20171016201949269" alt="2"></p>
+<p>但是对于<code>License</code>，则会弹出一个“许可协议”提示框，毫无疑问，既然我们想使用 Python，自然要同意其许可协议。因此，依次点击<code>Agree</code>和<code>Continue</code>：</p>
+<p><img src="http://img.blog.csdn.net/20171016202339187" alt="3"></p>
+<p>接下来，选择 Python 安装地址，默认是<code>Macintosh HD</code>，我们也可以自定义。然后，直到<code>Installation</code>，安装进行中，耐心等待：</p>
+<p><img src="http://img.blog.csdn.net/20171016202548376" alt="4"></p>
+<p>如上图所示，至此 Python 安装成功。</p>
+<blockquote>
+<p><strong>卸载 Python</strong></p>
+</blockquote>
+<p>正如开篇所言，Mac 自带的 Python 已经能够满足我们的需要了，因此很多同学在安装完 Python 之后，又想要将其删除，或者称之为卸载。对于删除 Python，我们首先要知道其具体都安装了什么，实际上，在安装 Python 时，其自动生成：</p>
+<ul>
+<li>Python framework，即 Python 框架；</li>
+<li>Python 应用目录；</li>
+<li>指向 Python 的连接。</li>
+</ul>
+<p>对于 Mac 自带的 Python，其框架目录为：</p>
+<ul>
+<li><code>System/Library/Frameworks/Python.framework</code></li>
+</ul>
+<p>而我们安装的 Python，其（默认）框架目录为：</p>
+<ul>
+<li><code>/Library/Frameworks/Python.framework</code></li>
+</ul>
+<p>接下来，我们就分别（在 Mac 终端进行）删除上面所提到的三部分。</p>
+<p><strong>第 1 步，删除框架</strong>：</p>
+<ul>
+<li><code>sudo rm -rf /Library/Frameworks/Python.framework/Versions/x.x</code></li>
+</ul>
+<p><strong>第 2步，删除应用目录</strong>：</p>
+<ul>
+<li><code>sudo rm -rf &quot;/Applications/Python x.x&quot;</code></li>
+</ul>
+<p><strong>第 3 步，删除指向 Python 的连接</strong>：</p>
+<figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">cd <span class="regexp">/usr/</span>local<span class="regexp">/bin/</span></span><br><span class="line">ls -l <span class="regexp">/usr/</span>local<span class="regexp">/bin | grep '../</span>Library<span class="regexp">/Frameworks/</span>Python.framework<span class="regexp">/Versions/</span>x.x<span class="string">' | awk '</span>&#123;print <span class="variable">$9</span>&#125;<span class="string">' | tr -d @ | xargs rm12</span></span><br></pre></td></tr></table></figure>
+<p>至此，我们已经成功删除 Python 的相关文件，其中<code>x.x</code>为 Python 的版本号。</p>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color2">python</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+      
+
+      <div style="font-size: 12px;">
+        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
+      </div>
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2018/01/01/mac下删除python/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
     <article id="post-MySQL-select子查询引用变量" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
@@ -1091,327 +1478,9 @@
 
 
   
-    <article id="post-vi-vim使用手册" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2017/12/13/vi-vim使用手册/">vi vim使用手册</a>
-    </h1>
-  
-
-        
-        <a href="/2017/12/13/vi-vim使用手册/" class="archive-article-date">
-  	<time datetime="2017-12-13T10:48:08.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2017-12-13</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p><strong>[ 查找 ]</strong></p>
-<p>查找，也可以做为一种快速移动的方式。</p>
-<p>”<strong>/</strong>“是向下查找，而”<strong>?</strong>“进行反方向查找</p>
-<p>命令”<strong>n</strong>“重复上一次的查找命令，而命令”<strong>N</strong>“也重复上一次的查找命令，只不过它按相反方向查找。</p>
-<p>gg 到顶端</p>
-<p>GG到底端</p>
-<p>vim保存了查找的历史记录，你可以在输入”<strong>/</strong>“或”<strong>?</strong>“后，用上、下光标键(或CTRL-P/CTRL-N)翻看历史记录，然后再次执行这个查找。</p>
-<p>另外你还可以使用”<strong>q/</strong>“和”<strong>q?</strong>“命令，在vim窗口最下面打开一个新的窗口，这个窗口会列出你的查找历史记录，你可以使用任何vim编辑命令对此窗口的内容进行编辑，然后再按回车，就会对光标所在的行的内容进行查找。</p>
-<p>比如想跳转到文本的第12行，可以执行如下命令：</p>
-<p>（1）12gg / 12G</p>
-<p>（2）:12</p>
-<p>（3）打开文件时输入vim +12 filename</p>
-<p>文本中想查看当前行信息，可输入： <strong>Ctrl + g</strong></p>
-<h2 id="1、Vim用快捷键快速移动光标至行首"><a href="#1、Vim用快捷键快速移动光标至行首" class="headerlink" title="1、Vim用快捷键快速移动光标至行首"></a>1、Vim用快捷键快速移动光标至行首</h2><p>​         1）按home键</p>
-<p>​         2）按住shift + 6 键</p>
-<p>​         3）按住大写 I 键，按住了这个键之后文本是可以编辑的，然后我通过按住大学 A 回到行首的话，我需要先按住Esc键之后才能，再去按住A键，才能回到行首，感觉有点不方便推荐使用home键，不管是可以编辑还是不可以编辑都适合。</p>
-<h2 id="2、Vim用快捷键快速移动光标至行尾"><a href="#2、Vim用快捷键快速移动光标至行尾" class="headerlink" title="2、Vim用快捷键快速移动光标至行尾"></a>2、Vim用快捷键快速移动光标至行尾</h2><p>​        1）按end键</p>
-<p>​        2）按住shift + 4</p>
-<p>​        3）按住大写 A 键，按住了这个键之后文本是可以编辑的，然后我通过按住大学 I 回到行尾的话，我需要先按住Esc键之后才能，再去按住I键，才能回到行首，感觉有点不方便推荐使用end键，不管是可以编辑还是不可以编辑都适合。</p>
-<h1 id="起因"><a href="#起因" class="headerlink" title="起因"></a>起因</h1><p>在一般的情况下,如果开发过程中测试报告了一个问题,我一般会这么做:</p>
-<p>1.在自己的开发环境下重试一下测试的操作,看看能不能重现问题.不行转2</p>
-<p>2.数据库连接池改成测试库的地址,在自己的开发环境下重试一下测试的操作,看看能不能重现问题.不行转3</p>
-<p>3.去测试环境查看日志.分析问题.</p>
-<h1 id="快速定位问题"><a href="#快速定位问题" class="headerlink" title="快速定位问题"></a>快速定位问题</h1><p>去测试环境查看日志,分析问题的时候.因为我Linux命令也不是很熟悉.所以查看日志内容比较累..我以前的做法是下载日志以后在windows环境下利用文本编辑器定位问题.</p>
-<p>但是有时候日志比较大,有几百MB甚至几个GB….下载下来要N长时间…打开也需要占用不少内存….让人受不了…</p>
-<p>有次机会我发现架构师是用vim去查看日志的..</p>
-<p>所以我也在自己的机器上安装了vim..并试了试,发现确实很好用….</p>
-<p>所以我现在查看日志是这样的:</p>
-<p>先</p>
-<figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">vim</span> 日志名称</span><br></pre></td></tr></table></figure>
-<p> 进入日志…进去以后一般测试报告问题都会有一小段日志的截图.要找到这段日志我觉得最关键的就是利用日志的时间.所以只要搜索这个日志记录的时间就行了.</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/搜索关键字</span><br></pre></td></tr></table></figure>
-<p><img src="http://images2015.cnblogs.com/blog/721497/201602/721497-20160216153833814-1097473665.jpg" alt="img"></p>
-<p>比如我知道测试报告的问题中时间是发生在今天14点的..那我就输入/2016-02-16 14:..:..就可以了….</p>
-<p>.是任意字符的意思.和正则表达式差不多…我就不细说了…</p>
-<p>按下回车以后就可以搜索.按n可以查找下一个.按N可以查找上一个.</p>
-<p>另外可以输入:set hls去设置查找到的关键字高亮.就像我图中那样…</p>
-<p>搜索完毕要回到原来的输入地方只要按ctrl+o就可以了..</p>
-<p>这样查找定位问题效率真的很高….只要日志是详细的就一定能很快发现问题…</p>
-<p>总之利用vim去搜索比下载日志再去看真的方便太多了….</p>
-
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">vi</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-      
-
-      <div style="font-size: 12px;">
-        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
-      </div>
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2017/12/13/vi-vim使用手册/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
-    <article id="post-guava集合api学习" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2017/11/30/guava集合api学习/">guava集合api学习</a>
-    </h1>
-  
-
-        
-        <a href="/2017/11/30/guava集合api学习/" class="archive-article-date">
-  	<time datetime="2017-11-30T07:09:25.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2017-11-30</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>1，大纲</p>
-<p>让我们来熟悉瓜娃，并体验下它的一些API,分成如下几个部分：</p>
-<ul>
-<li><strong>Introduction</strong></li>
-<li><strong>Guava Collection API</strong></li>
-<li><strong>Guava Basic Utilities</strong></li>
-<li><strong>IO API</strong></li>
-<li><strong>Cache API</strong></li>
-</ul>
-<p>2，为神马选择瓜娃？</p>
-<ul>
-<li>瓜娃是java API蛋糕上的冰激凌（精华）</li>
-<li>高效设计良好的API.</li>
-<li>被google的开发者设计，实现和使用。</li>
-<li>遵循高效的java这本书的好的语法实践。</li>
-<li>使代码更刻度，简洁，简单。</li>
-<li>使用java 1.5的特性，</li>
-<li>流行的API，动态的开发</li>
-<li>它提供了大量相关的应用类，集合，多线程，比较，字符串，输入输出，缓存，网络，原生类型，数学，反射等等</li>
-<li>百分百的单元测试，被很多的项目使用，帮助开发者专注业务逻辑而不是写java应用类</li>
-<li>节省时间，资源，提高生产力</li>
-<li>我的目的是为基本的java特征提供开源代码的支持，而不是自己再写一个</li>
-<li>Apache Common库-Apache是一个很好的成熟的库，但是不支持泛型，Apache对早起的java版本很有用，（1.5之前的）</li>
-<li>java7，java8 最新的java支持一些guava的API</li>
-</ul>
-<p>guava最新的正式版本是14.0-rc2，这个版本需要java1.6支持.</p>
-<p>最新的maven坐标是：</p>
-<dependency><br><groupid>com.google.guava</groupid><br><artifactid>guava</artifactid><br><version>14.0-rc2</version><br></dependency>
-
-<p>3,集合API的使用</p>
-<p>　　3.1简化工作</p>
-<p>可以简化集合的创建和初始化；</p>
-<table>
-<thead>
-<tr>
-<th><strong>类别</strong></th>
-<th><strong>原来的写法</strong></th>
-<th><strong>guava的写法</strong></th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><strong>集合创建</strong></td>
-<td>Map<string, map<string,="" string="">&gt; map = new HashMap<string, map<string,string="">&gt;();List<list<map<string, string="">&gt;&gt; list = new ArrayList<list<map<string,string>&gt;&gt;();</list<map<string,string></list<map<string,></string,></string,></td>
-<td>Map<string, map<string,="" string="">&gt; map = Maps.newHashMap();List<list<map<string, string="">&gt;&gt; list = Lists.newArrayList();//1,简化集合的创建List<person> personList= Lists.newLinkedList();Set<person> personSet= Sets.newHashSet();Map<string,person> personMap= Maps.newHashMap();Integer[] intArrays= ObjectArrays.newArray(Integer.class,10);</string,person></person></person></list<map<string,></string,></td>
-</tr>
-<tr>
-<td><strong>集合初始化</strong></td>
-<td>Set<string> set = new HashSet<string>();set.add(“one”);set.add(“two”);set.add(“three”);</string></string></td>
-<td>Set<string> set = Sets.newHashSet(“one”,”two”,”three”);List<string> list = Lists.newArrayList(“one”,”two”,”three”);Map<string, string=""> map = ImmutableMap.of(“ON”,”TRUE”,”OFF”,”FALSE”);//2,简化集合的初始化List<person> personList2= Lists.newArrayList(new Person(1, 1, “a”, “46546”, 1, 20),new Person(2, 1, “a”, “46546”, 1, 20));Set<person> personSet2= Sets.newHashSet(new Person(1,1,”a”,”46546”,1,20),new Person(2,1,”a”,”46546”,1,20));Map<string,person> personMap2= ImmutableMap.of(“hello”,new Person(1,1,”a”,”46546”,1,20),”fuck”,new Person(2,1,”a”,”46546”,1,20));</string,person></person></person></string,></string></string></td>
-</tr>
-</tbody>
-</table>
-<p>3.2 不变性</p>
-<p>很大一部分是google集合提供了不变性，不变对比可变：</p>
-<ul>
-<li>数据不可改变</li>
-<li>线程安全</li>
-<li>不需要同步逻辑</li>
-<li>可以被自由的共享</li>
-<li>容易设计和实现</li>
-<li>内存和时间高效</li>
-</ul>
-<p>不变对比不可修改</p>
-<p>google的不变被确保真正不可改变，而不可修改实际上还是可以修改数据；如下所示：</p>
-<p>Set<integer> data = new HashSet<integer>();</integer></integer></p>
-<p>data.addAll(Arrays.asList(10, 20, 30, 40, 50, 60, 70, 80));</p>
-<p>Set<integer> fixedData = Collections.unmodifiableSet(data); // fixedData - [50, 70, 80, 20, 40, 10, 60, 30]</integer></p>
-<p>data.add(90); // fixedData - [50, 70, 80, 20, 40, 10, 90, 60, 30]</p>
-<p>如何创建不可变的集合：</p>
-<p>ImmutableSet<integer> numbers = <strong>ImmutableSet.of(10, 20, 30, 40, 50);</strong></integer></p>
-<p>使用copyOf方法</p>
-<p>ImmutableSet<integer> another = <strong>mmutableSet.copyOf(numbers);</strong></integer></p>
-<p>使用Builder方法</p>
-<p>ImmutableSet<integer> numbers2 = <strong>ImmutableSet.<integer>builder().addAll(numbers) .add(60) .add(70).add(80).build();</integer></strong></integer></p>
-<p>//3,创建不可变的集合</p>
-<p>ImmutableList<person> personImmutableList=<br>ImmutableList.of(new Person(1, 1, “a”, “46546”, 1, 20), new Person(2, 1, “a”, “46546”, 1, 20));</person></p>
-<p>ImmutableSet<person> personImmutableSet=ImmutableSet.copyOf(personSet2);</person></p>
-<p>ImmutableMap<string,person> personImmutableMap=ImmutableMap.<string,person>builder()<br>.put(“hell”,new Person(1,1,”a”,”46546”,1,20)).putAll(personMap2) .build();</string,person></string,person></p>
-<p>3.3 新的集合类型</p>
-<p>The Guava API provides very useful new collection types that work very nicely with existing java collections.</p>
-<p>guava API 提供了有用的新的集合类型，协同已经存在的java集合工作的很好。</p>
-<p>分别是 MultiMap， MultiSet， Table， BiMap， ClassToInstanceMap</p>
-<table>
-<thead>
-<tr>
-<th>种类</th>
-<th>写的例子</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>MultiMap</td>
-<td>一种key可以重复的map，子类有ListMultimap和SetMultimap，对应的通过key分别得到list和setMultimap<string, person=""> customersByType =ArrayListMultimap.create();customersByType.put(“abc”, new Person(1, 1, “a”, “46546”, 1, 20));customersByType.put(“abc”, new Person(1, 1, “a”, “46546”, 1, 30));customersByType.put(“abc”, new Person(1, 1, “a”, “46546”, 1, 40));customersByType.put(“abc”, new Person(1, 1, “a”, “46546”, 1, 50));customersByType.put(“abcd”, new Person(1, 1, “a”, “46546”, 1, 50));customersByType.put(“abcde”, new Person(1, 1, “a”, “46546”, 1, 50));for(Person person:customersByType.get(“abc”)){System.out.println(person.getAge());}</string,></td>
-</tr>
-<tr>
-<td>MultiSet</td>
-<td>不是集合，可以增加重复的元素，并且可以统计出重复元素的个数，例子如下：private static void testMulitiSet() {Multiset<integer> multiSet = HashMultiset.create();multiSet.add(10);multiSet.add(30);multiSet.add(30);multiSet.add(40);System.out.println( multiSet.count(30)); // 2System.out.println( multiSet.size());    //4}</integer></td>
-</tr>
-<tr>
-<td>Table</td>
-<td>相当于有两个key的map，不多解释private static void testTable() {Table<integer,integer,person> personTable=HashBasedTable.create();personTable.put(1,20,new Person(1, 1, “a”, “46546”, 1, 20));personTable.put(0,30,new Person(2, 1, “ab”, “46546”, 0, 30));personTable.put(0,25,new Person(3, 1, “abc”, “46546”, 0, 25));personTable.put(1,50,new Person(4, 1, “aef”, “46546”, 1, 50));personTable.put(0,27,new Person(5, 1, “ade”, “46546”,0, 27));personTable.put(1,29,new Person(6, 1, “acc”, “46546”, 1, 29));personTable.put(0,33,new Person(7, 1, “add”, “46546”,0, 33));personTable.put(1,66,new Person(8, 1, “afadsf”, “46546”, 1, 66));//1,得到行集合Map<integer,person> rowMap= personTable.row(0);int maxAge= Collections.max(rowMap.keySet());}</integer,person></integer,integer,person></td>
-</tr>
-<tr>
-<td>BiMap</td>
-<td>是一个一一映射，可以通过key得到value，也可以通过value得到key； private static void testBitMap() {//双向mapBiMap<integer,string> biMap=HashBiMap.create();biMap.put(1,”hello”);biMap.put(2,”helloa”);biMap.put(3,”world”);biMap.put(4,”worldb”);biMap.put(5,”my”);biMap.put(6,”myc”);int value= biMap.inverse().get(“my”);System.out.println(“my –”+value);}</integer,string></td>
-</tr>
-<tr>
-<td>ClassToInstanceMap</td>
-<td>有的时候，你的map的key并不是一种类型，他们是很多类型，你想通过映射他们得到这种类型，guava提供了ClassToInstanceMap满足了这个目的。 除了继承自Map接口，ClassToInstaceMap提供了方法 <a href="http://docs.guava-libraries.googlecode.com/git-history/release/javadoc/com/google/common/collect/ClassToInstanceMap.html#getInstance(java.lang.Class" target="_blank" rel="external">T getInstance(Class)</a>) 和 <a href="http://docs.guava-libraries.googlecode.com/git-history/release/javadoc/com/google/common/collect/ClassToInstanceMap.html#putInstance(java.lang.Class,java.lang.Object" target="_blank" rel="external">T putInstance(Class, T)</a>),消除了强制类型转换。 该类有一个简单类型的参数，通常称为B，代表了map控制的上层绑定，例如： <code>ClassToInstanceMap&lt;Number&gt; numberDefaults = MutableClassToInstanceMap.create();numberDefaults.putInstance(Integer.class, Integer.valueOf(0));</code>从技术上来说，<code>ClassToInstanceMap&lt;B&gt;</code> 实现了<code>Map&lt;Class&lt;? extends B&gt;, B&gt;，或者说，这是一个从B的子类到B对象的映射，这可能使得</code>ClassToInstanceMap的泛型轻度混乱，但是只要记住B总是Map的上层绑定类型，通常来说B只是一个对象。guava提供了有用的实现， <a href="http://docs.guava-libraries.googlecode.com/git-history/release/javadoc/com/google/common/collect/MutableClassToInstanceMap.html" target="_blank" rel="external">MutableClassToInstanceMap</a> 和 <a href="http://docs.guava-libraries.googlecode.com/git-history/release/javadoc/com/google/common/collect/ImmutableClassToInstanceMap.html" target="_blank" rel="external">ImmutableClassToInstanceMap</a>.重点：像其他的Map<class,object>,<code>ClassToInstanceMap</code> 含有的原生类型的项目，一个原生类型和他的相应的包装类可以映射到不同的值；private static void testClass() {ClassToInstanceMap<person> classToInstanceMap =MutableClassToInstanceMap.create();Person person= new Person(1,20,”abc”,”46464”,1,100);classToInstanceMap.putInstance(Person.class,person);// System.out.println(“string:”+classToInstanceMap.getInstance(String.class));// System.out.println(“integer:” + classToInstanceMap.getInstance(Integer.class));Person person1=classToInstanceMap.getInstance(Person.class);}</person></class,object></td>
-</tr>
-</tbody>
-</table>
-<p>3.4 谓词和筛选</p>
-<p>谓词（Predicate）是用来筛选集合的；</p>
-<p>谓词是一个简单的接口，只有一个方法返回布尔值，但是他是一个很令人惊讶的集合方法，当你结合collections2.filter方法使用，这个筛选方法返回原来的集合中满足这个谓词接口的元素；</p>
-<p>举个例子来说：筛选出集合中的女人</p>
-<figure class="highlight haxe"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> void main(<span class="keyword">String</span>[] args)</span><br><span class="line"></span><br><span class="line">&#123;</span><br><span class="line"></span><br><span class="line">Optional&lt;ImmutableMultiset&lt;Person&gt;&gt; optional=Optional.fromNullable(testPredict());</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span>(optional.isPresent())</span><br><span class="line"></span><br><span class="line">&#123;</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span>(Person p:<span class="type">optional</span>.<span class="keyword">get</span>())</span><br><span class="line"></span><br><span class="line">&#123;</span><br><span class="line"></span><br><span class="line">System.out.println(<span class="string">"女人："</span>+p);</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">System.out.println(optional.isPresent());</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> ImmutableMultiset&lt;Person&gt; testPredict()</span><br><span class="line"></span><br><span class="line">&#123;</span><br><span class="line"></span><br><span class="line">List&lt;Person&gt; personList=Lists.<span class="keyword">new</span><span class="type">ArrayList</span>(<span class="keyword">new</span> <span class="type">Person</span>(<span class="number">1</span>, <span class="number">1</span>, <span class="string">"a"</span>, <span class="string">"46546"</span>, <span class="number">1</span>, <span class="number">20</span>),</span><br><span class="line"></span><br><span class="line"><span class="keyword">new</span> <span class="type">Person</span>(<span class="number">2</span>, <span class="number">1</span>, <span class="string">"ab"</span>, <span class="string">"46546"</span>, <span class="number">0</span>, <span class="number">30</span>),</span><br><span class="line"></span><br><span class="line"><span class="keyword">new</span> <span class="type">Person</span>(<span class="number">3</span>, <span class="number">1</span>, <span class="string">"abc"</span>, <span class="string">"46546"</span>, <span class="number">0</span>, <span class="number">25</span>),</span><br><span class="line"></span><br><span class="line"><span class="keyword">new</span> <span class="type">Person</span>(<span class="number">4</span>, <span class="number">1</span>, <span class="string">"aef"</span>, <span class="string">"46546"</span>, <span class="number">1</span>, <span class="number">50</span>),</span><br><span class="line"></span><br><span class="line"><span class="keyword">new</span> <span class="type">Person</span>(<span class="number">5</span>, <span class="number">1</span>, <span class="string">"ade"</span>, <span class="string">"46546"</span>,<span class="number">0</span>, <span class="number">27</span>),</span><br><span class="line"></span><br><span class="line"><span class="keyword">new</span> <span class="type">Person</span>(<span class="number">6</span>, <span class="number">1</span>, <span class="string">"acc"</span>, <span class="string">"46546"</span>, <span class="number">1</span>, <span class="number">29</span>),</span><br><span class="line"></span><br><span class="line"><span class="keyword">new</span> <span class="type">Person</span>(<span class="number">7</span>, <span class="number">1</span>, <span class="string">"add"</span>, <span class="string">"46546"</span>,<span class="number">0</span>, <span class="number">33</span>));</span><br><span class="line"></span><br><span class="line"><span class="keyword">return</span> ImmutableMultiset.copyOf(Collections2.filter(personList,<span class="keyword">new</span> <span class="type">Predicate</span>&lt;Person&gt;() &#123;</span><br><span class="line"></span><br><span class="line">@Override</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> boolean apply( Person input) &#123;</span><br><span class="line"></span><br><span class="line"><span class="keyword">return</span> input.getSex()==<span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">&#125;));</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>Predicates含有一些内置的筛选方法，比如说 in ,and ,not等，根据实际情况选择使用。</p>
-<p>3.5 功能和转换</p>
-<p>转换一个集合为另外一个集合；</p>
-<p>实例如下：</p>
-<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"></span><br><span class="line">public static void main(String[] args)</span><br><span class="line"></span><br><span class="line">&#123;</span><br><span class="line"></span><br><span class="line">Optional&lt;ImmutableMultiset&lt;String&gt;&gt; optional=Optional.fromNullable(testTransform());</span><br><span class="line"></span><br><span class="line"><span class="attribute">if(optional.isPresent())</span></span><br><span class="line"><span class="attribute"></span></span><br><span class="line"><span class="attribute">&#123;</span></span><br><span class="line"><span class="attribute"></span></span><br><span class="line">for(String p:optional.get())</span><br><span class="line"></span><br><span class="line">&#123;</span><br><span class="line"></span><br><span class="line"><span class="attribute">System.out.println("名字："+p);</span></span><br><span class="line"><span class="attribute"></span></span><br><span class="line"><span class="attribute">&#125;</span></span><br><span class="line"><span class="attribute"></span></span><br><span class="line"><span class="attribute">&#125;</span></span><br><span class="line"><span class="attribute"></span></span><br><span class="line"><span class="attribute">System.out.println(optional.isPresent());</span></span><br><span class="line"><span class="attribute"></span></span><br><span class="line"><span class="attribute">&#125;</span></span><br><span class="line"><span class="attribute"></span></span><br><span class="line">public static ImmutableMultiset&lt;String&gt; testTransform()</span><br><span class="line"></span><br><span class="line">&#123;</span><br><span class="line"></span><br><span class="line">List&lt;Person&gt; personList=Lists.newArrayList(new Person(1, 1, "a", "46546", 1, 20),</span><br><span class="line"></span><br><span class="line">new Person(2, 1, "ab", "46546", 0, 30),</span><br><span class="line"></span><br><span class="line">new Person(3, 1, "abc", "46546", 0, 25),</span><br><span class="line"></span><br><span class="line">new Person(4, 1, "aef", "46546", 1, 50),</span><br><span class="line"></span><br><span class="line">new Person(5, 1, "ade", "46546",0, 27),</span><br><span class="line"></span><br><span class="line">new Person(6, 1, "acc", "46546", 1, 29),</span><br><span class="line"></span><br><span class="line">new Person(7, 1, "add", "46546",0, 33));</span><br><span class="line"></span><br><span class="line">return ImmutableMultiset.copyOf(Lists.transform(personList,new Function&lt;Person, String&gt;() &#123;</span><br><span class="line"></span><br><span class="line">@Override</span><br><span class="line"></span><br><span class="line">public String apply( Person input) &#123;</span><br><span class="line"></span><br><span class="line">return input.getName();</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">&#125;));</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>3.6 排序</p>
-<p> 是guava一份非常灵活的比较类，可以被用来操作，扩展，当作比较器，排序提供了集合排序的很多控制；</p>
-<p>实例如下：</p>
-<figure class="highlight haxe"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br></pre></td><td class="code"><pre><span class="line">Lists.<span class="keyword">new</span><span class="type">ArrayList</span>(<span class="number">30</span>, <span class="number">20</span>, <span class="number">60</span>, <span class="number">80</span>, <span class="number">10</span>);</span><br><span class="line"></span><br><span class="line">Ordering.natural().sortedCopy(numbers); <span class="comment">//10,20,30,60,80</span></span><br><span class="line"></span><br><span class="line">Ordering.natural().reverse().sortedCopy(numbers); <span class="comment">//80,60,30,20,10</span></span><br><span class="line"></span><br><span class="line">Ordering.natural().min(numbers); <span class="comment">//10</span></span><br><span class="line"></span><br><span class="line">Ordering.natural().max(numbers); <span class="comment">//80</span></span><br><span class="line"></span><br><span class="line">Lists.<span class="keyword">new</span><span class="type">ArrayList</span>(<span class="number">30</span>, <span class="number">20</span>, <span class="number">60</span>, <span class="number">80</span>, <span class="literal">null</span>, <span class="number">10</span>);</span><br><span class="line"></span><br><span class="line">Ordering.natural().nullsLast().sortedCopy(numbers); <span class="comment">//10, 20,30,60,80,null</span></span><br><span class="line"></span><br><span class="line">Ordering.natural().nullsFirst().sortedCopy(numbers); <span class="comment">//null,10,20,30,60,80</span></span><br><span class="line"></span><br><span class="line"> </span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> void testOrdering()</span><br><span class="line"></span><br><span class="line">&#123;</span><br><span class="line"></span><br><span class="line">List&lt;Person&gt; personList=Lists.<span class="keyword">new</span><span class="type">ArrayList</span>(</span><br><span class="line"></span><br><span class="line"><span class="keyword">new</span> <span class="type">Person</span>(<span class="number">3</span>, <span class="number">1</span>, <span class="string">"abc"</span>, <span class="string">"46546"</span>, <span class="number">0</span>, <span class="number">25</span>),</span><br><span class="line"></span><br><span class="line"><span class="keyword">new</span> <span class="type">Person</span>(<span class="number">2</span>, <span class="number">1</span>, <span class="string">"ab"</span>, <span class="string">"46546"</span>, <span class="number">0</span>, <span class="number">30</span>),</span><br><span class="line"></span><br><span class="line"><span class="keyword">new</span> <span class="type">Person</span>(<span class="number">5</span>, <span class="number">1</span>, <span class="string">"ade"</span>, <span class="string">"46546"</span>,<span class="number">0</span>, <span class="number">27</span>),</span><br><span class="line"></span><br><span class="line"><span class="keyword">new</span> <span class="type">Person</span>(<span class="number">1</span>, <span class="number">1</span>, <span class="string">"a"</span>, <span class="string">"46546"</span>, <span class="number">1</span>, <span class="number">20</span>),</span><br><span class="line"></span><br><span class="line"><span class="keyword">new</span> <span class="type">Person</span>(<span class="number">6</span>, <span class="number">1</span>, <span class="string">"acc"</span>, <span class="string">"46546"</span>, <span class="number">1</span>, <span class="number">29</span>),</span><br><span class="line"></span><br><span class="line"><span class="keyword">new</span> <span class="type">Person</span>(<span class="number">4</span>, <span class="number">1</span>, <span class="string">"aef"</span>, <span class="string">"46546"</span>, <span class="number">1</span>, <span class="number">50</span>),</span><br><span class="line"></span><br><span class="line"><span class="keyword">new</span> <span class="type">Person</span>(<span class="number">7</span>, <span class="number">1</span>, <span class="string">"add"</span>, <span class="string">"46546"</span>,<span class="number">0</span>, <span class="number">33</span>)</span><br><span class="line"></span><br><span class="line">);</span><br><span class="line"></span><br><span class="line">Ordering&lt;Person&gt; byAge=<span class="keyword">new</span> <span class="type">Ordering</span>&lt;Person&gt;() &#123;</span><br><span class="line"></span><br><span class="line">@Override</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> int compare( Person left, Person right) &#123;</span><br><span class="line"></span><br><span class="line"><span class="keyword">return</span> right.getAge()-left.getAge();</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span>(Person p: <span class="type">byAge</span>.immutableSortedCopy(personList))</span><br><span class="line"></span><br><span class="line">&#123;</span><br><span class="line"></span><br><span class="line">System.out.println(p);</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">guava</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-      
-
-      <div style="font-size: 12px;">
-        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
-      </div>
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2017/11/30/guava集合api学习/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
   
     <nav id="page-nav">
-      <a class="extend prev" rel="prev" href="/page/5/">&laquo; Prev</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/4/">4</a><a class="page-number" href="/page/5/">5</a><span class="page-number current">6</span><a class="page-number" href="/page/7/">7</a><a class="page-number" href="/page/8/">8</a><span class="space">&hellip;</span><a class="page-number" href="/page/10/">10</a><a class="extend next" rel="next" href="/page/7/">Next &raquo;</a>
+      <a class="extend prev" rel="prev" href="/page/5/">&laquo; Prev</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/4/">4</a><a class="page-number" href="/page/5/">5</a><span class="page-number current">6</span><a class="page-number" href="/page/7/">7</a><a class="page-number" href="/page/8/">8</a><span class="space">&hellip;</span><a class="page-number" href="/page/11/">11</a><a class="extend next" rel="next" href="/page/7/">Next &raquo;</a>
     </nav>
   
 
@@ -1506,15 +1575,15 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
           <ul class="article-tag-list" q-show="showTags">
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">Dubbo</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">AngularJS</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">ops</a>
+                <a href="javascript:void(0)" class="js-tag color3">java并发包</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">Dubbo</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1522,7 +1591,7 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">Maven</a>
+                <a href="javascript:void(0)" class="js-tag color4">ops</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1534,11 +1603,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">java内存模型</a>
+                <a href="javascript:void(0)" class="js-tag color1">Maven</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">java并发包</a>
+                <a href="javascript:void(0)" class="js-tag color4">java内存模型</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1554,11 +1623,15 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">mysql</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">test</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">mysql</a>
+                <a href="javascript:void(0)" class="js-tag color3">限流</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1567,10 +1640,6 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">react</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">限流</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1586,11 +1655,15 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">guava</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">elastic-job</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">guava</a>
+                <a href="javascript:void(0)" class="js-tag color5">rest</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1602,14 +1675,6 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">rest</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">python</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">Mac</a>
               </li>
              
@@ -1618,7 +1683,15 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">python</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">mybatis</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">分布式锁</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1627,10 +1700,6 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">zookeeper</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">分布式锁</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1662,11 +1731,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">单例</a>
+                <a href="javascript:void(0)" class="js-tag color3">HashMap</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">HashMap</a>
+                <a href="javascript:void(0)" class="js-tag color3">单例</a>
               </li>
              
               <li class="article-tag-list-item">
