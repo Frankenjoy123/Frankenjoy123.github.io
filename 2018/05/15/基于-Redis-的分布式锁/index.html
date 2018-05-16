@@ -8,19 +8,21 @@
   <meta name="renderer" content="webkit">
   <meta http-equiv="X-UA-Compatible" content="IE=edge" >
   <link rel="dns-prefetch" href="http://yoursite.com">
-  <title>善用佳软@liuxiang | xiaowu&#39;s blog</title>
+  <title>基于 Redis 的分布式锁 | xiaowu&#39;s blog</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="效率工具| 软件类型 | soft | site | ———— | ———— | ———— | | 本地文件搜索 | Everything Search Engine| http://www.voidtools.com/ || 本地文件搜索 | 极客桌面搜索 | http://f.jicer.cn/ || 本地文件搜索 | 光速搜索 || 本地全文检索 | filelocatorpro | htt">
-<meta name="keywords" content="善用佳软">
+  <meta name="description" content="前言分布式锁在分布式应用中应用广泛，想要搞懂一个新事物首先得了解它的由来，这样才能更加的理解甚至可以举一反三。 首先谈到分布式锁自然也就联想到分布式应用。 在我们将应用拆分为分布式应用之前的单机系统中，对一些并发场景读取公共资源时如扣库存，卖车票之类的需求可以简单的使用同步或者是加锁就可以实现。 但是应用分布式了之后系统由以前的单进程多线程的程序变为了多进程多线程，这时使用以上的解决方案明显就不够">
+<meta name="keywords" content="分布式锁">
 <meta property="og:type" content="article">
-<meta property="og:title" content="善用佳软@liuxiang">
-<meta property="og:url" content="http://yoursite.com/2013/05/30/善用佳软/index.html">
+<meta property="og:title" content="基于 Redis 的分布式锁">
+<meta property="og:url" content="http://yoursite.com/2018/05/15/基于-Redis-的分布式锁/index.html">
 <meta property="og:site_name" content="xiaowu&#39;s blog">
-<meta property="og:description" content="效率工具| 软件类型 | soft | site | ———— | ———— | ———— | | 本地文件搜索 | Everything Search Engine| http://www.voidtools.com/ || 本地文件搜索 | 极客桌面搜索 | http://f.jicer.cn/ || 本地文件搜索 | 光速搜索 || 本地全文检索 | filelocatorpro | htt">
-<meta property="og:updated_time" content="2017-12-19T05:35:04.000Z">
+<meta property="og:description" content="前言分布式锁在分布式应用中应用广泛，想要搞懂一个新事物首先得了解它的由来，这样才能更加的理解甚至可以举一反三。 首先谈到分布式锁自然也就联想到分布式应用。 在我们将应用拆分为分布式应用之前的单机系统中，对一些并发场景读取公共资源时如扣库存，卖车票之类的需求可以简单的使用同步或者是加锁就可以实现。 但是应用分布式了之后系统由以前的单进程多线程的程序变为了多进程多线程，这时使用以上的解决方案明显就不够">
+<meta property="og:image" content="https://ws2.sinaimg.cn/large/006tKfTcgy1fpxho866hbj311u0ej42f.jpg">
+<meta property="og:updated_time" content="2018-05-15T10:49:35.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="善用佳软@liuxiang">
-<meta name="twitter:description" content="效率工具| 软件类型 | soft | site | ———— | ———— | ———— | | 本地文件搜索 | Everything Search Engine| http://www.voidtools.com/ || 本地文件搜索 | 极客桌面搜索 | http://f.jicer.cn/ || 本地文件搜索 | 光速搜索 || 本地全文检索 | filelocatorpro | htt">
+<meta name="twitter:title" content="基于 Redis 的分布式锁">
+<meta name="twitter:description" content="前言分布式锁在分布式应用中应用广泛，想要搞懂一个新事物首先得了解它的由来，这样才能更加的理解甚至可以举一反三。 首先谈到分布式锁自然也就联想到分布式应用。 在我们将应用拆分为分布式应用之前的单机系统中，对一些并发场景读取公共资源时如扣库存，卖车票之类的需求可以简单的使用同步或者是加锁就可以实现。 但是应用分布式了之后系统由以前的单进程多线程的程序变为了多进程多线程，这时使用以上的解决方案明显就不够">
+<meta name="twitter:image" content="https://ws2.sinaimg.cn/large/006tKfTcgy1fpxho866hbj311u0ej42f.jpg">
   
     <link rel="alternative" href="/atom.xml" title="xiaowu&#39;s blog" type="application/atom+xml">
   
@@ -154,288 +156,109 @@
             <canvas data-colors="#eaeaea" data-sectionHeight="100" data-contentId="js-content" id="myCanvas1" class="anm-canvas"></canvas>
           </div>
           <div id="js-content" class="content-ll">
-            <article id="post-善用佳软" class="article article-type-post " itemscope itemprop="blogPost">
+            <article id="post-基于-Redis-的分布式锁" class="article article-type-post " itemscope itemprop="blogPost">
   <div class="article-inner">
     
       <header class="article-header">
         
   
     <h1 class="article-title" itemprop="name">
-      善用佳软@liuxiang
+      基于 Redis 的分布式锁
     </h1>
   
 
         
-        <a href="/2013/05/30/善用佳软/" class="archive-article-date">
-  	<time datetime="2013-05-29T16:00:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2013-05-30</time>
+        <a href="/2018/05/15/基于-Redis-的分布式锁/" class="archive-article-date">
+  	<time datetime="2018-05-15T10:41:02.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-05-15</time>
 </a>
         
       </header>
     
     <div class="article-entry" itemprop="articleBody">
       
-        <h1 id="效率工具"><a href="#效率工具" class="headerlink" title="效率工具"></a>效率工具</h1><p>| 软件类型 | soft | site</p>
-<p>| ———— | ———— | ———— |</p>
-<p>| 本地文件搜索 | Everything Search Engine| <a href="http://www.voidtools.com/" target="_blank" rel="external">http://www.voidtools.com/</a> |<br>| 本地文件搜索 | 极客桌面搜索 | <a href="http://f.jicer.cn/" target="_blank" rel="external">http://f.jicer.cn/</a> |<br>| 本地文件搜索 | 光速搜索 |<br>| 本地全文检索 | filelocatorpro | <a href="http://www.mythicsoft.com/filelocatorpro" target="_blank" rel="external">http://www.mythicsoft.com/filelocatorpro</a>  |<br>|  快速启动器   | win +Ｒ（环境变量）|<br>|  快速启动 器   | Wow |   <a href="http://www.getwox.com/" target="_blank" rel="external">http://www.getwox.com/</a>  |<br>|  快速启动 器   |  Rolan  |   <a href="https://www.irolan.com/" target="_blank" rel="external">https://www.irolan.com/</a>  |<br>|  快速启动 器   | AutoHotkey自定义快捷键, |</p>
-<p>|  桌面布局   | Fences 栅栏， TAGO-Fences  |<br>| 系统程序转托盘图标 | Minime SaphuA |<br>| 系统程序栏位置调整 | Taskbar Shuffle |<br>| 隐藏任务栏程序 | Minime ，App Hide ，Trayconizer, Hide Taskbar[Ctrl+Esc].exe |<br>| 轻松调整任务栏图标 | 网生代 |</p>
-<p>| [快速查看文件夹大小] | Welcome to JAM Software|</p>
-<p>| [快速查看文件夹大小] | Quick View Folder Size|<br>| [快速查看文件夹大小] | TreeSize Free |<br>| [快速查看文件夹大小] | TDP x-Ray Lite(饼状图磁盘管理工具)|<br>| 文件批量重命名 | antrenamer2 |</p>
-<p>| 文件批量重命名  |  renamer  |<br>| 思维导图 | xMind |<br>| 下载工具 |  aria2(多线程多协议并发下载工具) |  <a href="https://aria2.github.io/" target="_blank" rel="external">https://aria2.github.io/</a>  <br> <a href="http://ziahamza.github.io/webui-aria2/" target="_blank" rel="external">http://ziahamza.github.io/webui-aria2/</a><br>| 差异比较工具 |  BCompare |<br>| OCR | 汉王PDF |<br>| OCR | 文通TH-OCR |<br>| 小游戏 | 超级无敌五子棋.exe |<br>| 录屏 | GifCam.exe<br>| 录屏 | screen_recorder_setup 录屏.exe</p>
-<p>| 录屏 | ScreenToGif -  Preview 7.exe<br>| TXT文件分割器 | TXTCutter</p>
-<p>| U盘 | AS SSD Benchmark<br>| U盘 | ATTO Disk Benchmarks</p>
-<p>| U盘 | 金山U盘卫士4.0 提取版.zip</p>
-<p>| U盘 |  chipgenius_v4_00_0030.exe </p>
-<p>| U盘 |  FlashGenius.exe</p>
-<p>| U盘 | MyDiskTest.exe</p>
-<p>| U盘 |  sdktest 慧荣方案主控更新CDROM和格式化工具 SMI.exe</p>
-<p>| 环境变量工具 | 环境变量 rapidee.exe<br>| 局域网共享 | 局域网共享设置超级工具.exe</p>
-<p>| 局域网共享 |  局域网共享设置.exe</p>
-<p>| 图片压缩 | Caesium_boxed 中文绿色单文件版.exe<br>| 整站下载器 | HTTrack_Portable<br>| 软件变速 | [变速精灵]speeder.exe<br>| [单文件执行程序制作] | quick bfc.rar<br>| [单文件执行程序制作] |   Cameyo-1.7.597.exe</p>
-<p>| [制作exe文件] | ExeScript211.exe</p>
-<p>| 记录应用使用时间 |Hronos.exe<br>| [截图工具] | SnippingTool.exe</p>
-<p>|[在线远程] | TeamViewer，WebConnector |<br>| 环境变量 | 快速环境编辑器(Rapid Environment Editor)  | <a href="https://www.rapidee.com/en/download" target="_blank" rel="external">https://www.rapidee.com/en/download</a></p>
-<h1 id="科学上网"><a href="#科学上网" class="headerlink" title="科学上网"></a>科学上网</h1><p>| 软件类型 | soft | site<br>| 科学上网  |  shadowsocks|<br>| 科学上网  |    sockscap64(应用网络代理为 socks ) +  shadowsocks（ socks 网络翻墙） | <a href="https://www.sockscap64.com/" target="_blank" rel="external">https://www.sockscap64.com/</a><br>| 科学上网 |  冰果VPN | </p>
-<p>| 科学上网 |  BINET</p>
-<p>| 科学上网 |  实时更新的hosts.cmd | </p>
-<p>| 科学上网 |  MASS | </p>
-<hr>
-<h1 id="开发相关工具"><a href="#开发相关工具" class="headerlink" title="开发相关工具"></a>开发相关工具</h1><table>
-<thead>
-<tr>
-<th>软件类型</th>
-<th>soft</th>
-<th>site</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>[JD-GUI]v3.3.0</td>
-<td>[JD-GUI]Suggestions Java Decompiler</td>
-</tr>
-<tr>
-<td>数据库工具</td>
-<td>PDMReader数据字典阅读器(PowerDesigner的辅助工具)</td>
-</tr>
-<tr>
-<td>数据库工具</td>
-<td>dbeaver-3.4.4-win32.win32.x86_64.zip</td>
-</tr>
-</tbody>
-</table>
-<p>| 数据库工具 |  datagrip-2016.3.4.exe<br>| 数据库工具 |  sqlexplorer_rcp-3.6.1.win32.win32.x86-JRE.zip<br>| 数据库工具 | SQLyog10.zip</p>
-<p>| 数据库工具-mysql |  HeidiSQL_9.1_Portable.zip</p>
-<p>| 数据库工具-mysql |  navicat111_premium</p>
-<p>| 数据库工具-mysql |  phpMyAdmin-4.3.6-all-languages.zip</p>
-<p>| 数据库工具-oracle | oracle客户端  instantclient-basic-windows.x64-12.1.0.2.0.zip</p>
-<p>| 数据库工具-oracle | plsql<br>| ionic |  Ionic小助手 V1.7.rar<br>| wiki | jamwiki-1.3.2-src.zip<br>| 内网隧道 | ngrok</p>
-<p>| 网络调试 | postman<br>| UML 建模 | UML Lab Modeling IDE 效果图.png<br>| UML 建模 | edrawmax-cn 亿图</p>
-<p>| UML 建模 | ERWin 7.3.zip</p>
-<p>| UML 建模 | Navicat Data Modeler mysql数据库模型</p>
-<p>| UML 建模 | powerdesign</p>
-<p>| UML 建模 | StarUML 类图-韩国</p>
-<p>| UML 建模 | yEd UML 流程图</p>
-<p>| web服务容器 | nginx<br>| web服务容器 |  yWebServer</p>
-<p>| web服务容器 |  MyWebServer</p>
-<h1 id="wosai"><a href="#wosai" class="headerlink" title="wosai"></a>wosai</h1><table>
-<thead>
-<tr>
-<th>soft</th>
-<th>desc</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>wosai 车联网</td>
-<td>OpenGTS</td>
-</tr>
-<tr>
-<td>wosai 车联网</td>
-<td>exlive</td>
-</tr>
-</tbody>
-</table>
-<h1 id="linux工具"><a href="#linux工具" class="headerlink" title="linux工具"></a>linux工具</h1><table>
-<thead>
-<tr>
-<th>soft</th>
-<th>desc</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>linux工具</td>
-<td>Xshell5 0991.exe</td>
-</tr>
-</tbody>
-</table>
-<p>| linux工具 | SecureCRT-v7.3.4.zip</p>
-<h1 id="java性能问题分析工具"><a href="#java性能问题分析工具" class="headerlink" title="java性能问题分析工具"></a>java性能问题分析工具</h1><table>
-<thead>
-<tr>
-<th>soft</th>
-<th>desc</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>[GC分析]gcviewer-1.29-bin.tar.gz</td>
-<td><a href="https://github.com/chewiebug/GCViewer" target="_blank" rel="external">https://github.com/chewiebug/GCViewer</a>   <a href="http://sourceforge.net/projects/gcviewer/" target="_blank" rel="external">http://sourceforge.net/projects/gcviewer/</a></td>
-</tr>
-<tr>
-<td>堆栈分析-IBM</td>
-<td>Java Memory Analyzer Tool (MAT) <a href="https://www.ibm.com/developerworks/" target="_blank" rel="external">https://www.ibm.com/developerworks/</a></td>
-</tr>
-<tr>
-<td>堆栈分析-diy</td>
-<td>jstackAnalyse.java</td>
-</tr>
-<tr>
-<td>堆栈分析</td>
-<td>TAD <a href="https://java.net/projects/tda" target="_blank" rel="external">https://java.net/projects/tda</a></td>
-</tr>
-<tr>
-<td>[堆栈分析]IBM</td>
-<td>jca.rar</td>
-</tr>
-<tr>
-<td>[堆栈分析] jhat</td>
-<td>apache-tomcat-7.0.39/conf# <code>jhat tomcat.bin</code> </td>
-</tr>
-<tr>
-<td>[堆栈分析]samurai.zip</td>
-<td>samurai.jar v2.1.6</td>
-<td>发布处:<a href="http://yusuke.homeip.net/samurai/en/index.html" target="_blank" rel="external">http://yusuke.homeip.net/samurai/en/index.html</a> </td>
-</tr>
-<tr>
-<td>[堆栈分析]samurai.zip</td>
-<td>samurai.bat &gt; <code>java -jar samurai.jar</code></td>
-<td><a href="http://yusuke.homeip.net/samurai/en/samurai.jar" target="_blank" rel="external">http://yusuke.homeip.net/samurai/en/samurai.jar</a></td>
-</tr>
-<tr>
-<td>[dump内存分析]</td>
-<td>IBM HeapAnalyzer (MAT) <a href="https://www.ibm.com/developerworks/" target="_blank" rel="external">https://www.ibm.com/developerworks/</a></td>
-</tr>
-<tr>
-<td>[dump内存分析]</td>
-<td>Memory Analyzer (MAT)， MemoryAnalyzer</td>
-<td><a href="http://www.eclipse.org/mat/" target="_blank" rel="external">http://www.eclipse.org/mat/</a></td>
-</tr>
-<tr>
-<td>各分析工具(tad,jca,HeapAnalyzer… )分享</td>
-<td>The Dumps ,terIngo Rockel’s Blog博客 <a href="http://www.jroller.com/dumpster/" target="_blank" rel="external">http://www.jroller.com/dumpster/</a></td>
-</tr>
-</tbody>
-</table>
+        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>分布式锁在分布式应用中应用广泛，想要搞懂一个新事物首先得了解它的由来，这样才能更加的理解甚至可以举一反三。</p>
+<p>首先谈到分布式锁自然也就联想到分布式应用。</p>
+<p>在我们将应用拆分为分布式应用之前的单机系统中，对一些并发场景读取公共资源时如扣库存，卖车票之类的需求可以简单的使用<a href="http://crossoverjie.top/2018/01/14/Synchronize/" target="_blank" rel="external">同步</a>或者是<a href="http://crossoverjie.top/2018/01/25/ReentrantLock/" target="_blank" rel="external">加锁</a>就可以实现。</p>
+<p>但是应用分布式了之后系统由以前的单进程多线程的程序变为了多进程多线程，这时使用以上的解决方案明显就不够了。</p>
+<p>因此业界常用的解决方案通常是借助于一个第三方组件并利用它自身的排他性来达到多进程的互斥。如：</p>
 <ul>
-<li>有时你dump出来的堆很大，在启动时会报堆空间不足的错误，可以使用如下参数:<br><code>jhat -J-Xmx512m &lt;heap dump file&gt;</code></li>
+<li>基于 DB 的唯一索引。</li>
+<li>基于 ZK 的临时有序节点。</li>
+<li>基于 Redis 的 <code>NX EX</code> 参数。</li>
 </ul>
-<h1 id="java服务器资源监控"><a href="#java服务器资源监控" class="headerlink" title="java服务器资源监控"></a>java服务器资源监控</h1><table>
-<thead>
-<tr>
-<th>soft</th>
-<th>desc</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>jprofiler</td>
-<td><a href="http://www.ej-technologies.com/" target="_blank" rel="external">http://www.ej-technologies.com/</a></td>
-</tr>
-<tr>
-<td>Perfino</td>
-<td>JVM的强大的监控解决方案</td>
-</tr>
-<tr>
-<td>YourKit</td>
-<td><a href="https://www.yourkit.com/java/profiler/index.jsp" target="_blank" rel="external">https://www.yourkit.com/java/profiler/index.jsp</a></td>
-</tr>
-<tr>
-<td>jvisualvm &amp; jconsole</td>
-<td>JDK 自带监控工具</td>
-</tr>
-</tbody>
-</table>
-<h1 id="java中类与类之间的关系工具-eclipse"><a href="#java中类与类之间的关系工具-eclipse" class="headerlink" title="java中类与类之间的关系工具(eclipse)"></a>java中类与类之间的关系工具(eclipse)</h1><table>
-<thead>
-<tr>
-<th>类型</th>
-<th>soft</th>
-<th>site</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>java类模型</td>
-<td>CDA</td>
-<td><a href="http://www.dependency-analyzer.org/" target="_blank" rel="external">http://www.dependency-analyzer.org/</a></td>
-</tr>
-<tr>
-<td>java类模型</td>
-<td>CAP（Code Analysis Plugin）</td>
-<td><a href="http://cap.xore.de/" target="_blank" rel="external">http://cap.xore.de/</a></td>
-</tr>
-<tr>
-<td>java类模型</td>
-<td>ModelGoon（Java 包的依赖分析的Eclipse插件）</td>
-</tr>
-<tr>
-<td>java类模型</td>
-<td>Snowberry(Eclipse的Java类图插件 Snowberry)</td>
-</tr>
-</tbody>
-</table>
-<h1 id="system-Tool"><a href="#system-Tool" class="headerlink" title="system Tool"></a>system Tool</h1><table>
-<thead>
-<tr>
-<th>类型</th>
-<th>soft</th>
-<th>site</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td></td>
-</tr>
-</tbody>
-</table>
-<p>| 磁盘分区 | 傲梅分区 |</p>
-<p>| 磁盘分区 | Acronis Disk Director Suite V11.0.0.216 |</p>
-<p>| TDP x-Ray Lite | 饼状图磁盘管理工具 |</p>
-<p>| 系统任务|SystemExplorer|<br>| 硬件瓶颈 | SystemMonitor|<br>| 系统优化 | Dism++10.1.6.3A_Full |</p>
-<p>| 网卡工具 | MMSU 纵横网络多网卡工具(双网卡同时上网) mmsu_setup.exe|</p>
-<h1 id="安全工具"><a href="#安全工具" class="headerlink" title="安全工具"></a>安全工具</h1><table>
-<thead>
-<tr>
-<th>类型</th>
-<th>soft</th>
-<th>site</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td></td>
-</tr>
-</tbody>
-</table>
-<p>| 抓包 |  fiddler |<br>| 抓包 |  wsexplorer  |<br>| 抓包 |  Wireshark  |<br>| 抓包 |  HTTP Analyzer Full Edition  |<br>| 抓包 |  Betwixt-windows |</p>
-<p>| 抓包 |  smsniff TCPIP网络数据包捕获 |</p>
-<h1 id="it资源分享"><a href="#it资源分享" class="headerlink" title="it资源分享"></a>it资源分享</h1><table>
-<thead>
-<tr>
-<th>类型</th>
-<th>soft</th>
-<th>site</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>在线ppt</td>
-<td>slideshare</td>
-<td><a href="https://www.slideshare.net/" target="_blank" rel="external">https://www.slideshare.net/</a></td>
-</tr>
-</tbody>
-</table>
-<a id="more"></a>
+<p>这里主要基于 Redis 进行讨论。</p>
+<h2 id="实现"><a href="#实现" class="headerlink" title="实现"></a>实现</h2><p>既然是选用了 Redis，那么它就得具有排他性才行。同时它最好也有锁的一些基本特性：</p>
+<ul>
+<li>高性能(加、解锁时高性能)</li>
+<li>可以使用阻塞锁与非阻塞锁。</li>
+<li>不能出现死锁。</li>
+<li>可用性(不能出现节点 down 掉后加锁失败)。</li>
+</ul>
+<p>这里利用 <code>Redis set key</code> 时的一个 NX 参数可以保证在这个 key 不存在的情况下写入成功。并且再加上 EX 参数可以让该 key 在超时之后自动删除。</p>
+<p>所以利用以上两个特性可以保证在同一时刻只会有一个进程获得锁，并且不会出现死锁(最坏的情况就是超时自动删除 key)。</p>
+<h3 id="加锁"><a href="#加锁" class="headerlink" title="加锁"></a>加锁</h3><p>实现代码如下：</p>
+<figure class="highlight processing"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">String</span> SET_IF_NOT_EXIST = <span class="string">"NX"</span>;</span><br><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">String</span> SET_WITH_EXPIRE_TIME = <span class="string">"PX"</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span>  <span class="built_in">boolean</span> tryLock(<span class="keyword">String</span> <span class="built_in">key</span>, <span class="keyword">String</span> request) &#123;</span><br><span class="line">    <span class="keyword">String</span> result = <span class="keyword">this</span>.jedis.<span class="built_in">set</span>(LOCK_PREFIX + <span class="built_in">key</span>, request, SET_IF_NOT_EXIST, SET_WITH_EXPIRE_TIME, <span class="number">10</span> * TIME);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (LOCK_MSG.equals(result))&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">true</span> ;</span><br><span class="line">    &#125;<span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">false</span> ;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>注意这里使用的 jedis 的</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">String <span class="keyword">set</span>(<span class="keyword">String</span> <span class="keyword">key</span>, <span class="keyword">String</span> <span class="keyword">value</span>, <span class="keyword">String</span> nxxx, <span class="keyword">String</span> expx, <span class="keyword">long</span> <span class="keyword">time</span>);</span><br></pre></td></tr></table></figure>
+<p>api。</p>
+<p>该命令可以保证 NX EX 的原子性。</p>
+<p>一定不要把两个命令(NX EX)分开执行，如果在 NX 之后程序出现问题就有可能产生死锁。</p>
+<h4 id="阻塞锁"><a href="#阻塞锁" class="headerlink" title="阻塞锁"></a>阻塞锁</h4><p>同时也可以实现一个阻塞锁：</p>
+<figure class="highlight processing"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//一直阻塞</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> lock(<span class="keyword">String</span> <span class="built_in">key</span>, <span class="keyword">String</span> request) <span class="keyword">throws</span> InterruptedException &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> (;;)&#123;</span><br><span class="line">        <span class="keyword">String</span> result = <span class="keyword">this</span>.jedis.<span class="built_in">set</span>(LOCK_PREFIX + <span class="built_in">key</span>, request, SET_IF_NOT_EXIST, SET_WITH_EXPIRE_TIME, <span class="number">10</span> * TIME);</span><br><span class="line">        <span class="keyword">if</span> (LOCK_MSG.equals(result))&#123;</span><br><span class="line">            <span class="keyword">break</span> ;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line"> <span class="comment">//防止一直消耗 CPU 	</span></span><br><span class="line">        Thread.sleep(DEFAULT_SLEEP_TIME) ;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"> <span class="comment">//自定义阻塞时间</span></span><br><span class="line"> <span class="keyword">public</span> <span class="built_in">boolean</span> lock(<span class="keyword">String</span> <span class="built_in">key</span>, <span class="keyword">String</span> request,<span class="built_in">int</span> blockTime) <span class="keyword">throws</span> InterruptedException &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span> (blockTime &gt;= <span class="number">0</span>)&#123;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">String</span> result = <span class="keyword">this</span>.jedis.<span class="built_in">set</span>(LOCK_PREFIX + <span class="built_in">key</span>, request, SET_IF_NOT_EXIST, SET_WITH_EXPIRE_TIME, <span class="number">10</span> * TIME);</span><br><span class="line">        <span class="keyword">if</span> (LOCK_MSG.equals(result))&#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">true</span> ;</span><br><span class="line">        &#125;</span><br><span class="line">        blockTime -= DEFAULT_SLEEP_TIME ;</span><br><span class="line"></span><br><span class="line">        Thread.sleep(DEFAULT_SLEEP_TIME) ;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">false</span> ;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="解锁"><a href="#解锁" class="headerlink" title="解锁"></a>解锁</h3><p>解锁也很简单，其实就是把这个 key 删掉就万事大吉了，比如使用 <code>del key</code> 命令。</p>
+<p>但现实往往没有那么 easy。</p>
+<p>如果进程 A 获取了锁设置了超时时间，但是由于执行周期较长导致到了超时时间之后锁就自动释放了。这时进程 B 获取了该锁执行很快就释放锁。这样就会出现进程 B 将进程 A 的锁释放了。</p>
+<p>所以最好的方式是在每次解锁时都需要判断锁<strong>是否是自己</strong>的。</p>
+<p>这时就需要结合加锁机制一起实现了。</p>
+<p>加锁时需要传递一个参数，将该参数作为这个 key 的 value，这样每次解锁时判断 value 是否相等即可。</p>
+<p>所以解锁代码就不能是简单的 <code>del</code>了。</p>
+<figure class="highlight processing"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span>  <span class="built_in">boolean</span> unlock(<span class="keyword">String</span> <span class="built_in">key</span>,<span class="keyword">String</span> request)&#123;</span><br><span class="line">    <span class="comment">//lua script</span></span><br><span class="line">    <span class="keyword">String</span> script = <span class="string">"if redis.call('get', KEYS[1]) == ARGV[1] then return redis.call('del', KEYS[1]) else return 0 end"</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">Object</span> result = <span class="keyword">null</span> ;</span><br><span class="line">    <span class="keyword">if</span> (jedis <span class="keyword">instanceof</span> Jedis)&#123;</span><br><span class="line">        result = ((Jedis)<span class="keyword">this</span>.jedis).eval(script, Collections.singletonList(LOCK_PREFIX + <span class="built_in">key</span>), Collections.singletonList(request));</span><br><span class="line">    &#125;<span class="keyword">else</span> <span class="keyword">if</span> (jedis <span class="keyword">instanceof</span> JedisCluster)&#123;</span><br><span class="line">        result = ((JedisCluster)<span class="keyword">this</span>.jedis).eval(script, Collections.singletonList(LOCK_PREFIX + <span class="built_in">key</span>), Collections.singletonList(request));</span><br><span class="line">    &#125;<span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="comment">//throw new RuntimeException("instance is error") ;</span></span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">false</span> ;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (UNLOCK_MSG.equals(result))&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">true</span> ;</span><br><span class="line">    &#125;<span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">false</span> ;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这里使用了一个 <code>lua</code> 脚本来判断 value 是否相等，相等才执行 del 命令。</p>
+<p>使用 <code>lua</code> 也可以保证这里两个操作的原子性。</p>
+<p>因此上文提到的四个基本特性也能满足了：</p>
+<ul>
+<li>使用 Redis 可以保证性能。</li>
+<li>阻塞锁与非阻塞锁见上文。</li>
+<li>利用超时机制解决了死锁。</li>
+<li>Redis 支持集群部署提高了可用性。</li>
+</ul>
+<h2 id="使用"><a href="#使用" class="headerlink" title="使用"></a>使用</h2><p>我自己有撸了一个完整的实现，并且已经用于了生产，有兴趣的朋友可以开箱使用:</p>
+<p>maven 依赖：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>top.crossoverjie.opensource<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>distributed-redis-lock<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>1.0.0<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>配置 bean :</p>
+<figure class="highlight haxe"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">@Configuration</span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">RedisLockConfig</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    @Bean</span><br><span class="line">    <span class="keyword">public</span> RedisLock build()&#123;</span><br><span class="line">        RedisLock redisLock = <span class="keyword">new</span> <span class="type">RedisLock</span>() ;</span><br><span class="line">        HostAndPort hostAndPort = <span class="keyword">new</span> <span class="type">HostAndPort</span>(<span class="string">"127.0.0.1"</span>,<span class="number">7000</span>) ;</span><br><span class="line">        JedisCluster jedisCluster = <span class="keyword">new</span> <span class="type">JedisCluster</span>(hostAndPort) ;</span><br><span class="line">        <span class="comment">// Jedis 或 JedisCluster 都可以</span></span><br><span class="line">        redisLock.setJedisCluster(jedisCluster) ;</span><br><span class="line">        <span class="keyword">return</span> redisLock ;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>使用：</p>
+<figure class="highlight processing"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">@Autowired</span><br><span class="line"><span class="keyword">private</span> RedisLock redisLock ;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> use() &#123;</span><br><span class="line">    <span class="keyword">String</span> <span class="built_in">key</span> = <span class="string">"key"</span>;</span><br><span class="line">    <span class="keyword">String</span> request = UUID.randomUUID().toString();</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        <span class="built_in">boolean</span> locktest = redisLock.tryLock(<span class="built_in">key</span>, request);</span><br><span class="line">        <span class="keyword">if</span> (!locktest) &#123;</span><br><span class="line">            System.out.<span class="built_in">println</span>(<span class="string">"locked error"</span>);</span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">        <span class="comment">//do something</span></span><br><span class="line"></span><br><span class="line">    &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">        redisLock.unlock(<span class="built_in">key</span>,request) ;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>使用很简单。这里主要是想利用 Spring 来帮我们管理 RedisLock 这个单例的 bean，所以在释放锁的时候需要手动(因为整个上下文只有一个 RedisLock 实例)的传入 key 以及 request(api 看起来不是特别优雅)。</p>
+<p>也可以在每次使用锁的时候 new 一个 RedisLock 传入 key 以及 request，这样倒是在解锁时很方便。但是需要自行管理 RedisLock 的实例。各有优劣吧。</p>
+<p>项目源码在：</p>
+<p><a href="https://github.com/crossoverJie/distributed-lock-redis" target="_blank" rel="external">https://github.com/crossoverJie/distributed-lock-redis</a></p>
+<p>欢迎讨论。</p>
+<h2 id="单测"><a href="#单测" class="headerlink" title="单测"></a>单测</h2><p>在做这个项目的时候让我不得不想提一下<strong>单测</strong>。</p>
+<p>因为这个应用是强依赖于第三方组件的(Redis)，但是在单测中我们需要排除掉这种依赖。比如其他伙伴 fork 了该项目想在本地跑一遍单测，结果运行不起来：</p>
+<ol>
+<li>有可能是 Redis 的 ip、端口和单测里的不一致。</li>
+<li>Redis 自身可能也有问题。</li>
+<li>也有可能是该同学的环境中并没有 Redis。</li>
+</ol>
+<p>所以最好是要把这些外部不稳定的因素排除掉，单测只测我们写好的代码。</p>
+<p>于是就可以引入单测利器 <code>Mock</code> 了。</p>
+<p>它的想法很简答，就是要把你所依赖的外部资源统统屏蔽掉。如：数据库、外部接口、外部文件等等。</p>
+<p>使用方式也挺简单，可以参考该项目的单测：</p>
+<figure class="highlight pf"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">@Test</span><br><span class="line">public void tryLock() throws Exception &#123;</span><br><span class="line">    String key = <span class="string">"test"</span>;</span><br><span class="line">    String request = UUID.<span class="keyword">random</span>UUID().<span class="keyword">to</span>String();</span><br><span class="line">    Mockito.when(jedisCluster.<span class="built_in">set</span>(Mockito.<span class="literal">any</span>String(), Mockito.<span class="literal">any</span>String(), Mockito.<span class="literal">any</span>String(),</span><br><span class="line">            Mockito.<span class="literal">any</span>String(), Mockito.<span class="literal">any</span>Long())).thenReturn(<span class="string">"OK"</span>);</span><br><span class="line"></span><br><span class="line">    boolean locktest = redisLock.tryLock(key, request);</span><br><span class="line">    System.<span class="keyword">out</span>.println(<span class="string">"locktest="</span> + locktest);</span><br><span class="line"></span><br><span class="line">    Assert.assertTrue(locktest);</span><br><span class="line"></span><br><span class="line">    //check</span><br><span class="line">    Mockito.verify(jedisCluster).<span class="built_in">set</span>(Mockito.<span class="literal">any</span>String(), Mockito.<span class="literal">any</span>String(), Mockito.<span class="literal">any</span>String(),</span><br><span class="line">            Mockito.<span class="literal">any</span>String(), Mockito.<span class="literal">any</span>Long());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这里只是简单演示下，可以的话下次仔细分析分析。</p>
+<p>它的原理其实也挺简单，debug 的话可以很直接的看出来：</p>
+<p><a href="https://ws2.sinaimg.cn/large/006tKfTcgy1fpxho866hbj311u0ej42f.jpg" target="_blank" rel="external"><img src="https://ws2.sinaimg.cn/large/006tKfTcgy1fpxho866hbj311u0ej42f.jpg" alt="img"></a></p>
+<p>这里我们所依赖的 JedisCluster 其实是一个 <code>cglib 代理对象</code>。所以也不难想到它是如何工作的。</p>
+<p>比如这里我们需要用到 JedisCluster 的 set 函数并需要它的返回值。</p>
+<p>Mock 就将该对象代理了，并在实际执行 set 方法后给你返回了一个你自定义的值。</p>
+<p>这样我们就可以随心所欲的测试了，<strong>完全把外部依赖所屏蔽了</strong>。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>至此一个基于 Redis 的分布式锁完成，但是依然有些问题。</p>
+<ul>
+<li>如在 key 超时之后业务并没有执行完毕但却自动释放锁了，这样就会导致并发问题。</li>
+<li>就算 Redis 是集群部署的，如果每个节点都只是 master 没有 slave，那么 master 宕机时该节点上的所有 key 在那一时刻都相当于是释放锁了，这样也会出现并发问题。就算是有 slave 节点，但如果在数据同步到 salve 之前 master 宕机也是会出现上面的问题。</li>
+</ul>
+<p>感兴趣的朋友还可以参考 <a href="https://github.com/redisson/redisson" target="_blank" rel="external">Redisson</a> 的实现。</p>
 
       
 
@@ -470,24 +293,13 @@
 		<ul class="article-tag-list">
 			 
         		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">善用佳软</a>
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">分布式锁</a>
         		</li>
       		
 		</ul>
 	</div>
 
       
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/善用佳软//" class="article-tag-list-link color5">善用佳软</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
 
       <div style="font-size: 12px;">
         此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
@@ -540,7 +352,7 @@
     <a class="close js-modal-close" href="javascript:;"><i class="icon icon-close"></i></a>
     <p>扫一扫，分享到微信</p>
     <div class="wx-qrcode">
-      <img src="http://s.jiathis.com/qrcode.php?url=http://yoursite.com/2013/05/30/善用佳软/" alt="微信分享二维码">
+      <img src="http://s.jiathis.com/qrcode.php?url=http://yoursite.com/2018/05/15/基于-Redis-的分布式锁/" alt="微信分享二维码">
     </div>
 </div>
 
@@ -554,18 +366,9 @@
   
 <nav id="article-nav">
   
-    <a href="/2015/10/07/JVM参数配置/" id="article-nav-newer" class="article-nav-link-wrap">
-      <i class="icon-circle-left"></i>
-      <div class="article-nav-title">
-        
-          JVM参数配置
-        
-      </div>
-    </a>
   
-  
-    <a href="/2012/03/01/jdk工具命令——jstack查看系统线程堆栈/" id="article-nav-older" class="article-nav-link-wrap">
-      <div class="article-nav-title">jdk工具命令——jstack查看系统线程堆栈</div>
+    <a href="/2018/05/15/Disruptor并发框架上手demo/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">Disruptor并发框架上手demo</div>
       <i class="icon-circle-right"></i>
     </a>
   

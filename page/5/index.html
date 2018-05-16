@@ -151,6 +151,240 @@
           <div id="js-content" class="content-ll">
             
   
+    <article id="post-influxdb用法" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2018/03/07/influxdb用法/">influxdb用法</a>
+    </h1>
+  
+
+        
+        <a href="/2018/03/07/influxdb用法/" class="archive-article-date">
+  	<time datetime="2018-03-07T07:57:59.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-03-07</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><hr>
+<p>influxdb是目前比较流行的时间序列数据库。</p>
+<ul>
+<li>何谓时间序列数据库？<br>什么是时间序列数据库，最简单的定义就是数据格式里包含Timestamp字段的数据，比如某一时间环境的温度，CPU的使用率等。但是，有什么数据不包含Timestamp呢？几乎所有的数据其实都可以打上一个Timestamp字段。时间序列数据的更重要的一个属性是如何去查询它，包括数据的过滤，计算等等。</li>
+</ul>
+<h4 id="Influxdb"><a href="#Influxdb" class="headerlink" title="Influxdb"></a>Influxdb</h4><p>Influxdb是一个开源的分布式时序、时间和指标数据库，使用go语言编写，无需外部依赖。<br>它有三大特性：</p>
+<ol>
+<li>时序性（Time Series）：与时间相关的函数的灵活使用（诸如最大、最小、求和等）；</li>
+<li>度量（Metrics）：对实时大量数据进行计算；</li>
+<li>事件（Event）：支持任意的事件数据，换句话说，任意事件的数据我们都可以做操作。</li>
+</ol>
+<p>同时，它有以下几大特点：</p>
+<ul>
+<li>schemaless(无结构)，可以是任意数量的列；</li>
+<li>min, max, sum, count, mean, median 一系列函数，方便统计；</li>
+<li>Native HTTP API, 内置http支持，使用http读写；</li>
+<li>Powerful Query Language 类似sql；</li>
+<li>Built-in Explorer 自带管理工具。</li>
+</ul>
+<h3 id="Influxdb安装"><a href="#Influxdb安装" class="headerlink" title="Influxdb安装"></a>Influxdb安装</h3><hr>
+<blockquote>
+<p>注：本文使用的influxdb version是1.0.2</p>
+</blockquote>
+<p>在讲解具体的安装步骤之前，先说说influxdb的两个http端口：8083和8086</p>
+<ul>
+<li>port 8083：管理页面端口，访问localhost:8083可以进入你本机的influxdb管理页面；</li>
+<li>port 8086：http连接influxdb client端口，一般使用该端口往本机的influxdb读写数据。</li>
+</ul>
+<p><strong>OS X</strong></p>
+<figure class="highlight mipsasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">brew </span>update</span><br><span class="line"><span class="keyword">brew </span><span class="keyword">install </span>influxdb</span><br></pre></td></tr></table></figure>
+<p><strong>Docker Image</strong></p>
+<figure class="highlight ebnf"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">docker pull influxdb</span></span><br></pre></td></tr></table></figure>
+<p><strong>Ubuntu &amp; Debian</strong></p>
+<figure class="highlight vim"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">wget http<span class="variable">s:</span>//<span class="keyword">dl</span>.influxdata.<span class="keyword">com</span>/influxdb/releases/influxdb_1.<span class="number">0.2</span>_amd64.<span class="keyword">deb</span></span><br><span class="line">sudo dpkg -i influxdb_1.<span class="number">0.2</span>_amd64.<span class="keyword">deb</span></span><br></pre></td></tr></table></figure>
+<p><strong>RedHat &amp; CentOS</strong></p>
+<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">wget https:<span class="comment">//dl.influxdata.com/influxdb/releases/influxdb-1.0.2.x86_64.rpm</span></span><br><span class="line">sudo yum localinstall influxdb-<span class="number">1.0</span>.<span class="number">2</span><span class="selector-class">.x86_64</span><span class="selector-class">.rpm</span></span><br></pre></td></tr></table></figure>
+<p><strong>Standalone Linux Binaries (64-bit)</strong></p>
+<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">wget https:<span class="comment">//dl.influxdata.com/influxdb/releases/influxdb-1.0.2_linux_amd64.tar.gz  </span></span><br><span class="line">tar xvfz influxdb-<span class="number">1.0</span>.<span class="number">2</span>_linux_amd64<span class="selector-class">.tar</span><span class="selector-class">.gz</span></span><br></pre></td></tr></table></figure>
+<p><strong>Standalone Linux Binaries (32-bit)</strong></p>
+<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">wget https:<span class="comment">//dl.influxdata.com/influxdb/releases/influxdb-1.0.2_linux_i386.tar.gz</span></span><br><span class="line">tar xvfz influxdb-<span class="number">1.0</span>.<span class="number">2</span>_linux_i386<span class="selector-class">.tar</span><span class="selector-class">.gz</span></span><br></pre></td></tr></table></figure>
+<p><strong>Standalone Linux Binaries (ARM)</strong></p>
+<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">wget https:<span class="comment">//dl.influxdata.com/influxdb/releases/influxdb-1.0.2_linux_armhf.tar.gz</span></span><br><span class="line">tar xvfz influxdb-<span class="number">1.0</span>.<span class="number">2</span>_linux_armhf<span class="selector-class">.tar</span><span class="selector-class">.gz</span></span><br></pre></td></tr></table></figure>
+<p><strong>How to start？</strong><br>安装完之后，如何启动呢？</p>
+<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo<span class="built_in"> service </span>influxdb start</span><br></pre></td></tr></table></figure>
+<p>到这里influxdb安装启动完成，可以访问influxdb管理页面：<a href="https://link.jianshu.com?t=http://localhost:8083" target="_blank" rel="external">本地管理页面</a>，该版本没有登录用户及密码，可以自行设置读写的用户名和密码。</p>
+<p><strong>如何在命令行使用</strong><br>安装完毕之后，如何在命令行使用呢？</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/3994601-9cc22a93bb379d76.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/573" alt="img"></p>
+<p>influxdb在命令行中使用</p>
+<h3 id="influxdb基本操作"><a href="#influxdb基本操作" class="headerlink" title="influxdb基本操作"></a>influxdb基本操作</h3><hr>
+<h4 id="名词解释"><a href="#名词解释" class="headerlink" title="名词解释"></a>名词解释</h4><p>在具体的讲解influxdb的相关操作之前先说说influxdb的一些专有名词，这些名词代表什么。</p>
+<h5 id="influxdb相关名词"><a href="#influxdb相关名词" class="headerlink" title="influxdb相关名词"></a>influxdb相关名词</h5><ul>
+<li>database：数据库；</li>
+<li>measurement：数据库中的表；</li>
+<li>points：表里面的一行数据。</li>
+</ul>
+<h5 id="influxDB中独有的一些概念"><a href="#influxDB中独有的一些概念" class="headerlink" title="influxDB中独有的一些概念"></a>influxDB中独有的一些概念</h5><p>Point由<strong>时间戳</strong>（time）、<strong>数据</strong>（field）和<strong>标签</strong>（tags）组成。</p>
+<ul>
+<li>time：每条数据记录的时间，也是数据库自动生成的主索引；</li>
+<li>fields：各种记录的值；</li>
+<li>tags：各种有索引的属性。</li>
+</ul>
+<p>还有一个重要的名词：<strong>series</strong><br>所有在数据库中的数据，都需要通过图表来表示，series表示这个表里面的所有的数据可以在图标上画成几条线（注：线条的个数由tags排列组合计算出来）<br>举个简单的小栗子：<br>有如下数据：</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/3994601-f528ff65d64cf860.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/569" alt="img"></p>
+<p>error_time</p>
+<p>它的series为：</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/3994601-cb52cbd8bf20d41b.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/569" alt="img"></p>
+<p>error_time_series</p>
+<h4 id="influxdb基本操作-1"><a href="#influxdb基本操作-1" class="headerlink" title="influxdb基本操作"></a>influxdb基本操作</h4><ul>
+<li><strong>数据库与表的操作</strong><br>可以直接在web管理页面做操作，当然也可以命令行。</li>
+</ul>
+<figure class="highlight vala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#创建数据库</span></span><br><span class="line">create database <span class="string">"db_name"</span></span><br><span class="line"><span class="meta">#显示所有的数据库</span></span><br><span class="line">show databases</span><br><span class="line"><span class="meta">#删除数据库</span></span><br><span class="line">drop database <span class="string">"db_name"</span></span><br><span class="line"><span class="meta">#使用数据库</span></span><br><span class="line">use db_name</span><br><span class="line"><span class="meta">#显示该数据库中所有的表</span></span><br><span class="line">show measurements</span><br><span class="line"><span class="meta">#创建表，直接在插入数据的时候指定表名</span></span><br><span class="line">insert test,host=<span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>,monitor_name=test count=<span class="number">1</span></span><br><span class="line"><span class="meta">#删除表</span></span><br><span class="line">drop measurement <span class="string">"measurement_name"</span></span><br></pre></td></tr></table></figure>
+<ul>
+<li><p>增</p>
+<p>​</p>
+<p>向数据库中插入数据。</p>
+<ul>
+<li>通过命令行</li>
+</ul>
+</li>
+</ul>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">use</span> testDb</span><br><span class="line"><span class="keyword">insert</span> <span class="keyword">test</span>,host=<span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>,monitor_name=<span class="keyword">test</span> <span class="keyword">count</span>=<span class="number">1</span></span><br></pre></td></tr></table></figure>
+<ul>
+<li>通过http接口</li>
+</ul>
+<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl -<span class="selector-tag">i</span> -XPOST <span class="string">'http://127.0.0.1:8086/write?db=testDb'</span> --data-binary <span class="string">'test,host=127.0.0.1,monitor_name=test count=1'</span></span><br></pre></td></tr></table></figure>
+<p>读者看到这里可能会观察到插入的数据的格式貌似比较奇怪，这是因为influxDB存储数据采用的是Line Protocol格式。那么何谓Line Protoco格式？</p>
+<p><strong>Line Protocol格式：</strong>写入数据库的Point的固定格式。<br>在上面的两种插入数据的方法中都有这样的一部分：</p>
+<figure class="highlight lsl"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">test,host=<span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>,monitor_name=test count=<span class="number">1</span></span><br></pre></td></tr></table></figure>
+<p>其中：</p>
+<ol>
+<li>test：表名；</li>
+<li>host=127.0.0.1,monitor_name=test：tag；</li>
+<li>count=1：field</li>
+</ol>
+<p>想对此格式有详细的了解参见<a href="https://link.jianshu.com?t=https://docs.influxdata.com/influxdb/v0.10/write_protocols/line/" target="_blank" rel="external">官方文档</a></p>
+<ul>
+<li><p>查</p>
+<p>​</p>
+<p>查询数据库中的数据。</p>
+<ul>
+<li>通过命令行</li>
+</ul>
+</li>
+</ul>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> <span class="keyword">test</span> <span class="keyword">order</span> <span class="keyword">by</span> <span class="keyword">time</span> <span class="keyword">desc</span></span><br></pre></td></tr></table></figure>
+<ul>
+<li>通过http接口</li>
+</ul>
+<figure class="highlight jboss-cli"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl -G 'http:<span class="string">//localhost</span><span class="function">:8086</span>/query?pretty=<span class="literal">true</span>' <span class="params">--data-urlencode</span> <span class="string">"db=testDb"</span> <span class="params">--data-urlencode</span> <span class="string">"q=select * from test order by time desc"</span></span><br></pre></td></tr></table></figure>
+<p>influxDB是支持类sql语句的，具体的查询语法都差不多，这里就不再做详细的赘述了。</p>
+<ul>
+<li><strong>数据保存策略（Retention Policies）</strong><br>influxDB是没有提供直接删除数据记录的方法，但是提供数据保存策略，主要用于指定数据保留时间，超过指定时间，就删除这部分数据。<ul>
+<li>查看当前数据库Retention Policies</li>
+</ul>
+</li>
+</ul>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">show</span> <span class="keyword">retention</span> policies <span class="keyword">on</span> <span class="string">"db_name"</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://upload-images.jianshu.io/upload_images/3994601-4dbf9942cc0f671a.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/574" alt="img"></p>
+<p>retention_policies</p>
+<ul>
+<li>创建新的Retention Policies</li>
+</ul>
+<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">create retention<span class="built_in"> policy </span><span class="string">"rp_name"</span> on <span class="string">"db_name"</span> duration 3w replication 1 default</span><br></pre></td></tr></table></figure>
+<figure class="highlight haml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">-<span class="ruby">  rp_name：策略名；</span></span><br><span class="line"><span class="ruby">- db_name：具体的数据库名；</span></span><br><span class="line"><span class="ruby">- <span class="number">3</span>w：保存<span class="number">3</span>周，<span class="number">3</span>周之前的数据将被删除，influxdb具有各种事件参数，比如：h（小时），d（天），w（星期）；</span></span><br><span class="line"><span class="ruby">- replication <span class="number">1</span>：副本个数，一般为<span class="number">1</span>就可以了；</span></span><br><span class="line"><span class="ruby">- default：设置为默认策略</span></span><br></pre></td></tr></table></figure>
+<ul>
+<li>修改Retention Policies</li>
+</ul>
+<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">alter retention<span class="built_in"> policy </span><span class="string">"rp_name"</span> on <span class="string">"db_name"</span> duration 30d default</span><br></pre></td></tr></table></figure>
+<ul>
+<li>删除Retention Policies</li>
+</ul>
+<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">drop retention<span class="built_in"> policy </span><span class="string">"rp_name"</span></span><br></pre></td></tr></table></figure>
+<ul>
+<li><p>连续查询（Continous Queries）</p>
+<p>​</p>
+<p>当数据超过保存策略里指定的时间之后就会被删除，但是这时候可能并不想数据被完全删掉，怎么办？</p>
+<p>​</p>
+<p>influxdb提供了联系查询，可以做数据统计采样。</p>
+<ul>
+<li>查看数据库的Continous Queries</li>
+</ul>
+</li>
+</ul>
+<figure class="highlight ebnf"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">show continuous queries</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://upload-images.jianshu.io/upload_images/3994601-d0d2b55ee261869d.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/440" alt="img"></p>
+<p>continuous_queries.</p>
+<ul>
+<li>创建新的Continous Queries</li>
+</ul>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">create</span> continous <span class="keyword">query</span> cq_name <span class="keyword">on</span> db_name <span class="keyword">begin</span> <span class="keyword">select</span> <span class="keyword">sum</span>(<span class="keyword">count</span>) <span class="keyword">into</span> new_table_name <span class="keyword">from</span> table_name <span class="keyword">group</span> <span class="keyword">by</span> <span class="keyword">time</span>(<span class="number">30</span>m) <span class="keyword">end</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight haml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">-<span class="ruby"> cq_name：连续查询名字；</span></span><br><span class="line"><span class="ruby">- db_name：数据库名字；</span></span><br><span class="line"><span class="ruby">- sum(count)：计算总和；</span></span><br><span class="line"><span class="ruby">- table_name：当前表名；</span></span><br><span class="line"><span class="ruby">- new_table_name：存新的数据的表名；</span></span><br><span class="line"><span class="ruby">- <span class="number">30</span>m：时间间隔为<span class="number">30</span>分钟</span></span><br></pre></td></tr></table></figure>
+<ul>
+<li>删除Continous Queries</li>
+</ul>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">drop</span> continous <span class="keyword">query</span> cp_name <span class="keyword">on</span> db_name</span><br></pre></td></tr></table></figure>
+<ul>
+<li><strong>用户管理</strong><br>可以直接在web管理页面做操作，也可以命令行。</li>
+</ul>
+<figure class="highlight clean"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">#显示用户  </span><br><span class="line">show users</span><br><span class="line">#创建用户</span><br><span class="line">create user <span class="string">"username"</span> <span class="keyword">with</span> password <span class="string">'password'</span></span><br><span class="line">#创建管理员权限用户create user <span class="string">"username"</span> <span class="keyword">with</span> password <span class="string">'password'</span> <span class="keyword">with</span> all privileges</span><br><span class="line">#删除用户</span><br><span class="line">drop user <span class="string">"username"</span></span><br></pre></td></tr></table></figure>
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">influxdb</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+      
+
+      <div style="font-size: 12px;">
+        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
+      </div>
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2018/03/07/influxdb用法/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
     <article id="post-Java内存模型" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
@@ -1261,180 +1495,6 @@
 
 
   
-    <article id="post-Python之面向对象研究" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2018/01/06/Python之面向对象研究/">Python之面向对象研究</a>
-    </h1>
-  
-
-        
-        <a href="/2018/01/06/Python之面向对象研究/" class="archive-article-date">
-  	<time datetime="2018-01-06T03:34:58.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-01-06</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p><img src="http://p3.pstatp.com/large/567f000041123875f040" alt="神级程序员为了带实习生入门Python花25天整理最全面向对象教程！"></p>
-<p><img src="http://p9.pstatp.com/large/567e00037f7dfbc29399" alt="神级程序员为了带实习生入门Python花25天整理最全面向对象教程！"></p>
-<p><img src="http://p9.pstatp.com/large/567b000551a057bab929" alt="神级程序员为了带实习生入门Python花25天整理最全面向对象教程！"></p>
-<p>总结：函数式的应用场景 –&gt; 各个函数之间是独立且无共用的数据。</p>
-<h1 id="面向对象三大特性"><a href="#面向对象三大特性" class="headerlink" title="面向对象三大特性"></a>面向对象三大特性</h1><p>面向对象的三大特性是指：封装、继承和多态。</p>
-<p><strong>一、封装</strong></p>
-<p>封装，顾名思义就是将内容封装到某个地方，以后再去调用被封装在某处的内容。小编推荐大家加一下这个群：103456743这个群里好几千人了！大家遇到啥问题都会在里面交流！而且免费分享零基础入门料资料web开发 爬虫资料一整套！是个非常好的学习交流地方！也有程序员大神给大家热心解答各种问题！很快满员了。欲进从速哦！各种PDF等你来下载！全部都是免费的哦！只为帮助大家快速入门，所以小编在群里等你们过来一起交流学习呢！</p>
-<p>所以，在使用面向对象的封装特性时，需要：</p>
-<ul>
-<li>将内容封装到某处</li>
-<li>从某处调用被封装的内容</li>
-</ul>
-<p><strong>第一步：将内容封装到某处</strong></p>
-<p><img src="http://p9.pstatp.com/large/567c0004da25ce1c0aef" alt="神级程序员为了带实习生入门Python花25天整理最全面向对象教程！"></p>
-<p><img src="http://p1.pstatp.com/large/567a00055cc8c7a6463d" alt="神级程序员为了带实习生入门Python花25天整理最全面向对象教程！"></p>
-<p><img src="http://p9.pstatp.com/large/567e0003812704585b5e" alt="神级程序员为了带实习生入门Python花25天整理最全面向对象教程！"></p>
-<p><img src="http://p1.pstatp.com/large/567b0005544cc56451ca" alt="神级程序员为了带实习生入门Python花25天整理最全面向对象教程！"></p>
-<p><img src="http://p1.pstatp.com/large/567b00055469dd7c2804" alt="神级程序员为了带实习生入门Python花25天整理最全面向对象教程！"></p>
-<p><img src="http://p1.pstatp.com/large/567900097a268eb96863" alt="神级程序员为了带实习生入门Python花25天整理最全面向对象教程！"></p>
-<p><img src="http://p9.pstatp.com/large/567d0003bd297b4c9b4c" alt="神级程序员为了带实习生入门Python花25天整理最全面向对象教程！"></p>
-<p><strong>练习二</strong>：游戏人生程序</p>
-<p><img src="http://p9.pstatp.com/large/567c0004dcfaac9036f8" alt="神级程序员为了带实习生入门Python花25天整理最全面向对象教程！"></p>
-<p><img src="http://p3.pstatp.com/large/567900097b1c8d3ec95b" alt="神级程序员为了带实习生入门Python花25天整理最全面向对象教程！"></p>
-<p><img src="http://p1.pstatp.com/large/567b0005557cf98c2b0a" alt="神级程序员为了带实习生入门Python花25天整理最全面向对象教程！"></p>
-<p><img src="http://p3.pstatp.com/large/567a000560493d44acfa" alt="神级程序员为了带实习生入门Python花25天整理最全面向对象教程！"></p>
-<p><img src="http://p3.pstatp.com/large/567c0004ddef8d80e128" alt="神级程序员为了带实习生入门Python花25天整理最全面向对象教程！"></p>
-<p><img src="http://p1.pstatp.com/large/567b000555ce86841067" alt="神级程序员为了带实习生入门Python花25天整理最全面向对象教程！"></p>
-<p>d1=Dog(‘胖子家的小瘦狗’)</p>
-<p>d1.eat()</p>
-<p><img src="http://p3.pstatp.com/large/567c0004de541c035a13" alt="神级程序员为了带实习生入门Python花25天整理最全面向对象教程！"></p>
-<p><img src="http://p9.pstatp.com/large/567c0004de72d139842b" alt="神级程序员为了带实习生入门Python花25天整理最全面向对象教程！"></p>
-<p><strong>那么问题又来了，多继承呢？</strong></p>
-<ul>
-<li>是否可以继承多个类</li>
-<li>如果继承的多个类每个类中都定了相同的函数，那么那一个会被使用呢？</li>
-</ul>
-<p>1、Python的类可以继承多个类，Java和C#中则只能继承一个类</p>
-<p>2、Python的类如果继承了多个类，那么其寻找方法的方式有两种，分别是：<strong>深度优先</strong>和<strong>广度优先</strong></p>
-<p><img src="http://p3.pstatp.com/large/567b000556482464f61d" alt="神级程序员为了带实习生入门Python花25天整理最全面向对象教程！"></p>
-<p><img src="http://p3.pstatp.com/large/567b00055681b04ebc3d" alt="神级程序员为了带实习生入门Python花25天整理最全面向对象教程！"></p>
-<p><img src="http://p3.pstatp.com/large/567a00056161019812e2" alt="神级程序员为了带实习生入门Python花25天整理最全面向对象教程！"></p>
-<p><img src="http://p3.pstatp.com/large/567c0004df209b292376" alt="神级程序员为了带实习生入门Python花25天整理最全面向对象教程！"></p>
-<p><img src="http://p1.pstatp.com/large/567e0003855af85cf719" alt="神级程序员为了带实习生入门Python花25天整理最全面向对象教程！"></p>
-<p><img src="http://p3.pstatp.com/large/567f0000477d403ed88e" alt="神级程序员为了带实习生入门Python花25天整理最全面向对象教程！"></p>
-<p><img src="http://p1.pstatp.com/large/567b00055740021e5656" alt="神级程序员为了带实习生入门Python花25天整理最全面向对象教程！"></p>
-<h1 id="进阶篇"><a href="#进阶篇" class="headerlink" title="进阶篇"></a>进阶篇</h1><p><img src="http://p1.pstatp.com/large/567900097d79774e5d08" alt="神级程序员为了带实习生入门Python花25天整理最全面向对象教程！"></p>
-<p><img src="http://p1.pstatp.com/large/567b000557ba7bf4950b" alt="神级程序员为了带实习生入门Python花25天整理最全面向对象教程！"></p>
-<p><img src="http://p3.pstatp.com/large/567f00004852a800b00b" alt="神级程序员为了带实习生入门Python花25天整理最全面向对象教程！"></p>
-<p>由上述代码可以看出【普通字段需要通过对象来访问】【静态字段通过类访问】，在使用上可以看出普通字段和静态字段的归属是不同的。其在内容的存储方式类似如下图：</p>
-<p><img src="http://p3.pstatp.com/large/567c0004e054febe7671" alt="神级程序员为了带实习生入门Python花25天整理最全面向对象教程！"></p>
-<p><img src="http://p3.pstatp.com/large/567e00038688cb4871a5" alt="神级程序员为了带实习生入门Python花25天整理最全面向对象教程！"></p>
-<p><img src="http://p3.pstatp.com/large/567d0003c0fc76ce0dc1" alt="神级程序员为了带实习生入门Python花25天整理最全面向对象教程！"></p>
-<p><img src="http://p3.pstatp.com/large/567e000386c4906333c4" alt="神级程序员为了带实习生入门Python花25天整理最全面向对象教程！"></p>
-<p><img src="http://p3.pstatp.com/large/567c0004e0cf317ead7e" alt="神级程序员为了带实习生入门Python花25天整理最全面向对象教程！"></p>
-<p><img src="http://p3.pstatp.com/large/567b0005587dbc85ab3d" alt="神级程序员为了带实习生入门Python花25天整理最全面向对象教程！"></p>
-<p><img src="http://p1.pstatp.com/large/567b000558a0130c1de4" alt="神级程序员为了带实习生入门Python花25天整理最全面向对象教程！"></p>
-<p><img src="http://p1.pstatp.com/large/567d0003c17fdb03a37b" alt="神级程序员为了带实习生入门Python花25天整理最全面向对象教程！"></p>
-<p><img src="http://p1.pstatp.com/large/567a000563741435b5dc" alt="神级程序员为了带实习生入门Python花25天整理最全面向对象教程！"></p>
-<p><strong>2、属性的两种定义方式</strong></p>
-<p>属性的定义有两种方式：</p>
-<ul>
-<li>装饰器 即：在方法上应用装饰器</li>
-<li>静态字段 即：在类中定义值为property对象的静态字段</li>
-</ul>
-<p><strong>装饰器方式：在类的普通方法上应用@property装饰器</strong></p>
-<p>我们知道Python中的类有经典类和新式类，新式类的属性比经典类的属性丰富。（ 如果类继object，那么该类是新式类 ）</p>
-<p><strong>经典类</strong>，具有一种@property装饰器（如上一步实例）</p>
-<p><img src="http://p3.pstatp.com/large/567e00038794c8d46b66" alt="神级程序员为了带实习生入门Python花25天整理最全面向对象教程！"></p>
-<p><img src="http://p3.pstatp.com/large/567b0005592740ff45d3" alt="神级程序员为了带实习生入门Python花25天整理最全面向对象教程！"></p>
-<p><img src="http://p9.pstatp.com/large/567a000563f6e5bf4212" alt="神级程序员为了带实习生入门Python花25天整理最全面向对象教程！"></p>
-<p><img src="http://p3.pstatp.com/large/567a00056414f89c7de8" alt="神级程序员为了带实习生入门Python花25天整理最全面向对象教程！"></p>
-<p><img src="http://p1.pstatp.com/large/567e000387fcd4139d54" alt="神级程序员为了带实习生入门Python花25天整理最全面向对象教程！"></p>
-<p><img src="http://p3.pstatp.com/large/567a00056463d5256275" alt="神级程序员为了带实习生入门Python花25天整理最全面向对象教程！"></p>
-<p><img src="http://p3.pstatp.com/large/567d0003c2bc81f26415" alt="神级程序员为了带实习生入门Python花25天整理最全面向对象教程！"></p>
-<p><img src="http://p3.pstatp.com/large/567b000559defcc166d4" alt="神级程序员为了带实习生入门Python花25天整理最全面向对象教程！"></p>
-<p><img src="http://p3.pstatp.com/large/567900097fdf5e36ca3e" alt="神级程序员为了带实习生入门Python花25天整理最全面向对象教程！"></p>
-<p><img src="http://p1.pstatp.com/large/567d0003c302efd997d6" alt="神级程序员为了带实习生入门Python花25天整理最全面向对象教程！"></p>
-<p><img src="http://p3.pstatp.com/large/567a000564f23ab2961b" alt="神级程序员为了带实习生入门Python花25天整理最全面向对象教程！"></p>
-<p><img src="http://p3.pstatp.com/large/567f00004abcd06fbadb" alt="神级程序员为了带实习生入门Python花25天整理最全面向对象教程！"></p>
-<p><img src="http://p9.pstatp.com/large/567f00004adacd4a7176" alt="神级程序员为了带实习生入门Python花25天整理最全面向对象教程！"></p>
-<p><img src="http://p1.pstatp.com/large/567f00004af93b1fadc9" alt="神级程序员为了带实习生入门Python花25天整理最全面向对象教程！"></p>
-<p><img src="http://p3.pstatp.com/large/567d0003c3afe28eb751" alt="神级程序员为了带实习生入门Python花25天整理最全面向对象教程！"></p>
-<p><strong>6. <strong>dict</strong></strong></p>
-<p>类或对象中的所有成员</p>
-<p>上文中我们知道：类的普通字段属于对象；类中的静态字段和方法等属于类，即：</p>
-<p><img src="http://p3.pstatp.com/large/567b00055aa9a0085f32" alt="神级程序员为了带实习生入门Python花25天整理最全面向对象教程！"></p>
-<p><img src="http://p3.pstatp.com/large/5679000980c220623379" alt="神级程序员为了带实习生入门Python花25天整理最全面向对象教程！"></p>
-<p><img src="http://p3.pstatp.com/large/567b00055adddff45969" alt="神级程序员为了带实习生入门Python花25天整理最全面向对象教程！"></p>
-<p><img src="http://p3.pstatp.com/large/567e0003899416704eee" alt="神级程序员为了带实习生入门Python花25天整理最全面向对象教程！"></p>
-<p><img src="http://p9.pstatp.com/large/5679000981198e030228" alt="神级程序员为了带实习生入门Python花25天整理最全面向对象教程！"></p>
-<p><img src="http://p3.pstatp.com/large/567f00004ba9508f067f" alt="神级程序员为了带实习生入门Python花25天整理最全面向对象教程！"></p>
-<p><img src="http://p1.pstatp.com/large/567f00004bc3b21c5ec9" alt="神级程序员为了带实习生入门Python花25天整理最全面向对象教程！"></p>
-<p><img src="http://p3.pstatp.com/large/567c0004e3ff92a3c044" alt="神级程序员为了带实习生入门Python花25天整理最全面向对象教程！"></p>
-<p><img src="http://p1.pstatp.com/large/567f00004bf7bb74c1a2" alt="神级程序员为了带实习生入门Python花25天整理最全面向对象教程！"></p>
-<p><img src="http://p1.pstatp.com/large/567e00038a32accf2cb3" alt="神级程序员为了带实习生入门Python花25天整理最全面向对象教程！"></p>
-<p><img src="http://p3.pstatp.com/large/567c0004e44dbd6e7241" alt="神级程序员为了带实习生入门Python花25天整理最全面向对象教程！"></p>
-<p><img src="http://p3.pstatp.com/large/5679000981c8272b0814" alt="神级程序员为了带实习生入门Python花25天整理最全面向对象教程！"></p>
-<p>谢谢阅读，如有侵权请联系小编删除哦！</p>
-
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color2">Python</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-      
-
-      <div style="font-size: 12px;">
-        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
-      </div>
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2018/01/06/Python之面向对象研究/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
   
     <nav id="page-nav">
       <a class="extend prev" rel="prev" href="/page/4/">&laquo; Prev</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/3/">3</a><a class="page-number" href="/page/4/">4</a><span class="page-number current">5</span><a class="page-number" href="/page/6/">6</a><a class="page-number" href="/page/7/">7</a><span class="space">&hellip;</span><a class="page-number" href="/page/11/">11</a><a class="extend next" rel="next" href="/page/6/">Next &raquo;</a>
@@ -1580,19 +1640,19 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">mysql</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">test</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">限流</a>
+                <a href="javascript:void(0)" class="js-tag color1">mysql</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Python</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">限流</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1612,15 +1672,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">guava</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">elastic-job</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">rest</a>
+                <a href="javascript:void(0)" class="js-tag color1">guava</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1632,6 +1688,14 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">rest</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">python</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">Mac</a>
               </li>
              
@@ -1640,15 +1704,7 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">python</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">mybatis</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">分布式锁</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1657,6 +1713,10 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">zookeeper</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">分布式锁</a>
               </li>
              
               <li class="article-tag-list-item">
