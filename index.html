@@ -151,6 +151,453 @@
           <div id="js-content" class="content-ll">
             
   
+    <article id="post-zookeeper学习笔记_05_原生API的使用" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2018/06/09/zookeeper学习笔记_05_原生API的使用/">zookeeper原生API使用</a>
+    </h1>
+  
+
+        
+        <a href="/2018/06/09/zookeeper学习笔记_05_原生API的使用/" class="archive-article-date">
+  	<time datetime="2018-06-09T01:49:41.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-06-09</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="Zookeeper-原生API的使用"><a href="#Zookeeper-原生API的使用" class="headerlink" title="Zookeeper 原生API的使用"></a>Zookeeper 原生API的使用</h2><h3 id="1、准备工作"><a href="#1、准备工作" class="headerlink" title="1、准备工作"></a>1、准备工作</h3><h4 id="1-1、jar包"><a href="#1-1、jar包" class="headerlink" title="1.1、jar包"></a>1.1、jar包</h4><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.apache.zookeeper<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>zookeeper<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>3.4.8<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<h4 id="1-2、准备工作"><a href="#1-2、准备工作" class="headerlink" title="1.2、准备工作"></a>1.2、准备工作</h4><p>本人使用的是VMware + CentOS7环境，即虚拟机，这里需要将zookeeper客户端访问接口对外暴露。<br><br>参考：<a href="https://blog.csdn.net/u011846257/article/details/54707864" target="_blank" rel="external">Centos防火墙设置与端口开放的方法</a><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">// 在指定区域打开端口</span><br><span class="line">firewall-cmd --zone=public --add-port=80/tcp</span><br><span class="line">firewall-cmd --zone=public --add-port=80/tcp --permanent    // 永久生效</span><br><span class="line"></span><br><span class="line">// 重启防火墙</span><br><span class="line">firewall-cmd --reload</span><br></pre></td></tr></table></figure></p>
+<h3 id="2、创建连接、创建节点、修改节点、删除节点"><a href="#2、创建连接、创建节点、修改节点、删除节点" class="headerlink" title="2、创建连接、创建节点、修改节点、删除节点"></a>2、创建连接、创建节点、修改节点、删除节点</h3><h4 id="2-1、创建连接"><a href="#2-1、创建连接" class="headerlink" title="2.1、创建连接"></a>2.1、创建连接</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// org.apache.zookeeper.ZooKeeper</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="title">ZooKeeper</span><span class="params">(String connectString, <span class="keyword">int</span> sessionTimeout, Watcher watcher)</span></span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="title">ZooKeeper</span><span class="params">(String connectString, <span class="keyword">int</span> sessionTimeout, Watcher watcher, <span class="keyword">boolean</span> canBeReadOnly)</span></span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="title">ZooKeeper</span><span class="params">(String connectString, <span class="keyword">int</span> sessionTimeout, Watcher watcher, <span class="keyword">long</span> sessionId, <span class="keyword">byte</span>[] sessionPasswd)</span></span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="title">ZooKeeper</span><span class="params">(String connectString, <span class="keyword">int</span> sessionTimeout, Watcher watcher, <span class="keyword">long</span> sessionId, <span class="keyword">byte</span>[] sessionPasswd, <span class="keyword">boolean</span> canBeReadOnly)</span></span></span><br></pre></td></tr></table></figure>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">参数</th>
+<th style="text-align:left">含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">connectString</td>
+<td style="text-align:left">Zookeeper服务器的地址和端口号<code>ip:port</code>。集群环境使用逗号隔开。</td>
+</tr>
+<tr>
+<td style="text-align:left">sessionTimeout</td>
+<td style="text-align:left">超时时间，超过一定时间不在连接</td>
+</tr>
+<tr>
+<td style="text-align:left">watcher</td>
+<td style="text-align:left">监听事件</td>
+</tr>
+<tr>
+<td style="text-align:left">canBeReadOnly</td>
+<td style="text-align:left">表示当前new的对象只能执行读操作，不能执行写操作。默认：false</td>
+</tr>
+<tr>
+<td style="text-align:left">sessionId</td>
+<td style="text-align:left">因Zookeeper的重连机制，即断开连接后，在一定时间内可再次连接，保持同一个会话。<br><code>zookeeper.getSessionId()</code>可以在断开连接前获取sessionId</td>
+</tr>
+<tr>
+<td style="text-align:left">sessionPasswd</td>
+<td style="text-align:left">因Zookeeper的重连机制，即断开连接后，在一定时间内可再次连接，保持同一个会话。<br><code>zookeeper.getSessionPasswd()</code>sessionPasswd</td>
+</tr>
+</tbody>
+</table>
+<p>参考：<a href="https://blog.csdn.net/andy2019/article/details/73065449" target="_blank" rel="external">Zookeeper实例原生API–复用sessionId和sessionPasswd</a></p>
+<h4 id="2-2、创建节点"><a href="#2-2、创建节点" class="headerlink" title="2.2、创建节点"></a>2.2、创建节点</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">String <span class="title">create</span><span class="params">(<span class="keyword">final</span> String path, <span class="keyword">byte</span>[] data, List&lt;ACL&gt; acl, CreateMode createMode)</span></span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">create</span><span class="params">(<span class="keyword">final</span> String path, <span class="keyword">byte</span>[] data, List&lt;ACL&gt; acl, CreateMode createMode,  StringCallback cb, Object ctx)</span></span></span><br></pre></td></tr></table></figure>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">参数</th>
+<th style="text-align:left">含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">path</td>
+<td style="text-align:left">被创建节点的路径</td>
+</tr>
+<tr>
+<td style="text-align:left">data</td>
+<td style="text-align:left">被创建节点的值</td>
+</tr>
+<tr>
+<td style="text-align:left">acl</td>
+<td style="text-align:left">acl策略。详见<a href="zookeeper学习笔记_04_客户端的使用.md">zookeeper客户端的使用</a>的1.6章节</td>
+</tr>
+<tr>
+<td style="text-align:left">createMode</td>
+<td style="text-align:left">节点类型，临时或者持久，有序节点等。详见<a href="zookeeper学习笔记_04_客户端的使用.md">zookeeper客户端的使用</a>的1.2、1.3章节</td>
+</tr>
+<tr>
+<td style="text-align:left">cb</td>
+<td style="text-align:left">异步创建方法参数。注册的回调函数，需实现StringCallback接口。数据节点创建完成之后，会调用此方法进行业务逻辑处理。主要针对<code>public void processResult(int rc, String path, Object ctx, String name)</code>接口进行重写。<br>参考：<a href="https://blog.csdn.net/wo541075754/article/details/65625481" target="_blank" rel="external">Zookeeper客户端API之创建节点（七）</a></td>
+</tr>
+<tr>
+<td style="text-align:left">ctx</td>
+<td style="text-align:left">异步创建方法参数。用户传递一个对象，可以在回调方法执行时使用</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><b>临时节点下不能创建子节点</b><br></li>
+<li><b>因为是原生API，故不能在没有父节点的前提下直接创建子节点</b><br></li>
+</ul>
+<h5 id="2-2-1、关于StringCallback"><a href="#2-2-1、关于StringCallback" class="headerlink" title="2.2.1、关于StringCallback"></a>2.2.1、关于StringCallback</h5><p>转自：<a href="https://blog.csdn.net/wo541075754/article/details/65625481" target="_blank" rel="external">Zookeeper客户端API之创建节点（七）</a></p>
+<p><code>StringCallback</code>接口继承了<code>AsyncCallback</code>接口，来实现回调时的业务处理。<br><br>其中<code>AsyncCallback</code>接口还包8个回调接口：<code>StatCallback</code>、<code>DataCallback</code>、<code>ACLCallback</code>、<code>ChildrenCallback</code>、<code>Children2Callback</code>、<code>VoidCallback</code>、<code>MultiCallback</code>、<code>StringCallback</code>。可以在不同的异步接口中实现不同的回调接口。</p>
+<p><code>StringCallback</code>接口的<code>public void processResult(int rc, String path, Object ctx, String name)</code>方法。</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">参数</th>
+<th style="text-align:left">含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">rc</td>
+<td style="text-align:left">服务器的响应码，即<code>Event.KeeperState</code>，0表示调用成功，-4表示连接已断开，-110表示指定节点已存在，-112表示会话已过期。</td>
+</tr>
+<tr>
+<td style="text-align:left">path</td>
+<td style="text-align:left">调用create方法时传入的path。</td>
+</tr>
+<tr>
+<td style="text-align:left">ctx</td>
+<td style="text-align:left">调用create方法时传入的ctx。</td>
+</tr>
+<tr>
+<td style="text-align:left">name</td>
+<td style="text-align:left">创建成功的节点名称。</td>
+</tr>
+</tbody>
+</table>
+<h4 id="2-3、修改节点"><a href="#2-3、修改节点" class="headerlink" title="2.3、修改节点"></a>2.3、修改节点</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">Stat <span class="title">setData</span><span class="params">(<span class="keyword">final</span> String path, <span class="keyword">byte</span> data[], <span class="keyword">int</span> version)</span></span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setData</span><span class="params">(<span class="keyword">final</span> String path, <span class="keyword">byte</span> data[], <span class="keyword">int</span> version, StatCallback cb, Object ctx)</span></span></span><br></pre></td></tr></table></figure>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">参数</th>
+<th style="text-align:left">含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">path</td>
+<td style="text-align:left">被修改节点的路径</td>
+</tr>
+<tr>
+<td style="text-align:left">data</td>
+<td style="text-align:left">被修改节点的新值</td>
+</tr>
+<tr>
+<td style="text-align:left">version</td>
+<td style="text-align:left">代表节点的版本号，如果该值与zookeeper服务器此节点的dataVersion属性值不相同，则修改失败。 <code>-1</code>代表忽略版本号的作用，强制修改！</td>
+</tr>
+<tr>
+<td style="text-align:left">cb</td>
+<td style="text-align:left">异步创建方法参数。注册的回调函数，需实现StatCallback接口。数据节点创建完成之后，会调用此方法进行业务逻辑处理。</td>
+</tr>
+<tr>
+<td style="text-align:left">ctx</td>
+<td style="text-align:left">异步创建方法参数。用户传递一个对象，可以在回调方法执行时使用</td>
+</tr>
+<tr>
+<td style="text-align:left">返回值Stat</td>
+<td style="text-align:left">描述一个节点的信息，具体可以查看<a href="zookeeper学习笔记_04_客户端的使用.md">zookeeper客户端的使用</a>的章节2</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>关于<code>StatCallback</code>，与<code>StringCallback</code>类似。<ul>
+<li>实现的方法是<code>public void processResult(int rc, String path, Object ctx, Stat stat)</code></li>
+</ul>
+</li>
+</ul>
+<h4 id="2-4、删除节点"><a href="#2-4、删除节点" class="headerlink" title="2.4、删除节点"></a>2.4、删除节点</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">delete</span><span class="params">(<span class="keyword">final</span> String path, <span class="keyword">int</span> version)</span></span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">delete</span><span class="params">(<span class="keyword">final</span> String path, <span class="keyword">int</span> version, VoidCallback cb, Object ctx)</span></span></span><br></pre></td></tr></table></figure>
+<ul>
+<li>与修改节点<code>setData</code>方法类似。</li>
+<li><b>因为是原始API，不允许删除存在子节点的节点</b></li>
+</ul>
+<h4 id="2-5、Demo"><a href="#2-5、Demo" class="headerlink" title="2.5、Demo"></a>2.5、Demo</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ApiZookeeper</span></span></span><br><span class="line"><span class="class"></span>&#123;</span><br><span class="line">    <span class="comment">// 集群环境用,隔开</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> String CONNECTSTRING = <span class="string">"192.168.27.128:2181"</span>;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> ZooKeeper zookeeper;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> Exception</span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        connect();</span><br><span class="line">        createNode(<span class="string">"/xych"</span>, <span class="string">"xych"</span>);</span><br><span class="line">        <span class="comment">// createNode("/xych1/lanboo","lanboo"); // 报错</span></span><br><span class="line">        setNode(<span class="string">"/xych"</span>, <span class="string">"XYCH"</span>, -<span class="number">1</span>);</span><br><span class="line">        deleteNode(<span class="string">"/xych"</span>, -<span class="number">1</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 删除节点</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">deleteNode</span><span class="params">(String nodePath, <span class="keyword">int</span> version)</span> <span class="keyword">throws</span> Exception</span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        zookeeper.delete(nodePath, version);</span><br><span class="line">        System.out.println(<span class="string">"删除成功"</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 修改节点</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">setNode</span><span class="params">(String nodePath, String value, <span class="keyword">int</span> version)</span> <span class="keyword">throws</span> Exception</span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        Stat stat = zookeeper.setData(nodePath, value.getBytes(), version);</span><br><span class="line">        System.out.println(<span class="string">"修改成功 "</span> + stat);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 创建节点</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">createNode</span><span class="params">(String nodePath, String value)</span> <span class="keyword">throws</span> Exception</span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        String result = zookeeper.create(nodePath, value.getBytes(), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.EPHEMERAL);</span><br><span class="line">        System.out.println(<span class="string">"创建成功 "</span> + result);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 创建连接</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">connect</span><span class="params">()</span> <span class="keyword">throws</span> Exception</span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="comment">// 使用CountDownLatch，使主线程等待</span></span><br><span class="line">        CountDownLatch countDownLatch = <span class="keyword">new</span> CountDownLatch(<span class="number">1</span>);</span><br><span class="line">        zookeeper = <span class="keyword">new</span> ZooKeeper(CONNECTSTRING, <span class="number">10000</span>, <span class="keyword">new</span> Watcher()</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="meta">@Override</span></span><br><span class="line">            <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">process</span><span class="params">(WatchedEvent event)</span></span></span><br><span class="line"><span class="function">            </span>&#123;</span><br><span class="line">                <span class="keyword">if</span>(event.getState() == Event.KeeperState.SyncConnected)</span><br><span class="line">                &#123;</span><br><span class="line">                    System.out.println(<span class="string">"Watcher "</span> + zookeeper.getState());</span><br><span class="line">                    countDownLatch.countDown();</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;);</span><br><span class="line">        System.out.println(<span class="string">"connect "</span> + zookeeper.getState());</span><br><span class="line">        countDownLatch.await();</span><br><span class="line">        System.out.println(<span class="string">"connect "</span> + zookeeper.getState());</span><br><span class="line">        <span class="comment">// zookeeper.close();</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">/* 输出结果</span></span><br><span class="line"><span class="comment">connect CONNECTING</span></span><br><span class="line"><span class="comment">Watcher CONNECTED</span></span><br><span class="line"><span class="comment">connect CONNECTED</span></span><br><span class="line"><span class="comment">创建成功 /xych</span></span><br><span class="line"><span class="comment">修改成功 46,47,1524152856857,1524152856864,1,0,0,72057600313458694,4,0,46</span></span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment">删除成功</span></span><br><span class="line"><span class="comment">*/</span></span><br></pre></td></tr></table></figure>
+<h3 id="3、exists、getData、getChildren"><a href="#3、exists、getData、getChildren" class="headerlink" title="3、exists、getData、getChildren"></a>3、exists、getData、getChildren</h3><h4 id="3-1、exists"><a href="#3-1、exists" class="headerlink" title="3.1、exists"></a>3.1、exists</h4><blockquote>
+<p>判断某节点是否存在<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">Stat <span class="title">exists</span><span class="params">(String path, <span class="keyword">boolean</span> watch)</span></span></span><br><span class="line"><span class="function">Stat <span class="title">exists</span><span class="params">(<span class="keyword">final</span> String path, Watcher watcher)</span></span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">exists</span><span class="params">(String path, <span class="keyword">boolean</span> watch, StatCallback cb, Object ctx)</span></span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">exists</span><span class="params">(<span class="keyword">final</span> String path, Watcher watcher, StatCallback cb, Object ctx)</span></span></span><br></pre></td></tr></table></figure></p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">参数</th>
+<th style="text-align:left">含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">path</td>
+<td style="text-align:left">被判断节点的路径</td>
+</tr>
+<tr>
+<td style="text-align:left">watch</td>
+<td style="text-align:left">是否添加一个默认Watcher</td>
+</tr>
+<tr>
+<td style="text-align:left">watcher</td>
+<td style="text-align:left">监听事件</td>
+</tr>
+<tr>
+<td style="text-align:left">cb</td>
+<td style="text-align:left">异步创建方法参数。注册的回调函数，需实现StatCallback接口。数据节点创建完成之后，会调用此方法进行业务逻辑处理。</td>
+</tr>
+<tr>
+<td style="text-align:left">ctx</td>
+<td style="text-align:left">异步创建方法参数。用户传递一个对象，可以在回调方法执行时使用</td>
+</tr>
+</tbody>
+</table>
+<p>关于<code>StatCallback</code>可以参考本文2.2.1。</p>
+<h4 id="3-2、getData"><a href="#3-2、getData" class="headerlink" title="3.2、getData"></a>3.2、getData</h4><blockquote>
+<p>获取节点内容，同步获取和异步获取<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">byte</span>[] getData(String path, <span class="keyword">boolean</span> watch, Stat stat)</span><br><span class="line"><span class="keyword">byte</span>[] getData(<span class="keyword">final</span> String path, Watcher watcher, Stat stat)</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">getData</span><span class="params">(String path, <span class="keyword">boolean</span> watch, DataCallback cb, Object ctx)</span></span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">getData</span><span class="params">(<span class="keyword">final</span> String path, Watcher watcher, DataCallback cb, Object ctx)</span></span></span><br></pre></td></tr></table></figure></p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">参数</th>
+<th style="text-align:left">含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">path</td>
+<td style="text-align:left">节点的路径</td>
+</tr>
+<tr>
+<td style="text-align:left">watch</td>
+<td style="text-align:left">是否注册一个默认Watcher</td>
+</tr>
+<tr>
+<td style="text-align:left">watcher</td>
+<td style="text-align:left">监听事件</td>
+</tr>
+<tr>
+<td style="text-align:left">cb</td>
+<td style="text-align:left">异步创建方法参数。注册的回调函数，需实现DataCallback接口。数据节点创建完成之后，会调用此方法进行业务逻辑处理。</td>
+</tr>
+<tr>
+<td style="text-align:left">ctx</td>
+<td style="text-align:left">异步创建方法参数。用户传递一个对象，可以在回调方法执行时使用</td>
+</tr>
+</tbody>
+</table>
+<p>关于<code>DataCallback</code>可以参考本文2.2.1。</p>
+<h4 id="3-3、getChildren"><a href="#3-3、getChildren" class="headerlink" title="3.3、getChildren"></a>3.3、getChildren</h4><blockquote>
+<p>获取子节点列表，同步获取和异步获取<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">List&lt;String&gt; <span class="title">getChildren</span><span class="params">(String path, <span class="keyword">boolean</span> watch)</span></span></span><br><span class="line"><span class="function">List&lt;String&gt; <span class="title">getChildren</span><span class="params">(<span class="keyword">final</span> String path, Watcher watcher)</span></span></span><br><span class="line"><span class="function">List&lt;String&gt; <span class="title">getChildren</span><span class="params">(String path, <span class="keyword">boolean</span> watch, Stat stat)</span></span></span><br><span class="line"><span class="function">List&lt;String&gt; <span class="title">getChildren</span><span class="params">(<span class="keyword">final</span> String path, Watcher watcher, Stat stat)</span></span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">getChildren</span><span class="params">(String path, <span class="keyword">boolean</span> watch, ChildrenCallback cb, Object ctx)</span></span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">getChildren</span><span class="params">(String path, <span class="keyword">boolean</span> watch, Children2Callback cb, Object ctx)</span></span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">getChildren</span><span class="params">(<span class="keyword">final</span> String path, Watcher watcher, ChildrenCallback cb, Object ctx)</span></span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">getChildren</span><span class="params">(<span class="keyword">final</span> String path, Watcher watcher, Children2Callback cb, Object ctx)</span></span></span><br></pre></td></tr></table></figure></p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">参数</th>
+<th style="text-align:left">含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">path</td>
+<td style="text-align:left">节点的路径</td>
+</tr>
+<tr>
+<td style="text-align:left">watch</td>
+<td style="text-align:left">是否注册一个默认Watcher</td>
+</tr>
+<tr>
+<td style="text-align:left">watcher</td>
+<td style="text-align:left">监听事件</td>
+</tr>
+<tr>
+<td style="text-align:left">stat</td>
+<td style="text-align:left">描述一个节点的信息<br>会将path指定的节点的信息更新<br>具体可以查看<a href="zookeeper学习笔记_04_客户端的使用.md">zookeeper客户端的使用</a>的章节2</td>
+</tr>
+<tr>
+<td style="text-align:left">cb</td>
+<td style="text-align:left">异步创建方法参数。注册的回调函数，需实现ChildrenCallback、Children2Callback接口。数据节点创建完成之后，会调用此方法进行业务逻辑处理。</td>
+</tr>
+<tr>
+<td style="text-align:left">ctx</td>
+<td style="text-align:left">异步创建方法参数。用户传递一个对象，可以在回调方法执行时使用</td>
+</tr>
+</tbody>
+</table>
+<p>关于<code>ChildrenCallback</code>、<code>Children2Callback</code>可以参考本文2.2.1。</p>
+<h3 id="4、Watcher事件监控"><a href="#4、Watcher事件监控" class="headerlink" title="4、Watcher事件监控"></a>4、Watcher事件监控</h3><ul>
+<li><b>Watcher是一次性的，用完就会失效</b><br></li>
+</ul>
+<p>转自：<a href="https://www.cnblogs.com/programlearning/archive/2017/05/10/6834963.html" target="_blank" rel="external">ZooKeeper监听机制</a></p>
+<h4 id="4-1、事件类型"><a href="#4-1、事件类型" class="headerlink" title="4.1、事件类型"></a>4.1、事件类型</h4><table>
+<thead>
+<tr>
+<th style="text-align:left">事件类型</th>
+<th style="text-align:left">含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">EventType.None</td>
+<td style="text-align:left">与服务器建立连接时触发</td>
+</tr>
+<tr>
+<td style="text-align:left">EventType.NodeCreated</td>
+<td style="text-align:left">被监控的节点被创建触发</td>
+</tr>
+<tr>
+<td style="text-align:left">EventType.NodeDeleted</td>
+<td style="text-align:left">被监控的节点被删除触发</td>
+</tr>
+<tr>
+<td style="text-align:left">EventType.NodeDataChanged</td>
+<td style="text-align:left">被监控的节点被修改触发</td>
+</tr>
+<tr>
+<td style="text-align:left">EventType.NodeChildrenChanged</td>
+<td style="text-align:left">被监控的节点的子节点<b>数量</b>发生改变时触发</td>
+</tr>
+</tbody>
+</table>
+<h4 id="4-2、读操作绑定事件"><a href="#4-2、读操作绑定事件" class="headerlink" title="4.2、读操作绑定事件"></a>4.2、读操作绑定事件</h4><table>
+<thead>
+<tr>
+<th style="text-align:left">读操作</th>
+<th style="text-align:left">含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">new ZooKeeper</td>
+<td style="text-align:left">不会指定某节点，故触发类型为<code>EventType.None</code></td>
+</tr>
+<tr>
+<td style="text-align:left">exists</td>
+<td style="text-align:left">判断某节点是否存在，同时对该节点添加Watcher</td>
+</tr>
+<tr>
+<td style="text-align:left">getData</td>
+<td style="text-align:left">获取某节点的值，同时对该节点添加Watcher</td>
+</tr>
+<tr>
+<td style="text-align:left">getChildren</td>
+<td style="text-align:left">获取某节点的子节点列表，同时对该节点添加Watcher</td>
+</tr>
+</tbody>
+</table>
+<h4 id="4-3、写操作触发事件"><a href="#4-3、写操作触发事件" class="headerlink" title="4.3、写操作触发事件"></a>4.3、写操作触发事件</h4><table>
+<thead>
+<tr>
+<th style="text-align:left">写操作</th>
+<th style="text-align:left">Event For “/path”</th>
+<th style="text-align:left">Event For “/path/child”</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">create(“/path”)</td>
+<td style="text-align:left">EventType.NodeCreated</td>
+<td style="text-align:left">-</td>
+</tr>
+<tr>
+<td style="text-align:left">delete(“/path”)</td>
+<td style="text-align:left">EventType.NodeDeleted</td>
+<td style="text-align:left">-</td>
+</tr>
+<tr>
+<td style="text-align:left">setData(“/path”)</td>
+<td style="text-align:left">EventType.NodeDataChanged</td>
+<td style="text-align:left">-</td>
+</tr>
+<tr>
+<td style="text-align:left">create(“/path/child”)</td>
+<td style="text-align:left">EventType.NodeChildrenChanged</td>
+<td style="text-align:left">EventType.NodeCreated</td>
+</tr>
+<tr>
+<td style="text-align:left">delete(“/path/child”)</td>
+<td style="text-align:left">EventType.NodeChildrenChanged</td>
+<td style="text-align:left">EventType.NodeDeleted</td>
+</tr>
+<tr>
+<td style="text-align:left">setData(“/path/child”)</td>
+<td style="text-align:left">-</td>
+<td style="text-align:left">EventType.NodeDataChanged</td>
+</tr>
+</tbody>
+</table>
+<p>####</p>
+<h4 id="4-4、写操作触发-读操作绑定的事件"><a href="#4-4、写操作触发-读操作绑定的事件" class="headerlink" title="4.4、写操作触发[读操作绑定的事件]"></a>4.4、写操作触发[读操作绑定的事件]</h4><table><br>    <tr><br>        <td></td><br>        <td colspan="3">“/path”</td><br>        <td colspan="3">“/path/child”</td><br>    </tr><br>    <tr><br>        <td>写操作所触发的绑定事件</td><br>        <td>exists</td><br>        <td>getData</td><br>        <td>getChildren</td><br>        <td>exists</td><br>        <td>getData</td><br>        <td>getChildren</td><br>    </tr><br>    <tr><br>        <td>create(“/path”)</td><br>        <td>√</td><br>        <td>√</td><br>        <td></td><br>        <td></td><br>        <td></td><br>        <td></td><br>    </tr><br>    <tr><br>        <td>delete(“/path”)</td><br>        <td>√</td><br>        <td>√</td><br>        <td>√</td><br>        <td></td><br>        <td></td><br>        <td></td><br>    </tr><br>    <tr><br>        <td>setData(“/path”)</td><br>        <td>√</td><br>        <td>√</td><br>        <td></td><br>        <td></td><br>        <td></td><br>        <td></td><br>    </tr><br>    <tr><br>        <td>create(“/path/child”)</td><br>        <td></td><br>        <td></td><br>        <td>√</td><br>        <td>√</td><br>        <td>√</td><br>        <td></td><br>    </tr><br>    <tr><br>        <td>delete(“/path/child”)</td><br>        <td></td><br>        <td></td><br>        <td>√</td><br>        <td>√</td><br>        <td>√</td><br>        <td>√</td><br>    </tr><br>    <tr><br>        <td>setData(“/path/child”)</td><br>        <td></td><br>        <td></td><br>        <td></td><br>        <td>√</td><br>        <td>√</td><br>        <td></td><br>    </tr><br></table>
+
+<blockquote>
+<ul>
+<li><code>create(&quot;/path/child&quot;)</code>和<code>delete(&quot;/path/child&quot;)</code><b>只会触发</b><code>getChildren</code>对<code>&quot;/path&quot;</code>的绑定事件；<br></li>
+<li>不会触发<code>exists</code>、<code>getData</code>对<code>&quot;/path&quot;</code>的绑定事件。<br></li>
+</ul>
+</blockquote>
+<h4 id="4-4、Demo"><a href="#4-4、Demo" class="headerlink" title="4.4、Demo"></a>4.4、Demo</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ApiZookeeperWatcher</span> <span class="keyword">implements</span> <span class="title">Watcher</span></span></span><br><span class="line"><span class="class"></span>&#123;</span><br><span class="line">    <span class="comment">// 集群环境用,隔开</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> String CONNECTSTRING = <span class="string">"192.168.27.131:2181"</span>;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> ZooKeeper zookeeper;</span><br><span class="line">    <span class="comment">// 使用CountDownLatch，使主线程等待</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> CountDownLatch countDownLatch = <span class="keyword">new</span> CountDownLatch(<span class="number">1</span>);</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> Exception</span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        connect();</span><br><span class="line">        createWatcher(<span class="string">"/xych"</span>, <span class="string">"xych"</span>);</span><br><span class="line">        setDataWatcher(<span class="string">"/xych"</span>, <span class="string">"XYCH"</span>);</span><br><span class="line">        deleteWatcher(<span class="string">"/xych"</span>);</span><br><span class="line">        <span class="comment">// 这里"/xych"已被删除，再次创建。（此时"/xych"没有任何Watcher）</span></span><br><span class="line">        <span class="comment">// 注意：临时节点下不能创建节点</span></span><br><span class="line">        <span class="keyword">if</span>(zookeeper.exists(<span class="string">"/xych1"</span>, <span class="keyword">false</span>) == <span class="keyword">null</span>)</span><br><span class="line">        &#123;</span><br><span class="line">            zookeeper.create(<span class="string">"/xych1"</span>, <span class="string">"xych"</span>.getBytes(), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);</span><br><span class="line">        &#125;</span><br><span class="line">        createWatcher_Children(<span class="string">"/xych1"</span>, <span class="string">"/lanboo"</span>, <span class="string">"lanboo"</span>);</span><br><span class="line">        setDataWatcher_Children(<span class="string">"/xych1"</span>, <span class="string">"/lanboo"</span>, <span class="string">"LANBOO"</span>);</span><br><span class="line">        deleteWatcher_Children(<span class="string">"/xych1"</span>, <span class="string">"/lanboo"</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">deleteWatcher_Children</span><span class="params">(String path, String children)</span> <span class="keyword">throws</span> Exception</span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        countDownLatch = <span class="keyword">new</span> CountDownLatch(<span class="number">1</span>);</span><br><span class="line">        <span class="comment">// 利用getChildren，对父节点添加Watcher</span></span><br><span class="line">        List&lt;String&gt; pathChildren = zookeeper.getChildren(path, <span class="keyword">new</span> ApiZookeeperWatcher());</span><br><span class="line">        System.out.println(<span class="string">"deleteWatcher_Children："</span> + path + <span class="string">"的子节点："</span> + pathChildren);</span><br><span class="line">        <span class="comment">// 利用exists，对子节点添加Watcher</span></span><br><span class="line">        Stat childrenStat = zookeeper.exists(path + children, <span class="keyword">new</span> ApiZookeeperWatcher());</span><br><span class="line">        <span class="keyword">if</span>(pathChildren != <span class="keyword">null</span> &amp;&amp; childrenStat != <span class="keyword">null</span>)</span><br><span class="line">        &#123;</span><br><span class="line">            zookeeper.delete(path + children, -<span class="number">1</span>);</span><br><span class="line">            countDownLatch.await();</span><br><span class="line">        &#125;</span><br><span class="line">        System.out.println();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">setDataWatcher_Children</span><span class="params">(String path, String children, String value)</span> <span class="keyword">throws</span> Exception</span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        countDownLatch = <span class="keyword">new</span> CountDownLatch(<span class="number">1</span>);</span><br><span class="line">        <span class="comment">// 利用getChildren，对父节点添加Watcher</span></span><br><span class="line">        List&lt;String&gt; pathChildren = zookeeper.getChildren(path, <span class="keyword">new</span> ApiZookeeperWatcher());</span><br><span class="line">        System.out.println(<span class="string">"setDataWatcher_Children："</span> + path + <span class="string">"的子节点："</span> + pathChildren);</span><br><span class="line">        <span class="comment">// 利用exists，对子节点添加Watcher</span></span><br><span class="line">        Stat childrenStat = zookeeper.exists(path + children, <span class="keyword">new</span> ApiZookeeperWatcher());</span><br><span class="line">        <span class="keyword">if</span>(pathChildren != <span class="keyword">null</span> &amp;&amp; childrenStat != <span class="keyword">null</span>)</span><br><span class="line">        &#123;</span><br><span class="line">            zookeeper.setData(path + children, value.getBytes(), -<span class="number">1</span>);</span><br><span class="line">            countDownLatch.await();</span><br><span class="line">        &#125;</span><br><span class="line">        System.out.println();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 对某节点添加Warcher，对该节点添加子节点</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">createWatcher_Children</span><span class="params">(String path, String children, String value)</span> <span class="keyword">throws</span> Exception</span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        countDownLatch = <span class="keyword">new</span> CountDownLatch(<span class="number">2</span>);</span><br><span class="line">        <span class="comment">// 利用getChildren，对父节点添加Watcher</span></span><br><span class="line">        List&lt;String&gt; pathChildren = zookeeper.getChildren(path, <span class="keyword">new</span> ApiZookeeperWatcher());</span><br><span class="line">        System.out.println(<span class="string">"createWatcher_Children："</span> + path + <span class="string">"的子节点："</span> + pathChildren);</span><br><span class="line">        <span class="comment">// 利用exists，对子节点添加Watcher</span></span><br><span class="line">        Stat childrenStat = zookeeper.exists(path + children, <span class="keyword">new</span> ApiZookeeperWatcher());</span><br><span class="line">        <span class="keyword">if</span>(pathChildren != <span class="keyword">null</span> &amp;&amp; childrenStat == <span class="keyword">null</span>)</span><br><span class="line">        &#123;</span><br><span class="line">            zookeeper.create(path + children, value.getBytes(), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.EPHEMERAL);</span><br><span class="line">            countDownLatch.await();</span><br><span class="line">        &#125;</span><br><span class="line">        System.out.println();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 对setData监控</span></span><br><span class="line"><span class="comment">     * 做法：</span></span><br><span class="line"><span class="comment">     * 1、利用exists，判断某节点是否存在，同时对该节点添加一个Watcher</span></span><br><span class="line"><span class="comment">     * 2、删除该节点</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">deleteWatcher</span><span class="params">(String path)</span> <span class="keyword">throws</span> Exception</span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        countDownLatch = <span class="keyword">new</span> CountDownLatch(<span class="number">1</span>);</span><br><span class="line">        <span class="comment">// 判断"/xych"节点是否存在，并且对此节点添加一个Watcher</span></span><br><span class="line">        Stat stat = zookeeper.exists(path, <span class="keyword">new</span> ApiZookeeperWatcher());</span><br><span class="line">        System.out.println(<span class="string">"deleteWatcher："</span> + path + <span class="string">"的节点属性："</span> + stat);</span><br><span class="line">        <span class="keyword">if</span>(stat != <span class="keyword">null</span>)</span><br><span class="line">        &#123;</span><br><span class="line">            zookeeper.delete(path, -<span class="number">1</span>);</span><br><span class="line">            countDownLatch.await();</span><br><span class="line">        &#125;</span><br><span class="line">        System.out.println();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 对setData监控</span></span><br><span class="line"><span class="comment">     * 做法：</span></span><br><span class="line"><span class="comment">     * 1、利用getData，获取某节点的value，同时对该节点添加一个Watcher</span></span><br><span class="line"><span class="comment">     * 2、创建该节点</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">setDataWatcher</span><span class="params">(String path, String value)</span> <span class="keyword">throws</span> Exception</span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        countDownLatch = <span class="keyword">new</span> CountDownLatch(<span class="number">1</span>);</span><br><span class="line">        Stat stat = <span class="keyword">new</span> Stat();</span><br><span class="line">        <span class="keyword">byte</span>[] bytes = zookeeper.getData(path, <span class="keyword">new</span> ApiZookeeperWatcher(), stat);</span><br><span class="line">        System.out.println(<span class="string">"setDataWatcher："</span> + path + <span class="string">"的原始值 = "</span> + <span class="keyword">new</span> String(bytes));</span><br><span class="line">        System.out.println(<span class="string">"setDataWatcher："</span> + path + <span class="string">"的节点信息 = "</span> + stat);</span><br><span class="line">        zookeeper.setData(path, value.getBytes(), -<span class="number">1</span>);</span><br><span class="line">        countDownLatch.await();</span><br><span class="line">        System.out.println();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 对create监控</span></span><br><span class="line"><span class="comment">     * 做法：</span></span><br><span class="line"><span class="comment">     * 1、利用exists，判断某节点是否存在，同时对该节点添加一个Watcher</span></span><br><span class="line"><span class="comment">     * 2、创建该节点</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">createWatcher</span><span class="params">(String path, String value)</span> <span class="keyword">throws</span> Exception</span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        countDownLatch = <span class="keyword">new</span> CountDownLatch(<span class="number">1</span>);</span><br><span class="line">        <span class="comment">// 判断path节点是否存在，并且对此节点添加一个Watcher</span></span><br><span class="line">        Stat stat = zookeeper.exists(path, <span class="keyword">new</span> ApiZookeeperWatcher());</span><br><span class="line">        System.out.println(<span class="string">"createWatcher："</span> + path + <span class="string">"的节点属性："</span> + stat);</span><br><span class="line">        <span class="keyword">if</span>(stat == <span class="keyword">null</span>)</span><br><span class="line">        &#123;</span><br><span class="line">            zookeeper.create(path, value.getBytes(), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.EPHEMERAL);</span><br><span class="line">            countDownLatch.await();</span><br><span class="line">        &#125;</span><br><span class="line">        System.out.println();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 创建连接</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">connect</span><span class="params">()</span> <span class="keyword">throws</span> Exception</span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        zookeeper = <span class="keyword">new</span> ZooKeeper(CONNECTSTRING, <span class="number">10000</span>, <span class="keyword">new</span> ApiZookeeperWatcher());</span><br><span class="line">        System.out.println(<span class="string">"connect "</span> + zookeeper.getState());</span><br><span class="line">        countDownLatch.await();</span><br><span class="line">        System.out.println(<span class="string">"connect "</span> + zookeeper.getState());</span><br><span class="line">        System.out.println();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">process</span><span class="params">(WatchedEvent watchedEvent)</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="comment">// 只在连接成功的情况下，进行事件监听</span></span><br><span class="line">        <span class="keyword">if</span>(watchedEvent.getState() == Watcher.Event.KeeperState.SyncConnected)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">try</span></span><br><span class="line">            &#123;</span><br><span class="line">                <span class="keyword">if</span>(Event.EventType.None == watchedEvent.getType())</span><br><span class="line">                &#123;</span><br><span class="line">                    System.out.println(<span class="string">"Watcher："</span> + watchedEvent.getState() + <span class="string">"--&gt;"</span> + watchedEvent.getType());</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="keyword">else</span> <span class="keyword">if</span>(Event.EventType.NodeCreated == watchedEvent.getType())</span><br><span class="line">                &#123;</span><br><span class="line">                    System.out.println(<span class="string">"Watcher："</span> + watchedEvent.getPath() + <span class="string">"被创建"</span>);</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="keyword">else</span> <span class="keyword">if</span>(Event.EventType.NodeDeleted == watchedEvent.getType())</span><br><span class="line">                &#123;</span><br><span class="line">                    System.out.println(<span class="string">"Watcher："</span> + watchedEvent.getPath() + <span class="string">"被删除"</span>);</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="keyword">else</span> <span class="keyword">if</span>(Event.EventType.NodeDataChanged == watchedEvent.getType())</span><br><span class="line">                &#123;</span><br><span class="line">                    System.out.println(<span class="string">"Watcher："</span> + watchedEvent.getPath() + <span class="string">"被修改"</span>);</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="keyword">else</span> <span class="keyword">if</span>(Event.EventType.NodeChildrenChanged == watchedEvent.getType())</span><br><span class="line">                &#123;</span><br><span class="line">                    System.out.println(<span class="string">"Watcher："</span> + watchedEvent.getPath() + <span class="string">"的子节点数量发生改变"</span>);</span><br><span class="line">                &#125;</span><br><span class="line">                countDownLatch.countDown();</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">catch</span>(Exception e)</span><br><span class="line">            &#123;</span><br><span class="line">                e.printStackTrace();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        System.out.println(<span class="string">"Watcher："</span> + <span class="keyword">this</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>输出<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line">connect CONNECTING</span><br><span class="line">Watcher：SyncConnected--&gt;None</span><br><span class="line">Watcher：com.xych.zookeeper.api.ApiZookeeperWatcher@<span class="number">7</span>b23ec81</span><br><span class="line">connect CONNECTED</span><br><span class="line"></span><br><span class="line">createWatcher：/xych的节点属性：<span class="keyword">null</span></span><br><span class="line">Watcher：/xych被创建</span><br><span class="line">Watcher：com.xych.zookeeper.api.ApiZookeeperWatcher@<span class="number">1</span>a7d63bd</span><br><span class="line"></span><br><span class="line">setDataWatcher：/xych的原始值 = xych</span><br><span class="line">setDataWatcher：/xych的节点信息 = <span class="number">165</span>,<span class="number">165</span>,<span class="number">1524221468877</span>,<span class="number">1524221468877</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">72057600313458724</span>,<span class="number">4</span>,<span class="number">0</span>,<span class="number">165</span></span><br><span class="line"></span><br><span class="line">Watcher：/xych被修改</span><br><span class="line">Watcher：com.xych.zookeeper.api.ApiZookeeperWatcher@<span class="number">7</span>aa0aa6f</span><br><span class="line"></span><br><span class="line">deleteWatcher：/xych的节点属性：<span class="number">165</span>,<span class="number">166</span>,<span class="number">1524221468877</span>,<span class="number">1524221468884</span>,<span class="number">1</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">72057600313458724</span>,<span class="number">4</span>,<span class="number">0</span>,<span class="number">165</span></span><br><span class="line"></span><br><span class="line">Watcher：/xych被删除</span><br><span class="line">Watcher：com.xych.zookeeper.api.ApiZookeeperWatcher<span class="meta">@bb</span>15e0d</span><br><span class="line"></span><br><span class="line">createWatcher_Children：/xych1的子节点：[]</span><br><span class="line">Watcher：/xych1/lanboo被创建</span><br><span class="line">Watcher：com.xych.zookeeper.api.ApiZookeeperWatcher@<span class="number">2</span>cce4a9a</span><br><span class="line">Watcher：/xych1的子节点数量发生改变</span><br><span class="line">Watcher：com.xych.zookeeper.api.ApiZookeeperWatcher@<span class="number">2</span>d8e2810</span><br><span class="line"></span><br><span class="line">setDataWatcher_Children：/xych1的子节点：[lanboo]</span><br><span class="line">Watcher：/xych1/lanboo被修改</span><br><span class="line">Watcher：com.xych.zookeeper.api.ApiZookeeperWatcher@<span class="number">7333</span>dbfe</span><br><span class="line"></span><br><span class="line">deleteWatcher_Children：/xych1的子节点：[lanboo]</span><br><span class="line">Watcher：/xych1/lanboo被删除</span><br><span class="line">Watcher：com.xych.zookeeper.api.ApiZookeeperWatcher@<span class="number">7165</span>a6c4</span><br><span class="line">Watcher：/xych1的子节点数量发生改变</span><br><span class="line">Watcher：com.xych.zookeeper.api.ApiZookeeperWatcher@<span class="number">2f</span>21b320</span><br><span class="line">Watcher：/xych1的子节点数量发生改变</span><br><span class="line">Watcher：com.xych.zookeeper.api.ApiZookeeperWatcher@<span class="number">31</span>ecabd5</span><br></pre></td></tr></table></figure></p>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">zookeeper</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+      
+
+      <div style="font-size: 12px;">
+        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
+      </div>
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2018/06/09/zookeeper学习笔记_05_原生API的使用/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
     <article id="post-CentOS7安装JDK详细过程" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
@@ -1229,200 +1676,6 @@
 
 
   
-    <article id="post-教你如何成为Java的OOM-Killer" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2018/05/13/教你如何成为Java的OOM-Killer/">教你如何成为Java的OOM Killer</a>
-    </h1>
-  
-
-        
-        <a href="/2018/05/13/教你如何成为Java的OOM-Killer/" class="archive-article-date">
-  	<time datetime="2018-05-13T06:47:38.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-05-13</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h2 id="Become-OOM-Killer"><a href="#Become-OOM-Killer" class="headerlink" title="Become OOM Killer"></a>Become OOM Killer</h2><p>我们都知道JVM的内存管理是自动化的，Java语言的程序指针也不需要开发人员手工释放，JVM的GC会自动的进行回收，但是，如果编程不当，JVM仍然会发生内存泄露，导致Java程序产生了OutOfMemoryError（OOM）错误。</p>
-<p>产生OutOfMemoryError错误的原因包括：</p>
-<blockquote>
-<ol>
-<li>java.lang.OutOfMemoryError: Java heap space</li>
-<li>java.lang.OutOfMemoryError: PermGen space及其解决方法</li>
-<li>java.lang.OutOfMemoryError: unable to create new native thread</li>
-<li>java.lang.OutOfMemoryError：GC overhead limit exceeded</li>
-</ol>
-</blockquote>
-<p>对于第1种异常，表示Java堆空间不够，当应用程序申请更多的内存，而Java堆内存已经无法满足应用程序对内存的需要，将抛出这种异常。</p>
-<p>对于第2种异常，表示Java永久带（方法区）空间不够，永久带用于存放类的字节码和长常量池，类的字节码加载后存放在这个区域，这和存放对象实例的堆区是不同的，大多数JVM的实现都不会对永久带进行垃圾回收，因此，只要类加载的过多就会出现这个问题。一般的应用程序都不会产生这个错误，然而，对于Web服务器来讲，会产生有大量的JSP，JSP在运行时被动态的编译成Java Servlet类，然后加载到方法区，因此，太多的JSP的Web工程可能产生这个异常。</p>
-<p>对于第3种异常，本质原因是创建了太多的线程，而能创建的线程数是有限制的，导致了这种异常的发生。</p>
-<p>对于第4种异常，是在并行或者并发回收器在GC回收时间过长、超过98%的时间用来做GC并且回收了不到2%的堆内存，然后抛出这种异常进行提前预警，用来避免内存过小造成应用不能正常工作。</p>
-<p>下面两个异常与OOM有关系，但是，又没有绝对关系。</p>
-<blockquote>
-<ol>
-<li>java.lang.StackOverflowError …</li>
-<li>java.net.SocketException: Too many open files</li>
-</ol>
-</blockquote>
-<p>对于第1种异常，是JVM的线程由于递归或者方法调用层次太多，占满了线程堆栈而导致的，线程堆栈默认大小为1M。</p>
-<p>对于第2种异常，是由于系统对文件句柄的使用是有限制的，而某个应用程序使用的文件句柄超过了这个限制，就会导致这个问题。</p>
-<p>上面介绍了OOM相关的基础知识，接下来我们开始讲述笔者经历的一次OOM问题的定位和解决的过程。</p>
-<p><strong>1. 产生问题的现象</strong></p>
-<p>在某一段时间内，我们发现不同的业务服务开始偶发的报OOM的异常，有的时候是白天发生，有的时候是晚上发生，有的时候是基础服务A发生，有的时候是上层服务B发生，有的时候是上层服务C发生，有的时候是下层服务D发生，丝毫看不到一点规律。</p>
-<p>产生问题的异常如下：</p>
-<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Caused by: java<span class="selector-class">.lang</span><span class="selector-class">.OutOfMemoryError</span>: unable to create new native thread at java<span class="selector-class">.lang</span><span class="selector-class">.Thread</span><span class="selector-class">.start0</span>(Native Method)</span><br><span class="line">at java<span class="selector-class">.lang</span><span class="selector-class">.Thread</span><span class="selector-class">.start</span>(Thread<span class="selector-class">.java</span>:<span class="number">597</span>)</span><br><span class="line">at java<span class="selector-class">.util</span><span class="selector-class">.Timer</span>.&lt;init&gt;(Timer<span class="selector-class">.java</span>:<span class="number">154</span>)</span><br></pre></td></tr></table></figure>
-<p><strong>2. 解决问题的思路和过程</strong></p>
-<p>经过细心观察发现，产生问题虽然在不同的时间发生在不同的服务池，但是，晚上0点发生的时候概率较大，也有其他时间偶发，但是都在整点。</p>
-<p>这个规律很重要，虽然不是一个时间，但是基本都在整点左右发生，并且晚上0点居多。从这个角度思考，整点或者0点系统是否有定时，与出问题的每个业务系统技术负责人核实，0点没有定时任务，其他时间的整点有定时任务，但是与发生问题的时间不吻合，这个思路行不通。</p>
-<p>到现在为止，从现象的规律上我们已经没法继续分析下去了，那我们回顾一下错误本身：</p>
-<blockquote>
-<p>java.lang.OutOfMemoryError: unable to create new native thread</p>
-</blockquote>
-<p>顾名思义，错误产生的原因就是应用不能创建线程了，但是，应用还需要创建线程。为什么程序不能创建线程呢？</p>
-<p>有两个具体原因造成这个异常:</p>
-<blockquote>
-<ol>
-<li>由于线程使用的资源过多，操作系统已经不能再提供给应用资源了。</li>
-<li>操作系统设置了应用创建线程的最大数量，并且已经达到了最大允许数量。</li>
-</ol>
-</blockquote>
-<p>上面第1条资源指的是内存，而第2条中，在Linux下线程使用轻量级进程实现的，因此线程的最大数量也是操作系统允许的进程的最大数量。</p>
-<p><em>内存计算</em></p>
-<p>操作系统中的最大可用内存除去操作系统本身使用的部分，剩下的都可以为某一个进程服务，在JVM进程中，内存又被分为堆、本地内存和栈等三大块，Java堆是JVM自动管理的内存，应用的对象的创建和销毁、类的装载等都发生在这里，本地内存是Java应用使用的一种特殊内存，JVM并不直接管理其生命周期，每个线程也会有一个栈，是用来存储线程工作过程中产生的方法局部变量、方法参数和返回值的，每个线程对应的栈的默认大小为1M。</p>
-<p>Linux和JVM的内存管理示意图如下：</p>
-<p><img src="http://mmbiz.qpic.cn/mmbiz_jpg/odp4zTVAogo5XkPb5f7cibDtDbGb5HUqBhBLwQDAFPtTbjwhCXrTDaf7KQjCASp4XJ896CaP7wYPwUNCWYicEeUw/640?wx_fmt=jpeg&amp;tp=webp&amp;wxfrom=5&amp;wx_lazy=1" alt="img"></p>
-<p>因此，从内存角度来看创建线程需要内存空间，如果JVM进程正当一个应用创建线程，而操作系统没有剩余的内存分配给此JVM进程，则会抛出问题中的OOM异常：unable to create new native thread。</p>
-<p>如下公式可以用来从内存角度计算允许创建的最大线程数：</p>
-<blockquote>
-<p>最大线程数 = （操作系统最大可用内存 - JVM内存 - 操作系统预留内存）/ 线程栈大小</p>
-</blockquote>
-<p>根据这个公式，我们可以通过剩余内存计算可以创建线程的数量。</p>
-<p>下面是问题出现的时候，从生产机器上执行前面小节介绍的Linux命令free的输出：</p>
-<figure class="highlight tap"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">free -m &gt;&gt; /tmp/free.log</span><br><span class="line">             total       used       free     shared    buffers     cached</span><br><span class="line">Mem:         <span class="number"> 7872 </span>     <span class="number"> 7163 </span>      <span class="number"> 709 </span>        <span class="number"> 0 </span>       <span class="number"> 31 </span>      3807-/+ buffers/cache:      <span class="number"> 3324 </span>      4547Swap:        <span class="number"> 4095 </span>      <span class="number"> 173 </span>      3922Tue Jul<span class="number"> 5 </span>00:27:51 CST 2016</span><br></pre></td></tr></table></figure>
-<p>从上面输出可以得出，生产机器8G内存，使用了7G，剩余700M可用，其中操作系统cache使用3.8G。操作系统cache使用的3.8G是用来缓存IO数据的，如果进程内存不够用，这些内存是可以释放出来优先分配给进程使用。然而，我们暂时并不需要考虑这块内存，剩余的700M空间完全可以继续用来创建线程数：</p>
-<blockquote>
-<p>700M / 1M = 700个线程</p>
-</blockquote>
-<p>因此，根据内存可用计算，当OOM异常：unable to create new native thread问题发生的时候，还有700M可用内存，可以创建700个线程。</p>
-<p>到现在为止可以证明此次OOM异常不是因为线程吃光所有的内存而导致的。</p>
-<p><em>线程数对比</em></p>
-<p>上面提到，有两个具体原因造成这个异常，我们上面已经排除了第1个原因，那我们现在从第2个原因入手，评估是否操作系统设置了应用创建线程的最大数量，并且已经达到了最大允许数量。</p>
-<p>在问题出现的生产机器上使用ulimit -a来显示当前的各种系统对用户使用资源的限制：</p>
-<figure class="highlight mel"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">robert@robert-ubuntu1410：~$ ulimit -acore <span class="keyword">file</span> <span class="keyword">size</span>          (blocks, -c) <span class="number">0</span>data seg <span class="keyword">size</span>           (kbytes, -d) unlimited</span><br><span class="line">scheduling priority             (-e) <span class="number">0</span><span class="keyword">file</span> <span class="keyword">size</span>               (blocks, -f) unlimited</span><br><span class="line">pending signals                 (-i) <span class="number">62819</span><span class="keyword">max</span> locked <span class="keyword">memory</span>       (kbytes, -l) <span class="number">64</span><span class="keyword">max</span> <span class="keyword">memory</span> <span class="keyword">size</span>         (kbytes, -m) unlimited</span><br><span class="line">open files                      (-n) <span class="number">65535</span>pipe <span class="keyword">size</span>            (<span class="number">512</span> bytes, -p) <span class="number">8</span>POSIX message queues     (bytes, -q) <span class="number">819200</span>real-time priority              (-r) <span class="number">0</span>stack <span class="keyword">size</span>              (kbytes, -s) <span class="number">10240</span>cpu time               (seconds, -t) unlimited</span><br><span class="line"><span class="keyword">max</span> user processes              (-u) <span class="number">1024</span>virtual <span class="keyword">memory</span>          (kbytes, -v) unlimited</span><br><span class="line"><span class="keyword">file</span> locks                      (-x) unlimited</span><br></pre></td></tr></table></figure>
-<p>这里面我们看到生产机器设置的允许使用的最大用户进程数为1024：</p>
-<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">max<span class="built_in"> user </span>processes              (-u) 1024</span><br></pre></td></tr></table></figure>
-<p>现在，我们必须获得问题出现的时候，用户下创建的线程情况。</p>
-<p>在问题产生的时候，我们使用前面小结介绍的JVM监控命令jstack命令打印出了Java线程情况,jstack命令的示例输出如下：</p>
-<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">robert@robert-ubuntu1410:~$ jstack <span class="number">2743</span></span><br><span class="line"></span><br><span class="line"><span class="number">2017</span>-<span class="number">04</span>-<span class="number">09</span> <span class="number">12</span>:<span class="number">06</span>:<span class="number">51</span>Full thread dump Java HotSpot(TM) Server VM (<span class="number">25.20</span>-b23 mixed mode):<span class="string">"Attach Listener"</span> #<span class="number">23</span> daemon prio=<span class="number">9</span> os_prio=<span class="number">0</span> tid=<span class="number">0</span>xc09adc00 nid=<span class="number">0</span>xb4c waiting on condition [<span class="number">0</span>x00000000]</span><br><span class="line">   java<span class="selector-class">.lang</span><span class="selector-class">.Thread</span><span class="selector-class">.State</span>: RUNNABLE<span class="string">"http-nio-8080-Acceptor-0"</span> #<span class="number">22</span> daemon prio=<span class="number">5</span> os_prio=<span class="number">0</span> tid=<span class="number">0</span>xc3341000 nid=<span class="number">0</span>xb02 runnable [<span class="number">0</span>xbf1bd000]</span><br><span class="line">   java<span class="selector-class">.lang</span><span class="selector-class">.Thread</span><span class="selector-class">.State</span>: RUNNABLE</span><br><span class="line">    at sun<span class="selector-class">.nio</span><span class="selector-class">.ch</span><span class="selector-class">.ServerSocketChannelImpl</span><span class="selector-class">.accept0</span>(Native Method)</span><br><span class="line">    at sun<span class="selector-class">.nio</span><span class="selector-class">.ch</span><span class="selector-class">.ServerSocketChannelImpl</span><span class="selector-class">.accept</span>(ServerSocketChannelImpl<span class="selector-class">.java</span>:<span class="number">241</span>)</span><br><span class="line">    - locked &lt;<span class="number">0</span>xcf8938d8&gt; (<span class="selector-tag">a</span> java<span class="selector-class">.lang</span><span class="selector-class">.Object</span>)</span><br><span class="line">    at org<span class="selector-class">.apache</span><span class="selector-class">.tomcat</span><span class="selector-class">.util</span><span class="selector-class">.net</span><span class="selector-class">.NioEndpoint</span><span class="variable">$Acceptor</span>.run(NioEndpoint<span class="selector-class">.java</span>:<span class="number">688</span>)</span><br><span class="line">    at java<span class="selector-class">.lang</span><span class="selector-class">.Thread</span><span class="selector-class">.run</span>(Thread<span class="selector-class">.java</span>:<span class="number">745</span>)<span class="string">"http-nio-8080-ClientPoller-1"</span> #<span class="number">21</span> daemon prio=<span class="number">5</span> os_prio=<span class="number">0</span> tid=<span class="number">0</span>xc35bc400 nid=<span class="number">0</span>xb01 runnable [<span class="number">0</span>xbf1fe000]</span><br><span class="line">   java<span class="selector-class">.lang</span><span class="selector-class">.Thread</span><span class="selector-class">.State</span>: RUNNABLE</span><br><span class="line">    at sun<span class="selector-class">.nio</span><span class="selector-class">.ch</span><span class="selector-class">.EPollArrayWrapper</span><span class="selector-class">.epollWait</span>(Native Method)</span><br><span class="line">    at sun<span class="selector-class">.nio</span><span class="selector-class">.ch</span><span class="selector-class">.EPollArrayWrapper</span><span class="selector-class">.poll</span>(EPollArrayWrapper<span class="selector-class">.java</span>:<span class="number">269</span>)</span><br><span class="line">    at sun<span class="selector-class">.nio</span><span class="selector-class">.ch</span><span class="selector-class">.EPollSelectorImpl</span><span class="selector-class">.doSelect</span>(EPollSelectorImpl<span class="selector-class">.java</span>:<span class="number">79</span>)</span><br><span class="line">    at sun<span class="selector-class">.nio</span><span class="selector-class">.ch</span><span class="selector-class">.SelectorImpl</span><span class="selector-class">.lockAndDoSelect</span>(SelectorImpl<span class="selector-class">.java</span>:<span class="number">86</span>)</span><br><span class="line">    - locked &lt;<span class="number">0</span>xcf99b100&gt; (<span class="selector-tag">a</span> sun<span class="selector-class">.nio</span><span class="selector-class">.ch</span><span class="selector-class">.Util</span>$<span class="number">2</span>)</span><br><span class="line">    - locked &lt;<span class="number">0</span>xcf99b0f0&gt; (<span class="selector-tag">a</span> java<span class="selector-class">.util</span><span class="selector-class">.Collections</span><span class="variable">$UnmodifiableSet</span>)</span><br><span class="line">    - locked &lt;<span class="number">0</span>xcf99aff8&gt; (<span class="selector-tag">a</span> sun<span class="selector-class">.nio</span><span class="selector-class">.ch</span><span class="selector-class">.EPollSelectorImpl</span>)</span><br><span class="line">    at sun<span class="selector-class">.nio</span><span class="selector-class">.ch</span><span class="selector-class">.SelectorImpl</span><span class="selector-class">.select</span>(SelectorImpl<span class="selector-class">.java</span>:<span class="number">97</span>)</span><br><span class="line">    at org<span class="selector-class">.apache</span><span class="selector-class">.tomcat</span><span class="selector-class">.util</span><span class="selector-class">.net</span><span class="selector-class">.NioEndpoint</span><span class="variable">$Poller</span>.run(NioEndpoint<span class="selector-class">.java</span>:<span class="number">1052</span>)</span><br><span class="line">    at java<span class="selector-class">.lang</span><span class="selector-class">.Thread</span><span class="selector-class">.run</span>(Thread<span class="selector-class">.java</span>:<span class="number">745</span>)</span><br><span class="line">......</span><br></pre></td></tr></table></figure>
-<p>从jstack命令的输出并统计后，我们得知，JVM一共创建了904个线程，但是，这还没有到最大的进程限制1024。</p>
-<figure class="highlight autoit"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">robert<span class="symbol">@robert</span>-ubuntu1410:~$ grep <span class="string">"Thread "</span> js.<span class="built_in">log</span> | wc -l</span><br><span class="line">     <span class="number">904</span></span><br></pre></td></tr></table></figure>
-<p>这是我们思考，除了JVM创建的应用层线程，JVM本身可能会有一些管理线程存在，而且操作系统内用户下可能也会有守护线程在运行。</p>
-<p>我们继续从操作系统的角度来统计线程数，我们使用上面小结介绍的Linux操作系统命令pstack，并得到如下的输出：</p>
-<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">PID   LWP<span class="built_in"> USER </span>    %CPU %MEM CMD    1     1 root      0.0  0.0 /sbin/init    2     2 root      0.0  0.0 [kthreadd]    3     3 root      0.0  0.0 [migration/0]    4     4 root      0.0  0.0 [ksoftirqd/0]    5     5 root      0.0  0.0 [migration/0]    6     6 root      0.0  0.0 [watchdog/0]    7     7 root      0.0  0.0 [migration/1]    8     8 root      0.0  0.0 [migration/1]    9     9 root      0.0  0.0 [ksoftirqd/1]   10    10 root      0.0  0.0 [watchdog/1]   11    11 root      0.0  0.0 [migration/2]   12    12 root      0.0  0.0 [migration/2]   13    13 root      0.0  0.0 [ksoftirqd/2]   14    14 root      0.0  0.0 [watchdog/2]   15    15 root      0.0  0.0 [migration/3]   16    16 root      0.0  0.0 [migration/3]   17    17 root      0.0  0.0 [ksoftirqd/3]   18    18 root      0.0  0.0 [watchdog/3]   19    19 root      0.0  0.0 [events/0]   20    20 root      0.0  0.0 [events/1]   21    21 root      0.0  0.0 [events/2]   22    22 root      0.0  0.0 [events/3]   23    23 root      0.0  0.0 [cgroup]   24    24 root      0.0  0.0 [khelper]</span><br><span class="line"></span><br><span class="line"> <span class="built_in">..</span><span class="built_in">..</span><span class="built_in">..</span> 7257  7257 zabbix    0.0  0.0 /usr/local/zabbix/sbin/zabbix_agentd: active checks #2 [idle 1 sec]</span><br><span class="line"> 7258  7258 zabbix    0.0  0.0 /usr/local/zabbix/sbin/zabbix_agentd: active checks #3 [idle 1 sec]</span><br><span class="line"> 7259  7259 zabbix    0.0  0.0 /usr/local/zabbix/sbin/zabbix_agentd: active checks #4 [idle 1 sec]</span><br><span class="line"></span><br><span class="line"> <span class="built_in">..</span><span class="built_in">..</span><span class="built_in">..</span> 9040  9040 app       0.0 30.5 /apps/prod/jdk1.6.0_24/bin/java -Dnop -Djava.util.logging.<span class="attribute">manager</span>=org.apache.juli.ClassLoaderLogManager <span class="attribute">-Ddbconfigpath</span>=/apps/dbconfig/ -Djava.io.<span class="attribute">tmpdir</span>=/apps/data/java-tmpdir -server -Xms2048m -Xmx2048m -XX:<span class="attribute">PermSize</span>=128m -XX:<span class="attribute">MaxPermSize</span>=512m -Dcom.sun.management.jmxremote -Djava.rmi.server.<span class="attribute">hostname</span>=192.168.10.194 -Dcom.sun.management.jmxremote.<span class="attribute">port</span>=6969 -Dcom.sun.management.jmxremote.<span class="attribute">ssl</span>=<span class="literal">false</span> -Dcom.sun.management.jmxremote.<span class="attribute">authenticate</span>=<span class="literal">false</span> -XX:+HeapDumpOnOutOfMemoryError -XX:<span class="attribute">HeapDumpPath</span>=/tmp -Xshare:off <span class="attribute">-Dhostname</span>=sjsa-trade04 -Djute.<span class="attribute">maxbuffer</span>=41943040 -Djava.net.<span class="attribute">preferIPv4Stack</span>=<span class="literal">true</span> -Dfile.<span class="attribute">encoding</span>=UTF-8 <span class="attribute">-Dworkdir</span>=/apps/data/tomcat-work -Djava.endorsed.<span class="attribute">dirs</span>=/apps/product/tomcat-trade/endorsed -classpath commonlib:/apps/product/tomcat-trade/bin/bootstrap.jar:/apps/product/tomcat-trade/bin/tomcat-juli.jar -Dcatalina.<span class="attribute">base</span>=/apps/product/tomcat-trade -Dcatalina.<span class="attribute">home</span>=/apps/product/tomcat-trade -Djava.io.<span class="attribute">tmpdir</span>=/apps/data/tomcat-temp/ org.apache.catalina.startup.Bootstrap start 9040  9041 app       0.0 30.5 /apps/prod/jdk1.6.0_24/bin/java -Dnop -Djava.util.logging.<span class="attribute">manager</span>=org.apache.juli.ClassLoaderLogManager <span class="attribute">-Ddbconfigpath</span>=/apps/dbconfig/ -Djava.io.<span class="attribute">tmpdir</span>=/apps/data/java-tmpdir -server -Xms2048m -Xmx2048m -XX:<span class="attribute">PermSize</span>=128m -XX:<span class="attribute">MaxPermSize</span>=512m -Dcom.sun.management.jmxremote -Djava.rmi.server.<span class="attribute">hostname</span>=192.168.10.194 -Dcom.sun.management.jmxremote.<span class="attribute">port</span>=6969 -Dcom.sun.management.jmxremote.<span class="attribute">ssl</span>=<span class="literal">false</span> -Dcom.sun.management.jmxremote.<span class="attribute">authenticate</span>=<span class="literal">false</span> -XX:+HeapDumpOnOutOfMemoryError -XX:<span class="attribute">HeapDumpPath</span>=/tmp -Xshare:off <span class="attribute">-Dhostname</span>=sjsa-trade04 -Djute.<span class="attribute">maxbuffer</span>=41943040 -Djava.net.<span class="attribute">preferIPv4Stack</span>=<span class="literal">true</span> -Dfile.<span class="attribute">encoding</span>=UTF-8 <span class="attribute">-Dworkdir</span>=/apps/data/tomcat-work -Djava.endorsed.<span class="attribute">dirs</span>=/apps/product/tomcat-trade/endorsed -classpath commonlib:/apps/product/tomcat-trade/bin/bootstrap.jar:/apps/product/tomcat-trade/bin/tomcat-juli.jar -Dcatalina.<span class="attribute">base</span>=/apps/product/tomcat-trade -Dcatalina.<span class="attribute">home</span>=/apps/product/tomcat-trade -Djava.io.<span class="attribute">tmpdir</span>=/apps/data/tomcat-temp/ org.apache.catalina.startup.Bootstrap start</span><br><span class="line"></span><br><span class="line"><span class="built_in">..</span><span class="built_in">..</span><span class="built_in">..</span></span><br></pre></td></tr></table></figure>
-<p>通过命令统计用户下已经创建的线程数为1021。</p>
-<figure class="highlight 1c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ grep app pthreads.<span class="built_in">log</span> <span class="string">| wc -l</span></span><br><span class="line">    <span class="number">1021</span></span><br></pre></td></tr></table></figure>
-<p>现在我们确定，1021的数字已经相当的接近1021的最大进程数了，正如前面我们提到，在Linux操作系统里，线程是通过轻量级的进程实现的，因此，限制用户的最大进程数，就是限制用户的最大线程数，至于为什么没有精确达到1024这个最大值就已经报出异常，应该是系统的自我保护功能，在还剩下3个线程的前提下，就开始报错。</p>
-<p>到此为止，我们已经通过分析来找到问题的原因，但是，我们还是不知道为什么会创建这么多的线程，从第一个输出得知，JVM已经创建的应用线程有907个，那么他们都在做什么事情呢？</p>
-<p>于是，在问题发生的时候，我们又使用JVM的jstack命令，查看输出得知，每个线程都阻塞在打印日志的语句上，log4j中打印日志的代码实现如下：</p>
-<figure class="highlight cs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">callAppenders</span>(<span class="params">LoggingEvent <span class="keyword">event</span></span>) </span>&#123;    <span class="keyword">int</span> writes = <span class="number">0</span>;    <span class="keyword">for</span>(Category c = <span class="keyword">this</span>; c != <span class="literal">null</span>; c=c.parent) &#123;        <span class="comment">// Protected against simultaneous call to addAppender, removeAppender,...</span></span><br><span class="line">        synchronized(c) &#123;         </span><br><span class="line">        <span class="keyword">if</span>(c.aai != <span class="literal">null</span>) &#123;</span><br><span class="line">                writes += c.aai.appendLoopOnAppenders(<span class="keyword">event</span>);</span><br><span class="line">            &#125;            <span class="keyword">if</span>(!c.additive) &#123;                <span class="keyword">break</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;    <span class="keyword">if</span>(writes == <span class="number">0</span>) &#123;</span><br><span class="line">        repository.emitNoAppenderWarning(<span class="keyword">this</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>在log4j中，打印日志有一个锁，锁的作用是让打印日志可以串行，保证日志在日志文件中的正确性和顺序性。</p>
-<p>那么，新的问题又来了，为什么只有凌晨0点会出现打印日志阻塞，其他时间会偶尔发生呢？这时，我们带着新的线索又回到问题开始的思路，凌晨12点应用没有定时任务，系统会不会有其他的IO密集型的任务，比如说归档日志、磁盘备份等？</p>
-<p>经过与运维部门碰头，基本确定是每天凌晨0点日志切割导致磁盘IO被占用，于是堵塞打印日志，日志是每个工作任务都必须的，日志阻塞，线程池就阻塞，线程池阻塞就导致线程池被撑大，线程池里面的线程数超过1024就会报错。</p>
-<p>到这里，我们基本确定了问题的原因，但是还需要对日志切割导致IO增大进行分析和论证。</p>
-<p>首先我们使用前面小结介绍的vmstat查看问题发生时IO等待数据：</p>
-<figure class="highlight brainfuck"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">vmstat</span> <span class="comment">2</span> <span class="comment">1</span> &gt;&gt; <span class="comment">/tmp/vm</span><span class="string">.</span><span class="comment">log</span></span><br><span class="line"><span class="comment">procs</span> <span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="comment">memory</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span> <span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="comment">swap</span><span class="literal">-</span><span class="literal">-</span> <span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="comment">io</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">system</span><span class="literal">-</span><span class="literal">-</span> <span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="comment">cpu</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span></span><br><span class="line"> <span class="comment">r</span>  <span class="comment">b</span>   <span class="comment">swpd</span>   <span class="comment">free</span>   <span class="comment">buff</span>  <span class="comment">cache</span>   <span class="comment">si</span>   <span class="comment">so</span>    <span class="comment">bi</span>    <span class="comment">bo</span>   <span class="comment">in</span>   <span class="comment">cs</span> <span class="comment">us</span> <span class="comment">sy</span> <span class="comment">id</span> <span class="comment">wa</span> <span class="comment">st</span> <span class="comment">3</span>  <span class="comment">0</span> <span class="comment">177608</span> <span class="comment">725636</span>  <span class="comment">31856</span> <span class="comment">3899144</span>    <span class="comment">0</span>    <span class="comment">0</span>     <span class="comment">2</span>    <span class="comment">10</span>    <span class="comment">0</span>    <span class="comment">0</span>  <span class="comment">39</span>  <span class="comment">1</span> <span class="comment">1</span>  <span class="comment">59</span>  <span class="comment">0</span>    <span class="comment">Tue</span> <span class="comment">Jul</span> <span class="comment">5</span> <span class="comment">00:27:51</span> <span class="comment">CST</span> <span class="comment">2016</span></span><br></pre></td></tr></table></figure>
-<p>可见，问题发生的时候，CPU的IO等待为59%，同时又与运维部门同事复盘，运维同事确认，脚本切割通过cat命令方法，先把日志文件cat后，通过管道打印到另外一个文件，再清空原文件，因此，一定会导致IO的上升。</p>
-<p>其实，问题的过程中，还有一个疑惑，我们认为线程被IO阻塞，线程池被撑开，导致线程增多，于是，我们查看了一下Tomcat线程池的设置，我们发现Tomcat线程池设置了800，按理说，永远不会超过1024。</p>
-<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&lt;Connector <span class="attribute">port</span>=<span class="string">"8080"</span>     </span><br><span class="line">               <span class="attribute">maxThreads</span>=<span class="string">"800"</span> <span class="attribute">minSpareThreads</span>=<span class="string">"25"</span> <span class="attribute">maxSpareThreads</span>=<span class="string">"75"</span>     </span><br><span class="line">               <span class="attribute">enableLookups</span>=<span class="string">"false"</span> <span class="attribute">redirectPort</span>=<span class="string">"8443"</span> <span class="attribute">acceptCount</span>=<span class="string">"100"</span>     </span><br><span class="line">               <span class="attribute">debug</span>=<span class="string">"0"</span> <span class="attribute">connectionTimeout</span>=<span class="string">"20000"</span>      </span><br><span class="line">               <span class="attribute">disableUploadTimeout</span>=<span class="string">"true"</span> /&gt;</span><br></pre></td></tr></table></figure>
-<p>关键在于，笔者所在的支付平台服务化架构中，使用了两套服务化框架，一个是基于dubbo的框架，一个是点对点的RPC，用来紧急情况下dubbo服务出现问题，服务降级使用。</p>
-<p>每个服务都配置了点对点的RPC服务，并且独享一个线程池：</p>
-<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&lt;Connector <span class="attribute">port</span>=<span class="string">"8090"</span>     </span><br><span class="line">               <span class="attribute">maxThreads</span>=<span class="string">"800"</span> <span class="attribute">minSpareThreads</span>=<span class="string">"25"</span> <span class="attribute">maxSpareThreads</span>=<span class="string">"75"</span>     </span><br><span class="line">               <span class="attribute">enableLookups</span>=<span class="string">"false"</span> <span class="attribute">redirectPort</span>=<span class="string">"8443"</span> <span class="attribute">acceptCount</span>=<span class="string">"100"</span>     </span><br><span class="line">               <span class="attribute">debug</span>=<span class="string">"0"</span> <span class="attribute">connectionTimeout</span>=<span class="string">"20000"</span>      </span><br><span class="line">               <span class="attribute">disableUploadTimeout</span>=<span class="string">"true"</span> /&gt;</span><br></pre></td></tr></table></figure>
-<p>由于我们在对dubbo服务框架进行定制化的时候，设计了自动降级原则，如果dubbo服务负载变高，会自动切换到点对点的RPC框架，这也符合微服务的失效转移原则，但是设计中没有进行全面的考虑，一旦一部分服务切换到了点对点的RPC，而一部分的服务没有切换，就导致两个现场池都被撑满，于是超过了1024的限制，就出了问题。</p>
-<p>到这里，我们基本可以验证，问题的根源是日志切割导致IO负载增加，然后阻塞线程池，最后发生OOM：unable to create new native thread。</p>
-<p>剩下的任务就是最小化重现的问题，通过实践来验证问题的原因。我们与性能压测部门沟通，提出压测需求：</p>
-<blockquote>
-<ol>
-<li>Tomcat线程池最大设置为1500.</li>
-<li>操作系统允许的最大用户进程数1024.</li>
-<li>在给服务加压的过程中，需要人工制造繁忙的IO操作，IO等待不得低于50%。</li>
-</ol>
-</blockquote>
-<p>经过压测压测部门的一下午努力，环境搞定，结果证明完全可以重现此问题。</p>
-<p>最后，与所有相关部门讨论和复盘，应用解决方案，解决方案包括：</p>
-<blockquote>
-<ol>
-<li>全部应用改成按照小时切割，或者直接使用log4j的日志滚动功能。</li>
-<li>Tomcat线程池的线程数设置与操作系统的线程数设置不合理，适当的减少Tomcat线程池线程数量的大小。</li>
-<li>升级log4j日志，使用logback或者log4j2。</li>
-</ol>
-</blockquote>
-<p>这次OOM问题的可以归结为“多个因、多个果、多台机器、多个服务池、不同时间”，针对这个问题，与运维部、监控部和性能压测部门的同事奋斗了几天几夜，终于通过在线上抓取信息、分析问题、在性能压测部门同事的帮助下，最小化重现问题并找到问题的根源原因，最后，针对问题产生的根源提供了有效的方案。</p>
-<p><strong>3. 与监控同事现场编写的脚本</strong></p>
-<p>本节提供一个笔者在实践过程中解决OOM问题的一个简单脚本，这个脚本是为了解决OOM（unable to create native thread)的问题而在问题机器上临时编写，并临时使用的，脚本并没有写的很专业，笔者也没有进行优化，保持原汁原味的风格，这样能让读者有种身临其境的感觉，只是为了抓取需要的信息并解决问题，但是在线上问题十分火急的情况下，这个脚本会有大用处。</p>
-<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#!/bin/bashps -Leo pid,lwp,user,pcpu,pmem,cmd &gt;&gt; /tmp/pthreads.logecho "ps -Leo pid,lwp,user,pcpu,pmem,cmd &gt;&gt; /tmp/pthreads.log" &gt;&gt; /tmp/pthreads.logecho `date` &gt;&gt; /tmp/pthreads.logecho 1pid=`ps aux|grep tomcat|grep cwh|awk -F ' ' '&#123;print $2&#125;'`echo 2echo "pstack $pid &gt;&gt; /tmp/pstack.log" &gt;&gt; /tmp/pstack.log</span></span><br><span class="line">pstack $pid <span class="meta">&gt;&gt; </span>/tmp/pstack.logecho <span class="string">`date`</span> &gt;&gt; <span class="regexp">/tmp/pstack</span>.logecho <span class="number">3</span>echo <span class="string">"lsof &gt;&gt; /tmp/sys-o-files.log"</span> &gt;&gt; <span class="regexp">/tmp/sys</span>-o-files.log</span><br><span class="line">lsof <span class="meta">&gt;&gt; </span>/tmp/sys-o-files.logecho <span class="string">`date`</span> &gt;&gt; <span class="regexp">/tmp/sys</span>-o-files.logecho <span class="number">4</span>echo <span class="string">"lsof -p $pid &gt;&gt; /tmp/service-o-files.log"</span> &gt;&gt; <span class="regexp">/tmp/service</span>-o-files.log</span><br><span class="line">lsof -p $pid <span class="meta">&gt;&gt; </span>/tmp/service-o-files.logecho <span class="string">`date`</span> &gt;&gt; <span class="regexp">/tmp/service</span>-o-files.logecho <span class="number">5</span>echo <span class="string">"jstack -l $pid  &gt;&gt; /tmp/js.log"</span> &gt;&gt; <span class="regexp">/tmp/js</span>.log</span><br><span class="line">jstack -l -F $pid  <span class="meta">&gt;&gt; </span>/tmp/js.logecho <span class="string">`date`</span> &gt;&gt; <span class="regexp">/tmp/js</span>.logecho <span class="number">6</span> echo <span class="string">"free -m &gt;&gt; /tmp/free.log"</span> &gt;&gt; <span class="regexp">/tmp/free</span>.log</span><br><span class="line">free -m <span class="meta">&gt;&gt; </span>/tmp/free.logecho <span class="string">`date`</span> &gt;&gt; <span class="regexp">/tmp/free</span>.logecho <span class="number">7</span>echo <span class="string">"vmstat 2 1 &gt;&gt; /tmp/vm.log"</span> &gt;&gt; <span class="regexp">/tmp/vm</span>.log</span><br><span class="line">vmstat <span class="number">2</span> <span class="number">1</span> <span class="meta">&gt;&gt; </span>/tmp/vm.logecho <span class="string">`date`</span> &gt;&gt; <span class="regexp">/tmp/vm</span>.logecho <span class="number">8</span>echo <span class="string">"jmap -dump:format=b,file=/tmp/heap.hprof 2743"</span> &gt;&gt; <span class="regexp">/tmp/jmap</span>.log</span><br><span class="line">jmap -<span class="symbol">dump:</span>format=b,file=<span class="regexp">/tmp/heap</span>.hprof <span class="meta">&gt;&gt; </span>/tmp/jmap.logecho <span class="string">`date`</span> &gt;&gt; <span class="regexp">/tmp/jmap</span>.logecho <span class="number">9</span>echo end</span><br></pre></td></tr></table></figure>
-<p>如果读者在线上已经遇到了OOM的问题，可以顺着这个看似简陋而又信息满满的Java服务的监控脚本的思路，利用本文提供的各种脚本和命令来深挖问题的根本原因。</p>
-
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">ops</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-      
-
-      <div style="font-size: 12px;">
-        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
-      </div>
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2018/05/13/教你如何成为Java的OOM-Killer/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
   
     <nav id="page-nav">
       <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="page-number" href="/page/3/">3</a><span class="space">&hellip;</span><a class="page-number" href="/page/11/">11</a><a class="extend next" rel="next" href="/page/2/">Next &raquo;</a>
@@ -1520,19 +1773,19 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
           <ul class="article-tag-list" q-show="showTags">
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">java并发包</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">AngularJS</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">Dubbo</a>
+                <a href="javascript:void(0)" class="js-tag color3">java并发包</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">ops</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">Dubbo</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1556,10 +1809,6 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">redis</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">linux</a>
               </li>
              
@@ -1568,7 +1817,7 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">test</a>
+                <a href="javascript:void(0)" class="js-tag color1">redis</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1580,6 +1829,10 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">test</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">限流</a>
               </li>
              
@@ -1588,11 +1841,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">spring</a>
+                <a href="javascript:void(0)" class="js-tag color2">tomcat</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">tomcat</a>
+                <a href="javascript:void(0)" class="js-tag color2">spring</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1636,6 +1889,10 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">vi</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">zookeeper</a>
               </li>
              
@@ -1644,11 +1901,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">vi</a>
+                <a href="javascript:void(0)" class="js-tag color5">前端指南</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">前端指南</a>
+                <a href="javascript:void(0)" class="js-tag color4">jvm</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1657,10 +1914,6 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">善用佳软</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">jvm</a>
               </li>
              
               <li class="article-tag-list-item">
