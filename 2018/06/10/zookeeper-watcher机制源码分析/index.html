@@ -8,14 +8,19 @@
   <meta name="renderer" content="webkit">
   <meta http-equiv="X-UA-Compatible" content="IE=edge" >
   <link rel="dns-prefetch" href="http://yoursite.com">
-  <title>xiaowu&#39;s blog</title>
+  <title>zookeeper watcher机制源码分析 | xiaowu&#39;s blog</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta property="og:type" content="website">
-<meta property="og:title" content="xiaowu&#39;s blog">
-<meta property="og:url" content="http://yoursite.com/index.html">
+  <meta name="description" content="Watcher的基本流程ZooKeeper 的 Watcher 机制，总的来说可以分为三个过程：客户端注册 Watcher、服务器处理 Watcher 和客户端回调 Watcher 客户端注册watcher有3种方式，getData、exists、getChildren；以如下代码为例来分析整个触发机制的原理  12345678910ZooKeeper zookeeper=new ZooKeepe">
+<meta name="keywords" content="zookeeper">
+<meta property="og:type" content="article">
+<meta property="og:title" content="zookeeper watcher机制源码分析">
+<meta property="og:url" content="http://yoursite.com/2018/06/10/zookeeper-watcher机制源码分析/index.html">
 <meta property="og:site_name" content="xiaowu&#39;s blog">
+<meta property="og:description" content="Watcher的基本流程ZooKeeper 的 Watcher 机制，总的来说可以分为三个过程：客户端注册 Watcher、服务器处理 Watcher 和客户端回调 Watcher 客户端注册watcher有3种方式，getData、exists、getChildren；以如下代码为例来分析整个触发机制的原理  12345678910ZooKeeper zookeeper=new ZooKeepe">
+<meta property="og:updated_time" content="2018-06-10T12:10:28.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="xiaowu&#39;s blog">
+<meta name="twitter:title" content="zookeeper watcher机制源码分析">
+<meta name="twitter:description" content="Watcher的基本流程ZooKeeper 的 Watcher 机制，总的来说可以分为三个过程：客户端注册 Watcher、服务器处理 Watcher 和客户端回调 Watcher 客户端注册watcher有3种方式，getData、exists、getChildren；以如下代码为例来分析整个触发机制的原理  12345678910ZooKeeper zookeeper=new ZooKeepe">
   
     <link rel="alternative" href="/atom.xml" title="xiaowu&#39;s blog" type="application/atom+xml">
   
@@ -149,16 +154,14 @@
             <canvas data-colors="#eaeaea" data-sectionHeight="100" data-contentId="js-content" id="myCanvas1" class="anm-canvas"></canvas>
           </div>
           <div id="js-content" class="content-ll">
-            
-  
-    <article id="post-zookeeper-watcher机制源码分析" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+            <article id="post-zookeeper-watcher机制源码分析" class="article article-type-post " itemscope itemprop="blogPost">
   <div class="article-inner">
     
       <header class="article-header">
         
   
-    <h1 itemprop="name">
-      <a class="article-title" href="/2018/06/10/zookeeper-watcher机制源码分析/">zookeeper watcher机制源码分析</a>
+    <h1 class="article-title" itemprop="name">
+      zookeeper watcher机制源码分析
     </h1>
   
 
@@ -304,451 +307,26 @@
       
 
       
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">zookeeper</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-      
-
-      <div style="font-size: 12px;">
-        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
-      </div>
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2018/06/10/zookeeper-watcher机制源码分析/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
+        <div class="page-reward">
+          <a href="javascript:;" class="page-reward-btn tooltip-top">
+            <div class="tooltip tooltip-east">
+            <span class="tooltip-item">
+              赏
+            </span>
+            <span class="tooltip-content">
+              <span class="tooltip-text">
+                <span class="tooltip-inner">
+                  <p class="reward-p"><i class="icon icon-quo-left"></i>谢谢你请我吃糖果<i class="icon icon-quo-right"></i></p>
+                  <div class="reward-box">
+                    
+                    
+                  </div>
+                </span>
+              </span>
+            </span>
+          </div>
+          </a>
         </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
-    <article id="post-zookeeper学习笔记_05_原生API的使用" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2018/06/09/zookeeper学习笔记_05_原生API的使用/">zookeeper原生API使用</a>
-    </h1>
-  
-
-        
-        <a href="/2018/06/09/zookeeper学习笔记_05_原生API的使用/" class="archive-article-date">
-  	<time datetime="2018-06-09T01:49:41.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-06-09</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h3 id="1、准备工作"><a href="#1、准备工作" class="headerlink" title="1、准备工作"></a>1、准备工作</h3><h4 id="1-1、jar包"><a href="#1-1、jar包" class="headerlink" title="1.1、jar包"></a>1.1、jar包</h4><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.apache.zookeeper<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>zookeeper<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>3.4.8<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
-<h4 id="1-2、准备工作"><a href="#1-2、准备工作" class="headerlink" title="1.2、准备工作"></a>1.2、准备工作</h4><p>本人使用的是VMware + CentOS7环境，即虚拟机，这里需要将zookeeper客户端访问接口对外暴露。<br><br>参考：<a href="https://blog.csdn.net/u011846257/article/details/54707864" target="_blank" rel="external">Centos防火墙设置与端口开放的方法</a><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">// 在指定区域打开端口</span><br><span class="line">firewall-cmd --zone=public --add-port=80/tcp</span><br><span class="line">firewall-cmd --zone=public --add-port=80/tcp --permanent    // 永久生效</span><br><span class="line"></span><br><span class="line">// 重启防火墙</span><br><span class="line">firewall-cmd --reload</span><br></pre></td></tr></table></figure></p>
-<h3 id="2、创建连接、创建节点、修改节点、删除节点"><a href="#2、创建连接、创建节点、修改节点、删除节点" class="headerlink" title="2、创建连接、创建节点、修改节点、删除节点"></a>2、创建连接、创建节点、修改节点、删除节点</h3><h4 id="2-1、创建连接"><a href="#2-1、创建连接" class="headerlink" title="2.1、创建连接"></a>2.1、创建连接</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// org.apache.zookeeper.ZooKeeper</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="title">ZooKeeper</span><span class="params">(String connectString, <span class="keyword">int</span> sessionTimeout, Watcher watcher)</span></span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="title">ZooKeeper</span><span class="params">(String connectString, <span class="keyword">int</span> sessionTimeout, Watcher watcher, <span class="keyword">boolean</span> canBeReadOnly)</span></span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="title">ZooKeeper</span><span class="params">(String connectString, <span class="keyword">int</span> sessionTimeout, Watcher watcher, <span class="keyword">long</span> sessionId, <span class="keyword">byte</span>[] sessionPasswd)</span></span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="title">ZooKeeper</span><span class="params">(String connectString, <span class="keyword">int</span> sessionTimeout, Watcher watcher, <span class="keyword">long</span> sessionId, <span class="keyword">byte</span>[] sessionPasswd, <span class="keyword">boolean</span> canBeReadOnly)</span></span></span><br></pre></td></tr></table></figure>
-<table>
-<thead>
-<tr>
-<th style="text-align:left">参数</th>
-<th style="text-align:left">含义</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:left">connectString</td>
-<td style="text-align:left">Zookeeper服务器的地址和端口号<code>ip:port</code>。集群环境使用逗号隔开。</td>
-</tr>
-<tr>
-<td style="text-align:left">sessionTimeout</td>
-<td style="text-align:left">超时时间，超过一定时间不在连接</td>
-</tr>
-<tr>
-<td style="text-align:left">watcher</td>
-<td style="text-align:left">监听事件</td>
-</tr>
-<tr>
-<td style="text-align:left">canBeReadOnly</td>
-<td style="text-align:left">表示当前new的对象只能执行读操作，不能执行写操作。默认：false</td>
-</tr>
-<tr>
-<td style="text-align:left">sessionId</td>
-<td style="text-align:left">因Zookeeper的重连机制，即断开连接后，在一定时间内可再次连接，保持同一个会话。<br><code>zookeeper.getSessionId()</code>可以在断开连接前获取sessionId</td>
-</tr>
-<tr>
-<td style="text-align:left">sessionPasswd</td>
-<td style="text-align:left">因Zookeeper的重连机制，即断开连接后，在一定时间内可再次连接，保持同一个会话。<br><code>zookeeper.getSessionPasswd()</code>sessionPasswd</td>
-</tr>
-</tbody>
-</table>
-<p>参考：<a href="https://blog.csdn.net/andy2019/article/details/73065449" target="_blank" rel="external">Zookeeper实例原生API–复用sessionId和sessionPasswd</a></p>
-<h4 id="2-2、创建节点"><a href="#2-2、创建节点" class="headerlink" title="2.2、创建节点"></a>2.2、创建节点</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">String <span class="title">create</span><span class="params">(<span class="keyword">final</span> String path, <span class="keyword">byte</span>[] data, List&lt;ACL&gt; acl, CreateMode createMode)</span></span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">create</span><span class="params">(<span class="keyword">final</span> String path, <span class="keyword">byte</span>[] data, List&lt;ACL&gt; acl, CreateMode createMode,  StringCallback cb, Object ctx)</span></span></span><br></pre></td></tr></table></figure>
-<table>
-<thead>
-<tr>
-<th style="text-align:left">参数</th>
-<th style="text-align:left">含义</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:left">path</td>
-<td style="text-align:left">被创建节点的路径</td>
-</tr>
-<tr>
-<td style="text-align:left">data</td>
-<td style="text-align:left">被创建节点的值</td>
-</tr>
-<tr>
-<td style="text-align:left">acl</td>
-<td style="text-align:left">acl策略。详见<a href="zookeeper学习笔记_04_客户端的使用.md">zookeeper客户端的使用</a>的1.6章节</td>
-</tr>
-<tr>
-<td style="text-align:left">createMode</td>
-<td style="text-align:left">节点类型，临时或者持久，有序节点等。详见<a href="zookeeper学习笔记_04_客户端的使用.md">zookeeper客户端的使用</a>的1.2、1.3章节</td>
-</tr>
-<tr>
-<td style="text-align:left">cb</td>
-<td style="text-align:left">异步创建方法参数。注册的回调函数，需实现StringCallback接口。数据节点创建完成之后，会调用此方法进行业务逻辑处理。主要针对<code>public void processResult(int rc, String path, Object ctx, String name)</code>接口进行重写。<br>参考：<a href="https://blog.csdn.net/wo541075754/article/details/65625481" target="_blank" rel="external">Zookeeper客户端API之创建节点（七）</a></td>
-</tr>
-<tr>
-<td style="text-align:left">ctx</td>
-<td style="text-align:left">异步创建方法参数。用户传递一个对象，可以在回调方法执行时使用</td>
-</tr>
-</tbody>
-</table>
-<ul>
-<li><b>临时节点下不能创建子节点</b><br></li>
-<li><b>因为是原生API，故不能在没有父节点的前提下直接创建子节点</b><br></li>
-</ul>
-<h5 id="2-2-1、关于StringCallback"><a href="#2-2-1、关于StringCallback" class="headerlink" title="2.2.1、关于StringCallback"></a>2.2.1、关于StringCallback</h5><p>转自：<a href="https://blog.csdn.net/wo541075754/article/details/65625481" target="_blank" rel="external">Zookeeper客户端API之创建节点（七）</a></p>
-<p><code>StringCallback</code>接口继承了<code>AsyncCallback</code>接口，来实现回调时的业务处理。<br><br>其中<code>AsyncCallback</code>接口还包8个回调接口：<code>StatCallback</code>、<code>DataCallback</code>、<code>ACLCallback</code>、<code>ChildrenCallback</code>、<code>Children2Callback</code>、<code>VoidCallback</code>、<code>MultiCallback</code>、<code>StringCallback</code>。可以在不同的异步接口中实现不同的回调接口。</p>
-<p><code>StringCallback</code>接口的<code>public void processResult(int rc, String path, Object ctx, String name)</code>方法。</p>
-<table>
-<thead>
-<tr>
-<th style="text-align:left">参数</th>
-<th style="text-align:left">含义</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:left">rc</td>
-<td style="text-align:left">服务器的响应码，即<code>Event.KeeperState</code>，0表示调用成功，-4表示连接已断开，-110表示指定节点已存在，-112表示会话已过期。</td>
-</tr>
-<tr>
-<td style="text-align:left">path</td>
-<td style="text-align:left">调用create方法时传入的path。</td>
-</tr>
-<tr>
-<td style="text-align:left">ctx</td>
-<td style="text-align:left">调用create方法时传入的ctx。</td>
-</tr>
-<tr>
-<td style="text-align:left">name</td>
-<td style="text-align:left">创建成功的节点名称。</td>
-</tr>
-</tbody>
-</table>
-<h4 id="2-3、修改节点"><a href="#2-3、修改节点" class="headerlink" title="2.3、修改节点"></a>2.3、修改节点</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">Stat <span class="title">setData</span><span class="params">(<span class="keyword">final</span> String path, <span class="keyword">byte</span> data[], <span class="keyword">int</span> version)</span></span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setData</span><span class="params">(<span class="keyword">final</span> String path, <span class="keyword">byte</span> data[], <span class="keyword">int</span> version, StatCallback cb, Object ctx)</span></span></span><br></pre></td></tr></table></figure>
-<table>
-<thead>
-<tr>
-<th style="text-align:left">参数</th>
-<th style="text-align:left">含义</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:left">path</td>
-<td style="text-align:left">被修改节点的路径</td>
-</tr>
-<tr>
-<td style="text-align:left">data</td>
-<td style="text-align:left">被修改节点的新值</td>
-</tr>
-<tr>
-<td style="text-align:left">version</td>
-<td style="text-align:left">代表节点的版本号，如果该值与zookeeper服务器此节点的dataVersion属性值不相同，则修改失败。 <code>-1</code>代表忽略版本号的作用，强制修改！</td>
-</tr>
-<tr>
-<td style="text-align:left">cb</td>
-<td style="text-align:left">异步创建方法参数。注册的回调函数，需实现StatCallback接口。数据节点创建完成之后，会调用此方法进行业务逻辑处理。</td>
-</tr>
-<tr>
-<td style="text-align:left">ctx</td>
-<td style="text-align:left">异步创建方法参数。用户传递一个对象，可以在回调方法执行时使用</td>
-</tr>
-<tr>
-<td style="text-align:left">返回值Stat</td>
-<td style="text-align:left">描述一个节点的信息，具体可以查看<a href="zookeeper学习笔记_04_客户端的使用.md">zookeeper客户端的使用</a>的章节2</td>
-</tr>
-</tbody>
-</table>
-<ul>
-<li>关于<code>StatCallback</code>，与<code>StringCallback</code>类似。<ul>
-<li>实现的方法是<code>public void processResult(int rc, String path, Object ctx, Stat stat)</code></li>
-</ul>
-</li>
-</ul>
-<h4 id="2-4、删除节点"><a href="#2-4、删除节点" class="headerlink" title="2.4、删除节点"></a>2.4、删除节点</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">delete</span><span class="params">(<span class="keyword">final</span> String path, <span class="keyword">int</span> version)</span></span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">delete</span><span class="params">(<span class="keyword">final</span> String path, <span class="keyword">int</span> version, VoidCallback cb, Object ctx)</span></span></span><br></pre></td></tr></table></figure>
-<ul>
-<li>与修改节点<code>setData</code>方法类似。</li>
-<li><b>因为是原始API，不允许删除存在子节点的节点</b></li>
-</ul>
-<h4 id="2-5、Demo"><a href="#2-5、Demo" class="headerlink" title="2.5、Demo"></a>2.5、Demo</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ApiZookeeper</span></span></span><br><span class="line"><span class="class"></span>&#123;</span><br><span class="line">    <span class="comment">// 集群环境用,隔开</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> String CONNECTSTRING = <span class="string">"192.168.27.128:2181"</span>;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> ZooKeeper zookeeper;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> Exception</span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        connect();</span><br><span class="line">        createNode(<span class="string">"/xych"</span>, <span class="string">"xych"</span>);</span><br><span class="line">        <span class="comment">// createNode("/xych1/lanboo","lanboo"); // 报错</span></span><br><span class="line">        setNode(<span class="string">"/xych"</span>, <span class="string">"XYCH"</span>, -<span class="number">1</span>);</span><br><span class="line">        deleteNode(<span class="string">"/xych"</span>, -<span class="number">1</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 删除节点</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">deleteNode</span><span class="params">(String nodePath, <span class="keyword">int</span> version)</span> <span class="keyword">throws</span> Exception</span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        zookeeper.delete(nodePath, version);</span><br><span class="line">        System.out.println(<span class="string">"删除成功"</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 修改节点</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">setNode</span><span class="params">(String nodePath, String value, <span class="keyword">int</span> version)</span> <span class="keyword">throws</span> Exception</span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        Stat stat = zookeeper.setData(nodePath, value.getBytes(), version);</span><br><span class="line">        System.out.println(<span class="string">"修改成功 "</span> + stat);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 创建节点</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">createNode</span><span class="params">(String nodePath, String value)</span> <span class="keyword">throws</span> Exception</span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        String result = zookeeper.create(nodePath, value.getBytes(), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.EPHEMERAL);</span><br><span class="line">        System.out.println(<span class="string">"创建成功 "</span> + result);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 创建连接</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">connect</span><span class="params">()</span> <span class="keyword">throws</span> Exception</span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="comment">// 使用CountDownLatch，使主线程等待</span></span><br><span class="line">        CountDownLatch countDownLatch = <span class="keyword">new</span> CountDownLatch(<span class="number">1</span>);</span><br><span class="line">        zookeeper = <span class="keyword">new</span> ZooKeeper(CONNECTSTRING, <span class="number">10000</span>, <span class="keyword">new</span> Watcher()</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="meta">@Override</span></span><br><span class="line">            <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">process</span><span class="params">(WatchedEvent event)</span></span></span><br><span class="line"><span class="function">            </span>&#123;</span><br><span class="line">                <span class="keyword">if</span>(event.getState() == Event.KeeperState.SyncConnected)</span><br><span class="line">                &#123;</span><br><span class="line">                    System.out.println(<span class="string">"Watcher "</span> + zookeeper.getState());</span><br><span class="line">                    countDownLatch.countDown();</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;);</span><br><span class="line">        System.out.println(<span class="string">"connect "</span> + zookeeper.getState());</span><br><span class="line">        countDownLatch.await();</span><br><span class="line">        System.out.println(<span class="string">"connect "</span> + zookeeper.getState());</span><br><span class="line">        <span class="comment">// zookeeper.close();</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">/* 输出结果</span></span><br><span class="line"><span class="comment">connect CONNECTING</span></span><br><span class="line"><span class="comment">Watcher CONNECTED</span></span><br><span class="line"><span class="comment">connect CONNECTED</span></span><br><span class="line"><span class="comment">创建成功 /xych</span></span><br><span class="line"><span class="comment">修改成功 46,47,1524152856857,1524152856864,1,0,0,72057600313458694,4,0,46</span></span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment">删除成功</span></span><br><span class="line"><span class="comment">*/</span></span><br></pre></td></tr></table></figure>
-<h3 id="3、exists、getData、getChildren"><a href="#3、exists、getData、getChildren" class="headerlink" title="3、exists、getData、getChildren"></a>3、exists、getData、getChildren</h3><h4 id="3-1、exists"><a href="#3-1、exists" class="headerlink" title="3.1、exists"></a>3.1、exists</h4><blockquote>
-<p>判断某节点是否存在<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">Stat <span class="title">exists</span><span class="params">(String path, <span class="keyword">boolean</span> watch)</span></span></span><br><span class="line"><span class="function">Stat <span class="title">exists</span><span class="params">(<span class="keyword">final</span> String path, Watcher watcher)</span></span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">exists</span><span class="params">(String path, <span class="keyword">boolean</span> watch, StatCallback cb, Object ctx)</span></span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">exists</span><span class="params">(<span class="keyword">final</span> String path, Watcher watcher, StatCallback cb, Object ctx)</span></span></span><br></pre></td></tr></table></figure></p>
-</blockquote>
-<table>
-<thead>
-<tr>
-<th style="text-align:left">参数</th>
-<th style="text-align:left">含义</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:left">path</td>
-<td style="text-align:left">被判断节点的路径</td>
-</tr>
-<tr>
-<td style="text-align:left">watch</td>
-<td style="text-align:left">是否添加一个默认Watcher</td>
-</tr>
-<tr>
-<td style="text-align:left">watcher</td>
-<td style="text-align:left">监听事件</td>
-</tr>
-<tr>
-<td style="text-align:left">cb</td>
-<td style="text-align:left">异步创建方法参数。注册的回调函数，需实现StatCallback接口。数据节点创建完成之后，会调用此方法进行业务逻辑处理。</td>
-</tr>
-<tr>
-<td style="text-align:left">ctx</td>
-<td style="text-align:left">异步创建方法参数。用户传递一个对象，可以在回调方法执行时使用</td>
-</tr>
-</tbody>
-</table>
-<p>关于<code>StatCallback</code>可以参考本文2.2.1。</p>
-<h4 id="3-2、getData"><a href="#3-2、getData" class="headerlink" title="3.2、getData"></a>3.2、getData</h4><blockquote>
-<p>获取节点内容，同步获取和异步获取<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">byte</span>[] getData(String path, <span class="keyword">boolean</span> watch, Stat stat)</span><br><span class="line"><span class="keyword">byte</span>[] getData(<span class="keyword">final</span> String path, Watcher watcher, Stat stat)</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">getData</span><span class="params">(String path, <span class="keyword">boolean</span> watch, DataCallback cb, Object ctx)</span></span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">getData</span><span class="params">(<span class="keyword">final</span> String path, Watcher watcher, DataCallback cb, Object ctx)</span></span></span><br></pre></td></tr></table></figure></p>
-</blockquote>
-<table>
-<thead>
-<tr>
-<th style="text-align:left">参数</th>
-<th style="text-align:left">含义</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:left">path</td>
-<td style="text-align:left">节点的路径</td>
-</tr>
-<tr>
-<td style="text-align:left">watch</td>
-<td style="text-align:left">是否注册一个默认Watcher</td>
-</tr>
-<tr>
-<td style="text-align:left">watcher</td>
-<td style="text-align:left">监听事件</td>
-</tr>
-<tr>
-<td style="text-align:left">cb</td>
-<td style="text-align:left">异步创建方法参数。注册的回调函数，需实现DataCallback接口。数据节点创建完成之后，会调用此方法进行业务逻辑处理。</td>
-</tr>
-<tr>
-<td style="text-align:left">ctx</td>
-<td style="text-align:left">异步创建方法参数。用户传递一个对象，可以在回调方法执行时使用</td>
-</tr>
-</tbody>
-</table>
-<p>关于<code>DataCallback</code>可以参考本文2.2.1。</p>
-<h4 id="3-3、getChildren"><a href="#3-3、getChildren" class="headerlink" title="3.3、getChildren"></a>3.3、getChildren</h4><blockquote>
-<p>获取子节点列表，同步获取和异步获取<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">List&lt;String&gt; <span class="title">getChildren</span><span class="params">(String path, <span class="keyword">boolean</span> watch)</span></span></span><br><span class="line"><span class="function">List&lt;String&gt; <span class="title">getChildren</span><span class="params">(<span class="keyword">final</span> String path, Watcher watcher)</span></span></span><br><span class="line"><span class="function">List&lt;String&gt; <span class="title">getChildren</span><span class="params">(String path, <span class="keyword">boolean</span> watch, Stat stat)</span></span></span><br><span class="line"><span class="function">List&lt;String&gt; <span class="title">getChildren</span><span class="params">(<span class="keyword">final</span> String path, Watcher watcher, Stat stat)</span></span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">getChildren</span><span class="params">(String path, <span class="keyword">boolean</span> watch, ChildrenCallback cb, Object ctx)</span></span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">getChildren</span><span class="params">(String path, <span class="keyword">boolean</span> watch, Children2Callback cb, Object ctx)</span></span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">getChildren</span><span class="params">(<span class="keyword">final</span> String path, Watcher watcher, ChildrenCallback cb, Object ctx)</span></span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">getChildren</span><span class="params">(<span class="keyword">final</span> String path, Watcher watcher, Children2Callback cb, Object ctx)</span></span></span><br></pre></td></tr></table></figure></p>
-</blockquote>
-<table>
-<thead>
-<tr>
-<th style="text-align:left">参数</th>
-<th style="text-align:left">含义</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:left">path</td>
-<td style="text-align:left">节点的路径</td>
-</tr>
-<tr>
-<td style="text-align:left">watch</td>
-<td style="text-align:left">是否注册一个默认Watcher</td>
-</tr>
-<tr>
-<td style="text-align:left">watcher</td>
-<td style="text-align:left">监听事件</td>
-</tr>
-<tr>
-<td style="text-align:left">stat</td>
-<td style="text-align:left">描述一个节点的信息<br>会将path指定的节点的信息更新<br>具体可以查看<a href="zookeeper学习笔记_04_客户端的使用.md">zookeeper客户端的使用</a>的章节2</td>
-</tr>
-<tr>
-<td style="text-align:left">cb</td>
-<td style="text-align:left">异步创建方法参数。注册的回调函数，需实现ChildrenCallback、Children2Callback接口。数据节点创建完成之后，会调用此方法进行业务逻辑处理。</td>
-</tr>
-<tr>
-<td style="text-align:left">ctx</td>
-<td style="text-align:left">异步创建方法参数。用户传递一个对象，可以在回调方法执行时使用</td>
-</tr>
-</tbody>
-</table>
-<p>关于<code>ChildrenCallback</code>、<code>Children2Callback</code>可以参考本文2.2.1。</p>
-<h3 id="4、Watcher事件监控"><a href="#4、Watcher事件监控" class="headerlink" title="4、Watcher事件监控"></a>4、Watcher事件监控</h3><ul>
-<li><b>Watcher是一次性的，用完就会失效</b><br></li>
-</ul>
-<p>转自：<a href="https://www.cnblogs.com/programlearning/archive/2017/05/10/6834963.html" target="_blank" rel="external">ZooKeeper监听机制</a></p>
-<h4 id="4-1、事件类型"><a href="#4-1、事件类型" class="headerlink" title="4.1、事件类型"></a>4.1、事件类型</h4><table>
-<thead>
-<tr>
-<th style="text-align:left">事件类型</th>
-<th style="text-align:left">含义</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:left">EventType.None</td>
-<td style="text-align:left">与服务器建立连接时触发</td>
-</tr>
-<tr>
-<td style="text-align:left">EventType.NodeCreated</td>
-<td style="text-align:left">被监控的节点被创建触发</td>
-</tr>
-<tr>
-<td style="text-align:left">EventType.NodeDeleted</td>
-<td style="text-align:left">被监控的节点被删除触发</td>
-</tr>
-<tr>
-<td style="text-align:left">EventType.NodeDataChanged</td>
-<td style="text-align:left">被监控的节点被修改触发</td>
-</tr>
-<tr>
-<td style="text-align:left">EventType.NodeChildrenChanged</td>
-<td style="text-align:left">被监控的节点的子节点<b>数量</b>发生改变时触发</td>
-</tr>
-</tbody>
-</table>
-<h4 id="4-2、读操作绑定事件"><a href="#4-2、读操作绑定事件" class="headerlink" title="4.2、读操作绑定事件"></a>4.2、读操作绑定事件</h4><table>
-<thead>
-<tr>
-<th style="text-align:left">读操作</th>
-<th style="text-align:left">含义</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:left">new ZooKeeper</td>
-<td style="text-align:left">不会指定某节点，故触发类型为<code>EventType.None</code></td>
-</tr>
-<tr>
-<td style="text-align:left">exists</td>
-<td style="text-align:left">判断某节点是否存在，同时对该节点添加Watcher</td>
-</tr>
-<tr>
-<td style="text-align:left">getData</td>
-<td style="text-align:left">获取某节点的值，同时对该节点添加Watcher</td>
-</tr>
-<tr>
-<td style="text-align:left">getChildren</td>
-<td style="text-align:left">获取某节点的子节点列表，同时对该节点添加Watcher</td>
-</tr>
-</tbody>
-</table>
-<h4 id="4-3、写操作触发事件"><a href="#4-3、写操作触发事件" class="headerlink" title="4.3、写操作触发事件"></a>4.3、写操作触发事件</h4><table>
-<thead>
-<tr>
-<th style="text-align:left">写操作</th>
-<th style="text-align:left">Event For “/path”</th>
-<th style="text-align:left">Event For “/path/child”</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:left">create(“/path”)</td>
-<td style="text-align:left">EventType.NodeCreated</td>
-<td style="text-align:left">-</td>
-</tr>
-<tr>
-<td style="text-align:left">delete(“/path”)</td>
-<td style="text-align:left">EventType.NodeDeleted</td>
-<td style="text-align:left">-</td>
-</tr>
-<tr>
-<td style="text-align:left">setData(“/path”)</td>
-<td style="text-align:left">EventType.NodeDataChanged</td>
-<td style="text-align:left">-</td>
-</tr>
-<tr>
-<td style="text-align:left">create(“/path/child”)</td>
-<td style="text-align:left">EventType.NodeChildrenChanged</td>
-<td style="text-align:left">EventType.NodeCreated</td>
-</tr>
-<tr>
-<td style="text-align:left">delete(“/path/child”)</td>
-<td style="text-align:left">EventType.NodeChildrenChanged</td>
-<td style="text-align:left">EventType.NodeDeleted</td>
-</tr>
-<tr>
-<td style="text-align:left">setData(“/path/child”)</td>
-<td style="text-align:left">-</td>
-<td style="text-align:left">EventType.NodeDataChanged</td>
-</tr>
-</tbody>
-</table>
-<h4 id="4-4、写操作触发-读操作绑定的事件"><a href="#4-4、写操作触发-读操作绑定的事件" class="headerlink" title="4.4、写操作触发[读操作绑定的事件]"></a>4.4、写操作触发[读操作绑定的事件]</h4><table><br>    <tr><br>        <td></td><br>        <td colspan="3">“/path”</td><br>        <td colspan="3">“/path/child”</td><br>    </tr><br>    <tr><br>        <td>写操作所触发的绑定事件</td><br>        <td>exists</td><br>        <td>getData</td><br>        <td>getChildren</td><br>        <td>exists</td><br>        <td>getData</td><br>        <td>getChildren</td><br>    </tr><br>    <tr><br>        <td>create(“/path”)</td><br>        <td>√</td><br>        <td>√</td><br>        <td></td><br>        <td></td><br>        <td></td><br>        <td></td><br>    </tr><br>    <tr><br>        <td>delete(“/path”)</td><br>        <td>√</td><br>        <td>√</td><br>        <td>√</td><br>        <td></td><br>        <td></td><br>        <td></td><br>    </tr><br>    <tr><br>        <td>setData(“/path”)</td><br>        <td>√</td><br>        <td>√</td><br>        <td></td><br>        <td></td><br>        <td></td><br>        <td></td><br>    </tr><br>    <tr><br>        <td>create(“/path/child”)</td><br>        <td></td><br>        <td></td><br>        <td>√</td><br>        <td>√</td><br>        <td>√</td><br>        <td></td><br>    </tr><br>    <tr><br>        <td>delete(“/path/child”)</td><br>        <td></td><br>        <td></td><br>        <td>√</td><br>        <td>√</td><br>        <td>√</td><br>        <td>√</td><br>    </tr><br>    <tr><br>        <td>setData(“/path/child”)</td><br>        <td></td><br>        <td></td><br>        <td></td><br>        <td>√</td><br>        <td>√</td><br>        <td></td><br>    </tr><br></table>
-
-<blockquote>
-<ul>
-<li><code>create(&quot;/path/child&quot;)</code>和<code>delete(&quot;/path/child&quot;)</code><b>只会触发</b><code>getChildren</code>对<code>&quot;/path&quot;</code>的绑定事件；<br></li>
-<li>不会触发<code>exists</code>、<code>getData</code>对<code>&quot;/path&quot;</code>的绑定事件。<br></li>
-</ul>
-</blockquote>
-<h4 id="4-4、Demo"><a href="#4-4、Demo" class="headerlink" title="4.4、Demo"></a>4.4、Demo</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ApiZookeeperWatcher</span> <span class="keyword">implements</span> <span class="title">Watcher</span></span></span><br><span class="line"><span class="class"></span>&#123;</span><br><span class="line">    <span class="comment">// 集群环境用,隔开</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> String CONNECTSTRING = <span class="string">"192.168.27.131:2181"</span>;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> ZooKeeper zookeeper;</span><br><span class="line">    <span class="comment">// 使用CountDownLatch，使主线程等待</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> CountDownLatch countDownLatch = <span class="keyword">new</span> CountDownLatch(<span class="number">1</span>);</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> Exception</span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        connect();</span><br><span class="line">        createWatcher(<span class="string">"/xych"</span>, <span class="string">"xych"</span>);</span><br><span class="line">        setDataWatcher(<span class="string">"/xych"</span>, <span class="string">"XYCH"</span>);</span><br><span class="line">        deleteWatcher(<span class="string">"/xych"</span>);</span><br><span class="line">        <span class="comment">// 这里"/xych"已被删除，再次创建。（此时"/xych"没有任何Watcher）</span></span><br><span class="line">        <span class="comment">// 注意：临时节点下不能创建节点</span></span><br><span class="line">        <span class="keyword">if</span>(zookeeper.exists(<span class="string">"/xych1"</span>, <span class="keyword">false</span>) == <span class="keyword">null</span>)</span><br><span class="line">        &#123;</span><br><span class="line">            zookeeper.create(<span class="string">"/xych1"</span>, <span class="string">"xych"</span>.getBytes(), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);</span><br><span class="line">        &#125;</span><br><span class="line">        createWatcher_Children(<span class="string">"/xych1"</span>, <span class="string">"/lanboo"</span>, <span class="string">"lanboo"</span>);</span><br><span class="line">        setDataWatcher_Children(<span class="string">"/xych1"</span>, <span class="string">"/lanboo"</span>, <span class="string">"LANBOO"</span>);</span><br><span class="line">        deleteWatcher_Children(<span class="string">"/xych1"</span>, <span class="string">"/lanboo"</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">deleteWatcher_Children</span><span class="params">(String path, String children)</span> <span class="keyword">throws</span> Exception</span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        countDownLatch = <span class="keyword">new</span> CountDownLatch(<span class="number">1</span>);</span><br><span class="line">        <span class="comment">// 利用getChildren，对父节点添加Watcher</span></span><br><span class="line">        List&lt;String&gt; pathChildren = zookeeper.getChildren(path, <span class="keyword">new</span> ApiZookeeperWatcher());</span><br><span class="line">        System.out.println(<span class="string">"deleteWatcher_Children："</span> + path + <span class="string">"的子节点："</span> + pathChildren);</span><br><span class="line">        <span class="comment">// 利用exists，对子节点添加Watcher</span></span><br><span class="line">        Stat childrenStat = zookeeper.exists(path + children, <span class="keyword">new</span> ApiZookeeperWatcher());</span><br><span class="line">        <span class="keyword">if</span>(pathChildren != <span class="keyword">null</span> &amp;&amp; childrenStat != <span class="keyword">null</span>)</span><br><span class="line">        &#123;</span><br><span class="line">            zookeeper.delete(path + children, -<span class="number">1</span>);</span><br><span class="line">            countDownLatch.await();</span><br><span class="line">        &#125;</span><br><span class="line">        System.out.println();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">setDataWatcher_Children</span><span class="params">(String path, String children, String value)</span> <span class="keyword">throws</span> Exception</span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        countDownLatch = <span class="keyword">new</span> CountDownLatch(<span class="number">1</span>);</span><br><span class="line">        <span class="comment">// 利用getChildren，对父节点添加Watcher</span></span><br><span class="line">        List&lt;String&gt; pathChildren = zookeeper.getChildren(path, <span class="keyword">new</span> ApiZookeeperWatcher());</span><br><span class="line">        System.out.println(<span class="string">"setDataWatcher_Children："</span> + path + <span class="string">"的子节点："</span> + pathChildren);</span><br><span class="line">        <span class="comment">// 利用exists，对子节点添加Watcher</span></span><br><span class="line">        Stat childrenStat = zookeeper.exists(path + children, <span class="keyword">new</span> ApiZookeeperWatcher());</span><br><span class="line">        <span class="keyword">if</span>(pathChildren != <span class="keyword">null</span> &amp;&amp; childrenStat != <span class="keyword">null</span>)</span><br><span class="line">        &#123;</span><br><span class="line">            zookeeper.setData(path + children, value.getBytes(), -<span class="number">1</span>);</span><br><span class="line">            countDownLatch.await();</span><br><span class="line">        &#125;</span><br><span class="line">        System.out.println();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 对某节点添加Warcher，对该节点添加子节点</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">createWatcher_Children</span><span class="params">(String path, String children, String value)</span> <span class="keyword">throws</span> Exception</span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        countDownLatch = <span class="keyword">new</span> CountDownLatch(<span class="number">2</span>);</span><br><span class="line">        <span class="comment">// 利用getChildren，对父节点添加Watcher</span></span><br><span class="line">        List&lt;String&gt; pathChildren = zookeeper.getChildren(path, <span class="keyword">new</span> ApiZookeeperWatcher());</span><br><span class="line">        System.out.println(<span class="string">"createWatcher_Children："</span> + path + <span class="string">"的子节点："</span> + pathChildren);</span><br><span class="line">        <span class="comment">// 利用exists，对子节点添加Watcher</span></span><br><span class="line">        Stat childrenStat = zookeeper.exists(path + children, <span class="keyword">new</span> ApiZookeeperWatcher());</span><br><span class="line">        <span class="keyword">if</span>(pathChildren != <span class="keyword">null</span> &amp;&amp; childrenStat == <span class="keyword">null</span>)</span><br><span class="line">        &#123;</span><br><span class="line">            zookeeper.create(path + children, value.getBytes(), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.EPHEMERAL);</span><br><span class="line">            countDownLatch.await();</span><br><span class="line">        &#125;</span><br><span class="line">        System.out.println();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 对setData监控</span></span><br><span class="line"><span class="comment">     * 做法：</span></span><br><span class="line"><span class="comment">     * 1、利用exists，判断某节点是否存在，同时对该节点添加一个Watcher</span></span><br><span class="line"><span class="comment">     * 2、删除该节点</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">deleteWatcher</span><span class="params">(String path)</span> <span class="keyword">throws</span> Exception</span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        countDownLatch = <span class="keyword">new</span> CountDownLatch(<span class="number">1</span>);</span><br><span class="line">        <span class="comment">// 判断"/xych"节点是否存在，并且对此节点添加一个Watcher</span></span><br><span class="line">        Stat stat = zookeeper.exists(path, <span class="keyword">new</span> ApiZookeeperWatcher());</span><br><span class="line">        System.out.println(<span class="string">"deleteWatcher："</span> + path + <span class="string">"的节点属性："</span> + stat);</span><br><span class="line">        <span class="keyword">if</span>(stat != <span class="keyword">null</span>)</span><br><span class="line">        &#123;</span><br><span class="line">            zookeeper.delete(path, -<span class="number">1</span>);</span><br><span class="line">            countDownLatch.await();</span><br><span class="line">        &#125;</span><br><span class="line">        System.out.println();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 对setData监控</span></span><br><span class="line"><span class="comment">     * 做法：</span></span><br><span class="line"><span class="comment">     * 1、利用getData，获取某节点的value，同时对该节点添加一个Watcher</span></span><br><span class="line"><span class="comment">     * 2、创建该节点</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">setDataWatcher</span><span class="params">(String path, String value)</span> <span class="keyword">throws</span> Exception</span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        countDownLatch = <span class="keyword">new</span> CountDownLatch(<span class="number">1</span>);</span><br><span class="line">        Stat stat = <span class="keyword">new</span> Stat();</span><br><span class="line">        <span class="keyword">byte</span>[] bytes = zookeeper.getData(path, <span class="keyword">new</span> ApiZookeeperWatcher(), stat);</span><br><span class="line">        System.out.println(<span class="string">"setDataWatcher："</span> + path + <span class="string">"的原始值 = "</span> + <span class="keyword">new</span> String(bytes));</span><br><span class="line">        System.out.println(<span class="string">"setDataWatcher："</span> + path + <span class="string">"的节点信息 = "</span> + stat);</span><br><span class="line">        zookeeper.setData(path, value.getBytes(), -<span class="number">1</span>);</span><br><span class="line">        countDownLatch.await();</span><br><span class="line">        System.out.println();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 对create监控</span></span><br><span class="line"><span class="comment">     * 做法：</span></span><br><span class="line"><span class="comment">     * 1、利用exists，判断某节点是否存在，同时对该节点添加一个Watcher</span></span><br><span class="line"><span class="comment">     * 2、创建该节点</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">createWatcher</span><span class="params">(String path, String value)</span> <span class="keyword">throws</span> Exception</span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        countDownLatch = <span class="keyword">new</span> CountDownLatch(<span class="number">1</span>);</span><br><span class="line">        <span class="comment">// 判断path节点是否存在，并且对此节点添加一个Watcher</span></span><br><span class="line">        Stat stat = zookeeper.exists(path, <span class="keyword">new</span> ApiZookeeperWatcher());</span><br><span class="line">        System.out.println(<span class="string">"createWatcher："</span> + path + <span class="string">"的节点属性："</span> + stat);</span><br><span class="line">        <span class="keyword">if</span>(stat == <span class="keyword">null</span>)</span><br><span class="line">        &#123;</span><br><span class="line">            zookeeper.create(path, value.getBytes(), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.EPHEMERAL);</span><br><span class="line">            countDownLatch.await();</span><br><span class="line">        &#125;</span><br><span class="line">        System.out.println();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 创建连接</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">connect</span><span class="params">()</span> <span class="keyword">throws</span> Exception</span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        zookeeper = <span class="keyword">new</span> ZooKeeper(CONNECTSTRING, <span class="number">10000</span>, <span class="keyword">new</span> ApiZookeeperWatcher());</span><br><span class="line">        System.out.println(<span class="string">"connect "</span> + zookeeper.getState());</span><br><span class="line">        countDownLatch.await();</span><br><span class="line">        System.out.println(<span class="string">"connect "</span> + zookeeper.getState());</span><br><span class="line">        System.out.println();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">process</span><span class="params">(WatchedEvent watchedEvent)</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="comment">// 只在连接成功的情况下，进行事件监听</span></span><br><span class="line">        <span class="keyword">if</span>(watchedEvent.getState() == Watcher.Event.KeeperState.SyncConnected)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">try</span></span><br><span class="line">            &#123;</span><br><span class="line">                <span class="keyword">if</span>(Event.EventType.None == watchedEvent.getType())</span><br><span class="line">                &#123;</span><br><span class="line">                    System.out.println(<span class="string">"Watcher："</span> + watchedEvent.getState() + <span class="string">"--&gt;"</span> + watchedEvent.getType());</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="keyword">else</span> <span class="keyword">if</span>(Event.EventType.NodeCreated == watchedEvent.getType())</span><br><span class="line">                &#123;</span><br><span class="line">                    System.out.println(<span class="string">"Watcher："</span> + watchedEvent.getPath() + <span class="string">"被创建"</span>);</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="keyword">else</span> <span class="keyword">if</span>(Event.EventType.NodeDeleted == watchedEvent.getType())</span><br><span class="line">                &#123;</span><br><span class="line">                    System.out.println(<span class="string">"Watcher："</span> + watchedEvent.getPath() + <span class="string">"被删除"</span>);</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="keyword">else</span> <span class="keyword">if</span>(Event.EventType.NodeDataChanged == watchedEvent.getType())</span><br><span class="line">                &#123;</span><br><span class="line">                    System.out.println(<span class="string">"Watcher："</span> + watchedEvent.getPath() + <span class="string">"被修改"</span>);</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="keyword">else</span> <span class="keyword">if</span>(Event.EventType.NodeChildrenChanged == watchedEvent.getType())</span><br><span class="line">                &#123;</span><br><span class="line">                    System.out.println(<span class="string">"Watcher："</span> + watchedEvent.getPath() + <span class="string">"的子节点数量发生改变"</span>);</span><br><span class="line">                &#125;</span><br><span class="line">                countDownLatch.countDown();</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">catch</span>(Exception e)</span><br><span class="line">            &#123;</span><br><span class="line">                e.printStackTrace();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        System.out.println(<span class="string">"Watcher："</span> + <span class="keyword">this</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>输出<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line">connect CONNECTING</span><br><span class="line">Watcher：SyncConnected--&gt;None</span><br><span class="line">Watcher：com.xych.zookeeper.api.ApiZookeeperWatcher@<span class="number">7</span>b23ec81</span><br><span class="line">connect CONNECTED</span><br><span class="line"></span><br><span class="line">createWatcher：/xych的节点属性：<span class="keyword">null</span></span><br><span class="line">Watcher：/xych被创建</span><br><span class="line">Watcher：com.xych.zookeeper.api.ApiZookeeperWatcher@<span class="number">1</span>a7d63bd</span><br><span class="line"></span><br><span class="line">setDataWatcher：/xych的原始值 = xych</span><br><span class="line">setDataWatcher：/xych的节点信息 = <span class="number">165</span>,<span class="number">165</span>,<span class="number">1524221468877</span>,<span class="number">1524221468877</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">72057600313458724</span>,<span class="number">4</span>,<span class="number">0</span>,<span class="number">165</span></span><br><span class="line"></span><br><span class="line">Watcher：/xych被修改</span><br><span class="line">Watcher：com.xych.zookeeper.api.ApiZookeeperWatcher@<span class="number">7</span>aa0aa6f</span><br><span class="line"></span><br><span class="line">deleteWatcher：/xych的节点属性：<span class="number">165</span>,<span class="number">166</span>,<span class="number">1524221468877</span>,<span class="number">1524221468884</span>,<span class="number">1</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">72057600313458724</span>,<span class="number">4</span>,<span class="number">0</span>,<span class="number">165</span></span><br><span class="line"></span><br><span class="line">Watcher：/xych被删除</span><br><span class="line">Watcher：com.xych.zookeeper.api.ApiZookeeperWatcher<span class="meta">@bb</span>15e0d</span><br><span class="line"></span><br><span class="line">createWatcher_Children：/xych1的子节点：[]</span><br><span class="line">Watcher：/xych1/lanboo被创建</span><br><span class="line">Watcher：com.xych.zookeeper.api.ApiZookeeperWatcher@<span class="number">2</span>cce4a9a</span><br><span class="line">Watcher：/xych1的子节点数量发生改变</span><br><span class="line">Watcher：com.xych.zookeeper.api.ApiZookeeperWatcher@<span class="number">2</span>d8e2810</span><br><span class="line"></span><br><span class="line">setDataWatcher_Children：/xych1的子节点：[lanboo]</span><br><span class="line">Watcher：/xych1/lanboo被修改</span><br><span class="line">Watcher：com.xych.zookeeper.api.ApiZookeeperWatcher@<span class="number">7333</span>dbfe</span><br><span class="line"></span><br><span class="line">deleteWatcher_Children：/xych1的子节点：[lanboo]</span><br><span class="line">Watcher：/xych1/lanboo被删除</span><br><span class="line">Watcher：com.xych.zookeeper.api.ApiZookeeperWatcher@<span class="number">7165</span>a6c4</span><br><span class="line">Watcher：/xych1的子节点数量发生改变</span><br><span class="line">Watcher：com.xych.zookeeper.api.ApiZookeeperWatcher@<span class="number">2f</span>21b320</span><br><span class="line">Watcher：/xych1的子节点数量发生改变</span><br><span class="line">Watcher：com.xych.zookeeper.api.ApiZookeeperWatcher@<span class="number">31</span>ecabd5</span><br></pre></td></tr></table></figure></p>
-
-      
-
       
     </div>
     <div class="article-info article-info-index">
@@ -771,144 +349,75 @@
         此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
       </div>
       
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2018/06/09/zookeeper学习笔记_05_原生API的使用/">展开全文 >></a>
-        </p>
-      
 
       
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
         
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
+<div class="share-btn share-icons tooltip-left">
+  <div class="tooltip tooltip-east">
+    <span class="tooltip-item">
+      <a href="javascript:;" class="share-sns share-outer">
+        <i class="icon icon-share"></i>
+      </a>
+    </span>
+    <span class="tooltip-content">
+      <div class="share-wrap">
+        <div class="share-icons">
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="icon icon-weibo"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="icon icon-weixin"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="icon icon-qq"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="icon icon-douban"></i>
+          </a>
+          <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a>
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="icon icon-facebook"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="icon icon-twitter"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="icon icon-google"></i>
+          </a>
         </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
-    <article id="post-CentOS7安装JDK详细过程" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2018/06/05/CentOS7安装JDK详细过程/">CentOS7安装JDK详细过程</a>
-    </h1>
-  
-
-        
-        <a href="/2018/06/05/CentOS7安装JDK详细过程/" class="archive-article-date">
-  	<time datetime="2018-06-05T02:23:48.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-06-05</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>Linux上一般会安装Open JDK,关于OpenJDK和JDK的区别：<a href="http://www.cnblogs.com/sxdcgaq8080/p/7487369.html" target="_blank" rel="external">http://www.cnblogs.com/sxdcgaq8080/p/7487369.html</a> </p>
-<h2 id="第一步-卸载系统自带的OpenJDK以及相关的java文件"><a href="#第一步-卸载系统自带的OpenJDK以及相关的java文件" class="headerlink" title="第一步　　卸载系统自带的OpenJDK以及相关的java文件"></a><strong>第一步　　卸载系统自带的OpenJDK以及相关的java文件</strong></h2><p>①在命令窗口键入：</p>
-<figure class="highlight applescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">java -<span class="built_in">version</span></span><br></pre></td></tr></table></figure>
-<p>可以看到系统自带的OpenJDK版本信息。</p>
-<p>②在命令窗口键入：</p>
-<figure class="highlight vim"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">rpm -<span class="keyword">qa</span> | <span class="keyword">grep</span> java</span><br></pre></td></tr></table></figure>
-<p>命令说明：</p>
-<figure class="highlight haml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">rpm 　　管理套件    </span><br><span class="line">-<span class="ruby">qa 　　使用询问模式，查询所有套件</span></span><br><span class="line"><span class="ruby">grep　　查找文件里符合条件的字符串</span></span><br><span class="line"><span class="ruby">java 　　查找包含java字符串的文件</span></span><br></pre></td></tr></table></figure>
-<p>下面这几个可以删除</p>
-<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="selector-tag">java-1</span><span class="selector-class">.7</span><span class="selector-class">.0-openjdk-1</span><span class="selector-class">.7</span><span class="selector-class">.0</span><span class="selector-class">.111-2</span><span class="selector-class">.6</span><span class="selector-class">.7</span><span class="selector-class">.8</span><span class="selector-class">.el7</span><span class="selector-class">.x86_64</span></span><br><span class="line"><span class="selector-tag">java-1</span><span class="selector-class">.8</span><span class="selector-class">.0-openjdk-1</span><span class="selector-class">.8</span><span class="selector-class">.0</span><span class="selector-class">.102-4</span><span class="selector-class">.b14</span><span class="selector-class">.el7</span><span class="selector-class">.x86_64</span></span><br><span class="line"><span class="selector-tag">java-1</span><span class="selector-class">.8</span><span class="selector-class">.0-openjdk-headless-1</span><span class="selector-class">.8</span><span class="selector-class">.0</span><span class="selector-class">.102-4</span><span class="selector-class">.b14</span><span class="selector-class">.el7</span><span class="selector-class">.x86_64</span></span><br><span class="line"><span class="selector-tag">java-1</span><span class="selector-class">.7</span><span class="selector-class">.0-openjdk-headless-1</span><span class="selector-class">.7</span><span class="selector-class">.0</span><span class="selector-class">.111-2</span><span class="selector-class">.6</span><span class="selector-class">.7</span><span class="selector-class">.8</span><span class="selector-class">.el7</span><span class="selector-class">.x86_64</span></span><br></pre></td></tr></table></figure>
-<p>noarch文件可以不用删除</p>
-<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="selector-tag">python-javapackages-3</span><span class="selector-class">.4</span><span class="selector-class">.1-11</span><span class="selector-class">.el7</span><span class="selector-class">.noarch</span></span><br><span class="line"><span class="selector-tag">tzdata-java-2016g-2</span><span class="selector-class">.el7</span><span class="selector-class">.noarch</span></span><br><span class="line"><span class="selector-tag">javapackages-tools-3</span><span class="selector-class">.4</span><span class="selector-class">.1-11</span><span class="selector-class">.el7</span><span class="selector-class">.noarch</span></span><br></pre></td></tr></table></figure>
-<p>③在命令窗口键入：</p>
-<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="selector-tag">rpm</span> <span class="selector-tag">-e</span> <span class="selector-tag">--nodeps</span> <span class="selector-tag">java-1</span><span class="selector-class">.7</span><span class="selector-class">.0-openjdk-1</span><span class="selector-class">.7</span><span class="selector-class">.0</span><span class="selector-class">.111-2</span><span class="selector-class">.6</span><span class="selector-class">.7</span><span class="selector-class">.8</span><span class="selector-class">.el7</span><span class="selector-class">.x86_64</span></span><br></pre></td></tr></table></figure>
-<p>但是会出错，因为在普通用户sxd用户下，并没有操作这几个文件的权限。</p>
-<p>解决：</p>
-<p>　　在命令窗口键入：</p>
-<figure class="highlight ebnf"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">su root</span></span><br></pre></td></tr></table></figure>
-<p>进入root用户，可以有权限操作这几个文件。 </p>
-<p>完整的删除文件的命令，在命令窗口键入：</p>
-<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="selector-tag">rpm</span> <span class="selector-tag">-e</span> <span class="selector-tag">--nodeps</span> <span class="selector-tag">java-1</span><span class="selector-class">.7</span><span class="selector-class">.0-openjdk-1</span><span class="selector-class">.7</span><span class="selector-class">.0</span><span class="selector-class">.111-2</span><span class="selector-class">.6</span><span class="selector-class">.7</span><span class="selector-class">.8</span><span class="selector-class">.el7</span><span class="selector-class">.x86_64</span></span><br><span class="line"><span class="selector-tag">rpm</span> <span class="selector-tag">-e</span> <span class="selector-tag">--nodeps</span> <span class="selector-tag">java-1</span><span class="selector-class">.8</span><span class="selector-class">.0-openjdk-1</span><span class="selector-class">.8</span><span class="selector-class">.0</span><span class="selector-class">.102-4</span><span class="selector-class">.b14</span><span class="selector-class">.el7</span><span class="selector-class">.x86_64</span></span><br><span class="line"><span class="selector-tag">rpm</span> <span class="selector-tag">-e</span> <span class="selector-tag">--nodeps</span> <span class="selector-tag">java-1</span><span class="selector-class">.8</span><span class="selector-class">.0-openjdk-headless-1</span><span class="selector-class">.8</span><span class="selector-class">.0</span><span class="selector-class">.102-4</span><span class="selector-class">.b14</span><span class="selector-class">.el7</span><span class="selector-class">.x86_64</span></span><br><span class="line"><span class="selector-tag">rpm</span> <span class="selector-tag">-e</span> <span class="selector-tag">--nodeps</span> <span class="selector-tag">java-1</span><span class="selector-class">.7</span><span class="selector-class">.0-openjdk-headless-1</span><span class="selector-class">.7</span><span class="selector-class">.0</span><span class="selector-class">.111-2</span><span class="selector-class">.6</span><span class="selector-class">.7</span><span class="selector-class">.8</span><span class="selector-class">.el7</span><span class="selector-class">.x86_64</span></span><br></pre></td></tr></table></figure>
-<p>命令介绍：</p>
-<figure class="highlight haml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">rpm 　　　　管理套件  </span><br><span class="line">-<span class="ruby">e　　　　　删除指定的套件</span></span><br><span class="line"><span class="ruby">--nodeps　　不验证套件档的相互关联性</span></span><br></pre></td></tr></table></figure>
-<p>④检查是否已经删除成功</p>
-<p>在命令窗口键入：</p>
-<figure class="highlight applescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">java -<span class="built_in">version</span></span><br></pre></td></tr></table></figure>
-<p>⑤如果还没有删除，则用yum -y remove去删除他们</p>
-<h2 id="第二步-下载最新稳定JDK"><a href="#第二步-下载最新稳定JDK" class="headerlink" title="第二步　　下载最新稳定JDK"></a><strong>第二步　　下载最新稳定JDK</strong></h2><p><strong>【注意】:JDK安装在哪个用户下，就是给哪个用户使用</strong></p>
-<p>①下载地址为</p>
-<p>　　当前最新版本下载地址：<a href="http://www.oracle.com/technetwork/java/javase/downloads/index.html" target="_blank" rel="external">http://www.oracle.com/technetwork/java/javase/downloads/index.html</a></p>
-<p>　　历史版本下载地址：　　<a href="http://www.oracle.com/technetwork/java/javase/archive-139210.html" target="_blank" rel="external">http://www.oracle.com/technetwork/java/javase/archive-139210.html</a>   </p>
-<p>②粘贴地址到浏览器地址栏</p>
-<p> ③下载完成后，将JDK压缩包  复制一份到/usr/local/src/作备份</p>
-<p>键入命令：</p>
-<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cp jdk-<span class="number">8</span>u144-linux-x64<span class="selector-class">.tar</span><span class="selector-class">.gz</span> /usr/local/src/</span><br></pre></td></tr></table></figure>
-<p>命令说明：</p>
-<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">cp　　　　　　　　　　　　　　  复制文件或目录</span><br><span class="line">jdk-<span class="number">8</span>u144-linux-x64<span class="selector-class">.tar</span><span class="selector-class">.gz</span>　　　　文件名</span><br><span class="line">/user/local/src　　　　　　　　　 要复制的目标目录</span><br></pre></td></tr></table></figure>
-<p>④修改JDK压缩文件的权限，然后再进行复制操作</p>
-<p>在命令行键入：</p>
-<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">chmod <span class="number">755</span> jdk-<span class="number">8</span>u144-linux-x64<span class="selector-class">.tar</span><span class="selector-class">.gz</span></span><br></pre></td></tr></table></figure>
-<h2 id="第三步-解压JDK"><a href="#第三步-解压JDK" class="headerlink" title="第三步　　解压JDK"></a><strong>第三步　　解压JDK</strong></h2><p>①将/home/sxd/下载/jdk-8u144-linux-x64.tar.gz文件拷贝一份到/usr/java</p>
-<p>命令行键入：</p>
-<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cp jdk-<span class="number">8</span>u144-linux-x64<span class="selector-class">.tar</span><span class="selector-class">.gz</span> /usr/java</span><br></pre></td></tr></table></figure>
-<p>②在java目录下，解压JDK压缩文件</p>
-<p>在命令窗口键入：</p>
-<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">tar -zxvf jdk-<span class="number">8</span>u144-linux-x64<span class="selector-class">.tar</span><span class="selector-class">.gz</span></span><br></pre></td></tr></table></figure>
-<p>命令介绍：</p>
-<figure class="highlight haml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">tar　　　　　　备份文件</span><br><span class="line">-<span class="ruby">zxvf　　　　　</span></span><br><span class="line"><span class="ruby">-z　　　　　　 　　　　　　　　  通过gzip指令处理备份文件</span></span><br><span class="line"><span class="ruby">-x　　　　　　　　　　　　　　   从备份文件中还原文件</span></span><br><span class="line"><span class="ruby">-v　　　　　　　　　　　　　　   显示指令执行过程</span></span><br><span class="line"><span class="ruby">-f　　　　　　 　　　　　　　　   指定备份文件</span></span><br><span class="line"><span class="ruby">jdk-<span class="number">8</span>u144-linux-x64.tar.gz　　　　文件名</span></span><br></pre></td></tr></table></figure>
-<h2 id="第四步-配置JDK环境变量"><a href="#第四步-配置JDK环境变量" class="headerlink" title="第四步　　配置JDK环境变量"></a><strong>第四步　　配置JDK环境变量</strong></h2><p>①编辑全局变量</p>
-<p>在命令行键入：</p>
-<figure class="highlight vim"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">vim</span> /etc/<span class="keyword">profile</span></span><br></pre></td></tr></table></figure>
-<p>进入文本编辑状态下，光标走到文件最后一行，键盘按下：</p>
-<figure class="highlight ebnf"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">i</span></span><br></pre></td></tr></table></figure>
-<p>进入插入状态：</p>
-<p>在文本的最后一行粘贴如下：</p>
-<p>注意JAVA_HOME=/usr/java/jdk1.8.0_144  就是你自己的目录</p>
-<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#在export之后插入</span></span><br><span class="line"><span class="builtin-name">export</span> PATH<span class="built_in"> USER </span>LOGNAME MAIL HOSTNAME HISTSIZE HISTCONTROL</span><br><span class="line"></span><br><span class="line"><span class="comment">#java environment</span></span><br><span class="line"><span class="builtin-name">export</span> <span class="attribute">JAVA_HOME</span>=/usr/install/jdk1.8.0_60</span><br><span class="line"><span class="builtin-name">export</span> <span class="attribute">CLASSPATH</span>=.:$&#123;JAVA_HOME&#125;/jre/lib/rt.jar:<span class="variable">$&#123;JAVA_HOME&#125;</span>/lib/dt.jar:<span class="variable">$&#123;JAVA_HOME&#125;</span>/lib/tools.jar</span><br><span class="line"><span class="builtin-name">export</span> <span class="attribute">PATH</span>=<span class="variable">$PATH</span>:$&#123;JAVA_HOME&#125;/bin</span><br></pre></td></tr></table></figure>
-<h2 id="第五步-让刚刚设置的环境变量生效并检查是否安装成功"><a href="#第五步-让刚刚设置的环境变量生效并检查是否安装成功" class="headerlink" title="第五步　　让刚刚设置的环境变量生效并检查是否安装成功"></a><strong>第五步　　让刚刚设置的环境变量生效并检查是否安装成功</strong></h2><p>①让刚刚设置的环境变量生效</p>
-<p> 键入：</p>
-<figure class="highlight gradle"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">source</span> <span class="regexp">/etc/</span>profile</span><br></pre></td></tr></table></figure>
-<p> ②检查是否配置成功</p>
-<p>键入：</p>
-<figure class="highlight applescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">java -<span class="built_in">version</span></span><br></pre></td></tr></table></figure>
-
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-      
-
-      <div style="font-size: 12px;">
-        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
       </div>
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2018/06/05/CentOS7安装JDK详细过程/">展开全文 >></a>
-        </p>
-      
+    </span>
+  </div>
+</div>
 
+<div class="page-modal wx-share js-wx-box">
+    <a class="close js-modal-close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="http://s.jiathis.com/qrcode.php?url=http://yoursite.com/2018/06/10/zookeeper-watcher机制源码分析/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div class="mask js-mask"></div>
       
       <div class="clearfix"></div>
     </div>
   </div>
 </article>
+
+  
+<nav id="article-nav">
+  
+  
+    <a href="/2018/06/09/zookeeper学习笔记_05_原生API的使用/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">zookeeper原生API使用</div>
+      <i class="icon-circle-right"></i>
+    </a>
+  
+</nav>
+
 
 <aside class="wrap-side-operation">
     <div class="mod-side-operation">
@@ -928,808 +437,14 @@
 
 
 
-
-  
-    <article id="post-大型跨境电商JVM调优经历" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2018/05/29/大型跨境电商JVM调优经历/">大型跨境电商JVM调优经历</a>
-    </h1>
-  
-
-        
-        <a href="/2018/05/29/大型跨境电商JVM调优经历/" class="archive-article-date">
-  	<time datetime="2018-05-29T01:49:41.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-05-29</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h2 id="示例"><a href="#示例" class="headerlink" title="示例"></a>示例</h2><blockquote>
-<p>引用自 <a href="https://juejin.im/post/5b091ee35188253892389683?utm_source=gold_browser_extension" target="_blank" rel="external">https://juejin.im/post/5b091ee35188253892389683?utm_source=gold_browser_extension</a></p>
-</blockquote>
-<p>前提：<br>某大型跨境电商业务发展非常快，线上机器扩容也很频繁，但是对于线上机器的运行情况，特别是jvm内存的情况，一直没有一个统一的标准来给到各个应用服务的owner。经过618大促之后，和运维的同学讨论了下，希望将线上服务器的jvm参数标准化，可以以一个统一的方式给到各个应用，提升线上服务器的稳定性，同时减少大家都去调整jvm参数的时间。<br>参考了之前在淘宝天猫工作的公司的经历：经过大家讨论，根据jdk的版本以及线上机器配置，确定了一个推荐的默认jvm模版：<br>最终推荐的jvm模版：<br>jdk版本 机器配置 建议jvm参数 备注</p>
-<figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">jdk1<span class="number">.7</span> <span class="number">6</span>V8G -server -Xms4g -Xmx4g -Xmn2g -Xss768k -<span class="string">XX:</span>PermSize=<span class="number">512</span>m -<span class="string">XX:</span>MaxPermSize=<span class="number">512</span>m -<span class="string">XX:</span>+UseConcMarkSweepGC -<span class="string">XX:</span>+UseParNewGC -<span class="string">XX:</span>+CMSClassUnloadingEnabled -<span class="string">XX:</span>+DisableExplicitGC -<span class="string">XX:</span>+UseCMSInitiatingOccupancyOnly -<span class="string">XX:</span>CMSInitiatingOccupancyFraction=<span class="number">68</span> -<span class="string">verbose:</span>gc -<span class="string">XX:</span>+PrintGCDetails -<span class="string">Xloggc:</span>&#123;CATALINA_BASE&#125;<span class="regexp">/logs/</span>gc.log -<span class="string">XX:</span>+PrintGCDateStamps -<span class="string">XX:</span>+HeapDumpOnOutOfMemoryError -<span class="string">XX:</span>HeapDumpPath=&#123;CATALINA_BASE&#125;/logs 前台</span><br></pre></td></tr></table></figure>
-<figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">jdk1<span class="number">.7</span> <span class="number">8</span>V8G -server -Xms4g -Xmx4g -Xmn2g -Xss768k -<span class="string">XX:</span>PermSize=<span class="number">512</span>m -<span class="string">XX:</span>MaxPermSize=<span class="number">512</span>m -<span class="string">XX:</span>+UseConcMarkSweepGC -<span class="string">XX:</span>+UseParNewGC -<span class="string">XX:</span>+CMSClassUnloadingEnabled -<span class="string">XX:</span>+DisableExplicitGC -<span class="string">XX:</span>+UseCMSInitiatingOccupancyOnly -<span class="string">XX:</span>CMSInitiatingOccupancyFraction=<span class="number">68</span> -<span class="string">verbose:</span>gc -<span class="string">XX:</span>+PrintGCDetails -<span class="string">Xloggc:</span>&#123;CATALINA_BASE&#125;<span class="regexp">/logs/</span>gc.log -<span class="string">XX:</span>+PrintGCDateStamps -<span class="string">XX:</span>+HeapDumpOnOutOfMemoryError -<span class="string">XX:</span>HeapDumpPath=&#123;CATALINA_BASE&#125;/logs 前台</span><br></pre></td></tr></table></figure>
-<figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">jdk1<span class="number">.7</span> <span class="number">4</span>V8G -server -Xms4g -Xmx4g -Xmn2g -Xss768k -<span class="string">XX:</span>PermSize=<span class="number">512</span>m -<span class="string">XX:</span>MaxPermSize=<span class="number">512</span>m -<span class="string">XX:</span>+UseConcMarkSweepGC -<span class="string">XX:</span>+UseParNewGC -<span class="string">XX:</span>+CMSClassUnloadingEnabled -<span class="string">XX:</span>+DisableExplicitGC -<span class="string">XX:</span>+UseCMSInitiatingOccupancyOnly -<span class="string">XX:</span>CMSInitiatingOccupancyFraction=<span class="number">68</span> -<span class="string">verbose:</span>gc -<span class="string">XX:</span>+PrintGCDetails -<span class="string">Xloggc:</span>&#123;CATALINA_BASE&#125;<span class="regexp">/logs/</span>gc.log -<span class="string">XX:</span>+PrintGCDateStamps -<span class="string">XX:</span>+HeapDumpOnOutOfMemoryError -<span class="string">XX:</span>HeapDumpPath=&#123;CATALINA_BASE&#125;/logs 前台</span><br></pre></td></tr></table></figure>
-<figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">jdk1<span class="number">.7</span> <span class="number">6</span>V8G -server -Xms4g -Xmx4g -<span class="string">XX:</span>MaxPermSize=<span class="number">512</span>m \</span><br><span class="line"></span><br><span class="line">-<span class="string">verbose:</span>gc -<span class="string">XX:</span>+PrintGCDetails -Xloggc￼&#123;CATALINA_BASE&#125;<span class="regexp">/logs/</span>gc.log -<span class="string">XX:</span>+PrintGCTimeStamps \ 后台</span><br></pre></td></tr></table></figure>
-<h2 id="配置说明："><a href="#配置说明：" class="headerlink" title="配置说明："></a>配置说明：</h2><ol>
-<li>堆设置</li>
-</ol>
-<p>o -Xms:初始堆大小<br>o -Xmx:最大堆大小<br>o -XX:NewSize=n:设置年轻代大小<br>o -XX:NewRatio=n:设置年轻代和年老代的比值。如:为3，表示年轻代与年老代比值为1：3，年轻代占整个年轻代年老代和的1/4<br>o -XX:SurvivorRatio=n:年轻代中Eden区与两个Survivor区的比值。注意Survivor区有两个。如：3，表示Eden：Survivor=3：2，一个Survivor区占整个年轻代的1/5<br>o -XX:MaxPermSize=n:设置持久代大小</p>
-<ol>
-<li>收集器设置</li>
-</ol>
-<p>o -XX:+UseSerialGC:设置串行收集器<br>o -XX:+UseParallelGC:设置并行收集器<br>o -XX:+UseParalledlOldGC:设置并行年老代收集器<br>o -XX:+UseConcMarkSweepGC:设置并发收集器</p>
-<ol>
-<li><p>垃圾回收统计信息<br>-XX:+PrintGC<br>-XX:+PrintGCDetails<br>-XX:+PrintGCTimeStamps<br>-Xloggc:filename</p>
-</li>
-<li><p>并行收集器设置<br>-XX:ParallelGCThreads=n:设置并行收集器收集时使用的CPU数。并行收集线程数。<br>-XX:MaxGCPauseMillis=n:设置并行收集最大暂停时间<br>-XX:GCTimeRatio=n:设置垃圾回收时间占程序运行时间的百分比。公式为1/(1+n)</p>
-</li>
-<li><p>并发收集器设置<br>-XX:+CMSIncrementalMode:设置为增量模式。适用于单CPU情况。<br>-XX:ParallelGCThreads=n:设置并发收集器年轻代收集方式为并行收集时，使用的CPU数。并行收集线程数。</p>
-</li>
-</ol>
-<h2 id="参数解释："><a href="#参数解释：" class="headerlink" title="参数解释："></a>参数解释：</h2><p>-Xms3072m -Xmx3072m<br>针对JVM堆的设置，通过-Xms -Xmx限定其最小、最大值</p>
-<p>-Xmn1024m设置年轻代大小为1024m<br>整个JVM内存大小=年轻代大小 + 年老代大小 + 持久代大小（perm）。</p>
-<p>-Xss768k 设置每个线程的堆栈大小。JDK5.0以后每个线程堆栈大小为1M，以前每个线程堆栈大小为256K。更具应用的线程所需内存大小进行调整。在相同物理内存下，减小这个值能生成更多的线程。但是操作系统对一个进程内的线程数还是有限制的，不能无限生成，经验值在3000~5000左右。</p>
-<p>-XX:PermSize=512m -XX:MaxPermSize=512m<br>持久代一般固定大小为64m，所以增大年轻代后，将会减小年老代大小。此值对系统性能影响较大，Sun官方推荐配置为整个堆的3/8。<br>设置非堆内存初始值，默认是物理内存的1/64；由XX:MaxPermSize设置最大非堆内存的大小，默认是物理内存的1/4</p>
-<p>-XX:+UseConcMarkSweepGC<br><code>CMS收集器</code>也被称为<strong>短暂停顿并发收集器</strong>。它是对年老代进行垃圾收集的。CMS收集器通过多线程并发进行垃圾回收，尽量减少垃圾收集造成的停顿。CMS收集器对年轻代进行垃圾回收使用的算法和Parallel收集器一样。这个垃圾收集器适用于不能忍受长时间停顿要求快速响应的应用。</p>
-<p>-XX:+UseParNewGC对年轻代采用多线程并行回收，这样收得快；</p>
-<p>-XX:+CMSClassUnloadingEnabled<br>如果你启用了CMSClassUnloadingEnabled ，垃圾回收会清理持久代，移除不再使用的classes。这个参数只有在 UseConcMarkSweepGC  也启用的情况下才有用。</p>
-<p>-XX:+DisableExplicitGC禁止System.gc()，免得程序员误调用gc方法影响性能；</p>
-<p>-XX:+UseCMSInitiatingOccupancyOnly<br>标志来命令JVM不基于运行时收集的数据来启动CMS垃圾收集周期。而是，当该标志被开启时，JVM通过CMSInitiatingOccupancyFraction的值进行每一次CMS收集，而不仅仅是第一次。然而，请记住大多数情况下，JVM比我们自己能作出更好的垃圾收集决策。因此，只有当我们充足的理由(比如测试)并且对应用程序产生的对象的生命周期有深刻的认知时，才应该使用该标志。</p>
-<p>-XX:CMSInitiatingOccupancyFraction=68<br>默认CMS是在tenured generation(年老代）占满68%的时候开始进行CMS收集，如果你的年老代增长不是那么快，并且希望降低CMS次数的话，可以适当调高此值；</p>
-<p>-XX:+UseParNewGC：对年轻代采用多线程并行回收，这样收得快；</p>
-<p>-XX:HeapDumpPath<br>-XX:+PrintGCDetails<br>-XX:+PrintGCTimeStamps<br>-Xloggc:/usr/aaa/dump/heap_trace.txt<br>上面的的参数打Heap Dump信息</p>
-<p>“ -XX:+HeapDumpOnOutOfMemoryError<br>此参数可以控制OutOfMemoryError时打印堆的信息</p>
-<p>大家可能注意到了，这里<strong>推荐采用cms方式</strong>进行垃圾回收；<br>CMS是一种以获取最短回收停顿时间为目标的收集器，可以有效减少服务器停顿的时间；<br>CMS的GC线程对CPU的占用率会比较高，但在多核的服务器上还是展现了优越的特性，目前也被部署在国内的各大电商网站上。所以这里强烈推荐！<br>cms的概念：</p>
-<p>CMS收集器也被称为短暂停顿并发收集器。它是对年老代进行垃圾收集的。CMS收集器通过多线程并发进行垃圾回收，尽量减少垃圾收集造成的停顿。CMS收集器对年轻代进行垃圾回收使用的算法和Parallel收集器一样。这个垃圾收集器适用于不能忍受长时间停顿要求快速响应的应用。<strong>CMS采用了多种方式尽可能降低GC的暂停时间,减少用户程序停顿。停顿时间降低的同时牺牲了CPU吞吐量 。这是在停顿时间和性能间做出的取舍，可以简单理解为”空间(性能)”换时间。</strong></p>
-<p>调整的节奏：<br>由于怕影响线上应用，所以调整的步骤分三步：<br>第一步：部分影响少量机器试点，对比未调整的机器，观察调整后的结果；<br>第二步：调整部分应用的参数，进行压测，观察高并发压测之后的效果；<br>第三步：调整部分核心应用的jvm参数，通过818大促来实际检验效果；</p>
-<p>一:长期表现，<br>第一个变化：fgc的次数减少，减少了大概一倍以上；<br>mobile工程，调整前基本上一天1-2辆次，调整后基本上就是2-3天一次：<br>online（另外一个工程）：可以明显看到fgc的统计频率少了很多；</p>
-<p>第二个变化：fgc的时间减少<br>原来一次fgc要将近500ms，现在只要100ms不到了。<br>也证明了cms最大的好处就是减少fgc的停顿时间。</p>
-
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">jvm</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-      
-
-      <div style="font-size: 12px;">
-        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
-      </div>
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2018/05/29/大型跨境电商JVM调优经历/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
-    <article id="post-Mysql语句优化explain使用" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2018/05/18/Mysql语句优化explain使用/">Mysql语句优化explain使用</a>
-    </h1>
-  
-
-        
-        <a href="/2018/05/18/Mysql语句优化explain使用/" class="archive-article-date">
-  	<time datetime="2018-05-18T03:44:19.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-05-18</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h2 id="id"><a href="#id" class="headerlink" title="id"></a>id</h2><figure class="highlight applescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">如果是子查询，<span class="built_in">id</span>的序号会递增，<span class="built_in">id</span>的值越大优先级越高，越先被执行</span><br></pre></td></tr></table></figure>
-<h2 id="select-type"><a href="#select-type" class="headerlink" title="select_type"></a>select_type</h2><p>查询的类型，主要用于区别普通查询、联合查询、子查询等的复杂查询</p>
-<ul>
-<li><p><code>SIMPLE</code>:简单的select查询，查询中不包含子查询或者UNION </p>
-</li>
-<li><p><code>PRIMARY</code>:查询中若包含任何复杂的子部分，最外层查询则被标记为PRIMARY（最后加载的那一个 ） </p>
-</li>
-<li><p><code>SUBQUERY</code>:在SELECT或WHERE列表中包含了子查询 </p>
-</li>
-<li><p><code>DERIVED</code>:在FROM列表中包含的<strong>子查询</strong>被标记为DERIVED（衍生），Mysql会递归执行这些子查询，把结果放在临时表里。 </p>
-</li>
-<li><p><code>UNION</code>:若第二个SELECT出现在UNION之后，则被标记为UNION；若UNION包含在FROM字句的查询中，外层SELECT将被标记为:<code>DERIVED UNION</code></p>
-</li>
-<li><p><code>RESULT</code>:从UNION表获取结果的SELECT </p>
-<h2 id="type"><a href="#type" class="headerlink" title="type"></a>type</h2></li>
-</ul>
-<p>显示查询使用了何种类型，从最好到最差依次是<br>System&gt;const&gt;eq_ref&gt;range&gt;index&gt;All（<strong>全表扫描</strong>），一般来说<strong>至少达到range级别，最好达到ref</strong></p>
-<ul>
-<li><code>All</code>:全表扫描</li>
-<li><code>System</code>:表只有一行记录，这是const类型的特例，平时不会出现(忽略不计)</li>
-<li><code>const</code>:表示通过索引一次就找到了,const用于比较primary key或者unique索引，因为只匹配一行数据，所以很快。如将主键置于where列表中，MySQL就能将该查询转换为一个常量。</li>
-<li><code>const</code>:表示通过索引一次就找到了,const用于比较primary key或者unique索引，因为只匹配一行数据，所以很快。如将主键置于where列表中，MySQL就能将该查询转换为一个常量。</li>
-<li><code>eq_ref</code>:唯一性索引扫描，对于每个索引键，表中只有一条记录与之匹配。常见于主键或唯一索引扫描。</li>
-<li><code>ref</code>：非唯一索引扫描，返回匹配某个单独值的行，本质上也是一种索引访问，它返回所有匹配某个单独值的行，然而它可能会找到多个符合条件的行，所以它应该属于查找和扫描的混合体</li>
-<li><code>range</code>：只检索给定范围的行，使用一个索引来选择行。key列显示使用了哪个索引，一般就是在你的where语句中出现了between、&lt;、&gt;、in等的查询。这种范围扫描索引比全表扫描要好，因为它只需要开始于索引的某一点，而结束于另一点，不用扫描全部索引。</li>
-<li><code>index</code>:FULL INDEX SCAN,index与all区别为index类型只遍历索引树。这通常比all快，因为索引文件通常比数据文件小。</li>
-</ul>
-<h2 id="rows"><a href="#rows" class="headerlink" title="rows"></a>rows</h2><p>根据表统计信息及索引选用情况，大致估算出找到所需记录所需要读取的行数</p>
-<h2 id="extra"><a href="#extra" class="headerlink" title="extra"></a>extra</h2><p>包含不适合在其他列中显示但十分重要的额外信息 包含的信息： </p>
-<ul>
-<li><strong>（危险!）</strong><code>Using filesort</code>:说明mysql会对数据使用一个外部的索引排序，而不是按照表内的索引顺序进行读取，MYSQL中无法利用索引完成的排序操作称为“文件排序” </li>
-<li><strong>（特别危险!）</strong><code>Using temporary</code>:使用了临时表保存中间结果，MYSQL在对查询结果排序时使用临时表。常见于排序order by 和分组查询 group by </li>
-<li><code>Using index</code>:表示相应的select操作中使用了覆盖索引，避免访问了表的数据行，效率不错。如果同时出现<code>using where</code>，表明索引被用来执行索引键值的查找；如果没有同时出现<code>using where</code>，表明索引用来读取数据而非执行查找操作。</li>
-</ul>
-<h2 id="possible-keys"><a href="#possible-keys" class="headerlink" title="possible_keys"></a>possible_keys</h2><p>显示可能应用在这张表中的索引，一个或多个。查询涉及到的字段上若存在索引，则该索引将被列出， 但不一定被查询实际使用</p>
-<h2 id="key"><a href="#key" class="headerlink" title="key"></a>key</h2><p>实际使用的索引，如果为NULL，则没有使用索引。查询中若使用了覆盖索引，则该索引仅出现在key列表中，key参数可以<strong>作为使用了索引的判断标准</strong></p>
-<h2 id="key-len"><a href="#key-len" class="headerlink" title="key_len"></a>key_len</h2><p>:表示索引中使用的字节数，可通过该列计算查询中索引的长度，在不损失精确性的情况下，<strong>长度越短越好</strong>，key_len显示的值为索引字段的最大可能长度，并非实际使用长度，即key_len是根据表定义计算而得，不是通过表内检索出的。</p>
-<h2 id="ref"><a href="#ref" class="headerlink" title="ref"></a>ref</h2><p>对应索引的赋值，显示索引的哪一列被使用了，如果可能的话，是一个常数。哪些列或常量被用于查找索引上的值。</p>
-
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">mysql</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-      
-
-      <div style="font-size: 12px;">
-        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
-      </div>
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2018/05/18/Mysql语句优化explain使用/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
-    <article id="post-基于-Redis-的分布式锁" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2018/05/15/基于-Redis-的分布式锁/">基于 Redis 的分布式锁</a>
-    </h1>
-  
-
-        
-        <a href="/2018/05/15/基于-Redis-的分布式锁/" class="archive-article-date">
-  	<time datetime="2018-05-15T10:41:02.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-05-15</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>分布式锁在分布式应用中应用广泛，想要搞懂一个新事物首先得了解它的由来，这样才能更加的理解甚至可以举一反三。</p>
-<p>首先谈到分布式锁自然也就联想到分布式应用。</p>
-<p>在我们将应用拆分为分布式应用之前的单机系统中，对一些并发场景读取公共资源时如扣库存，卖车票之类的需求可以简单的使用<a href="http://crossoverjie.top/2018/01/14/Synchronize/" target="_blank" rel="external">同步</a>或者是<a href="http://crossoverjie.top/2018/01/25/ReentrantLock/" target="_blank" rel="external">加锁</a>就可以实现。</p>
-<p>但是应用分布式了之后系统由以前的单进程多线程的程序变为了多进程多线程，这时使用以上的解决方案明显就不够了。</p>
-<p>因此业界常用的解决方案通常是借助于一个第三方组件并利用它自身的排他性来达到多进程的互斥。如：</p>
-<ul>
-<li>基于 DB 的唯一索引。</li>
-<li>基于 ZK 的临时有序节点。</li>
-<li>基于 Redis 的 <code>NX EX</code> 参数。</li>
-</ul>
-<p>这里主要基于 Redis 进行讨论。</p>
-<h2 id="实现"><a href="#实现" class="headerlink" title="实现"></a>实现</h2><p>既然是选用了 Redis，那么它就得具有排他性才行。同时它最好也有锁的一些基本特性：</p>
-<ul>
-<li>高性能(加、解锁时高性能)</li>
-<li>可以使用阻塞锁与非阻塞锁。</li>
-<li>不能出现死锁。</li>
-<li>可用性(不能出现节点 down 掉后加锁失败)。</li>
-</ul>
-<p>这里利用 <code>Redis set key</code> 时的一个 NX 参数可以保证在这个 key 不存在的情况下写入成功。并且再加上 EX 参数可以让该 key 在超时之后自动删除。</p>
-<p>所以利用以上两个特性可以保证在同一时刻只会有一个进程获得锁，并且不会出现死锁(最坏的情况就是超时自动删除 key)。</p>
-<h3 id="加锁"><a href="#加锁" class="headerlink" title="加锁"></a>加锁</h3><p>实现代码如下：</p>
-<figure class="highlight processing"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">String</span> SET_IF_NOT_EXIST = <span class="string">"NX"</span>;</span><br><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">String</span> SET_WITH_EXPIRE_TIME = <span class="string">"PX"</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span>  <span class="built_in">boolean</span> tryLock(<span class="keyword">String</span> <span class="built_in">key</span>, <span class="keyword">String</span> request) &#123;</span><br><span class="line">    <span class="keyword">String</span> result = <span class="keyword">this</span>.jedis.<span class="built_in">set</span>(LOCK_PREFIX + <span class="built_in">key</span>, request, SET_IF_NOT_EXIST, SET_WITH_EXPIRE_TIME, <span class="number">10</span> * TIME);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (LOCK_MSG.equals(result))&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">true</span> ;</span><br><span class="line">    &#125;<span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">false</span> ;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>注意这里使用的 jedis 的</p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">String <span class="keyword">set</span>(<span class="keyword">String</span> <span class="keyword">key</span>, <span class="keyword">String</span> <span class="keyword">value</span>, <span class="keyword">String</span> nxxx, <span class="keyword">String</span> expx, <span class="keyword">long</span> <span class="keyword">time</span>);</span><br></pre></td></tr></table></figure>
-<p>api。</p>
-<p>该命令可以保证 NX EX 的原子性。</p>
-<p>一定不要把两个命令(NX EX)分开执行，如果在 NX 之后程序出现问题就有可能产生死锁。</p>
-<h4 id="阻塞锁"><a href="#阻塞锁" class="headerlink" title="阻塞锁"></a>阻塞锁</h4><p>同时也可以实现一个阻塞锁：</p>
-<figure class="highlight processing"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//一直阻塞</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> lock(<span class="keyword">String</span> <span class="built_in">key</span>, <span class="keyword">String</span> request) <span class="keyword">throws</span> InterruptedException &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> (;;)&#123;</span><br><span class="line">        <span class="keyword">String</span> result = <span class="keyword">this</span>.jedis.<span class="built_in">set</span>(LOCK_PREFIX + <span class="built_in">key</span>, request, SET_IF_NOT_EXIST, SET_WITH_EXPIRE_TIME, <span class="number">10</span> * TIME);</span><br><span class="line">        <span class="keyword">if</span> (LOCK_MSG.equals(result))&#123;</span><br><span class="line">            <span class="keyword">break</span> ;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line"> <span class="comment">//防止一直消耗 CPU 	</span></span><br><span class="line">        Thread.sleep(DEFAULT_SLEEP_TIME) ;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"> <span class="comment">//自定义阻塞时间</span></span><br><span class="line"> <span class="keyword">public</span> <span class="built_in">boolean</span> lock(<span class="keyword">String</span> <span class="built_in">key</span>, <span class="keyword">String</span> request,<span class="built_in">int</span> blockTime) <span class="keyword">throws</span> InterruptedException &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span> (blockTime &gt;= <span class="number">0</span>)&#123;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">String</span> result = <span class="keyword">this</span>.jedis.<span class="built_in">set</span>(LOCK_PREFIX + <span class="built_in">key</span>, request, SET_IF_NOT_EXIST, SET_WITH_EXPIRE_TIME, <span class="number">10</span> * TIME);</span><br><span class="line">        <span class="keyword">if</span> (LOCK_MSG.equals(result))&#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">true</span> ;</span><br><span class="line">        &#125;</span><br><span class="line">        blockTime -= DEFAULT_SLEEP_TIME ;</span><br><span class="line"></span><br><span class="line">        Thread.sleep(DEFAULT_SLEEP_TIME) ;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">false</span> ;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h3 id="解锁"><a href="#解锁" class="headerlink" title="解锁"></a>解锁</h3><p>解锁也很简单，其实就是把这个 key 删掉就万事大吉了，比如使用 <code>del key</code> 命令。</p>
-<p>但现实往往没有那么 easy。</p>
-<p>如果进程 A 获取了锁设置了超时时间，但是由于执行周期较长导致到了超时时间之后锁就自动释放了。这时进程 B 获取了该锁执行很快就释放锁。这样就会出现进程 B 将进程 A 的锁释放了。</p>
-<p>所以最好的方式是在每次解锁时都需要判断锁<strong>是否是自己</strong>的。</p>
-<p>这时就需要结合加锁机制一起实现了。</p>
-<p>加锁时需要传递一个参数，将该参数作为这个 key 的 value，这样每次解锁时判断 value 是否相等即可。</p>
-<p>所以解锁代码就不能是简单的 <code>del</code>了。</p>
-<figure class="highlight processing"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span>  <span class="built_in">boolean</span> unlock(<span class="keyword">String</span> <span class="built_in">key</span>,<span class="keyword">String</span> request)&#123;</span><br><span class="line">    <span class="comment">//lua script</span></span><br><span class="line">    <span class="keyword">String</span> script = <span class="string">"if redis.call('get', KEYS[1]) == ARGV[1] then return redis.call('del', KEYS[1]) else return 0 end"</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">Object</span> result = <span class="keyword">null</span> ;</span><br><span class="line">    <span class="keyword">if</span> (jedis <span class="keyword">instanceof</span> Jedis)&#123;</span><br><span class="line">        result = ((Jedis)<span class="keyword">this</span>.jedis).eval(script, Collections.singletonList(LOCK_PREFIX + <span class="built_in">key</span>), Collections.singletonList(request));</span><br><span class="line">    &#125;<span class="keyword">else</span> <span class="keyword">if</span> (jedis <span class="keyword">instanceof</span> JedisCluster)&#123;</span><br><span class="line">        result = ((JedisCluster)<span class="keyword">this</span>.jedis).eval(script, Collections.singletonList(LOCK_PREFIX + <span class="built_in">key</span>), Collections.singletonList(request));</span><br><span class="line">    &#125;<span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="comment">//throw new RuntimeException("instance is error") ;</span></span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">false</span> ;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (UNLOCK_MSG.equals(result))&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">true</span> ;</span><br><span class="line">    &#125;<span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">false</span> ;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>这里使用了一个 <code>lua</code> 脚本来判断 value 是否相等，相等才执行 del 命令。</p>
-<p>使用 <code>lua</code> 也可以保证这里两个操作的原子性。</p>
-<p>因此上文提到的四个基本特性也能满足了：</p>
-<ul>
-<li>使用 Redis 可以保证性能。</li>
-<li>阻塞锁与非阻塞锁见上文。</li>
-<li>利用超时机制解决了死锁。</li>
-<li>Redis 支持集群部署提高了可用性。</li>
-</ul>
-<h2 id="使用"><a href="#使用" class="headerlink" title="使用"></a>使用</h2><p>我自己有撸了一个完整的实现，并且已经用于了生产，有兴趣的朋友可以开箱使用:</p>
-<p>maven 依赖：</p>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>top.crossoverjie.opensource<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>distributed-redis-lock<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>1.0.0<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
-<p>配置 bean :</p>
-<figure class="highlight haxe"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">@Configuration</span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">RedisLockConfig</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    @Bean</span><br><span class="line">    <span class="keyword">public</span> RedisLock build()&#123;</span><br><span class="line">        RedisLock redisLock = <span class="keyword">new</span> <span class="type">RedisLock</span>() ;</span><br><span class="line">        HostAndPort hostAndPort = <span class="keyword">new</span> <span class="type">HostAndPort</span>(<span class="string">"127.0.0.1"</span>,<span class="number">7000</span>) ;</span><br><span class="line">        JedisCluster jedisCluster = <span class="keyword">new</span> <span class="type">JedisCluster</span>(hostAndPort) ;</span><br><span class="line">        <span class="comment">// Jedis 或 JedisCluster 都可以</span></span><br><span class="line">        redisLock.setJedisCluster(jedisCluster) ;</span><br><span class="line">        <span class="keyword">return</span> redisLock ;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>使用：</p>
-<figure class="highlight processing"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">@Autowired</span><br><span class="line"><span class="keyword">private</span> RedisLock redisLock ;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> use() &#123;</span><br><span class="line">    <span class="keyword">String</span> <span class="built_in">key</span> = <span class="string">"key"</span>;</span><br><span class="line">    <span class="keyword">String</span> request = UUID.randomUUID().toString();</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        <span class="built_in">boolean</span> locktest = redisLock.tryLock(<span class="built_in">key</span>, request);</span><br><span class="line">        <span class="keyword">if</span> (!locktest) &#123;</span><br><span class="line">            System.out.<span class="built_in">println</span>(<span class="string">"locked error"</span>);</span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">        <span class="comment">//do something</span></span><br><span class="line"></span><br><span class="line">    &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">        redisLock.unlock(<span class="built_in">key</span>,request) ;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>使用很简单。这里主要是想利用 Spring 来帮我们管理 RedisLock 这个单例的 bean，所以在释放锁的时候需要手动(因为整个上下文只有一个 RedisLock 实例)的传入 key 以及 request(api 看起来不是特别优雅)。</p>
-<p>也可以在每次使用锁的时候 new 一个 RedisLock 传入 key 以及 request，这样倒是在解锁时很方便。但是需要自行管理 RedisLock 的实例。各有优劣吧。</p>
-<p>项目源码在：</p>
-<p><a href="https://github.com/crossoverJie/distributed-lock-redis" target="_blank" rel="external">https://github.com/crossoverJie/distributed-lock-redis</a></p>
-<p>欢迎讨论。</p>
-<h2 id="单测"><a href="#单测" class="headerlink" title="单测"></a>单测</h2><p>在做这个项目的时候让我不得不想提一下<strong>单测</strong>。</p>
-<p>因为这个应用是强依赖于第三方组件的(Redis)，但是在单测中我们需要排除掉这种依赖。比如其他伙伴 fork 了该项目想在本地跑一遍单测，结果运行不起来：</p>
-<ol>
-<li>有可能是 Redis 的 ip、端口和单测里的不一致。</li>
-<li>Redis 自身可能也有问题。</li>
-<li>也有可能是该同学的环境中并没有 Redis。</li>
-</ol>
-<p>所以最好是要把这些外部不稳定的因素排除掉，单测只测我们写好的代码。</p>
-<p>于是就可以引入单测利器 <code>Mock</code> 了。</p>
-<p>它的想法很简答，就是要把你所依赖的外部资源统统屏蔽掉。如：数据库、外部接口、外部文件等等。</p>
-<p>使用方式也挺简单，可以参考该项目的单测：</p>
-<figure class="highlight pf"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">@Test</span><br><span class="line">public void tryLock() throws Exception &#123;</span><br><span class="line">    String key = <span class="string">"test"</span>;</span><br><span class="line">    String request = UUID.<span class="keyword">random</span>UUID().<span class="keyword">to</span>String();</span><br><span class="line">    Mockito.when(jedisCluster.<span class="built_in">set</span>(Mockito.<span class="literal">any</span>String(), Mockito.<span class="literal">any</span>String(), Mockito.<span class="literal">any</span>String(),</span><br><span class="line">            Mockito.<span class="literal">any</span>String(), Mockito.<span class="literal">any</span>Long())).thenReturn(<span class="string">"OK"</span>);</span><br><span class="line"></span><br><span class="line">    boolean locktest = redisLock.tryLock(key, request);</span><br><span class="line">    System.<span class="keyword">out</span>.println(<span class="string">"locktest="</span> + locktest);</span><br><span class="line"></span><br><span class="line">    Assert.assertTrue(locktest);</span><br><span class="line"></span><br><span class="line">    //check</span><br><span class="line">    Mockito.verify(jedisCluster).<span class="built_in">set</span>(Mockito.<span class="literal">any</span>String(), Mockito.<span class="literal">any</span>String(), Mockito.<span class="literal">any</span>String(),</span><br><span class="line">            Mockito.<span class="literal">any</span>String(), Mockito.<span class="literal">any</span>Long());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>这里只是简单演示下，可以的话下次仔细分析分析。</p>
-<p>它的原理其实也挺简单，debug 的话可以很直接的看出来：</p>
-<p><a href="https://ws2.sinaimg.cn/large/006tKfTcgy1fpxho866hbj311u0ej42f.jpg" target="_blank" rel="external"><img src="https://ws2.sinaimg.cn/large/006tKfTcgy1fpxho866hbj311u0ej42f.jpg" alt="img"></a></p>
-<p>这里我们所依赖的 JedisCluster 其实是一个 <code>cglib 代理对象</code>。所以也不难想到它是如何工作的。</p>
-<p>比如这里我们需要用到 JedisCluster 的 set 函数并需要它的返回值。</p>
-<p>Mock 就将该对象代理了，并在实际执行 set 方法后给你返回了一个你自定义的值。</p>
-<p>这样我们就可以随心所欲的测试了，<strong>完全把外部依赖所屏蔽了</strong>。</p>
-<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>至此一个基于 Redis 的分布式锁完成，但是依然有些问题。</p>
-<ul>
-<li>如在 key 超时之后业务并没有执行完毕但却自动释放锁了，这样就会导致并发问题。</li>
-<li>就算 Redis 是集群部署的，如果每个节点都只是 master 没有 slave，那么 master 宕机时该节点上的所有 key 在那一时刻都相当于是释放锁了，这样也会出现并发问题。就算是有 slave 节点，但如果在数据同步到 salve 之前 master 宕机也是会出现上面的问题。</li>
-</ul>
-<p>感兴趣的朋友还可以参考 <a href="https://github.com/redisson/redisson" target="_blank" rel="external">Redisson</a> 的实现。</p>
-
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">分布式锁</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-      
-
-      <div style="font-size: 12px;">
-        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
-      </div>
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2018/05/15/基于-Redis-的分布式锁/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
-    <article id="post-Disruptor并发框架上手demo" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2018/05/15/Disruptor并发框架上手demo/">Disruptor并发框架上手demo</a>
-    </h1>
-  
-
-        
-        <a href="/2018/05/15/Disruptor并发框架上手demo/" class="archive-article-date">
-  	<time datetime="2018-05-15T01:37:32.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-05-15</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h4 id="框架简介"><a href="#框架简介" class="headerlink" title="框架简介"></a>框架简介</h4><ul>
-<li>Martin Fowler在自己网站上写了一篇LMAX架构的文章，在文章中他介绍了LMAX是一种新型零售金融交易平台，它能够以很低的延迟产生大量交易。这个系统是建立在JVM平台上，其核心是一个业务逻辑处理器，它能够在一个线程里每秒处理6百万订单。业务逻辑处理器完全是运行在<code>内存</code>中，使用<code>事件源驱动</code>方式。业务逻辑处理器的核心是Disruptor。</li>
-<li>Disruptor它是一个开源的并发框架，并获得2011 Duke’s 程序框架创新奖，能够在无锁的情况下实现网络的Queue并发操作。</li>
-<li>Disruptor是一个高性能的异步处理框架，或者可以认为是最快的消息框架（轻量的JMS），也可以认为是一个观察者模式的实现，或者事件监听模式的实现。</li>
-</ul>
-<blockquote>
-<p>在使用之前，首先说明disruptor主要功能加以说明，你可以理解为他是一种高效的”生产者-消费者”模型。也就性能远远高于传统的BlockingQueue容器。</p>
-</blockquote>
-<h4 id="上手demo"><a href="#上手demo" class="headerlink" title="上手demo"></a>上手demo</h4><ul>
-<li>首先声明一个Event来包含需要传递的数据：</li>
-</ul>
-<figure class="highlight cs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">LongEvent</span> &#123; </span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">long</span> <span class="keyword">value</span>;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">long</span> <span class="title">getValue</span>(<span class="params"></span>) </span>&#123; </span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">value</span>; </span><br><span class="line">    &#125; </span><br><span class="line"> </span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setValue</span>(<span class="params"><span class="keyword">long</span> <span class="keyword">value</span></span>) </span>&#123; </span><br><span class="line">        <span class="keyword">this</span>.<span class="keyword">value</span> = <span class="keyword">value</span>; </span><br><span class="line">    &#125; </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<ul>
-<li>于需要让Disruptor为我们创建事件，我们同时还声明了一个EventFactory来实例化Event对象。</li>
-</ul>
-<figure class="highlight haxe"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 需要让disruptor为我们创建事件，我们同时还声明了一个EventFactory来实例化Event对象。</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">LongEventFactory</span> <span class="keyword"><span class="keyword">implements</span> <span class="type">EventFactory</span></span> </span>&#123; </span><br><span class="line"></span><br><span class="line">    @Override </span><br><span class="line">    <span class="keyword">public</span> Object <span class="keyword">new</span><span class="type">Instance</span>() &#123; </span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> <span class="type">LongEvent</span>(); </span><br><span class="line">    &#125; </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<ul>
-<li>我们还需要一个事件消费者，也就是一个事件处理器。这个事件处理器简单地把事件中存储的数据打印到终端：</li>
-</ul>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">LongEventHandler</span> <span class="keyword">implements</span> <span class="title">EventHandler</span>&lt;<span class="title">LongEvent</span>&gt;  </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onEvent</span><span class="params">(LongEvent longEvent, <span class="keyword">long</span> l, <span class="keyword">boolean</span> b)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">        System.out.println(longEvent.getValue());       </span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<ul>
-<li>事件都会有一个生成事件的源，这个例子中假设事件是由于磁盘IO或者network读取数据的时候触发的，事件源使用一个ByteBuffer来模拟它接受到的数据，也就是说，事件源会在IO读取到一部分数据的时候触发事件（触发事件不是自动的，程序员需要在读取到数据的时候自己触发事件并发布）</li>
-</ul>
-<figure class="highlight cs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">LongEventProducer</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> final RingBuffer&lt;LongEvent&gt; ringBuffer;</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">LongEventProducer</span>(<span class="params">RingBuffer&lt;LongEvent&gt; ringBuffer</span>)</span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.ringBuffer = ringBuffer;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * onData用来发布事件，每调用一次就发布一次事件</span></span><br><span class="line"><span class="comment">     * 它的参数会用过事件传递给消费者</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onData</span>(<span class="params">ByteBuffer bb</span>)</span>&#123;</span><br><span class="line">        <span class="comment">//1.可以把ringBuffer看做一个事件队列，那么next就是得到下面一个事件槽</span></span><br><span class="line">        <span class="keyword">long</span> sequence = ringBuffer.next();</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="comment">//2.用上面的索引取出一个空的事件用于填充（获取该序号对应的事件对象）</span></span><br><span class="line">            LongEvent <span class="keyword">event</span> = ringBuffer.<span class="keyword">get</span>(sequence);</span><br><span class="line">            <span class="comment">//3.获取要通过事件传递的业务数据</span></span><br><span class="line">            <span class="keyword">event</span>.setValue(bb.getLong(<span class="number">0</span>));</span><br><span class="line">        &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">            <span class="comment">//4.发布事件</span></span><br><span class="line">            <span class="comment">//注意，最后的 ringBuffer.publish 方法必须包含在 finally 中以确保必须得到调用；</span></span><br><span class="line">            <span class="comment">// 如果某个请求的 sequence 未被提交，将会堵塞后续的发布操作或者其它的 producer。</span></span><br><span class="line">            ringBuffer.publish(sequence);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<ul>
-<li>main函数执行调用</li>
-</ul>
-<figure class="highlight haxe"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">LongEventMain</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> void main(<span class="keyword">String</span>[] args) throws Exception &#123;</span><br><span class="line">        <span class="comment">//创建缓冲池</span></span><br><span class="line">        ExecutorService  executor = Executors.<span class="keyword">new</span><span class="type">CachedThreadPool</span>();</span><br><span class="line">        <span class="comment">//创建工厂</span></span><br><span class="line">        LongEventFactory factory = <span class="keyword">new</span> <span class="type">LongEventFactory</span>();</span><br><span class="line">        <span class="comment">//创建bufferSize ,也就是RingBuffer大小，必须是2的N次方</span></span><br><span class="line">        int ringBufferSize = <span class="number">1024</span> * <span class="number">1024</span>; <span class="comment">// </span></span><br><span class="line"></span><br><span class="line">        <span class="comment">/**</span></span><br><span class="line"><span class="comment">        //BlockingWaitStrategy 是最低效的策略，但其对CPU的消耗最小并且在各种不同部署环境中能提供更加一致的性能表现</span></span><br><span class="line"><span class="comment">        WaitStrategy BLOCKING_WAIT = new BlockingWaitStrategy();</span></span><br><span class="line"><span class="comment">        //SleepingWaitStrategy 的性能表现跟BlockingWaitStrategy差不多，对CPU的消耗也类似，但其对生产者线程的影响最小，适合用于异步日志类似的场景</span></span><br><span class="line"><span class="comment">        WaitStrategy SLEEPING_WAIT = new SleepingWaitStrategy();</span></span><br><span class="line"><span class="comment">        //YieldingWaitStrategy 的性能是最好的，适合用于低延迟的系统。在要求极高性能且事件处理线数小于CPU逻辑核心数的场景中，推荐使用此策略；例如，CPU开启超线程的特性</span></span><br><span class="line"><span class="comment">        WaitStrategy YIELDING_WAIT = new YieldingWaitStrategy();</span></span><br><span class="line"><span class="comment">        */</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">        <span class="comment">/**</span></span><br><span class="line"><span class="comment">         *  参数说明：</span></span><br><span class="line"><span class="comment">         */</span></span><br><span class="line">        </span><br><span class="line">        <span class="comment">//创建disruptor</span></span><br><span class="line">        Disruptor&lt;LongEvent&gt; disruptor = </span><br><span class="line">                    <span class="keyword">new</span> <span class="type">Disruptor</span>&lt;LongEvent&gt;(factory, ringBufferSize, executor, ProducerType.SINGLE, <span class="keyword">new</span> <span class="type">YieldingWaitStrategy</span>());</span><br><span class="line">        <span class="comment">// 连接消费事件方法</span></span><br><span class="line">        disruptor.handleEventsWith(<span class="keyword">new</span> <span class="type">LongEventHandler</span>());</span><br><span class="line">        </span><br><span class="line">        <span class="comment">// 启动</span></span><br><span class="line">        disruptor.start();</span><br><span class="line">        </span><br><span class="line">        <span class="comment">//Disruptor 的事件发布过程是一个两阶段提交的过程：</span></span><br><span class="line">        <span class="comment">//发布事件</span></span><br><span class="line">        RingBuffer&lt;LongEvent&gt; ringBuffer = disruptor.getRingBuffer();</span><br><span class="line">        </span><br><span class="line">        LongEventProducer producer = <span class="keyword">new</span> <span class="type">LongEventProducer</span>(ringBuffer); </span><br><span class="line">        <span class="comment">//LongEventProducerWithTranslator producer = new LongEventProducerWithTranslator(ringBuffer);</span></span><br><span class="line">        ByteBuffer byteBuffer = ByteBuffer.allocate(<span class="number">8</span>);</span><br><span class="line">        <span class="keyword">for</span>(long l = <span class="number">0</span>; l&lt;<span class="number">100</span>; l++)&#123;</span><br><span class="line">            byteBuffer.putLong(<span class="number">0</span>, l);</span><br><span class="line">            producer.onData(byteBuffer);</span><br><span class="line">            <span class="comment">//Thread.sleep(1000);</span></span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        </span><br><span class="line">        disruptor.shutdown();<span class="comment">//关闭 disruptor，方法会堵塞，直至所有的事件都得到处理；</span></span><br><span class="line">        executor.shutdown();<span class="comment">//关闭 disruptor 使用的线程池；如果需要的话，必须手动关闭， disruptor 在 shutdown 时不会自动关闭；      </span></span><br><span class="line">     </span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">java并发包</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-      
-
-      <div style="font-size: 12px;">
-        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
-      </div>
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2018/05/15/Disruptor并发框架上手demo/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
-    <article id="post-Stream分组和分区" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2018/05/14/Stream分组和分区/">Stream分组和分区</a>
-    </h1>
-  
-
-        
-        <a href="/2018/05/14/Stream分组和分区/" class="archive-article-date">
-  	<time datetime="2018-05-14T03:55:40.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-05-14</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>这篇文章展示了如何使用 Streams API 中的 Collector 及 groupingBy 和 partitioningBy 来对流中的元素进行分组和分区。</p>
-<p>思考一下 Employee 对象流，每个对象对应一个名字、城市和销售数量，如下表所示：</p>
-<figure class="highlight asciidoc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="code">+----------+</span>------------<span class="code">+-----------------+</span></span><br><span class="line">| Name     | City       | Number of Sales |</span><br><span class="line"><span class="code">+----------+</span>------------<span class="code">+-----------------+</span></span><br><span class="line">| Alice    | London     | 200             |</span><br><span class="line">| Bob      | London     | 150             |</span><br><span class="line">| Charles  | New York   | 160             |</span><br><span class="line">| Dorothy  | Hong Kong  | 190             |</span><br><span class="line"><span class="code">+----------+</span>------------<span class="code">+-----------------+</span></span><br></pre></td></tr></table></figure>
-<h2 id="分组"><a href="#分组" class="headerlink" title="分组"></a>分组</h2><p>首先，我们利用（lambda表达式出现之前的）命令式风格Java 程序对流中的雇员按城市进行分组：</p>
-<figure class="highlight dart"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">Map</span>&lt;<span class="built_in">String</span>, <span class="built_in">List</span>&lt;Employee&gt;&gt; result = <span class="keyword">new</span> HashMap&lt;&gt;();</span><br><span class="line"><span class="keyword">for</span> (Employee e : employees) &#123;</span><br><span class="line">  <span class="built_in">String</span> city = e.getCity();</span><br><span class="line">  <span class="built_in">List</span>&lt;Employee&gt; empsInCity = result.<span class="keyword">get</span>(city);</span><br><span class="line">  <span class="keyword">if</span> (empsInCity == <span class="keyword">null</span>) &#123;</span><br><span class="line">    empsInCity = <span class="keyword">new</span> ArrayList&lt;&gt;();</span><br><span class="line">    result.put(city, empsInCity);</span><br><span class="line">  &#125;</span><br><span class="line">  empsInCity.add(e);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>你可能很熟悉写这样的代码，你也看到了，一个如此简单的任务就需要这么多代码！</p>
-<p>而在 Java 8 中，你可以使用 groupingBy 收集器，一条语句就能完成相同的功能，像这样：</p>
-<figure class="highlight lasso"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">Map</span>&lt;<span class="built_in">String</span>, <span class="built_in">List</span>&lt;Employee&gt;&gt; employeesByCity =</span><br><span class="line">  employees.stream().collect(groupingBy(Employee<span class="type">::getCity</span>));</span><br></pre></td></tr></table></figure>
-<p>结果如下面的 map 所示：</p>
-<figure class="highlight clojure"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;New York=[Charles], Hong Kong=[Dorothy], London=[Alice, Bob]&#125;</span><br></pre></td></tr></table></figure>
-<p>还可以计算每个城市中雇员的数量，只需传递一个计数收集器给 groupingBy 收集器。第二个收集器的作用是在流分类的同一个组中对每个元素进行递归操作。</p>
-<figure class="highlight lasso"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">Map</span>&lt;<span class="built_in">String</span>, Long&gt; numEmployeesByCity =</span><br><span class="line">  employees.stream().collect(groupingBy(Employee<span class="type">::getCity</span>, counting()));</span><br></pre></td></tr></table></figure>
-<p>结果如下面的 map 所示：</p>
-<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;New <span class="attribute">York</span>=1, Hong <span class="attribute">Kong</span>=1, <span class="attribute">London</span>=2&#125;</span><br></pre></td></tr></table></figure>
-<p>顺便提一下，该功能与下面的 SQL 语句是等同的：</p>
-<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">select city, count(*) <span class="keyword">from</span> Employee<span class="built_in"> group </span>by city</span><br></pre></td></tr></table></figure>
-<p>另一个例子是计算每个城市的平均年龄，这可以联合使用 averagingInt 和 groupingBy 收集器：</p>
-<figure class="highlight lasso"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">Map</span>&lt;<span class="built_in">String</span>, Double&gt; avgSalesByCity =</span><br><span class="line">  employees.stream().collect(groupingBy(Employee<span class="type">::getCity</span>,</span><br><span class="line">                               averagingInt(Employee<span class="type">::getNumSales</span>)));</span><br></pre></td></tr></table></figure>
-<p>结果如下 map 所示：</p>
- <figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;New <span class="attribute">York</span>=160.0, Hong <span class="attribute">Kong</span>=190.0, <span class="attribute">London</span>=175.0&#125;</span><br></pre></td></tr></table></figure>
-<h2 id="分区"><a href="#分区" class="headerlink" title="分区"></a>分区</h2><p>分区是一种特殊的分组，结果 map 至少包含两个不同的分组——一个true，一个false。例如，如果想找出最优秀的员工，你可以将所有雇员分为两组，一组销售量大于 N，另一组小于 N，使用 partitioningBy 收集器：</p>
-<figure class="highlight lasso"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">Map</span>&lt;<span class="built_in">Boolean</span>, <span class="built_in">List</span>&lt;Employee&gt;&gt; partitioned =</span><br><span class="line">  employees.stream().collect(partitioningBy(e -&gt; e.getNumSales() &gt; <span class="number">150</span>));</span><br></pre></td></tr></table></figure>
-<p>输出如下结果：</p>
-<figure class="highlight clojure"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;<span class="literal">false</span>=[Bob], <span class="literal">true</span>=[Alice, Charles, Dorothy]&#125;</span><br></pre></td></tr></table></figure>
-<p>你也可以将 groupingBy 收集器传递给 partitioningBy 收集器来将联合使用分区和分组。例如，你可以统计每个分区中的每个城市的雇员人数：</p>
-<p>这样会生成一个二级 Map:</p>
-<figure class="highlight lasso"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">Map</span>&lt;<span class="built_in">Boolean</span>, <span class="built_in">Map</span>&lt;<span class="built_in">String</span>, Long&gt;&gt; result =</span><br><span class="line">  employees.stream().collect(partitioningBy(e -&gt; e.getNumSales() &gt; <span class="number">150</span>,</span><br><span class="line">                               groupingBy(Employee<span class="type">::getCity</span>, counting())));</span><br></pre></td></tr></table></figure>
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-      
-
-      <div style="font-size: 12px;">
-        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
-      </div>
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2018/05/14/Stream分组和分区/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
-    <article id="post-java死锁重现与排查" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2018/05/14/java死锁重现与排查/">java死锁重现与排查</a>
-    </h1>
-  
-
-        
-        <a href="/2018/05/14/java死锁重现与排查/" class="archive-article-date">
-  	<time datetime="2018-05-14T01:21:48.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-05-14</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h1 id="1-构造死锁"><a href="#1-构造死锁" class="headerlink" title="1.构造死锁"></a>1.构造死锁</h1><p>通过模拟两个哲学吃饭，需要两把叉子。</p>
-<figure class="highlight processing"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Created by xiaowu.zhou@tongdun.cn on 2018/5/14.</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> class DeadLock extends Thread&#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//哲学家吃饭需要的刀叉</span></span><br><span class="line">    <span class="keyword">static</span> <span class="keyword">Object</span> fork1 = <span class="keyword">new</span> <span class="keyword">Object</span>();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">static</span> <span class="keyword">Object</span> fork2 = <span class="keyword">new</span> <span class="keyword">Object</span>();</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">Object</span> tool;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> DeadLock(<span class="keyword">Object</span> object) &#123;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">this</span>.tool = object;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (tool == fork1)&#123;</span><br><span class="line">            <span class="keyword">this</span>.setName(<span class="string">"哲学家1"</span>);</span><br><span class="line">        &#125;<span class="keyword">else</span> <span class="keyword">if</span> (tool == fork2)&#123;</span><br><span class="line">            <span class="keyword">this</span>.setName(<span class="string">"哲学家2"</span>);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    @Override</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> run() &#123;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (tool == fork1)&#123;</span><br><span class="line"></span><br><span class="line">            <span class="keyword">synchronized</span> (fork1)&#123;</span><br><span class="line">                <span class="keyword">try</span> &#123;</span><br><span class="line">                    System.out.<span class="built_in">println</span>(<span class="string">"哲学家1开始准备，有了一把叉子1"</span>);</span><br><span class="line">                    Thread.sleep(<span class="number">500</span>);</span><br><span class="line">                &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">                    e.printStackTrace();</span><br><span class="line">                &#125;</span><br><span class="line"></span><br><span class="line">                <span class="keyword">synchronized</span> (fork2)&#123;</span><br><span class="line">                    System.out.<span class="built_in">println</span>(<span class="string">"哲学家1开始吃饭，有了两把叉子"</span>);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span>(tool == fork2)&#123;</span><br><span class="line"></span><br><span class="line">            <span class="keyword">synchronized</span> (fork2)&#123;</span><br><span class="line"></span><br><span class="line">                <span class="keyword">try</span> &#123;</span><br><span class="line">                    System.out.<span class="built_in">println</span>(<span class="string">"哲学家2开始准备，有了一把叉子2"</span>);</span><br><span class="line">                    Thread.sleep(<span class="number">1500</span>);</span><br><span class="line">                &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">                    e.printStackTrace();</span><br><span class="line">                &#125;</span><br><span class="line"></span><br><span class="line">                <span class="keyword">synchronized</span> (fork1)&#123;</span><br><span class="line">                    System.out.<span class="built_in">println</span>(<span class="string">"哲学家2开始吃饭，有了两把叉子"</span>);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> main(<span class="keyword">String</span>[] args) <span class="keyword">throws</span> InterruptedException &#123;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">        DeadLock deadLock1 = <span class="keyword">new</span> DeadLock(fork1);</span><br><span class="line"></span><br><span class="line">        DeadLock deadLock2 = <span class="keyword">new</span> DeadLock(fork2);</span><br><span class="line"></span><br><span class="line">        deadLock1.start();</span><br><span class="line"></span><br><span class="line">        deadLock2.start();</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">        <span class="keyword">while</span> (<span class="keyword">true</span>)&#123;</span><br><span class="line"></span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h1 id="2-排查问题"><a href="#2-排查问题" class="headerlink" title="2. 排查问题"></a>2. 排查问题</h1><p>死锁的线程不占用cpu，通过jstack可以排查</p>
-<figure class="highlight 1c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">jstack <span class="number">59356</span> &gt; dead_lock_stack.<span class="built_in">log</span></span><br></pre></td></tr></table></figure>
-<p>搜索<code>deadlock</code></p>
-<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br></pre></td><td class="code"><pre><span class="line">2018-05-14 09:08:13</span><br><span class="line">Full thread dump Java HotSpot(TM) 64-Bit<span class="built_in"> Server </span>VM (25.144-b01 mixed mode):</span><br><span class="line"></span><br><span class="line"><span class="string">"Attach Listener"</span> #12 daemon <span class="attribute">prio</span>=9 <span class="attribute">os_prio</span>=31 <span class="attribute">tid</span>=0x00007fb3818c8000 <span class="attribute">nid</span>=0x1407 waiting on condition [0x0000000000000000]</span><br><span class="line">   java.lang.Thread.State: RUNNABLE</span><br><span class="line"></span><br><span class="line"><span class="string">"哲学家2"</span> #11 <span class="attribute">prio</span>=5 <span class="attribute">os_prio</span>=31 <span class="attribute">tid</span>=0x00007fb38185a000 <span class="attribute">nid</span>=0x5103 waiting <span class="keyword">for</span> monitor entry [0x000070000d069000]</span><br><span class="line">   java.lang.Thread.State: BLOCKED (on object monitor)</span><br><span class="line">	at DeadLock.<span class="builtin-name">run</span>(DeadLock.java:59)</span><br><span class="line">	- waiting <span class="keyword">to</span> lock &lt;0x0000000795782620&gt; (a java.lang.Object)</span><br><span class="line">	- locked &lt;0x0000000795782630&gt; (a java.lang.Object)</span><br><span class="line"></span><br><span class="line"><span class="string">"哲学家1"</span> #10 <span class="attribute">prio</span>=5 <span class="attribute">os_prio</span>=31 <span class="attribute">tid</span>=0x00007fb382042800 <span class="attribute">nid</span>=0x4f03 waiting <span class="keyword">for</span> monitor entry [0x000070000cf66000]</span><br><span class="line">   java.lang.Thread.State: BLOCKED (on object monitor)</span><br><span class="line">	at DeadLock.<span class="builtin-name">run</span>(DeadLock.java:41)</span><br><span class="line">	- waiting <span class="keyword">to</span> lock &lt;0x0000000795782630&gt; (a java.lang.Object)</span><br><span class="line">	- locked &lt;0x0000000795782620&gt; (a java.lang.Object)</span><br><span class="line"></span><br><span class="line"><span class="string">"Service Thread"</span> #9 daemon <span class="attribute">prio</span>=9 <span class="attribute">os_prio</span>=31 <span class="attribute">tid</span>=0x00007fb38206c800 <span class="attribute">nid</span>=0x4b03 runnable [0x0000000000000000]</span><br><span class="line">   java.lang.Thread.State: RUNNABLE</span><br><span class="line"></span><br><span class="line"><span class="string">"C1 CompilerThread2"</span> #8 daemon <span class="attribute">prio</span>=9 <span class="attribute">os_prio</span>=31 <span class="attribute">tid</span>=0x00007fb38185f000 <span class="attribute">nid</span>=0x4903 waiting on condition [0x0000000000000000]</span><br><span class="line">   java.lang.Thread.State: RUNNABLE</span><br><span class="line"></span><br><span class="line"><span class="string">"C2 CompilerThread1"</span> #7 daemon <span class="attribute">prio</span>=9 <span class="attribute">os_prio</span>=31 <span class="attribute">tid</span>=0x00007fb382815800 <span class="attribute">nid</span>=0x4703 waiting on condition [0x0000000000000000]</span><br><span class="line">   java.lang.Thread.State: RUNNABLE</span><br><span class="line"></span><br><span class="line"><span class="string">"C2 CompilerThread0"</span> #6 daemon <span class="attribute">prio</span>=9 <span class="attribute">os_prio</span>=31 <span class="attribute">tid</span>=0x00007fb381859000 <span class="attribute">nid</span>=0x4503 waiting on condition [0x0000000000000000]</span><br><span class="line">   java.lang.Thread.State: RUNNABLE</span><br><span class="line"></span><br><span class="line"><span class="string">"Monitor Ctrl-Break"</span> #5 daemon <span class="attribute">prio</span>=5 <span class="attribute">os_prio</span>=31 <span class="attribute">tid</span>=0x00007fb3830b9000 <span class="attribute">nid</span>=0x4303 runnable [0x000070000c954000]</span><br><span class="line">   java.lang.Thread.State: RUNNABLE</span><br><span class="line">	at java.net.SocketInputStream.socketRead0(Native Method)</span><br><span class="line">	at java.net.SocketInputStream.socketRead(SocketInputStream.java:116)</span><br><span class="line">	at java.net.SocketInputStream.read(SocketInputStream.java:171)</span><br><span class="line">	at java.net.SocketInputStream.read(SocketInputStream.java:141)</span><br><span class="line">	at sun.nio.cs.StreamDecoder.readBytes(StreamDecoder.java:284)</span><br><span class="line">	at sun.nio.cs.StreamDecoder.implRead(StreamDecoder.java:326)</span><br><span class="line">	at sun.nio.cs.StreamDecoder.read(StreamDecoder.java:178)</span><br><span class="line">	- locked &lt;0x0000000795708738&gt; (a java.io.InputStreamReader)</span><br><span class="line">	at java.io.InputStreamReader.read(InputStreamReader.java:184)</span><br><span class="line">	at java.io.BufferedReader.fill(BufferedReader.java:161)</span><br><span class="line">	at java.io.BufferedReader.readLine(BufferedReader.java:324)</span><br><span class="line">	- locked &lt;0x0000000795708738&gt; (a java.io.InputStreamReader)</span><br><span class="line">	at java.io.BufferedReader.readLine(BufferedReader.java:389)</span><br><span class="line">	at com.intellij.rt.execution.application.AppMainV2<span class="variable">$1</span>.<span class="builtin-name">run</span>(AppMainV2.java:64)</span><br><span class="line"></span><br><span class="line"><span class="string">"Signal Dispatcher"</span> #4 daemon <span class="attribute">prio</span>=9 <span class="attribute">os_prio</span>=31 <span class="attribute">tid</span>=0x00007fb382030800 <span class="attribute">nid</span>=0x4103 runnable [0x0000000000000000]</span><br><span class="line">   java.lang.Thread.State: RUNNABLE</span><br><span class="line"></span><br><span class="line"><span class="string">"Finalizer"</span> #3 daemon <span class="attribute">prio</span>=8 <span class="attribute">os_prio</span>=31 <span class="attribute">tid</span>=0x00007fb38202b000 <span class="attribute">nid</span>=0x3103 <span class="keyword">in</span> Object.wait() [0x000070000c74e000]</span><br><span class="line">   java.lang.Thread.State: WAITING (on object monitor)</span><br><span class="line">	at java.lang.Object.wait(Native Method)</span><br><span class="line">	- waiting on &lt;0x0000000795588ec8&gt; (a java.lang.ref.ReferenceQueue<span class="variable">$Lock</span>)</span><br><span class="line">	at java.lang.ref.ReferenceQueue.<span class="builtin-name">remove</span>(ReferenceQueue.java:143)</span><br><span class="line">	- locked &lt;0x0000000795588ec8&gt; (a java.lang.ref.ReferenceQueue<span class="variable">$Lock</span>)</span><br><span class="line">	at java.lang.ref.ReferenceQueue.<span class="builtin-name">remove</span>(ReferenceQueue.java:164)</span><br><span class="line">	at java.lang.ref.Finalizer<span class="variable">$FinalizerThread</span>.<span class="builtin-name">run</span>(Finalizer.java:209)</span><br><span class="line"></span><br><span class="line"><span class="string">"Reference Handler"</span> #2 daemon <span class="attribute">prio</span>=10 <span class="attribute">os_prio</span>=31 <span class="attribute">tid</span>=0x00007fb382805000 <span class="attribute">nid</span>=0x2f03 <span class="keyword">in</span> Object.wait() [0x000070000c64b000]</span><br><span class="line">   java.lang.Thread.State: WAITING (on object monitor)</span><br><span class="line">	at java.lang.Object.wait(Native Method)</span><br><span class="line">	- waiting on &lt;0x0000000795586b68&gt; (a java.lang.ref.Reference<span class="variable">$Lock</span>)</span><br><span class="line">	at java.lang.Object.wait(Object.java:502)</span><br><span class="line">	at java.lang.ref.Reference.tryHandlePending(Reference.java:191)</span><br><span class="line">	- locked &lt;0x0000000795586b68&gt; (a java.lang.ref.Reference<span class="variable">$Lock</span>)</span><br><span class="line">	at java.lang.ref.Reference<span class="variable">$ReferenceHandler</span>.<span class="builtin-name">run</span>(Reference.java:153)</span><br><span class="line"></span><br><span class="line"><span class="string">"main"</span> #1 <span class="attribute">prio</span>=5 <span class="attribute">os_prio</span>=31 <span class="attribute">tid</span>=0x00007fb382005800 <span class="attribute">nid</span>=0x1c03 runnable [0x000070000c039000]</span><br><span class="line">   java.lang.Thread.State: RUNNABLE</span><br><span class="line">	at DeadLock.main(DeadLock.java:81)</span><br><span class="line"></span><br><span class="line"><span class="string">"VM Thread"</span> <span class="attribute">os_prio</span>=31 <span class="attribute">tid</span>=0x00007fb382802800 <span class="attribute">nid</span>=0x2d03 runnable </span><br><span class="line"></span><br><span class="line"><span class="string">"GC task thread#0 (ParallelGC)"</span> <span class="attribute">os_prio</span>=31 <span class="attribute">tid</span>=0x00007fb38200e800 <span class="attribute">nid</span>=0x2503 runnable </span><br><span class="line"></span><br><span class="line"><span class="string">"GC task thread#1 (ParallelGC)"</span> <span class="attribute">os_prio</span>=31 <span class="attribute">tid</span>=0x00007fb38200f800 <span class="attribute">nid</span>=0x2703 runnable </span><br><span class="line"></span><br><span class="line"><span class="string">"GC task thread#2 (ParallelGC)"</span> <span class="attribute">os_prio</span>=31 <span class="attribute">tid</span>=0x00007fb382010000 <span class="attribute">nid</span>=0x2903 runnable </span><br><span class="line"></span><br><span class="line"><span class="string">"GC task thread#3 (ParallelGC)"</span> <span class="attribute">os_prio</span>=31 <span class="attribute">tid</span>=0x00007fb382010800 <span class="attribute">nid</span>=0x2b03 runnable </span><br><span class="line"></span><br><span class="line"><span class="string">"VM Periodic Task Thread"</span> <span class="attribute">os_prio</span>=31 <span class="attribute">tid</span>=0x00007fb382085800 <span class="attribute">nid</span>=0x4d03 waiting on condition </span><br><span class="line"></span><br><span class="line">JNI global references: 22</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">Found one Java-level deadlock:</span><br><span class="line">=============================</span><br><span class="line"><span class="string">"哲学家2"</span>:</span><br><span class="line">  waiting <span class="keyword">to</span> lock monitor 0x00007fb38202a5f8 (object 0x0000000795782620, a java.lang.Object),</span><br><span class="line">  which is held by <span class="string">"哲学家1"</span></span><br><span class="line"><span class="string">"哲学家1"</span>:</span><br><span class="line">  waiting <span class="keyword">to</span> lock monitor 0x00007fb3818ca808 (object 0x0000000795782630, a java.lang.Object),</span><br><span class="line">  which is held by <span class="string">"哲学家2"</span></span><br><span class="line"></span><br><span class="line">Java stack information <span class="keyword">for</span> the threads listed above:</span><br><span class="line">===================================================</span><br><span class="line"><span class="string">"哲学家2"</span>:</span><br><span class="line">	at DeadLock.<span class="builtin-name">run</span>(DeadLock.java:59)</span><br><span class="line">	- waiting <span class="keyword">to</span> lock &lt;0x0000000795782620&gt; (a java.lang.Object)</span><br><span class="line">	- locked &lt;0x0000000795782630&gt; (a java.lang.Object)</span><br><span class="line"><span class="string">"哲学家1"</span>:</span><br><span class="line">	at DeadLock.<span class="builtin-name">run</span>(DeadLock.java:41)</span><br><span class="line">	- waiting <span class="keyword">to</span> lock &lt;0x0000000795782630&gt; (a java.lang.Object)</span><br><span class="line">	- locked &lt;0x0000000795782620&gt; (a java.lang.Object)</span><br><span class="line"></span><br><span class="line">Found 1 deadlock.</span><br></pre></td></tr></table></figure>
-<p>发现哲学家1，持有锁<code>0x0000000795782620</code>,等待锁<code>0x0000000795782630</code> ； 而哲学家2，则相反。</p>
-
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">java并发包</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-      
-
-      <div style="font-size: 12px;">
-        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
-      </div>
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2018/05/14/java死锁重现与排查/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
-    <article id="post-MAT使用教程" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2018/05/13/MAT使用教程/">MAT使用教程</a>
-    </h1>
-  
-
-        
-        <a href="/2018/05/13/MAT使用教程/" class="archive-article-date">
-  	<time datetime="2018-05-13T07:16:59.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-05-13</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>MAT 全称 Eclipse Memory Analysis Tools 是一个分析 Java堆数据的专业工具，可以计算出内存中对象的实例数量、占用空间大小、引用关系等，看看是谁阻止了垃圾收集器的回收工作，从而定位内存泄漏的原因。</p>
-<p>什么时候会用到MAT?</p>
-<p>a） OutOfMemoryError的时候，触发full gc，但空间却回收不了，引发内存泄露</p>
-<p>b）java服务器系统异常，比如load飙高，io异常，或者线程死锁等，都可能通过分析堆中的内存对象来定位原因</p>
-<p>如何安装：</p>
-<p>eclipse插件安装，地址：<a href="http://download.eclipse.org/mat/1.0/update-site/" target="_blank" rel="external">http://download.eclipse.org/mat/1.0/update-site/</a></p>
-<p>分析文件生成方式：</p>
-<p>a）自动生成，jvm启动参数里添加下面配置，当发生OutOfMemoryError时，虚拟机会自动dump内存快照</p>
-<p><strong>[html]</strong> <a href="https://blog.csdn.net/itomge/article/details/48719527#" target="_blank" rel="external">view plain</a> <a href="https://blog.csdn.net/itomge/article/details/48719527#" target="_blank" rel="external">copy</a></p>
-<ol>
-<li>-XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=$LOG_DIR/java.hprof”  </li>
-</ol>
-<p>b）手动生成，通过执行jdk自带命令</p>
-<p>jmap -dump:format=b,file=heap.bin  <pid></pid></p>
-<p>接下就可以用 MAT打开转换后的 hprof文件 </p>
-<p>打开后的首页，里面是一些堆的基本概要信息，比如空间大小、类的数量、对象实例数量、类加载器等等</p>
-<p>Atcion里面提供了多种分析维度：</p>
-<ul>
-<li>Histogram可以列出内存中的对象，对象的个数以及大小。</li>
-<li>Dominator Tree可以列出那个线程，以及线程下面的那些对象占用的空间。</li>
-<li>Top consumers通过图形列出最大的object。</li>
-<li>Leak Suspects通过MA自动分析泄漏的原因。</li>
-</ul>
-<p><img src="https://img-blog.csdn.net/20150926155600238?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQv/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast" alt="img"></p>
-<p>Histogram </p>
-<p>它按类名将所有的实例对象列出来，点击表头（Class Name）可以排序，第一行输入正则表达式可以过滤筛选 ；</p>
-<p>Shallow Heap ：一个对象内存的消耗大小，不包含对其他对象的引用；<br>Retained Heap ：是shallow Heap的总和，也就是该对象被GC之后所能回收的内存大小；</p>
-<p>详细解释可参考文章：<a href="http://bjyzxxds.iteye.com/blog/1532937" target="_blank" rel="external">Shallow heap &amp; Retained heap</a> </p>
-<p><img src="https://img-blog.csdn.net/20150926161206859?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQv/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center" alt="img"></p>
-<p>在某一项上右键打开菜单选择 list objects ：</p>
-<p>with incoming references 将列出哪些类引入该类；</p>
-<p>with outgoing references 列出该类引用了哪些类</p>
-<p><img src="https://img-blog.csdn.net/20150926172930001?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQv/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center" alt="img"></p>
-<p><img src="https://img-blog.csdn.net/20150926172937083?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQv/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center" alt="img"></p>
-<p>从工具栏中点开 Heap Dump Overview视图，可以看到一个全局的内存占用信息</p>
-<p>Dominator Tree</p>
-<p>可以列出内存中存活的大对象列表，优点是有Percentage字段，可以看各种情况的百分比。<br><img src="https://img-blog.csdn.net/20150926165925141?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQv/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center" alt="img"></p>
-<p>分组工具可以根据自己的需求分组查找，默认根据class分组，本文中是根据 package分组，发现存在大量的SSLSocketImpl类无法回收，这样会导致所有直接或间接引用到SSLSocketImpl的类都无法回收，图中可以看出虽然Shallow Heap大小只有1.6M，但Retained Heap大小却有378M。</p>
-<p><img src="https://img-blog.csdn.net/20150926182106273?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQv/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast" alt="img"></p>
-<p>快速找出某个实例没被释放的原因，可以右健 Path to GC Roots–&gt;exclude all phantom/weak/soft etc. references</p>
-<p>它展示了对象间的引用关系，比如SSLSocketImpl @0xa124b208被PushNotificationManager 实例中的socket属性所引用。</p>
-<p>Top consumers</p>
-<p><img src="https://img-blog.csdn.net/20150926232059272?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQv/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast" alt="img"></p>
-<p>多种维度（包括 类大小、类加载器、包名）展示占用内存比较多的对象的分布，从而定位内存资源主要耗费在哪些地方！</p>
-<p>Leak Suspects</p>
-<p><img src="https://img-blog.csdn.net/20150926234141793?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQv/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast" alt="img"></p>
-<p>MAT插件会给出一份可疑的分析报告，非常方便，我们只需结合源代码稍加分析到底哪个Problem才是引发问题真正原因所在。</p>
-<p>参考资料：</p>
-<p><a href="http://www.eclipse.org/mat/about/screenshots.php" target="_blank" rel="external">http://www.eclipse.org/mat/about/screenshots.php</a></p>
-<p><a href="https://www.yourkit.com/docs/java/help/garbage_collection.jsp" target="_blank" rel="external">https://www.yourkit.com/docs/java/help/garbage_collection.jsp</a></p>
-<p><a href="http://www.ibm.com/developerworks/cn/opensource/os-cn-ecl-ma/index.html" target="_blank" rel="external">http://www.ibm.com/developerworks/cn/opensource/os-cn-ecl-ma/index.html</a></p>
-<p><a href="http://help.eclipse.org/luna/index.jsp?topic=/org.eclipse.mat.ui.help/welcome.html" target="_blank" rel="external">http://help.eclipse.org/luna/index.jsp?topic=/org.eclipse.mat.ui.help/welcome.html</a></p>
-
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">ops</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-      
-
-      <div style="font-size: 12px;">
-        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
-      </div>
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2018/05/13/MAT使用教程/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
   
   
-    <nav id="page-nav">
-      <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="page-number" href="/page/3/">3</a><span class="space">&hellip;</span><a class="page-number" href="/page/11/">11</a><a class="extend next" rel="next" href="/page/2/">Next &raquo;</a>
-    </nav>
+  
+
+  
+
+  
+
   
 
 
@@ -1752,8 +467,8 @@
     <script>
 	var yiliaConfig = {
 		mathjax: false,
-		isHome: true,
-		isPost: false,
+		isHome: false,
+		isPost: true,
 		isArchive: false,
 		isTag: false,
 		isCategory: false,

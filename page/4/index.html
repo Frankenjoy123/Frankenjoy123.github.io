@@ -151,6 +151,103 @@
           <div id="js-content" class="content-ll">
             
   
+    <article id="post-RateLimit-使用guava来做接口限流" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2018/04/25/RateLimit-使用guava来做接口限流/">RateLimit使用guava来做接口限流</a>
+    </h1>
+  
+
+        
+        <a href="/2018/04/25/RateLimit-使用guava来做接口限流/" class="archive-article-date">
+  	<time datetime="2018-04-25T06:35:27.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-04-25</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="一、问题描述"><a href="#一、问题描述" class="headerlink" title="一、问题描述"></a>一、问题描述</h1><p>　　某天A君突然发现自己的接口请求量突然涨到之前的10倍，没多久该接口几乎不可使用，并引发连锁反应导致整个系统崩溃。如何应对这种情况呢？生活给了我们答案：比如老式电闸都安装了保险丝，一旦有人使用超大功率的设备，保险丝就会烧断以保护各个电器不被强电流给烧坏。同理我们的接口也需要安装上“保险丝”，以防止非预期的请求对系统压力过大而引起的系统瘫痪，当流量过大时，可以采取拒绝或者引流等机制。 </p>
+<h1 id="二、常用的限流算法"><a href="#二、常用的限流算法" class="headerlink" title="二、常用的限流算法"></a>二、常用的限流算法</h1><p>​      常用的限流算法有两种：漏桶算法和令牌桶算法，这篇博文介绍得比较清晰（<a href="http://sharecore.net/blog/2014/06/21/guo-zai-bao-hu-suan-fa-qian-xi/" target="_blank" rel="external">过载保护算法浅析</a>）。</p>
+<p>​      漏桶算法思路很简单，请求先进入到漏桶里，漏桶以一定的速度出水，当水请求过大会直接溢出，可以看出漏桶算法能强行限制数据的传输速率。</p>
+<p><img src="https://img-blog.csdn.net/20151227125739535?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQv/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center" alt="img"></p>
+<p>图1 漏桶算法示意图</p>
+<p>​      对于很多应用场景来说，除了要求能够限制数据的平均传输速率外，还要求允许某种程度的突发传输。这时候漏桶算法可能就不合适了，令牌桶算法更为适合。如图2所示，令牌桶算法的原理是系统会以一个恒定的速度往桶里放入令牌，而如果请求需要被处理，则需要先从桶里获取一个令牌，当桶里没有令牌可取时，则拒绝服务。</p>
+<p><img src="https://img-blog.csdn.net/20151227125430737?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQv/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center" alt="img"></p>
+<p>图2 令牌桶算法示意图</p>
+<h1 id="三、限流工具类RateLimiter"><a href="#三、限流工具类RateLimiter" class="headerlink" title="三、限流工具类RateLimiter"></a>三、限流工具类RateLimiter</h1><p> 　　google开源工具包guava提供了限流工具类RateLimiter，该类基于“令牌桶算法”，非常方便使用。该类的接口描述请参考：<a href="http://docs.guava-libraries.googlecode.com/git-history/master/javadoc/com/google/common/util/concurrent/RateLimiter.html" target="_blank" rel="external">RateLimiter接口描述</a>，具体的使用请参考：<a href="http://java.dzone.com/articles/ratelimiter-discovering-google" target="_blank" rel="external">RateLimiter使用实践</a>。</p>
+<p>RateLimiter 使用Demo</p>
+<figure class="highlight gradle"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="keyword">package</span> ratelimite;  </span><br><span class="line">  </span><br><span class="line"><span class="keyword">import</span> com.google.common.util.concurrent.RateLimiter;  </span><br><span class="line">   </span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> RateLimiterDemo &#123;  </span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> main(String[] args) &#123;  </span><br><span class="line">        testNoRateLimiter();  </span><br><span class="line">        testWithRateLimiter();  </span><br><span class="line">    &#125;  </span><br><span class="line">   </span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> testNoRateLimiter() &#123;  </span><br><span class="line">        <span class="keyword">Long</span> start = System.currentTimeMillis();  </span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">10</span>; i++) &#123;  </span><br><span class="line">            System.out.<span class="keyword">println</span>(<span class="string">"call execute.."</span> + i);  </span><br><span class="line">              </span><br><span class="line">        &#125;  </span><br><span class="line">        <span class="keyword">Long</span> end = System.currentTimeMillis();  </span><br><span class="line">          </span><br><span class="line">        System.out.<span class="keyword">println</span>(end - start);  </span><br><span class="line">          </span><br><span class="line">    &#125;  </span><br><span class="line">      </span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> testWithRateLimiter() &#123;  </span><br><span class="line">        <span class="keyword">Long</span> start = System.currentTimeMillis();  </span><br><span class="line">        RateLimiter limiter = RateLimiter.create(<span class="number">10.0</span>); <span class="comment">// 每秒不超过10个任务被提交  </span></span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">10</span>; i++) &#123;  </span><br><span class="line">            limiter.acquire(); <span class="comment">// 请求RateLimiter, 超过permits会被阻塞  </span></span><br><span class="line">            System.out.<span class="keyword">println</span>(<span class="string">"call execute.."</span> + i);  </span><br><span class="line">              </span><br><span class="line">        &#125;  </span><br><span class="line">        <span class="keyword">Long</span> end = System.currentTimeMillis();  </span><br><span class="line">          </span><br><span class="line">        System.out.<span class="keyword">println</span>(end - start);  </span><br><span class="line">          </span><br><span class="line">    &#125;  </span><br><span class="line">      </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h1 id="四-Guava并发：ListenableFuture与RateLimiter示例"><a href="#四-Guava并发：ListenableFuture与RateLimiter示例" class="headerlink" title="四 Guava并发：ListenableFuture与RateLimiter示例"></a>四 Guava并发：ListenableFuture与RateLimiter示例</h1><p>概念</p>
+<p>​        ListenableFuture顾名思义就是可以监听的Future，它是对java原生Future的扩展增强。我们知道Future表示一个异步计算任务，当任务完成时可以得到计算结果。如果我们希望一旦计算完成就拿到结果展示给用户或者做另外的计算，就必须使用另一个线程不断的查询计算状态。这样做，代码复杂，而且效率低下。使用ListenableFuture Guava帮我们检测Future是否完成了，如果完成就自动调用回调函数，这样可以减少并发程序的复杂度。      </p>
+<p>​        推荐使用第二种方法，因为第二种方法可以直接得到Future的返回值，或者处理错误情况。本质上第二种方法是通过调动第一种方法实现的，做了进一步的封装。</p>
+<p>另外ListenableFuture还有其他几种内置实现：</p>
+<ol>
+<li>SettableFuture：不需要实现一个方法来计算返回值，而只需要返回一个固定值来做为返回值，可以通过程序设置此Future的返回值或者异常信息</li>
+<li>CheckedFuture： 这是一个继承自ListenableFuture接口，他提供了checkedGet()方法，此方法在Future执行发生异常时，可以抛出指定类型的异常。</li>
+</ol>
+<p>​    RateLimiter类似于JDK的信号量Semphore，他用来限制对资源并发访问的线程数，本文介绍RateLimiter使用</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br><span class="line">188</span><br><span class="line">189</span><br><span class="line">190</span><br><span class="line">191</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> java.util.concurrent.Callable;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.util.concurrent.ExecutionException;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.util.concurrent.Executors;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.util.concurrent.TimeUnit;</span><br><span class="line"></span><br><span class="line"> </span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> com.google.common.util.concurrent.FutureCallback;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> com.google.common.util.concurrent.Futures;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> com.google.common.util.concurrent.ListenableFuture;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> com.google.common.util.concurrent.ListeningExecutorService;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> com.google.common.util.concurrent.MoreExecutors;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> com.google.common.util.concurrent.RateLimiter;</span><br><span class="line"></span><br><span class="line"> </span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ListenableFutureDemo</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">        testRateLimiter();</span><br><span class="line"></span><br><span class="line">        testListenableFuture();</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"> </span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment">     * RateLimiter类似于JDK的信号量Semphore，他用来限制对资源并发访问的线程数</span></span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">testRateLimiter</span><span class="params">()</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">        ListeningExecutorService executorService = MoreExecutors</span><br><span class="line"></span><br><span class="line">                .listeningDecorator(Executors.newCachedThreadPool());</span><br><span class="line"></span><br><span class="line"> </span><br><span class="line"></span><br><span class="line">        RateLimiter limiter = RateLimiter.create(<span class="number">5.0</span>); <span class="comment">// 每秒不超过4个任务被提交</span></span><br><span class="line"></span><br><span class="line"> </span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">10</span>; i++) &#123;</span><br><span class="line"></span><br><span class="line">            limiter.acquire(); <span class="comment">// 请求RateLimiter, 超过permits会被阻塞</span></span><br><span class="line"></span><br><span class="line"> </span><br><span class="line"></span><br><span class="line">            <span class="keyword">final</span> ListenableFuture&lt;Integer&gt; listenableFuture = executorService</span><br><span class="line"></span><br><span class="line">                    .submit(<span class="keyword">new</span> Task(<span class="string">"is "</span>+ i));</span><br><span class="line"></span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"> </span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">testListenableFuture</span><span class="params">()</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">        ListeningExecutorService executorService = MoreExecutors</span><br><span class="line"></span><br><span class="line">                .listeningDecorator(Executors.newCachedThreadPool());</span><br><span class="line"></span><br><span class="line"> </span><br><span class="line"></span><br><span class="line">        <span class="keyword">final</span> ListenableFuture&lt;Integer&gt; listenableFuture = executorService</span><br><span class="line"></span><br><span class="line">                .submit(<span class="keyword">new</span> Task(<span class="string">"testListenableFuture"</span>));</span><br><span class="line"></span><br><span class="line"> </span><br><span class="line"></span><br><span class="line">         </span><br><span class="line"></span><br><span class="line">        <span class="comment">//同步获取调用结果</span></span><br><span class="line"></span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line"></span><br><span class="line">            System.out.println(listenableFuture.get());</span><br><span class="line"></span><br><span class="line">        &#125; <span class="keyword">catch</span> (InterruptedException e1) &#123;</span><br><span class="line"></span><br><span class="line">            e1.printStackTrace();</span><br><span class="line"></span><br><span class="line">        &#125; <span class="keyword">catch</span> (ExecutionException e1) &#123;</span><br><span class="line"></span><br><span class="line">            e1.printStackTrace();</span><br><span class="line"></span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">         </span><br><span class="line"></span><br><span class="line">        <span class="comment">//第一种方式</span></span><br><span class="line"></span><br><span class="line">        listenableFuture.addListener(<span class="keyword">new</span> Runnable() &#123;</span><br><span class="line"></span><br><span class="line">            <span class="meta">@Override</span></span><br><span class="line"></span><br><span class="line">            <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">                <span class="keyword">try</span> &#123;</span><br><span class="line"></span><br><span class="line">                    System.out.println(<span class="string">"get listenable future's result "</span></span><br><span class="line"></span><br><span class="line">                            + listenableFuture.get());</span><br><span class="line"></span><br><span class="line">                &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line"></span><br><span class="line">                    e.printStackTrace();</span><br><span class="line"></span><br><span class="line">                &#125; <span class="keyword">catch</span> (ExecutionException e) &#123;</span><br><span class="line"></span><br><span class="line">                    e.printStackTrace();</span><br><span class="line"></span><br><span class="line">                &#125;</span><br><span class="line"></span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">        &#125;, executorService);</span><br><span class="line"></span><br><span class="line"> </span><br><span class="line"></span><br><span class="line">        <span class="comment">//第二种方式</span></span><br><span class="line"></span><br><span class="line">        Futures.addCallback(listenableFuture, <span class="keyword">new</span> FutureCallback&lt;Integer&gt;() &#123;</span><br><span class="line"></span><br><span class="line">            <span class="meta">@Override</span></span><br><span class="line"></span><br><span class="line">            <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onSuccess</span><span class="params">(Integer result)</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">                System.out</span><br><span class="line"></span><br><span class="line">                        .println(<span class="string">"get listenable future's result with callback "</span></span><br><span class="line"></span><br><span class="line">                                + result);</span><br><span class="line"></span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line"> </span><br><span class="line"></span><br><span class="line">            <span class="meta">@Override</span></span><br><span class="line"></span><br><span class="line">            <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onFailure</span><span class="params">(Throwable t)</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">                t.printStackTrace();</span><br><span class="line"></span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">        &#125;);</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"> </span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Task</span> <span class="keyword">implements</span> <span class="title">Callable</span>&lt;<span class="title">Integer</span>&gt; </span>&#123;</span><br><span class="line"></span><br><span class="line">    String str;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">Task</span><span class="params">(String str)</span></span>&#123;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">this</span>.str = str;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Integer <span class="title">call</span><span class="params">()</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line"></span><br><span class="line">        System.out.println(<span class="string">"call execute.."</span> + str);</span><br><span class="line"></span><br><span class="line">        TimeUnit.SECONDS.sleep(<span class="number">1</span>);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> <span class="number">7</span>;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">限流</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+      
+
+      <div style="font-size: 12px;">
+        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
+      </div>
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2018/04/25/RateLimit-使用guava来做接口限流/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
     <article id="post-hive常用HIVE-QL" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
@@ -1751,96 +1848,6 @@
 
 
   
-    <article id="post-安全技术-哈希算法密码破解之彩虹表" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2018/03/27/安全技术-哈希算法密码破解之彩虹表/">安全技术--哈希算法密码破解之彩虹表</a>
-    </h1>
-  
-
-        
-        <a href="/2018/03/27/安全技术-哈希算法密码破解之彩虹表/" class="archive-article-date">
-  	<time datetime="2018-03-27T05:12:46.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-03-27</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h1 id="基础技能-安全技术——哈希算法密码破解之彩虹表-Rainbow-Table-学习"><a href="#基础技能-安全技术——哈希算法密码破解之彩虹表-Rainbow-Table-学习" class="headerlink" title="[基础技能] 安全技术——哈希算法密码破解之彩虹表(Rainbow Table)学习"></a><a href="http://www.cnblogs.com/yushuo1990/p/6007068.html" target="_blank" rel="external">[基础技能] 安全技术——哈希算法密码破解之彩虹表(Rainbow Table)学习</a></h1><h2 id="1、基础知识"><a href="#1、基础知识" class="headerlink" title="1、基础知识"></a>1、基础知识</h2><p>刚刚学习过数字签名的相关知识，以及数字签名的伪造技术，而伪造数字签名归根结底就是密码破解的一个过程，然而直接破解的速度是非常缓慢的，所以有人想出一种办法，<strong>直接建立出一个数据文件，里面事先记录了采用和目标采用同样算法计算后生成的Hash散列数值，在需要破解的时候直接调用这样的文件进行比对，破解效率就可以大幅度地，甚至成百近千近万倍地提高，这样事先构造的Hash散列数据文件在安全界被称之为Table。</strong></p>
-<p>其实简单理解就是使用一个大型数据字典来进行快速匹配暴力破解的方法，以空间来换取时间的方法。</p>
-<p>具体的需要一些基础知识做支撑：</p>
-<h4 id="1、哈希算法"><a href="#1、哈希算法" class="headerlink" title="1、哈希算法"></a>1、哈希算法</h4><p>哈希（Hash）算法是单向散列算法，它把某个较大的集合P映射到另一个较小的集合Q中，假如这个算法叫H，那么就有Q = H（P）。对于P中任何一个值p都有唯一确定的q与之对应，但是一个q可以对应多个p。作为一个有用的Hash算法，H还应该满足：</p>
-<blockquote>
-<p>H(p)速度比较快； 给出一个q，很难算出一个p满足q = H(p)；即单向性。</p>
-<p>给出一个p1，很难算出一个不等于p1的p2使得 H(p1)=H(p2)；强弱碰撞性。</p>
-</blockquote>
-<p>正因为有这样的特性，Hash算法经常被用来保存密码————这样不会泄露密码明文，又可以校验输入的密码是否正确。常用的 Hash算法有<strong>MD5、SHA1</strong>等。</p>
-<h4 id="2、破解HASH"><a href="#2、破解HASH" class="headerlink" title="2、破解HASH"></a>2、破解HASH</h4><p> 破解Hash的任务就是，对于给出的一个q，反算出一个p来满足q = H(p)。即直接采用碰撞的方法来打破它的强弱碰撞性。通常我们能想到的办法有两种：</p>
-<blockquote>
-<p>1、暴力破解法，把P中的每一个p都算一下H(p)，直到结果等于q；</p>
-<p>2、查表法，使用一个大型字典，把每个p和对应的q都记录下来，按q做一下索引，直接查找匹配。</p>
-</blockquote>
-<p> 两种办法理论上都是可以的，但是前一种需要大量时间，后一种需要大量存储。这种单纯的开销是很巨大的，所以目前我们认为Hash是足够安全的，十几位以上的密码也是强度足够的。</p>
-<h4 id="3、彩虹表-时空的平衡"><a href="#3、彩虹表-时空的平衡" class="headerlink" title="3、彩虹表 时空的平衡"></a>3、彩虹表 时空的平衡</h4><p> 对于HASH的传统做法是把H(X)的所有输出穷举，查找H(X[y])==H(P)，得出P==X[y]。而<strong>彩虹表则是使用散列链的方式进行</strong>。</p>
-<p>“散列链”是为了降低传统做法空间要求的技术，想法是定义一个衰减函数 R 把散列值变换成另一字符串。通过交替运算H函数和R函数，形成交替的密码和散列值链条。</p>
-<h2 id="2、详解"><a href="#2、详解" class="headerlink" title="2、详解"></a>2、详解</h2><p>当面对要破解的哈希函数<strong>H</strong>，首先定义一个约简函数（reduction function）<strong>R</strong>，<strong>该函数的定义域和值域需要和哈希函数相反</strong>，通过该函数可以将哈希值约简为一个与原文相同格式的值（”plain text” value）。需要强调的是，由于哈希函数H是不可逆的，所以对于密文进行R运算几乎不可能得到明文原文。例如，五位字母明文“zhihu”进行H运算后得到了“D2A82C9A”，而对“D2A82C9A”进行R运算后得到另一个五位字母格式的值“vfkkd”。因为这个值落在H的定义域中，因此可以对它继续进行H运算。<br>就这样，将H运算、R运算、H运算……这个过程反复地重复下去，重复一个特定的次数 k 以后，就得到一条哈希链，例如k为2时得到：</p>
-<p>要生成一个表，我们选择一组随机的初始密码，每一个密码计算一个固定长度K的链，并只存储每一个链的第一个和最后一个密码。第一密码被称为始点，最后一个被称为末点。在上面例举的链中，“zhihu”就是始点，“crepa”就是末点，<strong>其他密码（或散列值）并不被保存</strong>。</p>
-<p>造表过程：</p>
-<p><img src="https://images2015.cnblogs.com/blog/318110/201610/318110-20161028153238125-1334324190.png" alt="img"></p>
-<p>查表过程：</p>
-<p> <img src="https://images2015.cnblogs.com/blog/318110/201610/318110-20161028153254765-1597592300.png" alt="img"></p>
-<p>参考：</p>
-<h1 id="彩虹表破解开机密码、MD5算法等的原理"><a href="#彩虹表破解开机密码、MD5算法等的原理" class="headerlink" title="彩虹表破解开机密码、MD5算法等的原理"></a>彩虹表破解开机密码、MD5算法等的原理</h1><p><a href="http://www.91ri.org/7593.html" target="_blank" rel="external">http://www.91ri.org/7593.html</a></p>
-
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-      
-
-      <div style="font-size: 12px;">
-        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
-      </div>
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2018/03/27/安全技术-哈希算法密码破解之彩虹表/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
   
     <nav id="page-nav">
       <a class="extend prev" rel="prev" href="/page/3/">&laquo; Prev</a><a class="page-number" href="/">1</a><a class="page-number" href="/page/2/">2</a><a class="page-number" href="/page/3/">3</a><span class="page-number current">4</span><a class="page-number" href="/page/5/">5</a><a class="page-number" href="/page/6/">6</a><span class="space">&hellip;</span><a class="page-number" href="/page/11/">11</a><a class="extend next" rel="next" href="/page/5/">Next &raquo;</a>
@@ -1938,15 +1945,7 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
           <ul class="article-tag-list" q-show="showTags">
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">AngularJS</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">java并发包</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">Dubbo</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1958,11 +1957,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">java</a>
+                <a href="javascript:void(0)" class="js-tag color5">AngularJS</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">JVM</a>
+                <a href="javascript:void(0)" class="js-tag color1">Dubbo</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1970,7 +1969,15 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">JVM</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">java内存模型</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">java</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1978,11 +1985,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">快捷键</a>
+                <a href="javascript:void(0)" class="js-tag color1">redis</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">redis</a>
+                <a href="javascript:void(0)" class="js-tag color4">快捷键</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1994,15 +2001,15 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">限流</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">react</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Python</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">限流</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -2038,15 +2045,15 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">python</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">Mac</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">maven</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">python</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -2058,19 +2065,19 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">zookeeper</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">分布式锁</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">后端</a>
+                <a href="javascript:void(0)" class="js-tag color5">zookeeper</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">前端指南</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">后端</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -2086,19 +2093,19 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">科学上网，hosts</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">科学上网</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">HashMap</a>
+                <a href="javascript:void(0)" class="js-tag color1">科学上网，hosts</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">单例</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">HashMap</a>
               </li>
              
               <li class="article-tag-list-item">
