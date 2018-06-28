@@ -174,11 +174,9 @@
         <h1 id="1-定义"><a href="#1-定义" class="headerlink" title="1.定义"></a>1.定义</h1><p>跨域是指a页面想获取b页面资源，如果a、b页面的协议、域名、端口、子域名不同，所进行的访问行动都是跨域的，而浏览器为了安全问题一般都限制了跨域访问，也就是不允许跨域请求资源。必须是<strong>协议、域名、端口全部一致。</strong>注意：跨域限制访问，其实是浏览器的限制。理解这一点很重要！！！</p>
 <h1 id="2-跨域访问示例"><a href="#2-跨域访问示例" class="headerlink" title="2.跨域访问示例"></a>2.跨域访问示例</h1><p>假设有两个网站，A网站部署在：<a href="http://localhost:81" target="_blank" rel="external">http://localhost:81</a> 即本地ip端口81上；B网站部署在：<a href="http://localhost:82" target="_blank" rel="external">http://localhost:82</a> 即本地ip端口82上。</p>
 <p>现在A网站的页面想去访问B网站的信息，A网站页面的代码如下（这里使用jquery的异步请求）：</p>
-<p><a href="javascript:void(0" target="_blank" rel="external"><img src="https://common.cnblogs.com/images/copycode.gif" alt="复制代码"></a>;)</p>
 <figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">h2</span>&gt;</span>Index<span class="tag">&lt;/<span class="name">h2</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">id</span>=<span class="string">"show"</span>&gt;</span><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">script</span> <span class="attr">type</span>=<span class="string">"text/javascript"</span>&gt;</span><span class="undefined"></span></span><br><span class="line"><span class="javascript">        $(<span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span></span><br><span class="line"><span class="javascript">            $.get(<span class="string">"http://localhost:82/api/values"</span>, &#123;&#125;, <span class="function"><span class="keyword">function</span> (<span class="params">result</span>) </span>&#123;</span></span><br><span class="line"><span class="javascript">                $(<span class="string">"#show"</span>).html(result);</span></span><br><span class="line"><span class="undefined">            &#125;)</span></span><br><span class="line"><span class="undefined">        &#125;)</span></span><br></pre></td></tr></table></figure>
-<p><a href="javascript:void(0" target="_blank" rel="external"><img src="https://common.cnblogs.com/images/copycode.gif" alt="复制代码"></a>;</p>
-<p>这是浏览器会提示如下错误信息：</p>
-<p><img src="https://images2015.cnblogs.com/blog/678708/201702/678708-20170213170036207-1918573233.png" alt="img"></p>
+<p>浏览器会提示如下错误信息：</p>
+<p><code>Origin ... is therefore not allowed access</code></p>
 <h1 id="3-nginx反向代理解决跨域问题"><a href="#3-nginx反向代理解决跨域问题" class="headerlink" title="3.nginx反向代理解决跨域问题"></a>3.nginx反向代理解决跨域问题</h1><h2 id="3-1nginx配置"><a href="#3-1nginx配置" class="headerlink" title="3.1nginx配置"></a>3.1nginx配置</h2><p>找到nginx的配置文件“nginx.conf”，修改一下信息</p>
 <figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="section">server</span> &#123;</span><br><span class="line">        <span class="attribute">listen</span>       <span class="number">80</span>; <span class="comment">#监听80端口，可以改成其他端口</span></span><br><span class="line">        <span class="attribute">server_name</span>  localhost; <span class="comment"># 当前服务的域名</span></span><br><span class="line"></span><br><span class="line">        <span class="comment">#charset koi8-r;</span></span><br><span class="line"></span><br><span class="line">        <span class="comment">#access_log  logs/host.access.log  main;</span></span><br><span class="line"></span><br><span class="line">        <span class="attribute">location</span> / &#123;</span><br><span class="line">            <span class="attribute">proxy_pass</span> http://localhost:81;</span><br><span class="line">            <span class="attribute">proxy_redirect</span> default;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">		<span class="attribute">location</span> /apis &#123; <span class="comment">#添加访问目录为/apis的代理配置</span></span><br><span class="line">			<span class="attribute">rewrite</span> <span class="regexp"> ^/apis/(.*)$</span> /<span class="variable">$1</span> <span class="literal">break</span>;</span><br><span class="line">			<span class="attribute">proxy_pass</span>   http://localhost:82;</span><br><span class="line">       &#125;</span><br><span class="line"><span class="comment">#以下配置省略</span></span><br></pre></td></tr></table></figure>
 <p>配置解释：</p>
@@ -194,7 +192,6 @@
 <p>“<a href="http://localhost:82/api/values”改成》》》“/apis/api/values”。如下代码：" target="_blank" rel="external">http://localhost:82/api/values”改成》》》“/apis/api/values”。如下代码：</a></p>
 <p><code>api/values</code>转发到<code>localhost:82</code></p>
 <figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">h2</span>&gt;</span>Index<span class="tag">&lt;/<span class="name">h2</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">id</span>=<span class="string">"show"</span>&gt;</span><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">script</span> <span class="attr">type</span>=<span class="string">"text/javascript"</span>&gt;</span><span class="undefined"></span></span><br><span class="line"><span class="javascript">        $(<span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span></span><br><span class="line"><span class="javascript">            $.get(<span class="string">"/apis/api/values"</span>, &#123;&#125;, <span class="function"><span class="keyword">function</span> (<span class="params">result</span>) </span>&#123;</span></span><br><span class="line"><span class="javascript">                $(<span class="string">"#show"</span>).html(result);</span></span><br><span class="line"><span class="undefined">            &#125;)</span></span><br><span class="line"><span class="undefined">        &#125;)</span></span><br><span class="line"><span class="undefined"></span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br></pre></td></tr></table></figure>
-<h1 id="4-网站的访问"><a href="#4-网站的访问" class="headerlink" title="4.网站的访问"></a>4.网站的访问</h1><p><img src="https://images2015.cnblogs.com/blog/678708/201702/678708-20170213173216222-601271339.png" alt="img"></p>
 <h1 id="Nginx匹配规则"><a href="#Nginx匹配规则" class="headerlink" title="Nginx匹配规则"></a>Nginx匹配规则</h1><blockquote>
 <p><a href="https://moonbingbing.gitbooks.io/openresty-best-practices/ngx/nginx_local_pcre.html" target="_blank" rel="external">https://moonbingbing.gitbooks.io/openresty-best-practices/ngx/nginx_local_pcre.html</a></p>
 </blockquote>
@@ -1734,11 +1731,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">Mac</a>
+                <a href="javascript:void(0)" class="js-tag color2">python</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">python</a>
+                <a href="javascript:void(0)" class="js-tag color4">Mac</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1770,11 +1767,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">善用佳软</a>
+                <a href="javascript:void(0)" class="js-tag color4">jvm</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">jvm</a>
+                <a href="javascript:void(0)" class="js-tag color5">善用佳软</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1790,11 +1787,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">HashMap</a>
+                <a href="javascript:void(0)" class="js-tag color3">单例</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">单例</a>
+                <a href="javascript:void(0)" class="js-tag color3">HashMap</a>
               </li>
              
               <li class="article-tag-list-item">
