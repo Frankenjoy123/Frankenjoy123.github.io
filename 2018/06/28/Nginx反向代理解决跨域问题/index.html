@@ -16,7 +16,7 @@
 <meta property="og:url" content="http://yoursite.com/2018/06/28/Nginx反向代理解决跨域问题/index.html">
 <meta property="og:site_name" content="xiaowu&#39;s blog">
 <meta property="og:description" content="1.定义跨域是指a页面想获取b页面资源，如果a、b页面的协议、域名、端口、子域名不同，所进行的访问行动都是跨域的，而浏览器为了安全问题一般都限制了跨域访问，也就是不允许跨域请求资源。必须是协议、域名、端口全部一致。注意：跨域限制访问，其实是浏览器的限制。理解这一点很重要！！！ 2.跨域访问示例假设有两个网站，A网站部署在：http://localhost:81 即本地ip端口81上；B网站部署在：">
-<meta property="og:updated_time" content="2018-06-28T08:27:27.000Z">
+<meta property="og:updated_time" content="2018-06-28T10:04:10.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Nginx反向代理解决跨域问题">
 <meta name="twitter:description" content="1.定义跨域是指a页面想获取b页面资源，如果a、b页面的协议、域名、端口、子域名不同，所进行的访问行动都是跨域的，而浏览器为了安全问题一般都限制了跨域访问，也就是不允许跨域请求资源。必须是协议、域名、端口全部一致。注意：跨域限制访问，其实是浏览器的限制。理解这一点很重要！！！ 2.跨域访问示例假设有两个网站，A网站部署在：http://localhost:81 即本地ip端口81上；B网站部署在：">
@@ -194,6 +194,14 @@
 <p>“<a href="http://localhost:82/api/values”改成》》》“/apis/api/values”。如下代码：" target="_blank" rel="external">http://localhost:82/api/values”改成》》》“/apis/api/values”。如下代码：</a></p>
 <p><code>api/values</code>转发到<code>localhost:82</code></p>
 <figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">h2</span>&gt;</span>Index<span class="tag">&lt;/<span class="name">h2</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">id</span>=<span class="string">"show"</span>&gt;</span><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">script</span> <span class="attr">type</span>=<span class="string">"text/javascript"</span>&gt;</span><span class="undefined"></span></span><br><span class="line"><span class="javascript">        $(<span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span></span><br><span class="line"><span class="javascript">            $.get(<span class="string">"/apis/api/values"</span>, &#123;&#125;, <span class="function"><span class="keyword">function</span> (<span class="params">result</span>) </span>&#123;</span></span><br><span class="line"><span class="javascript">                $(<span class="string">"#show"</span>).html(result);</span></span><br><span class="line"><span class="undefined">            &#125;)</span></span><br><span class="line"><span class="undefined">        &#125;)</span></span><br><span class="line"><span class="undefined"></span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<h1 id="示例案例"><a href="#示例案例" class="headerlink" title="示例案例"></a>示例案例</h1><h2 id="前端"><a href="#前端" class="headerlink" title="前端"></a>前端</h2><p>放在<code>tomcat-test/webapps/test</code>目录</p>
+<p><code>hello.html</code>如下：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;!DOCTYPE html&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">html</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">head</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">meta</span> <span class="attr">charset</span>=<span class="string">"utf-8"</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">title</span>&gt;</span>菜鸟教程(runoob.com)<span class="tag">&lt;/<span class="name">title</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">script</span> <span class="attr">src</span>=<span class="string">"https://cdn.bootcss.com/jquery/1.10.2/jquery.min.js"</span>&gt;</span><span class="undefined"></span></span><br><span class="line"><span class="undefined"></span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">script</span>&gt;</span><span class="undefined"></span></span><br><span class="line"><span class="javascript">$(<span class="built_in">document</span>).ready(<span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;</span></span><br><span class="line"><span class="javascript">    $(<span class="string">"button"</span>).click(<span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;</span></span><br><span class="line"><span class="javascript">        $.get(<span class="string">"/apis/api/hello"</span>,<span class="function"><span class="keyword">function</span>(<span class="params">data,status</span>)</span>&#123;</span></span><br><span class="line"><span class="actionscript">            alert(<span class="string">"数据: "</span> + data + <span class="string">"\n状态: "</span> + status);</span></span><br><span class="line"><span class="undefined">        &#125;);</span></span><br><span class="line"><span class="undefined">    &#125;);</span></span><br><span class="line"><span class="undefined">&#125;);</span></span><br><span class="line"><span class="undefined"></span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">head</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">body</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">button</span>&gt;</span>发送一个 HTTP GET 请求并获取返回结果<span class="tag">&lt;/<span class="name">button</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;/<span class="name">body</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">html</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>启动<code>./tomcat-test/bin/startup.sh</code> ，端口在<code>8080</code></p>
+<h2 id="后端"><a href="#后端" class="headerlink" title="后端"></a>后端</h2><p>启动在8011端口，访问路径localhost:8011/api/hello</p>
+<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@RestController</span></span><br><span class="line"><span class="meta">@RequestMapping(<span class="meta-string">"/api"</span>)</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">HelloController</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@RequestMapping(value = <span class="meta-string">"/hello"</span>, method = RequestMethod.GET)</span></span><br><span class="line">    <span class="keyword">public</span> String test() &#123;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> <span class="string">"hello,world"</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="nginx-conf配置"><a href="#nginx-conf配置" class="headerlink" title="nginx.conf配置"></a>nginx.conf配置</h2><figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="comment">#user  nobody;</span></span><br><span class="line"><span class="attribute">worker_processes</span>  <span class="number">1</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">#error_log  logs/error.log;</span></span><br><span class="line"><span class="comment">#error_log  logs/error.log  notice;</span></span><br><span class="line"><span class="comment">#error_log  logs/error.log  info;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#pid        logs/nginx.pid;</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="section">events</span> &#123;</span><br><span class="line">    <span class="attribute">worker_connections</span>  <span class="number">1024</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="section">http</span> &#123;</span><br><span class="line">    <span class="attribute">include</span>       mime.types;</span><br><span class="line">    <span class="attribute">default_type</span>  application/octet-stream;</span><br><span class="line"></span><br><span class="line">    <span class="comment">#log_format  main  '$remote_addr - $remote_user [$time_local] "$request" '</span></span><br><span class="line">    <span class="comment">#                  '$status $body_bytes_sent "$http_referer" '</span></span><br><span class="line">    <span class="comment">#                  '"$http_user_agent" "$http_x_forwarded_for"';</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">#access_log  logs/access.log  main;</span></span><br><span class="line"></span><br><span class="line">    <span class="attribute">sendfile</span>        <span class="literal">on</span>;</span><br><span class="line">    <span class="comment">#tcp_nopush     on;</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">#keepalive_timeout  0;</span></span><br><span class="line">    <span class="attribute">keepalive_timeout</span>  <span class="number">65</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">#gzip  on;</span></span><br><span class="line"></span><br><span class="line">    <span class="section">server</span> &#123;</span><br><span class="line">        <span class="attribute">listen</span>       <span class="number">6080</span>;</span><br><span class="line">        <span class="attribute">server_name</span>  localhost;</span><br><span class="line"></span><br><span class="line">        <span class="comment">#后端接口转发，解决跨域</span></span><br><span class="line">        <span class="attribute">location</span> /apis &#123;</span><br><span class="line">            <span class="attribute">rewrite</span><span class="regexp"> ^/apis/(.*)$</span> /<span class="variable">$1</span> <span class="literal">break</span>;</span><br><span class="line">            <span class="attribute">proxy_pass</span> http://127.0.0.1:8011;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="attribute">location</span> /html &#123;</span><br><span class="line">            <span class="attribute">rewrite</span><span class="regexp"> ^/html/(.*)$</span> /<span class="variable">$1</span> <span class="literal">break</span>;</span><br><span class="line">            <span class="attribute">proxy_pass</span> http://127.0.0.1:8080;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="attribute">include</span> servers/*;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="访问"><a href="#访问" class="headerlink" title="访问"></a>访问</h2><p><a href="http://localhost:6080/html/test/hello.html" target="_blank" rel="external">http://localhost:6080/html/test/hello.html</a></p>
 <h1 id="Nginx匹配规则"><a href="#Nginx匹配规则" class="headerlink" title="Nginx匹配规则"></a>Nginx匹配规则</h1><blockquote>
 <p><a href="https://moonbingbing.gitbooks.io/openresty-best-practices/ngx/nginx_local_pcre.html" target="_blank" rel="external">https://moonbingbing.gitbooks.io/openresty-best-practices/ngx/nginx_local_pcre.html</a></p>
 </blockquote>
@@ -277,6 +285,32 @@
 <h2 id="防盗链"><a href="#防盗链" class="headerlink" title="防盗链"></a>防盗链</h2><figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">location</span> <span class="regexp">~* \.(gif|jpg|swf)$</span> &#123;</span><br><span class="line">    <span class="attribute">valid_referers</span> <span class="literal">none</span> <span class="literal">blocked</span> start.igrow.cn sta.igrow.cn;</span><br><span class="line">    <span class="attribute">if</span> (<span class="variable">$invalid_referer</span>) &#123;</span><br><span class="line">       <span class="attribute">rewrite</span><span class="regexp"> ^/</span> http://<span class="variable">$host</span>/logo.png;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <h2 id="根据文件类型设置过期时间"><a href="#根据文件类型设置过期时间" class="headerlink" title="根据文件类型设置过期时间"></a>根据文件类型设置过期时间</h2><figure class="highlight coq"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">location ~* \.(js|<span class="type">css</span>|<span class="type">jpg</span>|<span class="type">jpeg</span>|<span class="type">gif</span>|<span class="type">png</span>|<span class="type">swf</span>)$ &#123;</span><br><span class="line">    <span class="keyword">if</span> (-f $request_filename) &#123;</span><br><span class="line">        expires <span class="number">1</span>h;</span><br><span class="line">        break;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <h2 id="禁止访问某个目录"><a href="#禁止访问某个目录" class="headerlink" title="禁止访问某个目录"></a>禁止访问某个目录</h2><figure class="highlight crmsh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">location</span> <span class="title">~* \.(txt</span>|doc)$&#123;</span><br><span class="line">    root /data/www/wwwroot/linuxtone/test;</span><br><span class="line">    <span class="keyword">deny</span> all;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h1 id="常用命令"><a href="#常用命令" class="headerlink" title="常用命令"></a>常用命令</h1><p>##1、查看nginx进程 </p>
+<figure class="highlight vim"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">ps</span> -ef|<span class="keyword">grep</span> nginx</span><br></pre></td></tr></table></figure>
+<p>说明：nginx的进程由主进程和工作进程组成。</p>
+<p>##2、启动nginx</p>
+<figure class="highlight ebnf"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">nginx</span></span><br></pre></td></tr></table></figure>
+<p>启动结果显示nginx的主线程和工作线程，工作线程的数量跟nginx.conf中的配置参数worker_processes有关。 </p>
+<p>##3、平滑启动nginx</p>
+<figure class="highlight dockerfile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">kill -HUP `cat /var/<span class="keyword">run</span><span class="bash">/nginx.pid`  </span></span><br><span class="line"><span class="bash">或者 </span></span><br><span class="line"><span class="bash">nginx -s reload</span></span><br></pre></td></tr></table></figure>
+<p>其中进程文件路径在配置文件nginx.conf中可以找到。</p>
+<p>平滑启动的意思是在不停止nginx的情况下，重启nginx，重新加载配置文件，启动新的工作线程，完美停止旧的工作线程。</p>
+<p>##4、完美停止nginx </p>
+<figure class="highlight stata"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kill -QUIT `<span class="keyword">cat</span> /<span class="keyword">var</span>/<span class="keyword">run</span>/nginx.pid`</span><br></pre></td></tr></table></figure>
+<p>##5、快速停止nginx </p>
+<figure class="highlight stata"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">kill -TERM `<span class="keyword">cat</span> /<span class="keyword">var</span>/<span class="keyword">run</span>/nginx.pid`</span><br><span class="line">或者</span><br><span class="line">kill -INT `<span class="keyword">cat</span> /<span class="keyword">var</span>/<span class="keyword">run</span>/nginx.pid`</span><br></pre></td></tr></table></figure>
+<p>##6、完美停止工作进程（主要用于平滑升级） </p>
+<figure class="highlight stata"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kill -WINCH `<span class="keyword">cat</span> /<span class="keyword">var</span>/<span class="keyword">run</span>/nginx.pid`</span><br></pre></td></tr></table></figure>
+<p>##7、强制停止nginx </p>
+<figure class="highlight lsl"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pkill <span class="number">-9</span> nginx</span><br></pre></td></tr></table></figure>
+<p>##8、检查对nginx.conf文件的修改是否正确 </p>
+<figure class="highlight excel"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nginx -<span class="built_in">t</span> -c /etc/nginx/nginx.conf 或者 nginx -<span class="built_in">t</span></span><br></pre></td></tr></table></figure>
+<p>##9、停止nginx的命令</p>
+<figure class="highlight arduino"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nginx -s <span class="built_in">stop</span></span><br></pre></td></tr></table></figure>
+<p>##10、查看nginx的版本信息</p>
+<figure class="highlight ebnf"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">nginx -v</span></span><br></pre></td></tr></table></figure>
+<p>##11、查看完整的nginx的配置信息 </p>
+<figure class="highlight ebnf"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">nginx -V</span></span><br></pre></td></tr></table></figure>
       
 
       
@@ -520,15 +554,15 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">Maven</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">java</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">JVM</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">Maven</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -556,11 +590,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">Python</a>
+                <a href="javascript:void(0)" class="js-tag color3">限流</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">限流</a>
+                <a href="javascript:void(0)" class="js-tag color2">Python</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -600,15 +634,15 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">maven</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">python</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">Mac</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">maven</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -636,11 +670,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">jvm</a>
+                <a href="javascript:void(0)" class="js-tag color5">善用佳软</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">善用佳软</a>
+                <a href="javascript:void(0)" class="js-tag color4">jvm</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -656,11 +690,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">单例</a>
+                <a href="javascript:void(0)" class="js-tag color3">HashMap</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">HashMap</a>
+                <a href="javascript:void(0)" class="js-tag color3">单例</a>
               </li>
              
               <li class="article-tag-list-item">
