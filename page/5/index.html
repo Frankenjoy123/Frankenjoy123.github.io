@@ -151,6 +151,111 @@
           <div id="js-content" class="content-ll">
             
   
+    <article id="post-hive常用HIVE-QL" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2018/04/13/hive常用HIVE-QL/">hive常用HIVE QL</a>
+    </h1>
+  
+
+        
+        <a href="/2018/04/13/hive常用HIVE-QL/" class="archive-article-date">
+  	<time datetime="2018-04-13T03:11:42.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-04-13</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <ol>
+<li>hive创建数据库</li>
+</ol>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CREATE</span> <span class="keyword">DATABASE</span>|<span class="keyword">SCHEMA</span> [<span class="keyword">IF</span> <span class="keyword">NOT</span> <span class="keyword">EXISTS</span>] &lt;<span class="keyword">database</span> <span class="keyword">name</span>&gt;;1</span><br></pre></td></tr></table></figure>
+<ol>
+<li>hive创建表 </li>
+</ol>
+<p>hive里一般有两种表的结构，表和外部表，以下分别是两种表的创建代码：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> phone_info(<span class="keyword">id</span> <span class="built_in">int</span>,<span class="keyword">name</span> <span class="keyword">String</span>,<span class="keyword">storage</span> <span class="keyword">String</span>,price <span class="keyword">double</span>)</span><br><span class="line"><span class="keyword">ROW</span> <span class="keyword">FORMAT</span> <span class="keyword">DELIMITED</span> //代表一行是一条记录</span><br><span class="line"><span class="keyword">FIELDS</span> <span class="keyword">TERMINATED</span> <span class="keyword">BY</span> <span class="string">'\t'</span>//列是按照<span class="keyword">table</span>键分开</span><br><span class="line"><span class="keyword">STORED</span> <span class="keyword">AS</span> TEXTFILE[SEQUENCEFILE];//二种最常见的存储格式，一般可以不写1234</span><br></pre></td></tr></table></figure>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CREATE</span> <span class="keyword">EXTERNAL</span> <span class="keyword">TABLE</span> phone_external(<span class="keyword">id</span> <span class="built_in">int</span>,<span class="keyword">name</span> <span class="keyword">String</span>,price <span class="keyword">double</span>)</span><br><span class="line"><span class="keyword">ROW</span> <span class="keyword">FORMAT</span> <span class="keyword">DELIMITED</span> </span><br><span class="line"><span class="keyword">FIELDS</span> <span class="keyword">TERMINATED</span> <span class="keyword">BY</span> <span class="string">'\t'</span></span><br><span class="line"><span class="keyword">STORED</span> <span class="keyword">AS</span> TEXTFILE</span><br><span class="line">LOCATION <span class="string">'&lt;/xudong/phone.txt&gt;'</span>;//这里填写外部表数据的hdfs地址12345</span><br></pre></td></tr></table></figure>
+<ol>
+<li>hive表中导入数据 </li>
+</ol>
+<p>hive表中导入数据有四种常见的方式：<br>（1）从本地文件系统中导入到hive表<br>假设本地文件系统中文件存在的目录为/home/xudong</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">load</span> <span class="keyword">data</span> <span class="keyword">local</span> inpath <span class="string">'/home/xudong/xxx.txt'</span> <span class="keyword">into</span> <span class="keyword">table</span> phone_info;1</span><br></pre></td></tr></table></figure>
+<p>（2）从hdfs上导入数据到hive表<br>假设hdfs上的目录为/user/xudong/data</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">load</span> <span class="keyword">data</span> inpath <span class="string">'/user/xudong/data/xxx.txt'</span> <span class="keyword">into</span> <span class="keyword">table</span> phone_info;1</span><br></pre></td></tr></table></figure>
+<p><em>注：和本地文件导入不同是没有local关键字</em><br>（3）从别的表中查询出相应的数据并导入hive表中</p>
+<figure class="highlight n1ql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> phone_info_like <span class="keyword">SELECT</span> * <span class="keyword">FROM</span> phone_info;1</span><br></pre></td></tr></table></figure>
+<p>（4）在创建表的时候通过别的表查询出相应的记录并插入到所创建的表中。</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> temp_info</span><br><span class="line"><span class="keyword">AS</span></span><br><span class="line"><span class="keyword">SELECT</span> <span class="keyword">id</span> phone_id，<span class="keyword">name</span> phone_name,price <span class="keyword">FROM</span> phone_info</span><br><span class="line"><span class="keyword">SORT</span> <span class="keyword">BY</span> phone_id;1234</span><br></pre></td></tr></table></figure>
+<ol>
+<li>hive删除表</li>
+</ol>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">DROP</span> <span class="keyword">TABLE</span> <span class="keyword">IF</span> <span class="keyword">EXISTS</span> phone_info;1</span><br></pre></td></tr></table></figure>
+<ol>
+<li>hive创建临时表存储中间结果</li>
+</ol>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> temp_info</span><br><span class="line"><span class="keyword">AS</span></span><br><span class="line"><span class="keyword">SELECT</span> <span class="keyword">id</span> phone_id，<span class="keyword">name</span> phone_name,price <span class="keyword">FROM</span> phone_info</span><br><span class="line"><span class="keyword">SORT</span> <span class="keyword">BY</span> phone_id;</span><br><span class="line">12345</span><br></pre></td></tr></table></figure>
+<ol>
+<li>hive简单的查询语句</li>
+</ol>
+<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">SELECT * <span class="keyword">FROM</span> temp_info;</span><br><span class="line">SELECT id phone_id,name phone_name <span class="keyword">FROM</span> phone_info;</span><br><span class="line">SELECT a.ip,a.name,b.username <span class="keyword">FROM</span> phone_info a INNER JOIN<span class="built_in"> user </span>b on (a.<span class="attribute">ip</span>=b.ip);</span><br><span class="line">1234</span><br></pre></td></tr></table></figure>
+<ol>
+<li>hive批量插入数据到表</li>
+</ol>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> phone_info_like <span class="keyword">LIKE</span> phone_info;//复制表的结构</span><br><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> phone_info_like <span class="keyword">SELECT</span> * <span class="keyword">FROM</span> phone_info;</span><br><span class="line"><span class="keyword">INSERT</span> OVERWRITE phoen_info_like <span class="keyword">SELECT</span> * <span class="keyword">FROM</span> phone_info;//into是追加数据，overwrite是覆盖以及存在的数据，属于重复性校验</span><br><span class="line">1234</span><br></pre></td></tr></table></figure>
+<ol>
+<li>hive分区表</li>
+</ol>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> part_table(<span class="keyword">id</span> <span class="built_in">int</span>,<span class="keyword">name</span> <span class="keyword">String</span>,ip <span class="keyword">String</span>,city <span class="keyword">String</span>,<span class="built_in">date</span> <span class="keyword">String</span>)</span><br><span class="line">PARTITIONED <span class="keyword">BY</span> (part_flag <span class="keyword">String</span>)//这里的分区字段可以是表中字段也可以是指定的字段</span><br><span class="line"><span class="keyword">ROW</span> <span class="keyword">FORMAT</span> <span class="keyword">DELIMITED</span> <span class="keyword">FIELDS</span> <span class="keyword">TERMINATED</span> <span class="keyword">BY</span> <span class="string">','</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">load</span> <span class="keyword">data</span> <span class="keyword">local</span> inpath <span class="string">'/home/xudong/test.txt'</span> <span class="keyword">into</span> <span class="keyword">table</span> part_table <span class="keyword">partition</span>(part_flag=<span class="string">'part1'</span>);</span><br><span class="line"><span class="keyword">load</span> <span class="keyword">data</span> <span class="keyword">local</span> inpath <span class="string">'/home/xudong/test1.txt'</span> <span class="keyword">into</span> <span class="keyword">table</span> part_table <span class="keyword">partition</span>(part_flag=<span class="string">'part2'</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> part_table <span class="keyword">where</span> part_flag=<span class="string">'part1'</span>;</span><br></pre></td></tr></table></figure>
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+      
+
+      <div style="font-size: 12px;">
+        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
+      </div>
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2018/04/13/hive常用HIVE-QL/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
     <article id="post-hive数据去重" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
@@ -1736,121 +1841,6 @@
 
 
   
-    <article id="post-hadoop-spark-hdfs-Hbase-hive" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2018/03/24/hadoop-spark-hdfs-Hbase-hive/">hadoop spark hdfs Hbase hive </a>
-    </h1>
-  
-
-        
-        <a href="/2018/03/24/hadoop-spark-hdfs-Hbase-hive/" class="archive-article-date">
-  	<time datetime="2018-03-24T13:25:41.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-03-24</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>这些都是“大数据”相关的概念，即和<strong>关系型数据库</strong>，相比较而产生的新技术。即j2ee的web开发中，<strong>数据库</strong>部分（如传统的关系型数据库的oracle），的内容</p>
-<p>1Hbase：是一个nosql数据库，和mongodb类似。</p>
-<p>2hdfs：hadoop distribut file system，hadoop的分布式文件系统。</p>
-<p>3Hive：</p>
-<p><img src="http://img.blog.csdn.net/20161204152637354?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQv/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center" alt="img"></p>
-<p>5spark</p>
-<p>6hadoop</p>
-<p>7sqoop</p>
-<p>sqoop是和Hive一起使用的。</p>
-<p>Sqoop(发音：skup)是一款开源的工具，主要用于在Hadoop(Hive)与传统的数据库(mysql、postgresql…)间进行数据的传递，可以将一个关系型数据库（例如 ： MySQL ,Oracle ,Postgres等）中的数据导进到Hadoop的HDFS中，也可以将HDFS的数据导进到关系型数据库中。</p>
-<h1 id="Hive："><a href="#Hive：" class="headerlink" title="Hive："></a><a href="http://lib.csdn.net/base/hive" target="_blank" rel="external">Hive</a>：</h1><p>Hive不支持更改数据的操作，Hive基于数据仓库，提供静态数据的动态查询。其使用类SQL语言，底层经过编译转为MapReduce程序，在<a href="http://lib.csdn.net/base/hadoop" target="_blank" rel="external">Hadoop</a>上运行，数据存储在HDFS上。</p>
-<p>不想用程序语言开发MapReduce的朋友比如DB们，熟悉SQL的朋友可以使用Hive开离线的进行数据处理与分析工作。</p>
-<p>注意Hive现在适合在离线下进行数据的操作，就是说不适合在挂在真实的生产环境中进行实时的在线查询或操作，因为一个字“慢”。相反</p>
-<p>起源于FaceBook,Hive在Hadoop中扮演数据仓库的角色。建立在Hadoop集群的最顶层，对存储在Hadoop群上的数据提供类SQL的接口进行操作。你可以用 HiveQL进行select,join,等等操作。</p>
-<p>如果你有数据仓库的需求并且你擅长写SQL并且不想写MapReduce jobs就可以用Hive代替。</p>
-<p>用来处理结构化（关系型数据库中的数据，如oracle）或者非结构化数据（如10G的txt文本中的数据）。</p>
-<p>hive是基于Hadoop的一个<a href="http://baike.baidu.com/view/19711.htm" target="_blank" rel="external">数据仓库</a>工具，可以将结构化的数据文件（或者非结构化的数据）映射为一张数据库表，并<strong>提供简单的sql查询</strong>功能，可以将<strong>sql语句转换为MapReduce任务</strong>进行运行。 其优点是学习成本低，可以通过类SQL语句快速实现简单的MapReduce统计，<strong>不必开发专门的MapReduce应用</strong>，十分适合<a href="http://baike.baidu.com/view/19711.htm" target="_blank" rel="external">数据仓库</a>的统计分析。</p>
-<p><strong>使用Hive，就不用去写MapReduce，而是写sql语句就行了。</strong></p>
-<h1 id="HDFS"><a href="#HDFS" class="headerlink" title="HDFS"></a>HDFS</h1><p>hadoop distribut file system，hadoop的分布式文件系统。</p>
-<p>HDFS是GFS的一种实现，他的完整名字是分布式文件系统，类似于FAT32，NTFS，是一种文件格式，是底层的。</p>
-<p>Hive与<a href="http://lib.csdn.net/base/hbase" target="_blank" rel="external">Hbase</a>的数据一般都存储在HDFS上。Hadoop HDFS为他们提供了高可靠性的底层存储支持。</p>
-<h1 id="Hbase"><a href="#Hbase" class="headerlink" title="Hbase:"></a>Hbase:</h1><p>是一个nosql数据库，和mongodb类似。</p>
-<p>Hbase是Hadoop database，即Hadoop<a href="http://lib.csdn.net/base/mysql" target="_blank" rel="external">数据库</a>。它是一个适合于非结构化数据存储的数据库，HBase基于列的而不是基于行的模式。</p>
-<p>HBase是Google Bigtable的开源实现，类似Google Bigtable利用GFS作为其文件存储系统，HBase利用Hadoop HDFS作为其文件存储系统；Google运行MapReduce来处理Bigtable中的海量数据，HBase同样利用Hadoop MapReduce来处理HBase中的海量数据。</p>
-<p>Hadoop HDFS为HBase提供了高可靠性的底层存储支持，Hadoop MapReduce为HBase提供了高性能的计算能力，Zookeeper为HBase提供了稳定服务和failover机制。Pig和Hive还为HBase提供了高层语言支持，使得在HBase上进行数据统计处理变的非常简单。 Sqoop则为HBase提供了方便的RDBMS（关系型数据库）数据导入功能，使得<a href="http://baike.baidu.com/view/1437981.htm" target="_blank" rel="external">传统数据库</a>数据向HBase中迁移变的非常方便。</p>
-<p>HBase作为面向列的数据库运行在HDFS之上，HDFS缺乏随即读写操作，HBase正是为此而出现。HBase以Google BigTable为蓝本，以键值对的形式存储。项目的目标就是快速在主机内数十亿行数据中定位所需的数据并访问它。</p>
-<p>HBase是一个数据库，一个NoSql的数据库，像其他数据库一样提供随即读写功能，Hadoop不能满足实时需要，HBase正可以满足。如果你需要实时访问一些数据，就把它存入HBase。</p>
-<p>你可以用Hadoop作为静态数据仓库，HBase作为数据存储，放那些进行一些操作会改变的数据。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hbase与hive都是架构在hadoop之上的。都是用hadoop作为底层存储。而hbase是作为分布式数据库，而hive是作为分布式数据仓库。当然hive还是借用hadoop的MapReduce来完成一些hive中的命令的执行。</span><br></pre></td></tr></table></figure>
-<ol>
-<li>什么场景下应用Hbase?</li>
-</ol>
-<ul>
-<li>成熟的数据分析主题，查询模式已经确立，并且不会轻易改变。</li>
-<li>传统的关系型数据库已经无法承受负荷，高速插入，大量读取。</li>
-<li>适合海量的，但同时也是简单的操作(例如：key-value)。</li>
-</ul>
-<p>官方解释：</p>
-<p>Use Apache HBase™ when you need random, realtime read/write access to your Big Data. This project’s goal is the hosting of very large tables – billions of rows X millions of columns – atop clusters of commodity hardware. Apache HBase is an open-source, distributed, versioned, non-relational database modeled after Google’s <a href="http://research.google.com/archive/bigtable.html" target="_blank" rel="external">Bigtable: A Distributed Storage System for Structured Data</a> by Chang et al. Just as Bigtable leverages the distributed data storage provided by the Google File System, Apache HBase provides Bigtable-like capabilities on top of Hadoop and HDFS.</p>
-<h1 id="Pig："><a href="#Pig：" class="headerlink" title="Pig："></a>Pig：</h1><p>Pig的语言层包括一个叫做<strong>PigLatin</strong>的<strong>文本语言</strong>,Pig Latin是面向<strong>数据流</strong>的编程方式。Pig和Hive类似更侧重于数据的查询和分析，底层都是转化成MapReduce程序运行。</p>
-<p>区别是Hive是类SQL的查询语言，要求数据存储于表中，而Pig是面向数据流的一个程序语言。</p>
-<h1 id="Sqoop"><a href="#Sqoop" class="headerlink" title="Sqoop"></a>Sqoop</h1><p>Sqoop则为HBase提供了方便的RDBMS数据导入功能，使得传统数据库数据向HBase中迁移变的非常方便。</p>
-<p>#Pig VS Hive</p>
-<p>Hive更适合于数据仓库的任务，Hive主要用于静态的结构以及需要经常分析的工作。Hive与SQL相似促使 其成为Hadoop与其他BI工具结合的理想交集。</p>
-<p>Pig赋予开发人员在大数据集领域更多的灵活性，并允许开发简洁的脚本用于转换数据流以便嵌入到较大的 应用程序。</p>
-<p>Pig相比Hive相对轻量，它主要的优势是相比于直接使用Hadoop Java APIs可大幅削减代码量。正因为如此，Pig仍然是吸引大量的软件开发人员。</p>
-<p>Hive和Pig都可以与HBase组合使用，Hive和Pig还为HBase提供了高层语言支持，使得在HBase上进行数据统计处理变的非常简单</p>
-<h1 id="Hive-VS-HBase"><a href="#Hive-VS-HBase" class="headerlink" title="Hive VS HBase"></a>Hive VS HBase</h1><p>Hive是建立在Hadoop之上为了减少MapReduce jobs编写工作的批处理系统，HBase是为了支持弥补Hadoop对实时操作的缺陷的项目 。</p>
-<p>想象你在操作RMDB数据库，如果是全表扫描，就用Hive+Hadoop,如果是索引访问，就用HBase+Hadoop 。</p>
-<p>Hive query就是MapReduce jobs可以从5分钟到数小时不止，HBase是非常高效的，肯定比Hive高效的多</p>
-
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-      
-
-      <div style="font-size: 12px;">
-        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
-      </div>
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2018/03/24/hadoop-spark-hdfs-Hbase-hive/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
   
     <nav id="page-nav">
       <a class="extend prev" rel="prev" href="/page/4/">&laquo; Prev</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/3/">3</a><a class="page-number" href="/page/4/">4</a><span class="page-number current">5</span><a class="page-number" href="/page/6/">6</a><a class="page-number" href="/page/7/">7</a><span class="space">&hellip;</span><a class="page-number" href="/page/12/">12</a><a class="extend next" rel="next" href="/page/6/">Next &raquo;</a>
@@ -1956,15 +1946,15 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">Dubbo</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">git</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">ops</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">Dubbo</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1984,6 +1974,10 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">redis</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">linux</a>
               </li>
              
@@ -1992,7 +1986,7 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">redis</a>
+                <a href="javascript:void(0)" class="js-tag color5">test</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -2008,7 +2002,7 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">test</a>
+                <a href="javascript:void(0)" class="js-tag color1">react</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -2016,7 +2010,7 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">react</a>
+                <a href="javascript:void(0)" class="js-tag color2">tomcat</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -2024,19 +2018,7 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">tomcat</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">elastic-job</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">debug</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">rest</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -2048,15 +2030,23 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">debug</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">rest</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">Mac</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">python</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">maven</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">Mac</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -2076,19 +2066,19 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">后端</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">前端指南</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">jvm</a>
+                <a href="javascript:void(0)" class="js-tag color3">后端</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">善用佳软</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">jvm</a>
               </li>
              
               <li class="article-tag-list-item">

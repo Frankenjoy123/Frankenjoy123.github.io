@@ -8,14 +8,23 @@
   <meta name="renderer" content="webkit">
   <meta http-equiv="X-UA-Compatible" content="IE=edge" >
   <link rel="dns-prefetch" href="http://yoursite.com">
-  <title>Archives | xiaowu&#39;s blog</title>
+  <title>Nginx反向代理解决跨域问题 | xiaowu&#39;s blog</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta property="og:type" content="website">
-<meta property="og:title" content="xiaowu&#39;s blog">
-<meta property="og:url" content="http://yoursite.com/archives/page/5/index.html">
+  <meta name="description" content="1.定义跨域是指a页面想获取b页面资源，如果a、b页面的协议、域名、端口、子域名不同，所进行的访问行动都是跨域的，而浏览器为了安全问题一般都限制了跨域访问，也就是不允许跨域请求资源。必须是协议、域名、端口全部一致。注意：跨域限制访问，其实是浏览器的限制。理解这一点很重要！！！ 2.跨域访问示例假设有两个网站，A网站部署在：http://localhost:81 即本地ip端口81上；B网站部署在：">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Nginx反向代理解决跨域问题">
+<meta property="og:url" content="http://yoursite.com/2018/06/28/Nginx反向代理解决跨域问题/index.html">
 <meta property="og:site_name" content="xiaowu&#39;s blog">
+<meta property="og:description" content="1.定义跨域是指a页面想获取b页面资源，如果a、b页面的协议、域名、端口、子域名不同，所进行的访问行动都是跨域的，而浏览器为了安全问题一般都限制了跨域访问，也就是不允许跨域请求资源。必须是协议、域名、端口全部一致。注意：跨域限制访问，其实是浏览器的限制。理解这一点很重要！！！ 2.跨域访问示例假设有两个网站，A网站部署在：http://localhost:81 即本地ip端口81上；B网站部署在：">
+<meta property="og:image" content="https://common.cnblogs.com/images/copycode.gif">
+<meta property="og:image" content="https://common.cnblogs.com/images/copycode.gif">
+<meta property="og:image" content="https://images2015.cnblogs.com/blog/678708/201702/678708-20170213170036207-1918573233.png">
+<meta property="og:image" content="https://images2015.cnblogs.com/blog/678708/201702/678708-20170213173216222-601271339.png">
+<meta property="og:updated_time" content="2018-06-28T07:40:08.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="xiaowu&#39;s blog">
+<meta name="twitter:title" content="Nginx反向代理解决跨域问题">
+<meta name="twitter:description" content="1.定义跨域是指a页面想获取b页面资源，如果a、b页面的协议、域名、端口、子域名不同，所进行的访问行动都是跨域的，而浏览器为了安全问题一般都限制了跨域访问，也就是不允许跨域请求资源。必须是协议、域名、端口全部一致。注意：跨域限制访问，其实是浏览器的限制。理解这一点很重要！！！ 2.跨域访问示例假设有两个网站，A网站部署在：http://localhost:81 即本地ip端口81上；B网站部署在：">
+<meta name="twitter:image" content="https://common.cnblogs.com/images/copycode.gif">
   
     <link rel="alternative" href="/atom.xml" title="xiaowu&#39;s blog" type="application/atom+xml">
   
@@ -149,295 +158,263 @@
             <canvas data-colors="#eaeaea" data-sectionHeight="100" data-contentId="js-content" id="myCanvas1" class="anm-canvas"></canvas>
           </div>
           <div id="js-content" class="content-ll">
-            
-  
-  
+            <article id="post-Nginx反向代理解决跨域问题" class="article article-type-post " itemscope itemprop="blogPost">
+  <div class="article-inner">
     
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Nginx反向代理解决跨域问题
+    </h1>
+  
+
+        
+        <a href="/2018/06/28/Nginx反向代理解决跨域问题/" class="archive-article-date">
+  	<time datetime="2018-06-28T06:53:48.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-06-28</time>
+</a>
+        
+      </header>
     
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="1-定义"><a href="#1-定义" class="headerlink" title="1.定义"></a>1.定义</h1><p>跨域是指a页面想获取b页面资源，如果a、b页面的协议、域名、端口、子域名不同，所进行的访问行动都是跨域的，而浏览器为了安全问题一般都限制了跨域访问，也就是不允许跨域请求资源。必须是<strong>协议、域名、端口全部一致。</strong>注意：跨域限制访问，其实是浏览器的限制。理解这一点很重要！！！</p>
+<h1 id="2-跨域访问示例"><a href="#2-跨域访问示例" class="headerlink" title="2.跨域访问示例"></a>2.跨域访问示例</h1><p>假设有两个网站，A网站部署在：<a href="http://localhost:81" target="_blank" rel="external">http://localhost:81</a> 即本地ip端口81上；B网站部署在：<a href="http://localhost:82" target="_blank" rel="external">http://localhost:82</a> 即本地ip端口82上。</p>
+<p>现在A网站的页面想去访问B网站的信息，A网站页面的代码如下（这里使用jquery的异步请求）：</p>
+<p><a href="javascript:void(0" target="_blank" rel="external"><img src="https://common.cnblogs.com/images/copycode.gif" alt="复制代码"></a>;)</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">h2</span>&gt;</span>Index<span class="tag">&lt;/<span class="name">h2</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">id</span>=<span class="string">"show"</span>&gt;</span><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">script</span> <span class="attr">type</span>=<span class="string">"text/javascript"</span>&gt;</span><span class="undefined"></span></span><br><span class="line"><span class="javascript">        $(<span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span></span><br><span class="line"><span class="javascript">            $.get(<span class="string">"http://localhost:82/api/values"</span>, &#123;&#125;, <span class="function"><span class="keyword">function</span> (<span class="params">result</span>) </span>&#123;</span></span><br><span class="line"><span class="javascript">                $(<span class="string">"#show"</span>).html(result);</span></span><br><span class="line"><span class="undefined">            &#125;)</span></span><br><span class="line"><span class="undefined">        &#125;)</span></span><br></pre></td></tr></table></figure>
+<p><a href="javascript:void(0" target="_blank" rel="external"><img src="https://common.cnblogs.com/images/copycode.gif" alt="复制代码"></a>;</p>
+<p>这是浏览器会提示如下错误信息：</p>
+<p><img src="https://images2015.cnblogs.com/blog/678708/201702/678708-20170213170036207-1918573233.png" alt="img"></p>
+<h1 id="3-nginx反向代理解决跨域问题"><a href="#3-nginx反向代理解决跨域问题" class="headerlink" title="3.nginx反向代理解决跨域问题"></a>3.nginx反向代理解决跨域问题</h1><h2 id="3-1nginx配置"><a href="#3-1nginx配置" class="headerlink" title="3.1nginx配置"></a>3.1nginx配置</h2><p>找到nginx的配置文件“nginx.conf”，修改一下信息</p>
+<figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="section">server</span> &#123;</span><br><span class="line">        <span class="attribute">listen</span>       <span class="number">80</span>; <span class="comment">#监听80端口，可以改成其他端口</span></span><br><span class="line">        <span class="attribute">server_name</span>  localhost; <span class="comment"># 当前服务的域名</span></span><br><span class="line"></span><br><span class="line">        <span class="comment">#charset koi8-r;</span></span><br><span class="line"></span><br><span class="line">        <span class="comment">#access_log  logs/host.access.log  main;</span></span><br><span class="line"></span><br><span class="line">        <span class="attribute">location</span> / &#123;</span><br><span class="line">            <span class="attribute">proxy_pass</span> http://localhost:81;</span><br><span class="line">            <span class="attribute">proxy_redirect</span> default;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">		<span class="attribute">location</span> /apis &#123; <span class="comment">#添加访问目录为/apis的代理配置</span></span><br><span class="line">			<span class="attribute">rewrite</span> <span class="regexp"> ^/apis/(.*)$</span> /<span class="variable">$1</span> <span class="literal">break</span>;</span><br><span class="line">			<span class="attribute">proxy_pass</span>   http://localhost:82;</span><br><span class="line">       &#125;</span><br><span class="line"><span class="comment">#以下配置省略</span></span><br></pre></td></tr></table></figure>
+<p>配置解释：</p>
+<ol>
+<li>由配置信息可知，我们让nginx监听localhost的80端口，网站A与网站B的访问都是经过localhost的80端口进行访问。</li>
+<li>我们特殊配置了一个“/apis”目录的访问，并且对url执行了重写，最后使以“/apis”开头的地址都转到“<a href="http://localhost:82”进行处理。" target="_blank" rel="external">http://localhost:82”进行处理。</a></li>
+<li>rewrite  ^/apis/(.*)$ /$1 break; </li>
+</ol>
+<p>代表重写拦截进来的请求，并且只能对域名后边以“/apis”开头的起作用，例如<code>www.a.com/apis/msg?x=1</code>重写。只对/apis重写。  请求<code>/msg?x=1</code>转发到<code>localhost:82</code></p>
+<p>rewrite后面的参数是一个简单的正则 ^/apis/(.*)$ ,$1代表正则中的第一个(),$2代表第二个()的值,以此类推。</p>
+<p>break代表匹配一个之后停止匹配。</p>
+<h2 id="3-2-访问地址修改"><a href="#3-2-访问地址修改" class="headerlink" title="3.2 访问地址修改"></a>3.2 访问地址修改</h2><p>既然配置了nginx，那么所有的访问都要走nginx，而不是走网站原本的地址（A网站localhost:81,B网站localhost:82）。所以要修改A网站中的ajax访问地址，把访问地址由</p>
+<p>“<a href="http://localhost:82/api/values”改成》》》“/apis/api/values”。如下代码：" target="_blank" rel="external">http://localhost:82/api/values”改成》》》“/apis/api/values”。如下代码：</a></p>
+<p><code>api/values</code>转发到<code>localhost:82</code></p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">h2</span>&gt;</span>Index<span class="tag">&lt;/<span class="name">h2</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">id</span>=<span class="string">"show"</span>&gt;</span><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">script</span> <span class="attr">type</span>=<span class="string">"text/javascript"</span>&gt;</span><span class="undefined"></span></span><br><span class="line"><span class="javascript">        $(<span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span></span><br><span class="line"><span class="javascript">            $.get(<span class="string">"/apis/api/values"</span>, &#123;&#125;, <span class="function"><span class="keyword">function</span> (<span class="params">result</span>) </span>&#123;</span></span><br><span class="line"><span class="javascript">                $(<span class="string">"#show"</span>).html(result);</span></span><br><span class="line"><span class="undefined">            &#125;)</span></span><br><span class="line"><span class="undefined">        &#125;)</span></span><br><span class="line"><span class="undefined"></span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<h1 id="4-网站的访问"><a href="#4-网站的访问" class="headerlink" title="4.网站的访问"></a>4.网站的访问</h1><p><img src="https://images2015.cnblogs.com/blog/678708/201702/678708-20170213173216222-601271339.png" alt="img"></p>
+<h1 id="Nginx匹配规则"><a href="#Nginx匹配规则" class="headerlink" title="Nginx匹配规则"></a>Nginx匹配规则</h1><blockquote>
+<p><a href="https://moonbingbing.gitbooks.io/openresty-best-practices/ngx/nginx_local_pcre.html" target="_blank" rel="external">https://moonbingbing.gitbooks.io/openresty-best-practices/ngx/nginx_local_pcre.html</a></p>
+</blockquote>
+<h2 id="常用"><a href="#常用" class="headerlink" title="常用"></a>常用</h2><p><code>location ^~ /uri</code>前缀匹配</p>
+<p><code>location /</code>通用匹配，任何未匹配到其它location的请求都会匹配到，相当于switch中的default</p>
+<h2 id="语法规则"><a href="#语法规则" class="headerlink" title="语法规则"></a>语法规则</h2><blockquote>
+<p>location [=|~|~*|^~] /uri/ { … }</p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th>模式</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>location = /uri</td>
+<td>= 表示精确匹配，只有完全匹配上才能生效</td>
+</tr>
+<tr>
+<td>location ^~ /uri</td>
+<td>^~ 开头对URL路径进行前缀匹配，并且在正则之前。</td>
+</tr>
+<tr>
+<td>location ~ pattern</td>
+<td>开头表示区分大小写的正则匹配</td>
+</tr>
+<tr>
+<td>location ~* pattern</td>
+<td>开头表示不区分大小写的正则匹配</td>
+</tr>
+<tr>
+<td>location /uri</td>
+<td>不带任何修饰符，也表示前缀匹配，但是在正则匹配之后</td>
+</tr>
+<tr>
+<td>location /</td>
+<td>通用匹配，任何未匹配到其它location的请求都会匹配到，相当于switch中的default</td>
+</tr>
+</tbody>
+</table>
+<p>前缀匹配时，Nginx 不对 url 做编码，因此请求为 <code>/static/20%/aa</code>，可以被规则 <code>^~ /static/ /aa</code> 匹配到（注意是空格）</p>
+<p>多个 location 配置的情况下匹配顺序为（参考资料而来，还未实际验证，试试就知道了，不必拘泥，仅供参考）:</p>
+<ul>
+<li>首先精确匹配 <code>=</code></li>
+<li>其次前缀匹配 <code>^~</code></li>
+<li>其次是按文件中顺序的正则匹配</li>
+<li>然后匹配不带任何修饰的前缀匹配。</li>
+<li>最后是交给 <code>/</code> 通用匹配</li>
+<li>当有匹配成功时候，停止匹配，按当前匹配规则处理请求</li>
+</ul>
+<p><em>注意：前缀匹配，如果有包含关系时，按最大匹配原则进行匹配。比如在前缀匹配：location /dir01 与 location /dir01/dir02，如有请求 <a href="http://localhost/dir01/dir02/file" target="_blank" rel="external">http://localhost/dir01/dir02/file</a> 将最终匹配到 location /dir01/dir02</em></p>
+<p>例子，有如下匹配规则：</p>
+<figure class="highlight crmsh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">location</span> <span class="title">= / &#123;</span></span><br><span class="line"><span class="title">   echo</span> <span class="string">"规则A"</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">location</span> <span class="title">= /login</span> &#123;</span><br><span class="line">   echo <span class="string">"规则B"</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">location</span> <span class="title">^~ /static</span>/ &#123;</span><br><span class="line">   echo <span class="string">"规则C"</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">location</span> <span class="title">^~ /static</span>/files &#123;</span><br><span class="line">    echo <span class="string">"规则X"</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">location</span> <span class="title">~ \.(gif</span>|jpg|png|js|css)$ &#123;</span><br><span class="line">   echo <span class="string">"规则D"</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">location</span> <span class="title">~* \.png</span>$ &#123;</span><br><span class="line">   echo <span class="string">"规则E"</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">location</span> <span class="title">/img</span> &#123;</span><br><span class="line">    echo <span class="string">"规则Y"</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">location</span> <span class="title">/ &#123;</span></span><br><span class="line"><span class="title">   echo</span> <span class="string">"规则F"</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>那么产生的效果如下：</p>
+<ul>
+<li>访问根目录 <code>/</code>，比如 <code>http://localhost/</code> 将匹配 <code>规则A</code></li>
+<li>访问 <code>http://localhost/login</code> 将匹配 <code>规则B</code>，<code>http://localhost/register</code> 则匹配 <code>规则F</code></li>
+<li>访问 <code>http://localhost/static/a.html</code> 将匹配 <code>规则C</code></li>
+<li>访问 <code>http://localhost/static/files/a.exe</code> 将匹配 <code>规则X</code>，虽然 <code>规则C</code> 也能匹配到，但因为最大匹配原则，最终选中了 <code>规则X</code>。你可以测试下，去掉规则 X ，则当前 URL 会匹配上 <code>规则C</code>。</li>
+<li>访问 <code>http://localhost/a.gif</code>, <code>http://localhost/b.jpg</code> 将匹配 <code>规则D</code> 和 <code>规则 E</code> ，但是 <code>规则 D</code> 顺序优先，<code>规则 E</code> 不起作用，而 <code>http://localhost/static/c.png</code> 则优先匹配到 <code>规则 C</code></li>
+<li>访问 <code>http://localhost/a.PNG</code> 则匹配 <code>规则 E</code> ，而不会匹配 <code>规则 D</code> ，因为 <code>规则 E</code> 不区分大小写。</li>
+<li>访问 <code>http://localhost/img/a.gif</code> 会匹配上 <code>规则D</code>,虽然 <code>规则Y</code> 也可以匹配上，但是因为正则匹配优先，而忽略了 <code>规则Y</code>。</li>
+<li>访问 <code>http://localhost/img/a.tiff</code> 会匹配上 <code>规则Y</code>。</li>
+</ul>
+<p>访问 <code>http://localhost/category/id/1111</code> 则最终匹配到规则 F ，因为以上规则都不匹配，这个时候应该是 Nginx 转发请求给后端应用服务器，比如 FastCGI（php），tomcat（jsp），Nginx 作为反向代理服务器存在。</p>
+<p>所以实际使用中，笔者觉得至少有三个匹配规则定义，如下：</p>
+<figure class="highlight crmsh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 直接匹配网站根，通过域名访问网站首页比较频繁，使用这个会加速处理，官网如是说。</span></span><br><span class="line"><span class="comment"># 这里是直接转发给后端应用服务器了，也可以是一个静态首页</span></span><br><span class="line"><span class="comment"># 第一个必选规则</span></span><br><span class="line"><span class="keyword">location</span> <span class="title">= / &#123;</span></span><br><span class="line"><span class="title">    proxy_pass</span> http://tomcat:<span class="number">8080</span>/index</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment"># 第二个必选规则是处理静态文件请求，这是 nginx 作为 http 服务器的强项</span></span><br><span class="line"><span class="comment"># 有两种配置模式，目录匹配或后缀匹配，任选其一或搭配使用</span></span><br><span class="line"><span class="keyword">location</span> <span class="title">^~ /static</span>/ &#123;</span><br><span class="line">    root /webroot/static/;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">location</span> <span class="title">~* \.(gif</span>|jpg|jpeg|png|css|js|ico)$ &#123;</span><br><span class="line">    root /webroot/res/;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment"># 第三个规则就是通用规则，用来转发动态请求到后端应用服务器</span></span><br><span class="line"><span class="comment"># 非静态文件请求就默认是动态请求，自己根据实际把握</span></span><br><span class="line"><span class="comment"># 毕竟目前的一些框架的流行，带.php、.jsp后缀的情况很少了</span></span><br><span class="line"><span class="keyword">location</span> <span class="title">/ &#123;</span></span><br><span class="line"><span class="title">    proxy_pass</span> http://tomcat:<span class="number">8080</span>/</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="rewrite-语法"><a href="#rewrite-语法" class="headerlink" title="rewrite 语法"></a>rewrite 语法</h4><ul>
+<li>last – 基本上都用这个 Flag</li>
+<li>break – 中止 Rewirte，不再继续匹配</li>
+<li>redirect – 返回临时重定向的 HTTP 状态 302</li>
+<li>permanent – 返回永久重定向的 HTTP 状态 301</li>
+</ul>
+<p>1、下面是可以用来判断的表达式：</p>
+<figure class="highlight haml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">-<span class="ruby">f 和 !-f 用来判断是否存在文件</span></span><br><span class="line"><span class="ruby">-d 和 !-d 用来判断是否存在目录</span></span><br><span class="line"><span class="ruby">-e 和 !-e 用来判断是否存在文件或目录</span></span><br><span class="line"><span class="ruby">-x 和 !-x 用来判断文件是否可执行</span></span><br></pre></td></tr></table></figure>
+<p>2、下面是可以用作判断的全局变量</p>
+<figure class="highlight gams"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">例：http:<span class="comment">//localhost:88/test1/test2/test.php?k=v</span></span><br><span class="line"><span class="meta"><span class="meta-keyword">$host</span>：localhost</span></span><br><span class="line"><span class="meta"><span class="meta-keyword">$server</span>_port：88</span></span><br><span class="line"><span class="meta"><span class="meta-keyword">$request</span>_uri：/test1/test2/test.php?k=v</span></span><br><span class="line"><span class="meta"><span class="meta-keyword">$document</span>_uri：/test1/test2/test.php</span></span><br><span class="line"><span class="meta"><span class="meta-keyword">$document</span>_root：D:\nginx/html</span></span><br><span class="line"><span class="meta"><span class="meta-keyword">$request</span>_filename：D:\nginx/html/test1/test2/test.php</span></span><br></pre></td></tr></table></figure>
+<h4 id="redirect-语法"><a href="#redirect-语法" class="headerlink" title="redirect 语法"></a>redirect 语法</h4><figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="section">server</span> &#123;</span><br><span class="line">    <span class="attribute">listen</span> <span class="number">80</span>;</span><br><span class="line">    <span class="attribute">server_name</span> start.igrow.cn;</span><br><span class="line">    <span class="attribute">index</span> index.html index.php;</span><br><span class="line">    <span class="attribute">root</span> html;</span><br><span class="line">    <span class="attribute">if</span> (<span class="variable">$http_host</span> !<span class="regexp">~ "^star\.igrow\.cn$")</span> &#123;</span><br><span class="line">        <span class="attribute">rewrite</span><span class="regexp"> ^(.*)</span> http://star.igrow.cn<span class="variable">$1</span> <span class="literal">redirect</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="防盗链"><a href="#防盗链" class="headerlink" title="防盗链"></a>防盗链</h2><figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">location</span> <span class="regexp">~* \.(gif|jpg|swf)$</span> &#123;</span><br><span class="line">    <span class="attribute">valid_referers</span> <span class="literal">none</span> <span class="literal">blocked</span> start.igrow.cn sta.igrow.cn;</span><br><span class="line">    <span class="attribute">if</span> (<span class="variable">$invalid_referer</span>) &#123;</span><br><span class="line">       <span class="attribute">rewrite</span><span class="regexp"> ^/</span> http://<span class="variable">$host</span>/logo.png;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="根据文件类型设置过期时间"><a href="#根据文件类型设置过期时间" class="headerlink" title="根据文件类型设置过期时间"></a>根据文件类型设置过期时间</h2><figure class="highlight coq"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">location ~* \.(js|<span class="type">css</span>|<span class="type">jpg</span>|<span class="type">jpeg</span>|<span class="type">gif</span>|<span class="type">png</span>|<span class="type">swf</span>)$ &#123;</span><br><span class="line">    <span class="keyword">if</span> (-f $request_filename) &#123;</span><br><span class="line">        expires <span class="number">1</span>h;</span><br><span class="line">        break;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="禁止访问某个目录"><a href="#禁止访问某个目录" class="headerlink" title="禁止访问某个目录"></a>禁止访问某个目录</h2><figure class="highlight crmsh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">location</span> <span class="title">~* \.(txt</span>|doc)$&#123;</span><br><span class="line">    root /data/www/wwwroot/linuxtone/test;</span><br><span class="line">    <span class="keyword">deny</span> all;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+      
+
+      
+        <div class="page-reward">
+          <a href="javascript:;" class="page-reward-btn tooltip-top">
+            <div class="tooltip tooltip-east">
+            <span class="tooltip-item">
+              赏
+            </span>
+            <span class="tooltip-content">
+              <span class="tooltip-text">
+                <span class="tooltip-inner">
+                  <p class="reward-p"><i class="icon icon-quo-left"></i>谢谢你请我吃糖果<i class="icon icon-quo-right"></i></p>
+                  <div class="reward-box">
+                    
+                    
+                  </div>
+                </span>
+              </span>
+            </span>
+          </div>
+          </a>
+        </div>
+      
+    </div>
+    <div class="article-info article-info-index">
       
       
-      <section class="archives-wrap">
-        <div class="archive-year-wrap">
-          <a href="/archives/2018" class="archive-year">2018</a>
-        </div>
-        <div class="archives">
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2018/04/13/hive常用HIVE-QL/" class="archive-article-date">
-  	<time datetime="2018-04-13T03:11:42.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-04-13</time>
-</a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2018/04/13/hive常用HIVE-QL/">hive常用HIVE QL</a>
-    </h1>
-  
+      
 
-        <div class="article-info info-on-right">
-          
-          
+      <div style="font-size: 12px;">
+        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
+      </div>
+      
 
+      
+        
+<div class="share-btn share-icons tooltip-left">
+  <div class="tooltip tooltip-east">
+    <span class="tooltip-item">
+      <a href="javascript:;" class="share-sns share-outer">
+        <i class="icon icon-share"></i>
+      </a>
+    </span>
+    <span class="tooltip-content">
+      <div class="share-wrap">
+        <div class="share-icons">
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="icon icon-weibo"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="icon icon-weixin"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="icon icon-qq"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="icon icon-douban"></i>
+          </a>
+          <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a>
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="icon icon-facebook"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="icon icon-twitter"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="icon icon-google"></i>
+          </a>
         </div>
-        <div class="clearfix"></div>
-    </header>
+      </div>
+    </span>
+  </div>
+</div>
+
+<div class="page-modal wx-share js-wx-box">
+    <a class="close js-modal-close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="http://s.jiathis.com/qrcode.php?url=http://yoursite.com/2018/06/28/Nginx反向代理解决跨域问题/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div class="mask js-mask"></div>
+      
+      <div class="clearfix"></div>
+    </div>
   </div>
 </article>
+
   
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2018/04/11/hive数据去重/" class="archive-article-date">
-  	<time datetime="2018-04-11T06:45:57.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-04-11</time>
-</a>
+<nav id="article-nav">
+  
+  
+    <a href="/2018/06/28/Homebrew常用命令/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">Homebrew nginx常用命令</div>
+      <i class="icon-circle-right"></i>
+    </a>
+  
+</nav>
+
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
         </div>
-    	 
+        
+        
+    </div>
+</aside>
+
+
+
   
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2018/04/11/hive数据去重/">hive数据去重</a>
-    </h1>
+  
   
 
-        <div class="article-info info-on-right">
-          
-          
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2018/04/11/Spark-Pandas-UDFs/" class="archive-article-date">
-  	<time datetime="2018-04-11T06:01:39.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-04-11</time>
-</a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2018/04/11/Spark-Pandas-UDFs/">Spark Pandas UDFs</a>
-    </h1>
   
 
-        <div class="article-info info-on-right">
-          
-          
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2018/04/09/Grafana-mysql体验/" class="archive-article-date">
-  	<time datetime="2018-04-09T10:29:11.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-04-09</time>
-</a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2018/04/09/Grafana-mysql体验/">Grafana mysql体验</a>
-    </h1>
   
 
-        <div class="article-info info-on-right">
-          
-          
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2018/04/09/Kibana-Elasticsearch体验/" class="archive-article-date">
-  	<time datetime="2018-04-09T10:27:33.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-04-09</time>
-</a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2018/04/09/Kibana-Elasticsearch体验/">Kibana + Elasticsearch体验</a>
-    </h1>
-  
-
-        <div class="article-info info-on-right">
-          
-          
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2018/04/09/API-gateway实践/" class="archive-article-date">
-  	<time datetime="2018-04-09T10:25:50.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-04-09</time>
-</a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2018/04/09/API-gateway实践/">API gateway实践</a>
-    </h1>
-  
-
-        <div class="article-info info-on-right">
-          
-          
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2018/04/09/分布式一致性算法paxos/" class="archive-article-date">
-  	<time datetime="2018-04-09T10:14:57.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-04-09</time>
-</a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2018/04/09/分布式一致性算法paxos/">分布式一致性算法paxos</a>
-    </h1>
-  
-
-        <div class="article-info info-on-right">
-          
-          
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2018/04/09/分布式系统的CAP理论/" class="archive-article-date">
-  	<time datetime="2018-04-09T10:11:40.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-04-09</time>
-</a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2018/04/09/分布式系统的CAP理论/">分布式系统的CAP理论</a>
-    </h1>
-  
-
-        <div class="article-info info-on-right">
-          
-          
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2018/03/28/maven-pom-xml与settings-xml/" class="archive-article-date">
-  	<time datetime="2018-03-28T14:15:47.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-03-28</time>
-</a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2018/03/28/maven-pom-xml与settings-xml/">maven pom.xml与settings.xml</a>
-    </h1>
-  
-
-        <div class="article-info info-on-right">
-          
-          
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2018/03/27/安全技术-哈希算法密码破解之彩虹表/" class="archive-article-date">
-  	<time datetime="2018-03-27T05:12:46.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-03-27</time>
-</a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2018/03/27/安全技术-哈希算法密码破解之彩虹表/">安全技术--哈希算法密码破解之彩虹表</a>
-    </h1>
-  
-
-        <div class="article-info info-on-right">
-          
-          
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-  
-    </div></section>
-  
-
-    
-    <nav id="page-nav">
-      <a class="extend prev" rel="prev" href="/archives/page/4/">&laquo; Prev</a><a class="page-number" href="/archives/">1</a><span class="space">&hellip;</span><a class="page-number" href="/archives/page/3/">3</a><a class="page-number" href="/archives/page/4/">4</a><span class="page-number current">5</span><a class="page-number" href="/archives/page/6/">6</a><a class="page-number" href="/archives/page/7/">7</a><span class="space">&hellip;</span><a class="page-number" href="/archives/page/12/">12</a><a class="extend next" rel="next" href="/archives/page/6/">Next &raquo;</a>
-    </nav>
   
 
 
@@ -461,8 +438,8 @@
 	var yiliaConfig = {
 		mathjax: false,
 		isHome: false,
-		isPost: false,
-		isArchive: true,
+		isPost: true,
+		isArchive: false,
 		isTag: false,
 		isCategory: false,
 		open_in_new: false,
