@@ -11,13 +11,14 @@
   <title>Dubbo源码分析之ExtensionLoader动态扩展 | xiaowu&#39;s blog</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   <meta name="description" content="1. 相关注解SPI定义一个扩展点，service provider interface Adaptive自适应扩展点，在{@link ExtensionLoader}生成Extension的Adaptive Instance时，为{@link ExtensionLoader}提供信息。 Activate自动激活加载扩展点 在这个源码中可以看到有两个注 解，一个是在类级别上的@SPI(“dubbo">
+<meta name="keywords" content="Dubbo">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Dubbo源码分析之ExtensionLoader动态扩展">
 <meta property="og:url" content="http://yoursite.com/2018/06/24/Dubbo源码分析之ExtensionLoader动态扩展/index.html">
 <meta property="og:site_name" content="xiaowu&#39;s blog">
 <meta property="og:description" content="1. 相关注解SPI定义一个扩展点，service provider interface Adaptive自适应扩展点，在{@link ExtensionLoader}生成Extension的Adaptive Instance时，为{@link ExtensionLoader}提供信息。 Activate自动激活加载扩展点 在这个源码中可以看到有两个注 解，一个是在类级别上的@SPI(“dubbo">
 <meta property="og:image" content="http://oz3qait0p.bkt.clouddn.com/ExtensionLoader%E6%97%B6%E5%BA%8F%E5%9B%BE.png">
-<meta property="og:updated_time" content="2018-06-24T14:51:22.000Z">
+<meta property="og:updated_time" content="2018-06-30T14:05:35.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Dubbo源码分析之ExtensionLoader动态扩展">
 <meta name="twitter:description" content="1. 相关注解SPI定义一个扩展点，service provider interface Adaptive自适应扩展点，在{@link ExtensionLoader}生成Extension的Adaptive Instance时，为{@link ExtensionLoader}提供信息。 Activate自动激活加载扩展点 在这个源码中可以看到有两个注 解，一个是在类级别上的@SPI(“dubbo">
@@ -189,7 +190,7 @@
 <li>如果实例为空，说明是第一次加载，则通过双重检查锁的方式去创建一个适配器扩展点<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">public T getAdaptiveExtension() &#123;</span><br><span class="line">    Object<span class="built_in"> instance </span>= cachedAdaptiveInstance.<span class="builtin-name">get</span>();</span><br><span class="line">    <span class="keyword">if</span> (instance == <span class="literal">null</span>) &#123;</span><br><span class="line">        <span class="keyword">if</span>(createAdaptiveInstanceError == <span class="literal">null</span>) &#123;</span><br><span class="line">            synchronized (cachedAdaptiveInstance) &#123;</span><br><span class="line">               <span class="built_in"> instance </span>= cachedAdaptiveInstance.<span class="builtin-name">get</span>();</span><br><span class="line">                <span class="keyword">if</span> (instance == <span class="literal">null</span>) &#123;</span><br><span class="line">                    try &#123;</span><br><span class="line">                       <span class="built_in"> instance </span>= createAdaptiveExtension();</span><br><span class="line">                        cachedAdaptiveInstance.<span class="builtin-name">set</span>(instance);</span><br><span class="line">                    &#125; catch (Throwable t) &#123;</span><br><span class="line">                        createAdaptiveInstanceError = t;</span><br><span class="line">                        throw new IllegalStateException(<span class="string">"fail to create adaptive instance: "</span> + t.toString(), t);</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    return (T) instance;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 </li>
 </ol>
-<h2 id="createAdaptiveExtension"><a href="#createAdaptiveExtension" class="headerlink" title="createAdaptiveExtension"></a>createAdaptiveExtension</h2><p>这段代码里面有两个结构，一个是 injectExtension. 另一 个是 getAdaptiveExtensionClass()<br>我们需要先去了解 getAdaptiveExtensionClass 这个方法 做了什么?很显然，从后面的.newInstance 来看，应该是 获得一个类并且进行实例)</p>
+<h2 id="createAdaptiveExtension"><a href="#createAdaptiveExtension" class="headerlink" title="createAdaptiveExtension"></a>createAdaptiveExtension</h2><p>这段代码里面有两个结构，一个是 injectExtension. 另一 个是 getAdaptiveExtensionClass()</p>
 <figure class="highlight haxe"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> T createAdaptiveExtension() &#123;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        <span class="comment">//可以实现扩展点的注入</span></span><br><span class="line">        <span class="keyword">return</span> injectExtension((T) getAdaptiveExtensionClass().<span class="keyword">new</span><span class="type">Instance</span>());</span><br><span class="line">    &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> <span class="type">IllegalStateException</span>(<span class="string">"Can not create adaptive extenstion "</span> + type + <span class="string">", cause: "</span> + e.getMessage(), e);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <h2 id="getAdaptiveExtensionClass"><a href="#getAdaptiveExtensionClass" class="headerlink" title="getAdaptiveExtensionClass"></a>getAdaptiveExtensionClass</h2><p>从类名来看，是获得一个适配器扩展点的类。 在这段代码中，做了两个事情</p>
 <ol>
@@ -307,6 +308,17 @@
     <div class="article-info article-info-index">
       
       
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">Dubbo</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
       
 
       <div style="font-size: 12px;">
@@ -515,11 +527,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">java并发包</a>
+                <a href="javascript:void(0)" class="js-tag color1">Dubbo</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">Dubbo</a>
+                <a href="javascript:void(0)" class="js-tag color3">java并发包</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -531,10 +543,6 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">Maven</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">java</a>
               </li>
              
@@ -543,11 +551,15 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">java内存模型</a>
+                <a href="javascript:void(0)" class="js-tag color1">Maven</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">redis</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">java内存模型</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -559,19 +571,19 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">test</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">mysql</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">限流</a>
+                <a href="javascript:void(0)" class="js-tag color5">test</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Python</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">限流</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -599,15 +611,19 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">influxdb</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">debug</a>
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">influxdb</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">rest</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">Mac</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -616,10 +632,6 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">python</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">Mac</a>
               </li>
              
               <li class="article-tag-list-item">
