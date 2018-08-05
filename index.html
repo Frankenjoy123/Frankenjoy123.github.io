@@ -345,6 +345,9 @@
 <p>master : label</p>
 <h2 id="客户端实现Spring-Cloud-Config-Client"><a href="#客户端实现Spring-Cloud-Config-Client" class="headerlink" title="客户端实现Spring Cloud Config Client"></a>客户端实现Spring Cloud Config Client</h2><p>通过<code>spring.cloud.config.uri</code>搜索，找到<code>spring-configuration-metadata.json</code></p>
 <p>找到class<code>ConfigClientProperties</code>，发现<code>private String[] uri = { &quot;http://localhost:8888&quot; }</code>，发现url默认端口8888。</p>
+<h2 id="代码demo"><a href="#代码demo" class="headerlink" title="代码demo"></a>代码demo</h2><p><code>https://github.com/Frankenjoy123/microservices-joey-project</code></p>
+<p>启动spring-cloud-config-server中的main入口，访问如下地址：</p>
+<p><code>http://localhost:9095/config/dev</code></p>
 
       
 
@@ -426,7 +429,8 @@
 </ol>
 <figure class="highlight haxe"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">protected void configurePropertySources(ConfigurableEnvironment environment,</span><br><span class="line">		<span class="keyword">String</span>[] args) &#123;</span><br><span class="line">	MutablePropertySources sources = environment.getPropertySources();</span><br><span class="line">	<span class="keyword">if</span> (<span class="built_in">this</span>.defaultProperties != <span class="literal">null</span> &amp;&amp; !<span class="built_in">this</span>.defaultProperties.isEmpty()) &#123;</span><br><span class="line">		sources.addLast(</span><br><span class="line">				<span class="keyword">new</span> <span class="type">MapPropertySource</span>(<span class="string">"defaultProperties"</span>, <span class="built_in">this</span>.defaultProperties));</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">if</span> (<span class="built_in">this</span>.addCommandLineProperties &amp;&amp; args.length &gt; <span class="number">0</span>) &#123;</span><br><span class="line">		<span class="keyword">String</span> name = CommandLinePropertySource.COMMAND_LINE_PROPERTY_SOURCE_NAME;</span><br><span class="line">		<span class="keyword">if</span> (sources.contains(name)) &#123;</span><br><span class="line">			PropertySource&lt;?&gt; source = sources.<span class="keyword">get</span>(name);</span><br><span class="line">			CompositePropertySource composite = <span class="keyword">new</span> <span class="type">CompositePropertySource</span>(name);</span><br><span class="line">			composite.addPropertySource(<span class="keyword">new</span> <span class="type">SimpleCommandLinePropertySource</span>(</span><br><span class="line">					<span class="string">"springApplicationCommandLineArgs"</span>, args));</span><br><span class="line">			composite.addPropertySource(source);</span><br><span class="line">			sources.replace(name, composite);</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">else</span> &#123;</span><br><span class="line">			sources.addFirst(<span class="keyword">new</span> <span class="type">SimpleCommandLinePropertySource</span>(args));</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>从这段代码，可以看出，<code>defaultProperties</code>优先级最低，放在最后。<code>commandLine</code>优先级很高，放在最前面，addFirst。</p>
-<p>49min 10 s</p>
+<h2 id="代码demo"><a href="#代码demo" class="headerlink" title="代码demo"></a>代码demo</h2><p><code>https://github.com/Frankenjoy123/microservices-joey-project</code></p>
+<p>找到<code>spring-cloud-native-application</code>项目入口启动</p>
 
       
 
@@ -1752,11 +1756,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">Dubbo</a>
+                <a href="javascript:void(0)" class="js-tag color3">java并发包</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">java并发包</a>
+                <a href="javascript:void(0)" class="js-tag color1">Dubbo</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1792,15 +1796,19 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">test</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">linux</a>
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">test</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">mysql</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">react</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1809,10 +1817,6 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">限流</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">react</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1868,11 +1872,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">zookeeper</a>
+                <a href="javascript:void(0)" class="js-tag color5">分布式锁</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">分布式锁</a>
+                <a href="javascript:void(0)" class="js-tag color5">zookeeper</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1904,11 +1908,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">HashMap</a>
+                <a href="javascript:void(0)" class="js-tag color3">单例</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">单例</a>
+                <a href="javascript:void(0)" class="js-tag color3">HashMap</a>
               </li>
              
               <li class="article-tag-list-item">
