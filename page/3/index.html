@@ -151,6 +151,366 @@
           <div id="js-content" class="content-ll">
             
   
+    <article id="post-CentOS7安装JDK详细过程" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2018/06/05/CentOS7安装JDK详细过程/">CentOS7安装JDK详细过程</a>
+    </h1>
+  
+
+        
+        <a href="/2018/06/05/CentOS7安装JDK详细过程/" class="archive-article-date">
+  	<time datetime="2018-06-05T02:23:48.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-06-05</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>Linux上一般会安装Open JDK,关于OpenJDK和JDK的区别：<a href="http://www.cnblogs.com/sxdcgaq8080/p/7487369.html" target="_blank" rel="external">http://www.cnblogs.com/sxdcgaq8080/p/7487369.html</a> </p>
+<h2 id="第一步-卸载系统自带的OpenJDK以及相关的java文件"><a href="#第一步-卸载系统自带的OpenJDK以及相关的java文件" class="headerlink" title="第一步　　卸载系统自带的OpenJDK以及相关的java文件"></a><strong>第一步　　卸载系统自带的OpenJDK以及相关的java文件</strong></h2><p>①在命令窗口键入：</p>
+<figure class="highlight applescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">java -<span class="built_in">version</span></span><br></pre></td></tr></table></figure>
+<p>可以看到系统自带的OpenJDK版本信息。</p>
+<p>②在命令窗口键入：</p>
+<figure class="highlight vim"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">rpm -<span class="keyword">qa</span> | <span class="keyword">grep</span> java</span><br></pre></td></tr></table></figure>
+<p>命令说明：</p>
+<figure class="highlight haml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">rpm 　　管理套件    </span><br><span class="line">-<span class="ruby">qa 　　使用询问模式，查询所有套件</span></span><br><span class="line"><span class="ruby">grep　　查找文件里符合条件的字符串</span></span><br><span class="line"><span class="ruby">java 　　查找包含java字符串的文件</span></span><br></pre></td></tr></table></figure>
+<p>下面这几个可以删除</p>
+<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="selector-tag">java-1</span><span class="selector-class">.7</span><span class="selector-class">.0-openjdk-1</span><span class="selector-class">.7</span><span class="selector-class">.0</span><span class="selector-class">.111-2</span><span class="selector-class">.6</span><span class="selector-class">.7</span><span class="selector-class">.8</span><span class="selector-class">.el7</span><span class="selector-class">.x86_64</span></span><br><span class="line"><span class="selector-tag">java-1</span><span class="selector-class">.8</span><span class="selector-class">.0-openjdk-1</span><span class="selector-class">.8</span><span class="selector-class">.0</span><span class="selector-class">.102-4</span><span class="selector-class">.b14</span><span class="selector-class">.el7</span><span class="selector-class">.x86_64</span></span><br><span class="line"><span class="selector-tag">java-1</span><span class="selector-class">.8</span><span class="selector-class">.0-openjdk-headless-1</span><span class="selector-class">.8</span><span class="selector-class">.0</span><span class="selector-class">.102-4</span><span class="selector-class">.b14</span><span class="selector-class">.el7</span><span class="selector-class">.x86_64</span></span><br><span class="line"><span class="selector-tag">java-1</span><span class="selector-class">.7</span><span class="selector-class">.0-openjdk-headless-1</span><span class="selector-class">.7</span><span class="selector-class">.0</span><span class="selector-class">.111-2</span><span class="selector-class">.6</span><span class="selector-class">.7</span><span class="selector-class">.8</span><span class="selector-class">.el7</span><span class="selector-class">.x86_64</span></span><br></pre></td></tr></table></figure>
+<p>noarch文件可以不用删除</p>
+<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="selector-tag">python-javapackages-3</span><span class="selector-class">.4</span><span class="selector-class">.1-11</span><span class="selector-class">.el7</span><span class="selector-class">.noarch</span></span><br><span class="line"><span class="selector-tag">tzdata-java-2016g-2</span><span class="selector-class">.el7</span><span class="selector-class">.noarch</span></span><br><span class="line"><span class="selector-tag">javapackages-tools-3</span><span class="selector-class">.4</span><span class="selector-class">.1-11</span><span class="selector-class">.el7</span><span class="selector-class">.noarch</span></span><br></pre></td></tr></table></figure>
+<p>③在命令窗口键入：</p>
+<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="selector-tag">rpm</span> <span class="selector-tag">-e</span> <span class="selector-tag">--nodeps</span> <span class="selector-tag">java-1</span><span class="selector-class">.7</span><span class="selector-class">.0-openjdk-1</span><span class="selector-class">.7</span><span class="selector-class">.0</span><span class="selector-class">.111-2</span><span class="selector-class">.6</span><span class="selector-class">.7</span><span class="selector-class">.8</span><span class="selector-class">.el7</span><span class="selector-class">.x86_64</span></span><br></pre></td></tr></table></figure>
+<p>但是会出错，因为在普通用户sxd用户下，并没有操作这几个文件的权限。</p>
+<p>解决：</p>
+<p>　　在命令窗口键入：</p>
+<figure class="highlight ebnf"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">su root</span></span><br></pre></td></tr></table></figure>
+<p>进入root用户，可以有权限操作这几个文件。 </p>
+<p>完整的删除文件的命令，在命令窗口键入：</p>
+<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="selector-tag">rpm</span> <span class="selector-tag">-e</span> <span class="selector-tag">--nodeps</span> <span class="selector-tag">java-1</span><span class="selector-class">.7</span><span class="selector-class">.0-openjdk-1</span><span class="selector-class">.7</span><span class="selector-class">.0</span><span class="selector-class">.111-2</span><span class="selector-class">.6</span><span class="selector-class">.7</span><span class="selector-class">.8</span><span class="selector-class">.el7</span><span class="selector-class">.x86_64</span></span><br><span class="line"><span class="selector-tag">rpm</span> <span class="selector-tag">-e</span> <span class="selector-tag">--nodeps</span> <span class="selector-tag">java-1</span><span class="selector-class">.8</span><span class="selector-class">.0-openjdk-1</span><span class="selector-class">.8</span><span class="selector-class">.0</span><span class="selector-class">.102-4</span><span class="selector-class">.b14</span><span class="selector-class">.el7</span><span class="selector-class">.x86_64</span></span><br><span class="line"><span class="selector-tag">rpm</span> <span class="selector-tag">-e</span> <span class="selector-tag">--nodeps</span> <span class="selector-tag">java-1</span><span class="selector-class">.8</span><span class="selector-class">.0-openjdk-headless-1</span><span class="selector-class">.8</span><span class="selector-class">.0</span><span class="selector-class">.102-4</span><span class="selector-class">.b14</span><span class="selector-class">.el7</span><span class="selector-class">.x86_64</span></span><br><span class="line"><span class="selector-tag">rpm</span> <span class="selector-tag">-e</span> <span class="selector-tag">--nodeps</span> <span class="selector-tag">java-1</span><span class="selector-class">.7</span><span class="selector-class">.0-openjdk-headless-1</span><span class="selector-class">.7</span><span class="selector-class">.0</span><span class="selector-class">.111-2</span><span class="selector-class">.6</span><span class="selector-class">.7</span><span class="selector-class">.8</span><span class="selector-class">.el7</span><span class="selector-class">.x86_64</span></span><br></pre></td></tr></table></figure>
+<p>命令介绍：</p>
+<figure class="highlight haml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">rpm 　　　　管理套件  </span><br><span class="line">-<span class="ruby">e　　　　　删除指定的套件</span></span><br><span class="line"><span class="ruby">--nodeps　　不验证套件档的相互关联性</span></span><br></pre></td></tr></table></figure>
+<p>④检查是否已经删除成功</p>
+<p>在命令窗口键入：</p>
+<figure class="highlight applescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">java -<span class="built_in">version</span></span><br></pre></td></tr></table></figure>
+<p>⑤如果还没有删除，则用yum -y remove去删除他们</p>
+<h2 id="第二步-下载最新稳定JDK"><a href="#第二步-下载最新稳定JDK" class="headerlink" title="第二步　　下载最新稳定JDK"></a><strong>第二步　　下载最新稳定JDK</strong></h2><p><strong>【注意】:JDK安装在哪个用户下，就是给哪个用户使用</strong></p>
+<p>①下载地址为</p>
+<p>　　当前最新版本下载地址：<a href="http://www.oracle.com/technetwork/java/javase/downloads/index.html" target="_blank" rel="external">http://www.oracle.com/technetwork/java/javase/downloads/index.html</a></p>
+<p>　　历史版本下载地址：　　<a href="http://www.oracle.com/technetwork/java/javase/archive-139210.html" target="_blank" rel="external">http://www.oracle.com/technetwork/java/javase/archive-139210.html</a>   </p>
+<p>②粘贴地址到浏览器地址栏</p>
+<p> ③下载完成后，将JDK压缩包  复制一份到/usr/local/src/作备份</p>
+<p>键入命令：</p>
+<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cp jdk-<span class="number">8</span>u144-linux-x64<span class="selector-class">.tar</span><span class="selector-class">.gz</span> /usr/local/src/</span><br></pre></td></tr></table></figure>
+<p>命令说明：</p>
+<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">cp　　　　　　　　　　　　　　  复制文件或目录</span><br><span class="line">jdk-<span class="number">8</span>u144-linux-x64<span class="selector-class">.tar</span><span class="selector-class">.gz</span>　　　　文件名</span><br><span class="line">/user/local/src　　　　　　　　　 要复制的目标目录</span><br></pre></td></tr></table></figure>
+<p>④修改JDK压缩文件的权限，然后再进行复制操作</p>
+<p>在命令行键入：</p>
+<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">chmod <span class="number">755</span> jdk-<span class="number">8</span>u144-linux-x64<span class="selector-class">.tar</span><span class="selector-class">.gz</span></span><br></pre></td></tr></table></figure>
+<h2 id="第三步-解压JDK"><a href="#第三步-解压JDK" class="headerlink" title="第三步　　解压JDK"></a><strong>第三步　　解压JDK</strong></h2><p>①将/home/sxd/下载/jdk-8u144-linux-x64.tar.gz文件拷贝一份到/usr/java</p>
+<p>命令行键入：</p>
+<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cp jdk-<span class="number">8</span>u144-linux-x64<span class="selector-class">.tar</span><span class="selector-class">.gz</span> /usr/java</span><br></pre></td></tr></table></figure>
+<p>②在java目录下，解压JDK压缩文件</p>
+<p>在命令窗口键入：</p>
+<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">tar -zxvf jdk-<span class="number">8</span>u144-linux-x64<span class="selector-class">.tar</span><span class="selector-class">.gz</span></span><br></pre></td></tr></table></figure>
+<p>命令介绍：</p>
+<figure class="highlight haml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">tar　　　　　　备份文件</span><br><span class="line">-<span class="ruby">zxvf　　　　　</span></span><br><span class="line"><span class="ruby">-z　　　　　　 　　　　　　　　  通过gzip指令处理备份文件</span></span><br><span class="line"><span class="ruby">-x　　　　　　　　　　　　　　   从备份文件中还原文件</span></span><br><span class="line"><span class="ruby">-v　　　　　　　　　　　　　　   显示指令执行过程</span></span><br><span class="line"><span class="ruby">-f　　　　　　 　　　　　　　　   指定备份文件</span></span><br><span class="line"><span class="ruby">jdk-<span class="number">8</span>u144-linux-x64.tar.gz　　　　文件名</span></span><br></pre></td></tr></table></figure>
+<h2 id="第四步-配置JDK环境变量"><a href="#第四步-配置JDK环境变量" class="headerlink" title="第四步　　配置JDK环境变量"></a><strong>第四步　　配置JDK环境变量</strong></h2><p>①编辑全局变量</p>
+<p>在命令行键入：</p>
+<figure class="highlight vim"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">vim</span> /etc/<span class="keyword">profile</span></span><br></pre></td></tr></table></figure>
+<p>进入文本编辑状态下，光标走到文件最后一行，键盘按下：</p>
+<figure class="highlight ebnf"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">i</span></span><br></pre></td></tr></table></figure>
+<p>进入插入状态：</p>
+<p>在文本的最后一行粘贴如下：</p>
+<p>注意JAVA_HOME=/usr/java/jdk1.8.0_144  就是你自己的目录</p>
+<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#在export之后插入</span></span><br><span class="line"><span class="builtin-name">export</span> PATH<span class="built_in"> USER </span>LOGNAME MAIL HOSTNAME HISTSIZE HISTCONTROL</span><br><span class="line"></span><br><span class="line"><span class="comment">#java environment</span></span><br><span class="line"><span class="builtin-name">export</span> <span class="attribute">JAVA_HOME</span>=/usr/install/jdk1.8.0_60</span><br><span class="line"><span class="builtin-name">export</span> <span class="attribute">CLASSPATH</span>=.:$&#123;JAVA_HOME&#125;/jre/lib/rt.jar:<span class="variable">$&#123;JAVA_HOME&#125;</span>/lib/dt.jar:<span class="variable">$&#123;JAVA_HOME&#125;</span>/lib/tools.jar</span><br><span class="line"><span class="builtin-name">export</span> <span class="attribute">PATH</span>=<span class="variable">$PATH</span>:$&#123;JAVA_HOME&#125;/bin</span><br></pre></td></tr></table></figure>
+<h2 id="第五步-让刚刚设置的环境变量生效并检查是否安装成功"><a href="#第五步-让刚刚设置的环境变量生效并检查是否安装成功" class="headerlink" title="第五步　　让刚刚设置的环境变量生效并检查是否安装成功"></a><strong>第五步　　让刚刚设置的环境变量生效并检查是否安装成功</strong></h2><p>①让刚刚设置的环境变量生效</p>
+<p> 键入：</p>
+<figure class="highlight gradle"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">source</span> <span class="regexp">/etc/</span>profile</span><br></pre></td></tr></table></figure>
+<p> ②检查是否配置成功</p>
+<p>键入：</p>
+<figure class="highlight applescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">java -<span class="built_in">version</span></span><br></pre></td></tr></table></figure>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+      
+
+      <div style="font-size: 12px;">
+        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
+      </div>
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2018/06/05/CentOS7安装JDK详细过程/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
+    <article id="post-大型跨境电商JVM调优经历" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2018/05/29/大型跨境电商JVM调优经历/">大型跨境电商JVM调优经历</a>
+    </h1>
+  
+
+        
+        <a href="/2018/05/29/大型跨境电商JVM调优经历/" class="archive-article-date">
+  	<time datetime="2018-05-29T01:49:41.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-05-29</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="示例"><a href="#示例" class="headerlink" title="示例"></a>示例</h2><blockquote>
+<p>引用自 <a href="https://juejin.im/post/5b091ee35188253892389683?utm_source=gold_browser_extension" target="_blank" rel="external">https://juejin.im/post/5b091ee35188253892389683?utm_source=gold_browser_extension</a></p>
+</blockquote>
+<p>前提：<br>某大型跨境电商业务发展非常快，线上机器扩容也很频繁，但是对于线上机器的运行情况，特别是jvm内存的情况，一直没有一个统一的标准来给到各个应用服务的owner。经过618大促之后，和运维的同学讨论了下，希望将线上服务器的jvm参数标准化，可以以一个统一的方式给到各个应用，提升线上服务器的稳定性，同时减少大家都去调整jvm参数的时间。<br>参考了之前在淘宝天猫工作的公司的经历：经过大家讨论，根据jdk的版本以及线上机器配置，确定了一个推荐的默认jvm模版：<br>最终推荐的jvm模版：<br>jdk版本 机器配置 建议jvm参数 备注</p>
+<figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">jdk1<span class="number">.7</span> <span class="number">6</span>V8G -server -Xms4g -Xmx4g -Xmn2g -Xss768k -<span class="string">XX:</span>PermSize=<span class="number">512</span>m -<span class="string">XX:</span>MaxPermSize=<span class="number">512</span>m -<span class="string">XX:</span>+UseConcMarkSweepGC -<span class="string">XX:</span>+UseParNewGC -<span class="string">XX:</span>+CMSClassUnloadingEnabled -<span class="string">XX:</span>+DisableExplicitGC -<span class="string">XX:</span>+UseCMSInitiatingOccupancyOnly -<span class="string">XX:</span>CMSInitiatingOccupancyFraction=<span class="number">68</span> -<span class="string">verbose:</span>gc -<span class="string">XX:</span>+PrintGCDetails -<span class="string">Xloggc:</span>&#123;CATALINA_BASE&#125;<span class="regexp">/logs/</span>gc.log -<span class="string">XX:</span>+PrintGCDateStamps -<span class="string">XX:</span>+HeapDumpOnOutOfMemoryError -<span class="string">XX:</span>HeapDumpPath=&#123;CATALINA_BASE&#125;/logs 前台</span><br></pre></td></tr></table></figure>
+<figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">jdk1<span class="number">.7</span> <span class="number">8</span>V8G -server -Xms4g -Xmx4g -Xmn2g -Xss768k -<span class="string">XX:</span>PermSize=<span class="number">512</span>m -<span class="string">XX:</span>MaxPermSize=<span class="number">512</span>m -<span class="string">XX:</span>+UseConcMarkSweepGC -<span class="string">XX:</span>+UseParNewGC -<span class="string">XX:</span>+CMSClassUnloadingEnabled -<span class="string">XX:</span>+DisableExplicitGC -<span class="string">XX:</span>+UseCMSInitiatingOccupancyOnly -<span class="string">XX:</span>CMSInitiatingOccupancyFraction=<span class="number">68</span> -<span class="string">verbose:</span>gc -<span class="string">XX:</span>+PrintGCDetails -<span class="string">Xloggc:</span>&#123;CATALINA_BASE&#125;<span class="regexp">/logs/</span>gc.log -<span class="string">XX:</span>+PrintGCDateStamps -<span class="string">XX:</span>+HeapDumpOnOutOfMemoryError -<span class="string">XX:</span>HeapDumpPath=&#123;CATALINA_BASE&#125;/logs 前台</span><br></pre></td></tr></table></figure>
+<figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">jdk1<span class="number">.7</span> <span class="number">4</span>V8G -server -Xms4g -Xmx4g -Xmn2g -Xss768k -<span class="string">XX:</span>PermSize=<span class="number">512</span>m -<span class="string">XX:</span>MaxPermSize=<span class="number">512</span>m -<span class="string">XX:</span>+UseConcMarkSweepGC -<span class="string">XX:</span>+UseParNewGC -<span class="string">XX:</span>+CMSClassUnloadingEnabled -<span class="string">XX:</span>+DisableExplicitGC -<span class="string">XX:</span>+UseCMSInitiatingOccupancyOnly -<span class="string">XX:</span>CMSInitiatingOccupancyFraction=<span class="number">68</span> -<span class="string">verbose:</span>gc -<span class="string">XX:</span>+PrintGCDetails -<span class="string">Xloggc:</span>&#123;CATALINA_BASE&#125;<span class="regexp">/logs/</span>gc.log -<span class="string">XX:</span>+PrintGCDateStamps -<span class="string">XX:</span>+HeapDumpOnOutOfMemoryError -<span class="string">XX:</span>HeapDumpPath=&#123;CATALINA_BASE&#125;/logs 前台</span><br></pre></td></tr></table></figure>
+<figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">jdk1<span class="number">.7</span> <span class="number">6</span>V8G -server -Xms4g -Xmx4g -<span class="string">XX:</span>MaxPermSize=<span class="number">512</span>m \</span><br><span class="line"></span><br><span class="line">-<span class="string">verbose:</span>gc -<span class="string">XX:</span>+PrintGCDetails -Xloggc￼&#123;CATALINA_BASE&#125;<span class="regexp">/logs/</span>gc.log -<span class="string">XX:</span>+PrintGCTimeStamps \ 后台</span><br></pre></td></tr></table></figure>
+<h2 id="配置说明："><a href="#配置说明：" class="headerlink" title="配置说明："></a>配置说明：</h2><ol>
+<li>堆设置</li>
+</ol>
+<p>o -Xms:初始堆大小<br>o -Xmx:最大堆大小<br>o -XX:NewSize=n:设置年轻代大小<br>o -XX:NewRatio=n:设置年轻代和年老代的比值。如:为3，表示年轻代与年老代比值为1：3，年轻代占整个年轻代年老代和的1/4<br>o -XX:SurvivorRatio=n:年轻代中Eden区与两个Survivor区的比值。注意Survivor区有两个。如：3，表示Eden：Survivor=3：2，一个Survivor区占整个年轻代的1/5<br>o -XX:MaxPermSize=n:设置持久代大小</p>
+<ol>
+<li>收集器设置</li>
+</ol>
+<p>o -XX:+UseSerialGC:设置串行收集器<br>o -XX:+UseParallelGC:设置并行收集器<br>o -XX:+UseParalledlOldGC:设置并行年老代收集器<br>o -XX:+UseConcMarkSweepGC:设置并发收集器</p>
+<ol>
+<li><p>垃圾回收统计信息<br>-XX:+PrintGC<br>-XX:+PrintGCDetails<br>-XX:+PrintGCTimeStamps<br>-Xloggc:filename</p>
+</li>
+<li><p>并行收集器设置<br>-XX:ParallelGCThreads=n:设置并行收集器收集时使用的CPU数。并行收集线程数。<br>-XX:MaxGCPauseMillis=n:设置并行收集最大暂停时间<br>-XX:GCTimeRatio=n:设置垃圾回收时间占程序运行时间的百分比。公式为1/(1+n)</p>
+</li>
+<li><p>并发收集器设置<br>-XX:+CMSIncrementalMode:设置为增量模式。适用于单CPU情况。<br>-XX:ParallelGCThreads=n:设置并发收集器年轻代收集方式为并行收集时，使用的CPU数。并行收集线程数。</p>
+</li>
+</ol>
+<h2 id="参数解释："><a href="#参数解释：" class="headerlink" title="参数解释："></a>参数解释：</h2><p>-Xms3072m -Xmx3072m<br>针对JVM堆的设置，通过-Xms -Xmx限定其最小、最大值</p>
+<p>-Xmn1024m设置年轻代大小为1024m<br>整个JVM内存大小=年轻代大小 + 年老代大小 + 持久代大小（perm）。</p>
+<p>-Xss768k 设置每个线程的堆栈大小。JDK5.0以后每个线程堆栈大小为1M，以前每个线程堆栈大小为256K。更具应用的线程所需内存大小进行调整。在相同物理内存下，减小这个值能生成更多的线程。但是操作系统对一个进程内的线程数还是有限制的，不能无限生成，经验值在3000~5000左右。</p>
+<p>-XX:PermSize=512m -XX:MaxPermSize=512m<br>持久代一般固定大小为64m，所以增大年轻代后，将会减小年老代大小。此值对系统性能影响较大，Sun官方推荐配置为整个堆的3/8。<br>设置非堆内存初始值，默认是物理内存的1/64；由XX:MaxPermSize设置最大非堆内存的大小，默认是物理内存的1/4</p>
+<p>-XX:+UseConcMarkSweepGC<br><code>CMS收集器</code>也被称为<strong>短暂停顿并发收集器</strong>。它是对年老代进行垃圾收集的。CMS收集器通过多线程并发进行垃圾回收，尽量减少垃圾收集造成的停顿。CMS收集器对年轻代进行垃圾回收使用的算法和Parallel收集器一样。这个垃圾收集器适用于不能忍受长时间停顿要求快速响应的应用。</p>
+<p>-XX:+UseParNewGC对年轻代采用多线程并行回收，这样收得快；</p>
+<p>-XX:+CMSClassUnloadingEnabled<br>如果你启用了CMSClassUnloadingEnabled ，垃圾回收会清理持久代，移除不再使用的classes。这个参数只有在 UseConcMarkSweepGC  也启用的情况下才有用。</p>
+<p>-XX:+DisableExplicitGC禁止System.gc()，免得程序员误调用gc方法影响性能；</p>
+<p>-XX:+UseCMSInitiatingOccupancyOnly<br>标志来命令JVM不基于运行时收集的数据来启动CMS垃圾收集周期。而是，当该标志被开启时，JVM通过CMSInitiatingOccupancyFraction的值进行每一次CMS收集，而不仅仅是第一次。然而，请记住大多数情况下，JVM比我们自己能作出更好的垃圾收集决策。因此，只有当我们充足的理由(比如测试)并且对应用程序产生的对象的生命周期有深刻的认知时，才应该使用该标志。</p>
+<p>-XX:CMSInitiatingOccupancyFraction=68<br>默认CMS是在tenured generation(年老代）占满68%的时候开始进行CMS收集，如果你的年老代增长不是那么快，并且希望降低CMS次数的话，可以适当调高此值；</p>
+<p>-XX:+UseParNewGC：对年轻代采用多线程并行回收，这样收得快；</p>
+<p>-XX:HeapDumpPath<br>-XX:+PrintGCDetails<br>-XX:+PrintGCTimeStamps<br>-Xloggc:/usr/aaa/dump/heap_trace.txt<br>上面的的参数打Heap Dump信息</p>
+<p>“ -XX:+HeapDumpOnOutOfMemoryError<br>此参数可以控制OutOfMemoryError时打印堆的信息</p>
+<p>大家可能注意到了，这里<strong>推荐采用cms方式</strong>进行垃圾回收；<br>CMS是一种以获取最短回收停顿时间为目标的收集器，可以有效减少服务器停顿的时间；<br>CMS的GC线程对CPU的占用率会比较高，但在多核的服务器上还是展现了优越的特性，目前也被部署在国内的各大电商网站上。所以这里强烈推荐！<br>cms的概念：</p>
+<p>CMS收集器也被称为短暂停顿并发收集器。它是对年老代进行垃圾收集的。CMS收集器通过多线程并发进行垃圾回收，尽量减少垃圾收集造成的停顿。CMS收集器对年轻代进行垃圾回收使用的算法和Parallel收集器一样。这个垃圾收集器适用于不能忍受长时间停顿要求快速响应的应用。<strong>CMS采用了多种方式尽可能降低GC的暂停时间,减少用户程序停顿。停顿时间降低的同时牺牲了CPU吞吐量 。这是在停顿时间和性能间做出的取舍，可以简单理解为”空间(性能)”换时间。</strong></p>
+<p>调整的节奏：<br>由于怕影响线上应用，所以调整的步骤分三步：<br>第一步：部分影响少量机器试点，对比未调整的机器，观察调整后的结果；<br>第二步：调整部分应用的参数，进行压测，观察高并发压测之后的效果；<br>第三步：调整部分核心应用的jvm参数，通过818大促来实际检验效果；</p>
+<p>一:长期表现，<br>第一个变化：fgc的次数减少，减少了大概一倍以上；<br>mobile工程，调整前基本上一天1-2辆次，调整后基本上就是2-3天一次：<br>online（另外一个工程）：可以明显看到fgc的统计频率少了很多；</p>
+<p>第二个变化：fgc的时间减少<br>原来一次fgc要将近500ms，现在只要100ms不到了。<br>也证明了cms最大的好处就是减少fgc的停顿时间。</p>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">jvm</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+      
+
+      <div style="font-size: 12px;">
+        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
+      </div>
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2018/05/29/大型跨境电商JVM调优经历/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
+    <article id="post-Mysql语句优化explain使用" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2018/05/18/Mysql语句优化explain使用/">Mysql语句优化explain使用</a>
+    </h1>
+  
+
+        
+        <a href="/2018/05/18/Mysql语句优化explain使用/" class="archive-article-date">
+  	<time datetime="2018-05-18T03:44:19.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-05-18</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="id"><a href="#id" class="headerlink" title="id"></a>id</h2><figure class="highlight applescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">如果是子查询，<span class="built_in">id</span>的序号会递增，<span class="built_in">id</span>的值越大优先级越高，越先被执行</span><br></pre></td></tr></table></figure>
+<h2 id="select-type"><a href="#select-type" class="headerlink" title="select_type"></a>select_type</h2><p>查询的类型，主要用于区别普通查询、联合查询、子查询等的复杂查询</p>
+<ul>
+<li><p><code>SIMPLE</code>:简单的select查询，查询中不包含子查询或者UNION </p>
+</li>
+<li><p><code>PRIMARY</code>:查询中若包含任何复杂的子部分，最外层查询则被标记为PRIMARY（最后加载的那一个 ） </p>
+</li>
+<li><p><code>SUBQUERY</code>:在SELECT或WHERE列表中包含了子查询 </p>
+</li>
+<li><p><code>DERIVED</code>:在FROM列表中包含的<strong>子查询</strong>被标记为DERIVED（衍生），Mysql会递归执行这些子查询，把结果放在临时表里。 </p>
+</li>
+<li><p><code>UNION</code>:若第二个SELECT出现在UNION之后，则被标记为UNION；若UNION包含在FROM字句的查询中，外层SELECT将被标记为:<code>DERIVED UNION</code></p>
+</li>
+<li><p><code>RESULT</code>:从UNION表获取结果的SELECT </p>
+<h2 id="type"><a href="#type" class="headerlink" title="type"></a>type</h2></li>
+</ul>
+<p>显示查询使用了何种类型，从最好到最差依次是<br>System&gt;const&gt;eq_ref&gt;range&gt;index&gt;All（<strong>全表扫描</strong>），一般来说<strong>至少达到range级别，最好达到ref</strong></p>
+<ul>
+<li><code>All</code>:全表扫描</li>
+<li><code>System</code>:表只有一行记录，这是const类型的特例，平时不会出现(忽略不计)</li>
+<li><code>const</code>:表示通过索引一次就找到了,const用于比较primary key或者unique索引，因为只匹配一行数据，所以很快。如将主键置于where列表中，MySQL就能将该查询转换为一个常量。</li>
+<li><code>const</code>:表示通过索引一次就找到了,const用于比较primary key或者unique索引，因为只匹配一行数据，所以很快。如将主键置于where列表中，MySQL就能将该查询转换为一个常量。</li>
+<li><code>eq_ref</code>:唯一性索引扫描，对于每个索引键，表中只有一条记录与之匹配。常见于主键或唯一索引扫描。</li>
+<li><code>ref</code>：非唯一索引扫描，返回匹配某个单独值的行，本质上也是一种索引访问，它返回所有匹配某个单独值的行，然而它可能会找到多个符合条件的行，所以它应该属于查找和扫描的混合体</li>
+<li><code>range</code>：只检索给定范围的行，使用一个索引来选择行。key列显示使用了哪个索引，一般就是在你的where语句中出现了between、&lt;、&gt;、in等的查询。这种范围扫描索引比全表扫描要好，因为它只需要开始于索引的某一点，而结束于另一点，不用扫描全部索引。</li>
+<li><code>index</code>:FULL INDEX SCAN,index与all区别为index类型只遍历索引树。这通常比all快，因为索引文件通常比数据文件小。</li>
+</ul>
+<h2 id="rows"><a href="#rows" class="headerlink" title="rows"></a>rows</h2><p>根据表统计信息及索引选用情况，大致估算出找到所需记录所需要读取的行数</p>
+<h2 id="extra"><a href="#extra" class="headerlink" title="extra"></a>extra</h2><p>包含不适合在其他列中显示但十分重要的额外信息 包含的信息： </p>
+<ul>
+<li><strong>（危险!）</strong><code>Using filesort</code>:说明mysql会对数据使用一个外部的索引排序，而不是按照表内的索引顺序进行读取，MYSQL中无法利用索引完成的排序操作称为“文件排序” </li>
+<li><strong>（特别危险!）</strong><code>Using temporary</code>:使用了临时表保存中间结果，MYSQL在对查询结果排序时使用临时表。常见于排序order by 和分组查询 group by </li>
+<li><code>Using index</code>:表示相应的select操作中使用了覆盖索引，避免访问了表的数据行，效率不错。如果同时出现<code>using where</code>，表明索引被用来执行索引键值的查找；如果没有同时出现<code>using where</code>，表明索引用来读取数据而非执行查找操作。</li>
+</ul>
+<h2 id="possible-keys"><a href="#possible-keys" class="headerlink" title="possible_keys"></a>possible_keys</h2><p>显示可能应用在这张表中的索引，一个或多个。查询涉及到的字段上若存在索引，则该索引将被列出， 但不一定被查询实际使用</p>
+<h2 id="key"><a href="#key" class="headerlink" title="key"></a>key</h2><p>实际使用的索引，如果为NULL，则没有使用索引。查询中若使用了覆盖索引，则该索引仅出现在key列表中，key参数可以<strong>作为使用了索引的判断标准</strong></p>
+<h2 id="key-len"><a href="#key-len" class="headerlink" title="key_len"></a>key_len</h2><p>:表示索引中使用的字节数，可通过该列计算查询中索引的长度，在不损失精确性的情况下，<strong>长度越短越好</strong>，key_len显示的值为索引字段的最大可能长度，并非实际使用长度，即key_len是根据表定义计算而得，不是通过表内检索出的。</p>
+<h2 id="ref"><a href="#ref" class="headerlink" title="ref"></a>ref</h2><p>对应索引的赋值，显示索引的哪一列被使用了，如果可能的话，是一个常数。哪些列或常量被用于查找索引上的值。</p>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">mysql</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+      
+
+      <div style="font-size: 12px;">
+        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
+      </div>
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2018/05/18/Mysql语句优化explain使用/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
     <article id="post-基于-Redis-的分布式锁" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
@@ -1063,342 +1423,6 @@
 
 
   
-    <article id="post-线上服务内存OOM问题定位三板斧" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2018/05/13/线上服务内存OOM问题定位三板斧/">线上服务内存OOM问题定位三板斧</a>
-    </h1>
-  
-
-        
-        <a href="/2018/05/13/线上服务内存OOM问题定位三板斧/" class="archive-article-date">
-  	<time datetime="2018-05-13T06:43:42.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-05-13</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>相信大家都有感触，线上服务内存OOM的问题，是最难定位的问题，不过归根结底，最常见的原因：</p>
-<ul>
-<li>本身资源不够</li>
-<li>申请的太多</li>
-<li>资源耗尽</li>
-</ul>
-<p><strong>题目</strong></p>
-<p>某服务器上部署了Java服务一枚，出现了OutOfMemoryError，请问有可能是什么原因，问题应该如何定位？</p>
-<p>不妨设服务进程PID为10765</p>
-<p><strong>解决思路</strong></p>
-<p>Java服务OOM，最常见的原因为：</p>
-<ul>
-<li>有可能是内存分配确实过小，而正常业务使用了大量内存</li>
-<li>某一个对象被频繁申请，却没有释放，内存不断泄漏，导致内存耗尽</li>
-<li>某一个资源被频繁申请，系统资源耗尽，例如：不断创建线程，不断发起网络连接</li>
-</ul>
-<p>更具体的，可以使用以下的一些工具逐一排查。</p>
-<p><strong>一、确认是不是内存本身就分配过小</strong></p>
-<p>方法：jmap -heap 10765</p>
-<p>可以查看新生代，老生代堆内存的分配大小以及使用情况，看是否本身分配过小。</p>
-<p><strong>二、找到最耗内存的对象</strong></p>
-<p><strong>方法</strong>：jmap -histo:live 10765 | more</p>
-<p>输入命令后，会以表格的形式显示存活对象的信息，并按照所占内存大小排序：</p>
-<ul>
-<li><strong>实例数</strong></li>
-<li><strong>所占内存大小</strong></li>
-<li><strong>类名</strong></li>
-</ul>
-<p>是不是很直观？对于实例数较多，占用内存大小较多的实例/类，相关的代码就要针对性review了。</p>
-<p>上图中占内存最多的对象是RingBufferLogEvent，共占用内存18M，属于正常使用范围。</p>
-<p>如果发现某类对象占用内存很大（例如几个G），很可能是类对象创建太多，且一直未释放。例如：</p>
-<ul>
-<li>申请完资源后，未调用close()或dispose()释放资源</li>
-<li>消费者消费速度慢（或停止消费了），而生产者不断往队列中投递任务，导致队列中任务累积过多</li>
-</ul>
-<p><strong>三、确认是否是资源耗尽</strong></p>
-<p>工具：</p>
-<ul>
-<li>pstree</li>
-<li>netstat</li>
-</ul>
-<p>查看进程创建的线程数，以及网络连接数，如果资源耗尽，也可能出现OOM。</p>
-<p>这里介绍另一种方法，通过</p>
-<ul>
-<li>/proc/${PID}/fd</li>
-<li>/proc/${PID}/task</li>
-</ul>
-<p>可以分别查看句柄详情和线程数。</p>
-<p>例如，某一台线上服务器的sshd进程PID是9339，查看</p>
-<ul>
-<li>ll /proc/9339/fd</li>
-<li>ll /proc/9339/task</li>
-</ul>
-<p>如上图，sshd共占用了四个句柄</p>
-<ul>
-<li>0 -&gt; 标准输入</li>
-<li>1 -&gt; 标准输出</li>
-<li>2 -&gt; 标准错误输出</li>
-<li>3 -&gt; socket（容易想到是监听端口）</li>
-</ul>
-<p>sshd只有一个主线程PID为9339，并没有多线程。</p>
-<p>所以，只要</p>
-<ul>
-<li>ll /proc/${PID}/fd | wc -l</li>
-<li>ll /proc/${PID}/task | wc -l （效果等同pstree -p | wc -l）</li>
-</ul>
-<p>就能知道进程打开的句柄数和线程数。</p>
-
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">ops</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-      
-
-      <div style="font-size: 12px;">
-        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
-      </div>
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2018/05/13/线上服务内存OOM问题定位三板斧/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
-    <article id="post-实例详解java.lang.OutOfMemoryError" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2018/05/13/实例详解java.lang.OutOfMemoryError/">OutOfMemoryError 实例详解</a>
-    </h1>
-  
-
-        
-        <a href="/2018/05/13/实例详解java.lang.OutOfMemoryError/" class="archive-article-date">
-  	<time datetime="2018-05-13T06:11:17.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-05-13</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h1 id="java-lang-OutOfMemoryError-实例详解"><a href="#java-lang-OutOfMemoryError-实例详解" class="headerlink" title="java.lang.OutOfMemoryError 实例详解"></a>java.lang.OutOfMemoryError 实例详解</h1><h3 id="The-8-symptoms-that-surface-them"><a href="#The-8-symptoms-that-surface-them" class="headerlink" title="The 8 symptoms that surface them"></a>The 8 symptoms that surface them</h3><h3 id="内存溢出的8种主要类型"><a href="#内存溢出的8种主要类型" class="headerlink" title="内存溢出的8种主要类型"></a>内存溢出的8种主要类型</h3><p>The many thousands of java.lang.OutOfMemoryErrors that I’ve met during my career all bear one of the below eight symptoms. This handbook explains what causes a particular error to be thrown, offers code examples that can cause such errors, and gives you solution guidelines for a fix. The content is all based on my own experience.</p>
-<p>笔者在工作中碰到过成千上万的 <code>java.lang.OutOfMemoryError</code>, 都可以归结为以下八种症状。<br>本手册阐述了各种内存溢出错误的形成原因,并提供了可测试这种错误的示例代码,以及解决方案。 内容都来源于笔者的一线开发和实践经验。</p>
-<p>目录:</p>
-<ol>
-<li><a href="01_java-heap-space.md">OutOfMemoryError系列（1）: <strong>Java heap space</strong></a></li>
-<li><a href="02_gc-overhead-limit-exceeded.md">OutOfMemoryError系列（2）: <strong>GC overhead limit exceeded</strong></a></li>
-<li><a href="03_permgen-space.md">OutOfMemoryError系列（3）: <strong>Permgen space</strong></a></li>
-<li><a href="04_metaspace.md">OutOfMemoryError系列（4）: <strong>Metaspace</strong></a></li>
-<li><a href="05_unable-to-create-new-native-thread.md">OutOfMemoryError系列（5）: <strong>Unable to create new native thread</strong></a></li>
-<li><a href="06_out-of-swap-space.md">OutOfMemoryError系列（6）: <strong>Out of swap space?</strong> </a></li>
-<li><a href="07_requested-array-size-exceeds-vm-limit.md">OutOfMemoryError系列（7）: <strong>Requested array size exceeds VM limit</strong> Details</a></li>
-<li><a href="08_kill-process-or-sacrifice-child.md">OutOfMemoryError系列（8）: <strong>Kill process or sacrifice child</strong></a></li>
-</ol>
-<p>原文作者: <strong>Nikita Salnikov-Tarnovski</strong>  – Plumbr Co-Founder and VP of Engineering</p>
-<p>原文链接： <a href="https://plumbr.eu/outofmemoryerror" target="_blank" rel="external">https://plumbr.eu/outofmemoryerror</a></p>
-
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">ops</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-      
-
-      <div style="font-size: 12px;">
-        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
-      </div>
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2018/05/13/实例详解java.lang.OutOfMemoryError/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
-    <article id="post-常用脚本" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2018/05/13/常用脚本/">常用脚本</a>
-    </h1>
-  
-
-        
-        <a href="/2018/05/13/常用脚本/" class="archive-article-date">
-  	<time datetime="2018-05-13T06:11:17.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-05-13</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>PS：</p>
-<p>本仓库的脚本（如<code>Java</code>相关脚本）在阿里等公司（如随身云，见<a href="https://github.com/Suishenyun/awesome-scripts" target="_blank" rel="external"><code>awesome-scripts</code>仓库</a>说明）的线上生产环境部署使用。<br>如果你的公司有部署使用，欢迎使用通过<a href="https://github.com/oldratlee/useful-scripts/issues" target="_blank" rel="external">提交Issue</a>告知，方便互相交流反馈～ :cupid:</p>
-<h2 id="beginner-快速下载-amp-使用"><a href="#beginner-快速下载-amp-使用" class="headerlink" title=":beginner: 快速下载&amp;使用"></a>:beginner: 快速下载&amp;使用</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">source</span> &lt;(curl -fsSL https://raw.githubusercontent.com/oldratlee/useful-scripts/master/<span class="built_in">test</span>-cases/self-installer.sh)</span><br></pre></td></tr></table></figure>
-<p>更多下载&amp;使用方式，参见<a href="docs/install.md">下载使用</a>。</p>
-<h2 id="books-使用文档"><a href="#books-使用文档" class="headerlink" title=":books: 使用文档"></a>:books: 使用文档</h2><h3 id="coffee-Java相关脚本"><a href="#coffee-Java相关脚本" class="headerlink" title=":coffee: Java相关脚本"></a>:coffee: <a href="docs/java.md"><code>Java</code>相关脚本</a></h3><ol>
-<li><a href="docs/java.md#beer-show-busy-java-threads">show-busy-java-threads</a><br> 用于快速排查<code>Java</code>的<code>CPU</code>性能问题(<code>top us</code>值过高)，自动查出运行的<code>Java</code>进程中消耗<code>CPU</code>多的线程，并打印出其线程栈，从而确定导致性能问题的方法调用。</li>
-<li><a href="docs/java.md#beer-show-duplicate-java-classes">show-duplicate-java-classes</a><br> 找出<code>jar</code>文件和<code>class</code>目录中的重复类。用于排查<code>Java</code>类冲突问题。</li>
-<li><a href="docs/java.md#beer-find-in-jars">find-in-jars</a><br> 在目录下所有<code>jar</code>文件里，查找类或资源文件。</li>
-</ol>
-<h3 id="shell-Shell相关脚本"><a href="#shell-Shell相关脚本" class="headerlink" title=":shell: Shell相关脚本"></a>:shell: <a href="docs/shell.md"><code>Shell</code>相关脚本</a></h3><p><code>Shell</code>使用加强：</p>
-<ol>
-<li><a href="docs/shell.md#beer-c">c</a><br> 原样命令行输出，并拷贝标准输出到系统剪贴板，省去<code>CTRL+C</code>操作，优化命令行与其它应用之间的操作流。</li>
-<li><a href="docs/shell.md#beer-coat">coat</a><br> 彩色<code>cat</code>出文件行，方便人眼区分不同的行。</li>
-<li><a href="docs/shell.md#beer-a2l">a2l</a><br> 按行彩色输出参数，方便人眼查看。</li>
-<li><a href="docs/shell.md#beer-ap-and-rp">ap and rp</a><br> 批量转换文件路径为绝对路径/相对路径，会自动跟踪链接并规范化路径。</li>
-<li><a href="docs/shell.md#beer-tcp-connection-state-counter">tcp-connection-state-counter</a><br> 统计各个<code>TCP</code>连接状态的个数。用于方便排查系统连接负荷问题。</li>
-<li><a href="docs/shell.md#beer-xpl-and-xpf">xpl and xpf</a><br> 在命令行中快速完成 在文件浏览器中 打开/选中 指定的文件或文件夹的操作，优化命令行与其它应用之间的操作流。</li>
-</ol>
-<p><code>Shell</code>开发/测试加强：</p>
-<ol>
-<li><a href="docs/shell.md#beer-echo-args">echo-args</a><br> 输出脚本收到的参数，在控制台运行时，把参数值括起的括号显示成 <strong>红色</strong>，方便人眼查看。用于调试脚本参数输入。</li>
-<li><a href="docs/shell.md#beer-console-text-color-themessh">console-text-color-themes.sh</a><br> 显示<code>Terminator</code>的全部文字彩色组合的效果及其打印方式，用于开发<code>Shell</code>的彩色输出。</li>
-<li><a href="docs/shell.md#beer-parseoptssh">parseOpts.sh</a><br> 命令行选项解析库，加强支持选项有多个值（即数组）。</li>
-</ol>
-<h3 id="watch-VCS相关脚本"><a href="#watch-VCS相关脚本" class="headerlink" title=":watch: VCS相关脚本"></a>:watch: <a href="docs/vcs.md"><code>VCS</code>相关脚本</a></h3><p>目前<code>VCS</code>的脚本都是<code>svn</code>分支相关的操作。使用更现代的<code>Git</code>吧！ :boom:</p>
-<p>因为不推荐使用<code>svn</code>，这里不再列出有哪些脚本了，如果你有兴趣可以点上面链接去看。</p>
-
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">ops</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-      
-
-      <div style="font-size: 12px;">
-        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
-      </div>
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2018/05/13/常用脚本/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
   
     <nav id="page-nav">
       <a class="extend prev" rel="prev" href="/page/2/">&laquo; Prev</a><a class="page-number" href="/">1</a><a class="page-number" href="/page/2/">2</a><span class="page-number current">3</span><a class="page-number" href="/page/4/">4</a><a class="page-number" href="/page/5/">5</a><span class="space">&hellip;</span><a class="page-number" href="/page/13/">13</a><a class="extend next" rel="next" href="/page/4/">Next &raquo;</a>
@@ -1500,11 +1524,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">Dubbo</a>
+                <a href="javascript:void(0)" class="js-tag color3">java并发包</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">java并发包</a>
+                <a href="javascript:void(0)" class="js-tag color1">Dubbo</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1528,10 +1552,6 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">redis</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">java内存模型</a>
               </li>
              
@@ -1544,7 +1564,7 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">mysql</a>
+                <a href="javascript:void(0)" class="js-tag color1">redis</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1552,15 +1572,19 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">mysql</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Python</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">限流</a>
+                <a href="javascript:void(0)" class="js-tag color1">react</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">react</a>
+                <a href="javascript:void(0)" class="js-tag color3">限流</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1596,15 +1620,15 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">python</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">Mac</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">maven</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">python</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1616,15 +1640,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">分布式锁</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">zookeeper</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">前端指南</a>
+                <a href="javascript:void(0)" class="js-tag color5">分布式锁</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1632,11 +1652,15 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">善用佳软</a>
+                <a href="javascript:void(0)" class="js-tag color5">前端指南</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">jvm</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">善用佳软</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1652,11 +1676,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">HashMap</a>
+                <a href="javascript:void(0)" class="js-tag color3">单例</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">单例</a>
+                <a href="javascript:void(0)" class="js-tag color3">HashMap</a>
               </li>
              
               <li class="article-tag-list-item">

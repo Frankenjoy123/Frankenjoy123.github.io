@@ -151,6 +151,473 @@
           <div id="js-content" class="content-ll">
             
   
+    <article id="post-hive数据去重" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2018/04/11/hive数据去重/">hive数据去重</a>
+    </h1>
+  
+
+        
+        <a href="/2018/04/11/hive数据去重/" class="archive-article-date">
+  	<time datetime="2018-04-11T06:45:57.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-04-11</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p> distinct会整条数据去重，有一项是不同的整条数据就算不同的，不会去掉，按照某一个字段去重需要如下方法</p>
+<p> hive数据去重，并根据需求取其中一条</p>
+<p>数据案例：</p>
+<p>name  adx       tran_id                 cost        ts<br>ck        5        125.168.10.0          33.00   1407234660<br>ck        5        187.18.99.00          33.32   1407234661<br>ck        5        125.168.10.0          33.24   1407234661<br>只需要前两行的记录，因为第三行的tran_id和第一行的重复了，所以需要将最后面一行重复的去掉。</p>
+<h2 id="方案一："><a href="#方案一：" class="headerlink" title="方案一："></a>方案一：</h2><figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">selectt1.tran_id,[<span class="string">t2.name</span>](<span class="link">http://t2.name/</span>),t2.cost </span><br><span class="line"></span><br><span class="line">from (selectdistinct tran_id from table) t1</span><br><span class="line"></span><br><span class="line">join table t2 ont1.tran<span class="emphasis">_id=t2.tran_</span>id</span><br></pre></td></tr></table></figure>
+<p>分析：<br>如果使用distinct的话，需要把tran_id放在第一列，查出来的数据很不友好。</p>
+<h2 id="方案二："><a href="#方案二：" class="headerlink" title="方案二："></a>方案二：</h2><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span>* </span><br><span class="line"></span><br><span class="line"> <span class="keyword">from</span>(</span><br><span class="line"></span><br><span class="line">​        <span class="keyword">select</span> *,row_number() <span class="keyword">over</span> (<span class="keyword">partition</span> <span class="keyword">by</span> tran_id  <span class="keyword">order</span> <span class="keyword">by</span> <span class="keyword">timestamp</span> <span class="keyword">asc</span>) <span class="keyword">num</span> <span class="keyword">from</span> <span class="keyword">table</span></span><br><span class="line"></span><br><span class="line">  ) t </span><br><span class="line"></span><br><span class="line">wheret.num=<span class="number">1</span>;</span><br></pre></td></tr></table></figure>
+<p>分析：</p>
+<p>row_number() over (partition by tran_idorder by timestamp desc) num   取num=1 的<br>意思是先根据tran_id进行分组，并在分组内部按timestamp 降序排序，row_number()函数计算的值就表示某个tran_id组内部排序后的顺序编号（该编号在一个组内是连续并且唯一的) 。<br>所以最后直接去每个分组内的第一个（num=1）即可。</p>
+<p>PS：</p>
+<p><strong>ROW_NUMBER() OVER函数的基本用法</strong><br>语法：ROW_NUMBER() OVER(PARTITION BY COLUMN ORDER BY COLUMN)<br>简单的说row_number()从1开始，为每一个分组记录返回一个数字，这里的ROW_NUMBER() OVER (ORDER BY xlh DESC) 是先把xlh列降序，再为降序以后的每条xlh记录返回一个序号。<br>示例：<br>xlh          row_num<br>1700             1<br>1500             2<br>1085             3<br>710               4<br>row_number() OVER (PARTITION BY COL1 ORDERBY COL2) 表示根据COL1分组，在分组内部根据 COL2排序，而此函数计算的值就表示每组内部排序后的顺序编号（该编号在组内是连续并且唯一的) 。</p>
+<p>实例： </p>
+<p>数据显示为<br>empid       deptid     salary</p>
+<hr>
+<p>1          10          5500.00<br>2          10          4500.00<br>3           20         1900.00<br>4          20          4800.00<br>5          40          6500.00<br>6          40          14500.00<br>7          40          44500.00<br>8          50          6500.00<br>9          50          7500.00<br>需求：根据部门分组，显示每个部门的工资等级<br>预期结果：<br>empid       deptid     salary                                rank</p>
+<hr>
+<p>1          10          5500.00                               1<br>2          10          4500.00                               2<br>4          20          4800.00                               1<br>3          20          1900.00                               2<br>7          40          44500.00                             1<br>6          40          14500.00                             2<br>5          40          6500.00                               3<br>9          50          7500.00                               1<br>8          50          6500.00                               2<br>SQL脚本：<br><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> *, Row_Number() <span class="keyword">OVER</span> (<span class="keyword">partition</span> <span class="keyword">by</span> deptidORDER <span class="keyword">BY</span> salary <span class="keyword">desc</span>) <span class="keyword">rank</span> <span class="keyword">FROM</span> employee</span><br></pre></td></tr></table></figure></p>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+      
+
+      <div style="font-size: 12px;">
+        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
+      </div>
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2018/04/11/hive数据去重/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
+    <article id="post-Spark-Pandas-UDFs" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2018/04/11/Spark-Pandas-UDFs/">Spark Pandas UDFs</a>
+    </h1>
+  
+
+        
+        <a href="/2018/04/11/Spark-Pandas-UDFs/" class="archive-article-date">
+  	<time datetime="2018-04-11T06:01:39.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-04-11</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="配置"><a href="#配置" class="headerlink" title="配置"></a>配置</h2><p>所有运行节点安装 <code>pyarrow</code> ，需要 &gt;= 0.8</p>
+<h2 id="为什么会有-pandas-UDF"><a href="#为什么会有-pandas-UDF" class="headerlink" title="为什么会有 pandas UDF"></a>为什么会有 pandas UDF</h2><p>在过去的几年中，python 正在成为数据分析师的默认语言。一些类似 <code>pandas</code>,<code>numpy</code>,<code>statsmodel</code>,<code>scikit-learn</code> 被大量使用，逐渐成为主流的工具包。同时，spark 也成为了大数据处理的标准，为了让数据分析师能够使用 spark ，Spark在 0.7 版本增加了 python api，也支持了 udf (user-defined functions)。</p>
+<p>这些 udf 对每条记录都会操作一次，同时数据需要在 JVM 和 Python 中传输，因此有了额外的序列化和调用开销。因此很多数据 pipelines 用 Java 和 Scala 中定义 UDF，然后在 python 中调用它们。</p>
+<p><img src="http://oz3qait0p.bkt.clouddn.com/20171114235146435.jpeg" alt="image"></p>
+<p>Pandas Udf 构建在 <code>Apache Arrow</code> 之上，带来了低开销，高性能的UDF。</p>
+<blockquote>
+<p>每个系统都有自己的存储格式，70%-80%的时间花费在序列化和反序列化上</p>
+<p>Apache Arrow</p>
+<ol>
+<li>一个跨平台的数据层，用来加速大数据分析速度。</li>
+<li>在内存中以列式存储。</li>
+</ol>
+</blockquote>
+<p> <img src="http://oz3qait0p.bkt.clouddn.com/192CBE87-DB83-4245-827D-7EFCF4408003.png" alt="img"></p>
+<h2 id="一些限制"><a href="#一些限制" class="headerlink" title="一些限制"></a>一些限制</h2><ol>
+<li>不支持所有的 sparkSQL 数据类型，包括 BinaryType，MapType, ArrayType，TimestampType 和嵌套的 StructType。</li>
+<li>pandas udf 和 udf 不能混用。</li>
+</ol>
+<h2 id="使用方式"><a href="#使用方式" class="headerlink" title="使用方式"></a>使用方式</h2><h3 id="1-spark-df-amp-pandas-df"><a href="#1-spark-df-amp-pandas-df" class="headerlink" title="1. spark df &amp; pandas df"></a>1. spark df &amp; pandas df</h3><p>spark df 与 pandas df 相互转化性能优化，需要开启配置，默认为关闭。</p>
+<p>配置项：</p>
+<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">spark<span class="selector-class">.sql</span><span class="selector-class">.execution</span><span class="selector-class">.arrow</span><span class="selector-class">.enabled</span> true</span><br></pre></td></tr></table></figure>
+<p>相互转化</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"><span class="keyword">import</span> pandas <span class="keyword">as</span> pd</span><br><span class="line"> </span><br><span class="line">//初始化 pandas DF</span><br><span class="line">pdf = pd.DataFrame(np.random.rand(<span class="number">100000</span>, <span class="number">3</span>))</span><br><span class="line">// pdf -&gt; sdf</span><br><span class="line">%time df = spark.createDataFrame(pdf)</span><br><span class="line">// sdf -&gt; pdf</span><br><span class="line">%time result_pdf = df.select(<span class="string">"*"</span>).toPandas()</span><br></pre></td></tr></table></figure>
+<p>性能对比：</p>
+<table>
+<thead>
+<tr>
+<th>execution.arrow.enabled</th>
+<th>pdf -&gt; sdf</th>
+<th>sdf -&gt; pdf</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>false</td>
+<td>4980ms</td>
+<td>722ms</td>
+</tr>
+<tr>
+<td>true</td>
+<td>72ms</td>
+<td>79ms</td>
+</tr>
+</tbody>
+</table>
+<p>tips: 即便是提高了转化的速度，pandas df 依旧是单机在 driver 中执行的，不应该返回大量的数据。</p>
+<h3 id="2-pandas-UDFs-Vectorized-UDFs"><a href="#2-pandas-UDFs-Vectorized-UDFs" class="headerlink" title="2. pandas UDFs(Vectorized UDFs)"></a>2. pandas UDFs(Vectorized UDFs)</h3><p>pandas udf 的入参和返回值类型都为 pandas.Series</p>
+<h4 id="注册-udf"><a href="#注册-udf" class="headerlink" title="注册 udf"></a>注册 udf</h4><p>方法1：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pyspark.sql.functions <span class="keyword">import</span> pandas_udf</span><br><span class="line"> </span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">plus_one</span><span class="params">(a)</span>:</span></span><br><span class="line">    <span class="keyword">return</span> a + <span class="number">1</span></span><br><span class="line"> </span><br><span class="line">//df_udf</span><br><span class="line">plus_one_pd_udf = pandas_udf(plus_one, returnType=LongType())</span><br><span class="line">//sql udf</span><br><span class="line">spark.udf.register(<span class="string">'plus_one'</span>,plus_one_pd_udf)</span><br></pre></td></tr></table></figure>
+<p>方法2：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pyspark.sql.functions <span class="keyword">import</span> pandas_udf</span><br><span class="line"> </span><br><span class="line">//默认为 PandasUDFType.SCALAR 类型</span><br><span class="line"><span class="meta">@pandas_udf('long')</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">plus_one</span><span class="params">(a)</span>:</span></span><br><span class="line">    <span class="keyword">return</span> a + <span class="number">1</span></span><br><span class="line"> </span><br><span class="line">spark.udf.register(<span class="string">'plus_one'</span>,plus_one)</span><br><span class="line"> </span><br><span class="line">spark.udf.register可以接受一个 SQL_BATCHED_UDF 或 SQL_SCALAR_PANDAS_UDF 方法。</span><br></pre></td></tr></table></figure>
+<p>使用 pandas udf 后，物理执行计划会从 <code>BatchEvalPython</code> 变为 <code>ArrowEvalPython</code>，可以使用 <code>explain()</code> 检查 pandas udf 是否生效。</p>
+<h4 id="Scalar-Pandas-UDFs"><a href="#Scalar-Pandas-UDFs" class="headerlink" title="Scalar Pandas UDFs"></a>Scalar Pandas UDFs</h4><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> pandas <span class="keyword">as</span> pd</span><br><span class="line"> </span><br><span class="line"><span class="keyword">from</span> pyspark.sql.functions <span class="keyword">import</span> col, pandas_udf,udf</span><br><span class="line"><span class="keyword">from</span> pyspark.sql.types <span class="keyword">import</span> LongType</span><br><span class="line"> </span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">multiply_func</span><span class="params">(a, b)</span>:</span></span><br><span class="line">    <span class="keyword">return</span> a * b</span><br><span class="line">     </span><br><span class="line">multiply_pd = pandas_udf(multiply_func, returnType=LongType())</span><br><span class="line"> </span><br><span class="line">multiply = udf(multiply_func, returnType=LongType())</span><br><span class="line"> </span><br><span class="line">x = pd.Series([<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>] * <span class="number">10000</span>)</span><br><span class="line">df = spark.createDataFrame(pd.DataFrame(x, columns=[<span class="string">"x"</span>]))</span><br><span class="line"> </span><br><span class="line">%timeit df.select(multiply_pd(col(<span class="string">"x"</span>), col(<span class="string">"x"</span>))).count()</span><br><span class="line">%timeit df.select(multiply(col(<span class="string">"x"</span>), col(<span class="string">"x"</span>))).count()</span><br></pre></td></tr></table></figure>
+<h4 id="Grouped-Map-Pandas-UDFs"><a href="#Grouped-Map-Pandas-UDFs" class="headerlink" title="Grouped Map Pandas UDFs"></a>Grouped Map Pandas UDFs</h4><p>计算均方差</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pyspark.sql.functions <span class="keyword">import</span> pandas_udf, PandasUDFType</span><br><span class="line"> </span><br><span class="line">df = spark.createDataFrame(</span><br><span class="line">    [(<span class="number">1</span>, <span class="number">1.0</span>), (<span class="number">1</span>, <span class="number">2.0</span>), (<span class="number">2</span>, <span class="number">3.0</span>), (<span class="number">2</span>, <span class="number">5.0</span>), (<span class="number">2</span>, <span class="number">10.0</span>)],</span><br><span class="line">    (<span class="string">"id"</span>, <span class="string">"v"</span>))</span><br><span class="line"> </span><br><span class="line"><span class="meta">@pandas_udf("id long, v double", PandasUDFType.GROUPED_MAP)</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">substract_mean</span><span class="params">(pdf)</span>:</span></span><br><span class="line">    <span class="comment"># pdf is a pandas.DataFrame</span></span><br><span class="line">    v = pdf.v</span><br><span class="line">    <span class="keyword">return</span> pdf.assign(v=v - v.mean())</span><br><span class="line"> </span><br><span class="line">df.groupby(<span class="string">"id"</span>).apply(substract_mean).show()</span><br><span class="line"> </span><br><span class="line">+---+----+</span><br><span class="line">| id|   v|</span><br><span class="line">+---+----+</span><br><span class="line">|  <span class="number">1</span>|<span class="number">-0.5</span>|</span><br><span class="line">|  <span class="number">1</span>| <span class="number">0.5</span>|</span><br><span class="line">|  <span class="number">2</span>|<span class="number">-3.0</span>|</span><br><span class="line">|  <span class="number">2</span>|<span class="number">-1.0</span>|</span><br><span class="line">|  <span class="number">2</span>| <span class="number">4.0</span>|</span><br><span class="line">+---+----+</span><br></pre></td></tr></table></figure>
+<h3 id="测试用例"><a href="#测试用例" class="headerlink" title="测试用例"></a>测试用例</h3><p>数据准备： 10M-row DataFrame , 2列，一列Int类型，一列Double类型</p>
+<figure class="highlight vim"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">df = spark.<span class="built_in">range</span>(<span class="number">0</span>, <span class="number">10</span> * <span class="number">1000</span> * <span class="number">1000</span>).withColumn(<span class="string">'id'</span>, (<span class="keyword">col</span>(<span class="string">'id'</span>) / <span class="number">10000</span>).cast(<span class="string">'integer'</span>)).withColumn(<span class="string">'v'</span>, rand())</span><br><span class="line">df.cache()</span><br><span class="line">df.<span class="built_in">count</span>()</span><br></pre></td></tr></table></figure>
+<h4 id="Plus-one"><a href="#Plus-one" class="headerlink" title="Plus one"></a>Plus one</h4><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pyspark.sql.functions <span class="keyword">import</span> pandas_udf, PandasUDFType</span><br><span class="line"> </span><br><span class="line"><span class="comment"># 输入和输出都是 doubles 类型的 pandas.Series</span></span><br><span class="line"><span class="meta">@pandas_udf('double', PandasUDFType.SCALAR)</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">pandas_plus_one</span><span class="params">(v)</span>:</span></span><br><span class="line">    <span class="keyword">return</span> v + <span class="number">1</span></span><br><span class="line"> </span><br><span class="line">df.withColumn(<span class="string">'v2'</span>, pandas_plus_one(df.v))</span><br></pre></td></tr></table></figure>
+<h3 id="Cumulative-Probability"><a href="#Cumulative-Probability" class="headerlink" title="Cumulative Probability"></a>Cumulative Probability</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="keyword">import</span> pandas <span class="keyword">as</span> pd</span><br><span class="line"><span class="keyword">from</span> scipy <span class="keyword">import</span> stats</span><br><span class="line"> </span><br><span class="line"><span class="meta">@pandas_udf('double')</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">cdf</span><span class="params">(v)</span>:</span></span><br><span class="line">    <span class="keyword">return</span> pd.Series(stats.norm.cdf(v))</span><br><span class="line"> </span><br><span class="line">df.withColumn(<span class="string">'cumulative_probability'</span>, cdf(df.v))</span><br></pre></td></tr></table></figure>
+<p>Subtract Mean<br><figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 输入和输出类型都是 pandas.DataFrame</span></span><br><span class="line">@pandas_udf(df.schema, PandasUDFType.GROUPED_MAP)</span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">subtract_mean</span><span class="params">(pdf)</span></span><span class="symbol">:</span></span><br><span class="line">    <span class="keyword">return</span> pdf.assign(v=pdf.v - pdf.v.mean())</span><br><span class="line"> </span><br><span class="line">df.groupby(<span class="string">'id'</span>).apply(subtract_mean)</span><br></pre></td></tr></table></figure></p>
+<h3 id="Scalar-和-Grouped-map-的一些区别"><a href="#Scalar-和-Grouped-map-的一些区别" class="headerlink" title="Scalar 和 Grouped map 的一些区别"></a>Scalar 和 Grouped map 的一些区别</h3><table>
+<thead>
+<tr>
+<th>…</th>
+<th>Scalar</th>
+<th>Grouped map</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>udf 入参类型</td>
+<td>pandas.Series</td>
+<td>pandas.DataFrame</td>
+</tr>
+<tr>
+<td>udf 返回类型</td>
+<td>pandas.Series</td>
+<td>pandas.DataFrame</td>
+</tr>
+<tr>
+<td>聚合语义</td>
+<td>无</td>
+<td>groupby 的子句</td>
+</tr>
+<tr>
+<td>返回大小</td>
+<td>与输入一致</td>
+<td>rows 和 columns 都可以和入参不同</td>
+</tr>
+<tr>
+<td>返回类型声明</td>
+<td>pandas.Series 的 DataType</td>
+<td>pandas.DataFrame 的 StructType</td>
+</tr>
+</tbody>
+</table>
+<h3 id="性能对比"><a href="#性能对比" class="headerlink" title="性能对比"></a>性能对比</h3><table>
+<thead>
+<tr>
+<th>类型</th>
+<th>udf</th>
+<th>pandas udf</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>plus_one</td>
+<td>2.54s</td>
+<td>1.28s</td>
+</tr>
+<tr>
+<td>cdf</td>
+<td>2min 2s</td>
+<td>1.52s</td>
+</tr>
+<tr>
+<td>Subtract Mean</td>
+<td>1min 8s</td>
+<td>4.4s</td>
+</tr>
+</tbody>
+</table>
+<h3 id="配置和测试方法"><a href="#配置和测试方法" class="headerlink" title="配置和测试方法"></a>配置和测试方法</h3><h4 id="环境"><a href="#环境" class="headerlink" title="环境"></a>环境</h4><ul>
+<li>Spark 2.3</li>
+<li>Anaconda 4.4.0 (python 2.7.13)</li>
+<li>运行模式 local[10]</li>
+</ul>
+<h3 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h3><p><a href="http://spark.apache.org/docs/latest/sql-programming-guide.html#grouped-map" target="_blank" rel="external">http://spark.apache.org/docs/latest/sql-programming-guide.html#grouped-map</a></p>
+<p><a href="https://databricks.com/blog/2017/10/30/introducing-vectorized-udfs-for-pyspark.html" target="_blank" rel="external">https://databricks.com/blog/2017/10/30/introducing-vectorized-udfs-for-pyspark.html</a></p>
+<p><a href="https://www.slideshare.net/PyData/improving-pandas-and-pyspark-performance-and-interoperability-with-apache-arrow" target="_blank" rel="external">https://www.slideshare.net/PyData/improving-pandas-and-pyspark-performance-and-interoperability-with-apache-arrow</a></p>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+      
+
+      <div style="font-size: 12px;">
+        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
+      </div>
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2018/04/11/Spark-Pandas-UDFs/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
+    <article id="post-Grafana-mysql体验" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2018/04/09/Grafana-mysql体验/">Grafana mysql体验</a>
+    </h1>
+  
+
+        
+        <a href="/2018/04/09/Grafana-mysql体验/" class="archive-article-date">
+  	<time datetime="2018-04-09T10:29:11.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-04-09</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h1><p>在时序分析及监控展现领域，Grafana无疑是开源解决方案中的翘楚，其灵活的插件机制，支持各种漂亮的面板、丰富的数据源以及强大的应用。典型的面板有Graph、Text、Singlestat、PieChart、Table、Histogram等，支持的数据源有<code>ES</code>、Graphite、<code>InfluxDB</code>、OpenTSDB、<code>MySQL</code>、Druid 、<code>Prometheus</code>、<code>SimpleJson</code>等，提供的应用有Zabbix、K8s等</p>
+<ul>
+<li>+Elasticsearch<br>印象中Grafana是 InfluxDB 可视化工具，但基于Grafana良好的架构，DataSource可以变得多样性了，现在是支持ElasticSearch作为DataSource的。 Grafana的安装也非常简单，解压启动就可以了。DataSource都是动态添加上去的。Grafana作为一个纯粹的可视化工具，灵活性做到了极致。使用ElasticSearch作为DataSource，指定对应的Index，就可以建立DashBoard就行数据可视化了。相比Kibana，Grafana的template功能能把数据按照任意的维度进行切分展示，这就是它的强大之处。</li>
+</ul>
+<hr>
+<h1 id="部署"><a href="#部署" class="headerlink" title="部署"></a>部署</h1><p>Github地址：<a href="https://github.com/Grafana/Grafana" target="_blank" rel="external">https://github.com/Grafana/Grafana</a></p>
+<ul>
+<li><p>下载<br><a href="https://grafana.com/grafana/download" target="_blank" rel="external">https://grafana.com/grafana/download</a></p>
+</li>
+<li><p>mac安装</p>
+<p>| 12   | brew updatebrew install grafana |<br>| —- | ——————————- |<br>|      |                                 |</p>
+</li>
+</ul>
+<p><a href="http://docs.grafana.org/installation/mac/" target="_blank" rel="external">http://docs.grafana.org/installation/mac/</a><br><a href="http://docs.grafana.org/installation/configuration/" target="_blank" rel="external">http://docs.grafana.org/installation/configuration/</a></p>
+<ul>
+<li><p>启动Grafana</p>
+<p>| 12345678910111213 | 要启动Grafana使用自制服务首先确保安装了自制软件/服务。brew tap homebrew/services然后开始Grafana使用：brew services start grafana- 配置配置文件应该位于/usr/local/etc/grafana/grafana.ini。- 日志日志文件应该位于/usr/local/var/log/grafana/grafana.log。- 插件如果你想手动安装一个插件放在这里：/usr/local/var/lib/grafana/plugins。- 数据库默认的sqlite数据库位于 /usr/local/var/lib/grafana |<br>| —————– | ———————————————————— |<br>|                   |                                                              |</p>
+</li>
+<li><p>汉化(非必要)</p>
+<p>| 12   | git clone <a href="https://github.com/moonstack/grafana-for-chinese.git备份原有的" target="_blank" rel="external">https://github.com/moonstack/grafana-for-chinese.git备份原有的</a> /public/app/boot.js /public/app/features/org/prefs_control.js 再将master中的两个文件覆盖到对应的目录 刷新浏览器即可 |<br>| —- | ———————————————————— |<br>|      |                                                              |</p>
+</li>
+</ul>
+<p><a href="https://github.com/moonstack/grafana-for-chinese" target="_blank" rel="external">https://github.com/moonstack/grafana-for-chinese</a><br><a href="https://github.com/heruihong/gf-frontend" target="_blank" rel="external">https://github.com/heruihong/gf-frontend</a></p>
+<ul>
+<li>访问<br><a href="http://0.0.0.0:3000/" target="_blank" rel="external">http://0.0.0.0:3000/</a> ，默认账号/密码：admin/admin</li>
+<li>添加数据源<br><a href="http://docs.grafana.org/features/datasources/elasticsearch/" target="_blank" rel="external">http://docs.grafana.org/features/datasources/elasticsearch/</a><br><a href="http://docs.grafana.org/features/datasources/mysql/" target="_blank" rel="external">http://docs.grafana.org/features/datasources/mysql/</a></li>
+<li>导入dashboard/查看dashboard<br><a href="https://grafana.com/dashboards?dataSource=mysql" target="_blank" rel="external">https://grafana.com/dashboards?dataSource=mysql</a><br><a href="https://grafana.com/dashboards?dataSource=elasticsearch" target="_blank" rel="external">https://grafana.com/dashboards?dataSource=elasticsearch</a></li>
+</ul>
+<hr>
+<h1 id="制图-mysql"><a href="#制图-mysql" class="headerlink" title="制图(mysql)"></a>制图(mysql)</h1><p><code>Grafana + mysql数据源 - laomei - CSDN博客</code><br><a href="http://blog.csdn.net/sweatott/article/details/78278011" target="_blank" rel="external">http://blog.csdn.net/sweatott/article/details/78278011</a></p>
+<h2 id="图表数据展示规则-edit-Metrics"><a href="#图表数据展示规则-edit-Metrics" class="headerlink" title="图表数据展示规则 - edit - Metrics"></a>图表数据展示规则 - <code>edit - Metrics</code></h2><table>
+<thead>
+<tr>
+<th>123456789</th>
+<th>SELECTDATE_FORMAT(gmt_create,’%Y-%m-%d’),UNIX_TIMESTAMP(DATE_FORMAT(gmt_create,’%Y-%m-%d’)) as time_sec, – x轴:时间count(treaty_no) as value, – y轴:数值partner_code as metric – y轴分组:数据分组FROM treatyWHERE 1=1group by DATE_FORMAT(gmt_create,’%Y-%m-%d’)ORDER BY id ASC</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>更多文档见:<a href="http://docs.grafana.org/features/datasources/mysql/" target="_blank" rel="external">http://docs.grafana.org/features/datasources/mysql/</a><br><img src="http://7xnbs3.com1.z0.glb.clouddn.com/18-2-8/29820002.jpg" alt="img"></p>
+<h2 id="各报表面板设置"><a href="#各报表面板设置" class="headerlink" title="各报表面板设置"></a>各报表面板设置</h2><p><a href="http://docs.grafana.org/features/panels/graph/" target="_blank" rel="external">http://docs.grafana.org/features/panels/graph/</a> <code>图表</code><br><a href="http://docs.grafana.org/features/panels/singlestat/" target="_blank" rel="external">http://docs.grafana.org/features/panels/singlestat/</a> <code>仪图</code></p>
+<h2 id="templating-模板"><a href="#templating-模板" class="headerlink" title="templating 模板"></a>templating 模板</h2><p><a href="http://docs.grafana.org/reference/templating/" target="_blank" rel="external">http://docs.grafana.org/reference/templating/</a><br><a href="http://docs.grafana.org/features/datasources/mysql/#query-variable" target="_blank" rel="external">http://docs.grafana.org/features/datasources/mysql/#query-variable</a> <code>mysql的查询表达式</code><br><img src="http://7xnbs3.com1.z0.glb.clouddn.com/18-2-8/86842944.jpg" alt="img"></p>
+<p><img src="http://7xnbs3.com1.z0.glb.clouddn.com/18-3-19/55292517.jpg" alt="img"><br><img src="http://7xnbs3.com1.z0.glb.clouddn.com/18-3-19/45274927.jpg" alt="img"></p>
+<ul>
+<li><p>在查询中使用变量<br><a href="http://docs.grafana.org/features/datasources/mysql/#using-variables-in-queries" target="_blank" rel="external">http://docs.grafana.org/features/datasources/mysql/#using-variables-in-queries</a></p>
+<p>| 123456789 | SELECTDATE_FORMAT(gmt_create,’%Y-%m-%d’),UNIX_TIMESTAMP(DATE_FORMAT(gmt_create,’%Y-%m-%d’)) as time_sec, – x轴:时间count(treaty_no) as value, – y轴:数值partner_code as metric – y轴分组:数据分组FROM treatyWHERE 1=1 and partner_code in ($partner)group by DATE_FORMAT(gmt_create,’%Y-%m-%d’)ORDER BY id ASC |<br>| ——— | ———————————————————— |<br>|           |                                                              |</p>
+</li>
+<li><p>效果<br><img src="http://7xnbs3.com1.z0.glb.clouddn.com/18-2-8/52927063.jpg" alt="img"></p>
+</li>
+</ul>
+<hr>
+<h1 id="报警"><a href="#报警" class="headerlink" title="报警"></a>报警</h1><p><a href="http://docs.grafana.org/alerting/notifications/" target="_blank" rel="external">http://docs.grafana.org/alerting/notifications/</a><br><img src="http://7xnbs3.com1.z0.glb.clouddn.com/18-2-8/8688942.jpg" alt="img"></p>
+<ul>
+<li>Grafana添加<code>Webhook channel</code><br><a href="https://www.tuicool.com/articles/VZf6JjF" target="_blank" rel="external">https://www.tuicool.com/articles/VZf6JjF</a></li>
+<li>[图表-alert]设置数据触警规则</li>
+<li>[图表-alert]Notifications 定义发送渠道</li>
+</ul>
+<hr>
+<h1 id="问题"><a href="#问题" class="headerlink" title="问题"></a>问题</h1><h2 id="安装grafana-Homebrew出现”go-version-missing-for-“gotools”-resource-”的解决方案"><a href="#安装grafana-Homebrew出现”go-version-missing-for-“gotools”-resource-”的解决方案" class="headerlink" title="安装grafana,Homebrew出现”go: version missing for “gotools” resource!”的解决方案"></a>安装grafana,Homebrew出现”go: version missing for “gotools” resource!”的解决方案</h2><table>
+<thead>
+<tr>
+<th>12</th>
+<th>➜ Desktop brew install grafanaError: go: version missing for “gotools” resource!</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>尝试解决:</p>
+<table>
+<thead>
+<tr>
+<th>12</th>
+<th>git -C “$(brew –repo)” fetch –tagsbrew update –force</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>或 <code>git -C &quot;$(brew --repo)&quot; fetch --tags brew update --force</code><br><a href="http://blog.csdn.net/lanadeus/article/details/78271240" target="_blank" rel="external">http://blog.csdn.net/lanadeus/article/details/78271240</a><br><a href="https://github.com/Homebrew/homebrew-core/issues/19221" target="_blank" rel="external">https://github.com/Homebrew/homebrew-core/issues/19221</a><br><a href="https://blog.labbit.jp/%E8%AC%8E%E3%82%A8%E3%83%A9%E3%83%BCgotools%E3%81%AE%E8%A7%A3%E6%B6%88%E6%B3%95/" target="_blank" rel="external">https://blog.labbit.jp/%E8%AC%8E%E3%82%A8%E3%83%A9%E3%83%BCgotools%E3%81%AE%E8%A7%A3%E6%B6%88%E6%B3%95/</a></p>
+<p>实际解决: 重装brew</p>
+<table>
+<thead>
+<tr>
+<th>1</th>
+<th>/usr/bin/ruby -e “$(curl -fsSL <a href="https://raw.githubusercontent.com/Homebrew/install/master/install" target="_blank" rel="external">https://raw.githubusercontent.com/Homebrew/install/master/install</a>)”</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h2 id="新建template-query-错误"><a href="#新建template-query-错误" class="headerlink" title="新建template query 错误"></a>新建template query 错误</h2><table>
+<thead>
+<tr>
+<th>12</th>
+<th>TemplatingTemplate variables could not be initialized: sql: Scan error on column index 0: unsupported Scan, storing driver.Value type <nil> into type *string</nil></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>原因: 存在null值<br>解决: <code>where column is not null</code></p>
+<hr>
+<p>参考<br><code>基于Grafana+SimpleJson的灵活报表解决方案</code><br><a href="https://www.tuicool.com/articles/EBjUfmi" target="_blank" rel="external">https://www.tuicool.com/articles/EBjUfmi</a></p>
+<p><code>监控数据的可视化分析神器 Grafana - 推酷</code><br><a href="https://www.tuicool.com/articles/VZf6JjF" target="_blank" rel="external">https://www.tuicool.com/articles/VZf6JjF</a></p>
+<p><code>Kibana and Grafana - 推酷</code><br><a href="https://www.tuicool.com/articles/rURRF3U" target="_blank" rel="external">https://www.tuicool.com/articles/rURRF3U</a></p>
+<p><code>使用Prometheus+Grafana搭建监控系统实践 - 推酷</code><br><a href="https://www.tuicool.com/articles/QZRjAv3" target="_blank" rel="external">https://www.tuicool.com/articles/QZRjAv3</a></p>
+<p><code>监控数据的可视化分析神器 Grafana - 推酷</code> - <code>OneAlert 云告警</code><br><a href="https://www.tuicool.com/articles/VZf6JjF" target="_blank" rel="external">https://www.tuicool.com/articles/VZf6JjF</a></p>
+<p><code>grafana + influxdb + telegraf , 构建linux性能监控平台 - 推酷</code><br><a href="https://www.tuicool.com/articles/nyM3qyq" target="_blank" rel="external">https://www.tuicool.com/articles/nyM3qyq</a></p>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+      
+
+      <div style="font-size: 12px;">
+        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
+      </div>
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2018/04/09/Grafana-mysql体验/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
     <article id="post-Kibana-Elasticsearch体验" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
@@ -1384,686 +1851,6 @@
 
 
   
-    <article id="post-java工程师成神之路" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2018/03/23/java工程师成神之路/">java工程师成神之路</a>
-    </h1>
-  
-
-        
-        <a href="/2018/03/23/java工程师成神之路/" class="archive-article-date">
-  	<time datetime="2018-03-23T12:21:33.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-03-23</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h1 id="一、基础篇"><a href="#一、基础篇" class="headerlink" title="一、基础篇"></a>一、基础篇</h1><p>JVM</p>
-<h4 id="JVM内存结构"><a href="#JVM内存结构" class="headerlink" title="JVM内存结构"></a>JVM内存结构</h4><p>堆、栈、方法区、直接内存、堆和栈区别</p>
-<h4 id="Java内存模型"><a href="#Java内存模型" class="headerlink" title="Java内存模型"></a>Java内存模型</h4><p>内存可见性、重排序、顺序一致性、volatile、锁、final</p>
-<h4 id="垃圾回收"><a href="#垃圾回收" class="headerlink" title="垃圾回收"></a>垃圾回收</h4><p>内存分配策略、垃圾收集器（G1）、GC算法、GC参数、对象存活的判定 </p>
-<h4 id="JVM参数及调优"><a href="#JVM参数及调优" class="headerlink" title="JVM参数及调优"></a>JVM参数及调优</h4><h4 id="Java对象模型"><a href="#Java对象模型" class="headerlink" title="Java对象模型"></a>Java对象模型</h4><p>oop-klass、对象头</p>
-<h4 id="HotSpot"><a href="#HotSpot" class="headerlink" title="HotSpot"></a>HotSpot</h4><p>即时编译器、编译优化</p>
-<h4 id="类加载机制"><a href="#类加载机制" class="headerlink" title="类加载机制"></a>类加载机制</h4><p>classLoader、类加载过程、双亲委派（破坏双亲委派）、模块化（jboss modules、osgi、jigsaw）</p>
-<h4 id="虚拟机性能监控与故障处理工具"><a href="#虚拟机性能监控与故障处理工具" class="headerlink" title="虚拟机性能监控与故障处理工具"></a>虚拟机性能监控与故障处理工具</h4><p>jps, jstack, jmap、jstat, jconsole, jinfo, jhat, javap, btrace、TProfiler</p>
-<p>编译与反编译</p>
-<p>javac 、javap 、jad 、CRF</p>
-<p>Java基础知识</p>
-<h4 id="阅读源代码"><a href="#阅读源代码" class="headerlink" title="阅读源代码"></a>阅读源代码</h4><p>String、Integer、Long、Enum、BigDecimal、ThreadLocal、ClassLoader &amp; URLClassLoader、ArrayList &amp; LinkedList、 HashMap &amp; LinkedHashMap &amp; TreeMap &amp; CouncurrentHashMap、HashSet &amp; LinkedHashSet &amp; TreeSet</p>
-<h4 id="Java中各种变量类型"><a href="#Java中各种变量类型" class="headerlink" title="Java中各种变量类型"></a>Java中各种变量类型</h4><h4 id="熟悉Java-String的使用，熟悉String的各种函数"><a href="#熟悉Java-String的使用，熟悉String的各种函数" class="headerlink" title="熟悉Java String的使用，熟悉String的各种函数"></a>熟悉Java String的使用，熟悉String的各种函数</h4><p>JDK 6和JDK 7中substring的原理及区别、</p>
-<p>replaceFirst、replaceAll、replace区别、</p>
-<p>String对“+”的重载、</p>
-<p>String.valueOf和Integer.toString的区别、</p>
-<p>字符串的不可变性</p>
-<h4 id="自动拆装箱"><a href="#自动拆装箱" class="headerlink" title="自动拆装箱"></a>自动拆装箱</h4><p>Integer的缓存机制</p>
-<h4 id="熟悉Java中各种关键字"><a href="#熟悉Java中各种关键字" class="headerlink" title="熟悉Java中各种关键字"></a>熟悉Java中各种关键字</h4><p>transient、instanceof、volatile、synchronized、final、static、const 原理及用法。</p>
-<h4 id="集合类"><a href="#集合类" class="headerlink" title="集合类"></a>集合类</h4><p>常用集合类的使用</p>
-<p>ArrayList和LinkedList和Vector的区别 </p>
-<p>SynchronizedList和Vector的区别</p>
-<p>HashMap、HashTable、ConcurrentHashMap区别</p>
-<p>Java 8中stream相关用法</p>
-<p>apache集合处理工具类的使用</p>
-<p>不同版本的JDK中HashMap的实现的区别以及原因</p>
-<h4 id="枚举"><a href="#枚举" class="headerlink" title="枚举"></a>枚举</h4><p>枚举的用法、枚举与单例、Enum类</p>
-<h4 id="Java-IO-amp-Java-NIO，并学会使用"><a href="#Java-IO-amp-Java-NIO，并学会使用" class="headerlink" title="Java IO&amp;Java NIO，并学会使用"></a>Java IO&amp;Java NIO，并学会使用</h4><p>bio、nio和aio的区别、三种IO的用法与原理、netty</p>
-<h4 id="Java反射与javassist"><a href="#Java反射与javassist" class="headerlink" title="Java反射与javassist"></a>Java反射与javassist</h4><p>反射与工厂模式、 <code>java.lang.reflect.*</code></p>
-<h4 id="Java序列化"><a href="#Java序列化" class="headerlink" title="Java序列化"></a>Java序列化</h4><p>什么是序列化与反序列化、为什么序列化</p>
-<p>序列化底层原理</p>
-<p>序列化与单例模式</p>
-<p>protobuf</p>
-<p>为什么说序列化并不安全</p>
-<h4 id="注解"><a href="#注解" class="headerlink" title="注解"></a>注解</h4><p>元注解、自定义注解、Java中常用注解使用、注解与反射的结合</p>
-<h4 id="JMS"><a href="#JMS" class="headerlink" title="JMS"></a>JMS</h4><p>什么是Java消息服务、JMS消息传送模型</p>
-<h4 id="JMX"><a href="#JMX" class="headerlink" title="JMX"></a>JMX</h4><p><code>java.lang.management.*</code>、 <code>javax.management.*</code></p>
-<h4 id="泛型"><a href="#泛型" class="headerlink" title="泛型"></a>泛型</h4><p>泛型与继承</p>
-<p>类型擦除</p>
-<p>泛型中K T V E  </p>
-<p>object等的含义、泛型各种用法</p>
-<h4 id="单元测试"><a href="#单元测试" class="headerlink" title="单元测试"></a>单元测试</h4><p>junit、mock、mockito、内存数据库（h2）</p>
-<h4 id="正则表达式"><a href="#正则表达式" class="headerlink" title="正则表达式"></a>正则表达式</h4><p><code>java.lang.util.regex.*</code></p>
-<h4 id="常用的Java工具库"><a href="#常用的Java工具库" class="headerlink" title="常用的Java工具库"></a>常用的Java工具库</h4><p><code>commons.lang</code>, <code>commons.*...</code> <code>guava-libraries</code> <code>netty</code></p>
-<h4 id="什么是API-amp-SPI"><a href="#什么是API-amp-SPI" class="headerlink" title="什么是API&amp;SPI"></a>什么是API&amp;SPI</h4><h4 id="异常"><a href="#异常" class="headerlink" title="异常"></a>异常</h4><p>异常类型、正确处理异常、自定义异常</p>
-<h4 id="时间处理"><a href="#时间处理" class="headerlink" title="时间处理"></a>时间处理</h4><p>时区、时令、Java中时间API</p>
-<h4 id="编码方式"><a href="#编码方式" class="headerlink" title="编码方式"></a>编码方式</h4><p>解决乱码问题、常用编码方式</p>
-<h4 id="语法糖"><a href="#语法糖" class="headerlink" title="语法糖"></a>语法糖</h4><p>Java中语法糖原理、解语法糖</p>
-<p>Java并发编程</p>
-<h4 id="什么是线程，与进程的区别"><a href="#什么是线程，与进程的区别" class="headerlink" title="什么是线程，与进程的区别"></a>什么是线程，与进程的区别</h4><h4 id="阅读源代码，并学会使用"><a href="#阅读源代码，并学会使用" class="headerlink" title="阅读源代码，并学会使用"></a>阅读源代码，并学会使用</h4><p>Thread、Runnable、Callable、ReentrantLock、ReentrantReadWriteLock、Atomic*、Semaphore、CountDownLatch、、ConcurrentHashMap、Executors</p>
-<h4 id="线程池"><a href="#线程池" class="headerlink" title="线程池"></a>线程池</h4><p>自己设计线程池、submit() 和 execute()</p>
-<h4 id="线程安全"><a href="#线程安全" class="headerlink" title="线程安全"></a>线程安全</h4><p>死锁、死锁如何排查、Java线程调度、线程安全和内存模型的关系</p>
-<h4 id="锁"><a href="#锁" class="headerlink" title="锁"></a>锁</h4><p>CAS、乐观锁与悲观锁、数据库相关锁机制、分布式锁、偏向锁、轻量级锁、重量级锁、monitor、锁优化、锁消除、锁粗化、自旋锁、可重入锁、阻塞锁、死锁</p>
-<h4 id="死锁"><a href="#死锁" class="headerlink" title="死锁"></a>死锁</h4><h4 id="volatile"><a href="#volatile" class="headerlink" title="volatile"></a>volatile</h4><p>happens-before、编译器指令重排和CPU指令重</p>
-<h4 id="synchronized"><a href="#synchronized" class="headerlink" title="synchronized"></a>synchronized</h4><p>synchronized是如何实现的？</p>
-<p>synchronized和lock之间关系</p>
-<p>不使用synchronized如何实现一个线程安全的单例</p>
-<h4 id="sleep-和-wait"><a href="#sleep-和-wait" class="headerlink" title="sleep 和 wait"></a>sleep 和 wait</h4><h4 id="wait-和-notify"><a href="#wait-和-notify" class="headerlink" title="wait 和 notify"></a>wait 和 notify</h4><h4 id="notify-和-notifyAll"><a href="#notify-和-notifyAll" class="headerlink" title="notify 和 notifyAll"></a>notify 和 notifyAll</h4><h4 id="ThreadLocal"><a href="#ThreadLocal" class="headerlink" title="ThreadLocal"></a>ThreadLocal</h4><h4 id="写一个死锁的程序"><a href="#写一个死锁的程序" class="headerlink" title="写一个死锁的程序"></a>写一个死锁的程序</h4><h4 id="写代码来解决生产者消费者问题"><a href="#写代码来解决生产者消费者问题" class="headerlink" title="写代码来解决生产者消费者问题"></a>写代码来解决生产者消费者问题</h4><h4 id="守护线程"><a href="#守护线程" class="headerlink" title="守护线程"></a>守护线程</h4><p>守护线程和非守护线程的区别以及用法</p>
-<h1 id="二、-进阶篇"><a href="#二、-进阶篇" class="headerlink" title="二、 进阶篇"></a>二、 进阶篇</h1><p>Java底层知识</p>
-<h4 id="字节码、class文件格式"><a href="#字节码、class文件格式" class="headerlink" title="字节码、class文件格式"></a>字节码、class文件格式</h4><h4 id="CPU缓存，L1，L2，L3和伪共享"><a href="#CPU缓存，L1，L2，L3和伪共享" class="headerlink" title="CPU缓存，L1，L2，L3和伪共享"></a>CPU缓存，L1，L2，L3和伪共享</h4><h4 id="尾递归"><a href="#尾递归" class="headerlink" title="尾递归"></a>尾递归</h4><h4 id="位运算"><a href="#位运算" class="headerlink" title="位运算"></a>位运算</h4><p>用位运算实现加、减、乘、除、取余</p>
-<p>设计模式</p>
-<h4 id="了解23种设计模式"><a href="#了解23种设计模式" class="headerlink" title="了解23种设计模式"></a>了解23种设计模式</h4><h4 id="会使用常用设计模式"><a href="#会使用常用设计模式" class="headerlink" title="会使用常用设计模式"></a>会使用常用设计模式</h4><p>单例、策略、工厂、适配器、责任链。</p>
-<h4 id="实现AOP"><a href="#实现AOP" class="headerlink" title="实现AOP"></a>实现AOP</h4><h4 id="实现IOC"><a href="#实现IOC" class="headerlink" title="实现IOC"></a>实现IOC</h4><h4 id="不用synchronized和lock，实现线程安全的单例模式"><a href="#不用synchronized和lock，实现线程安全的单例模式" class="headerlink" title="不用synchronized和lock，实现线程安全的单例模式"></a>不用synchronized和lock，实现线程安全的单例模式</h4><h4 id="nio和reactor设计模式"><a href="#nio和reactor设计模式" class="headerlink" title="nio和reactor设计模式"></a>nio和reactor设计模式</h4><p>网络编程</p>
-<h4 id="tcp、udp、http、https等常用协议"><a href="#tcp、udp、http、https等常用协议" class="headerlink" title="tcp、udp、http、https等常用协议"></a>tcp、udp、http、https等常用协议</h4><p>三次握手与四次关闭、流量控制和拥塞控制、OSI七层模型、tcp粘包与拆包</p>
-<h4 id="http-1-0-http-1-1-http-2之前的区别"><a href="#http-1-0-http-1-1-http-2之前的区别" class="headerlink" title="http/1.0 http/1.1 http/2之前的区别"></a>http/1.0 http/1.1 http/2之前的区别</h4><h4 id="Java-RMI，Socket，HttpClient"><a href="#Java-RMI，Socket，HttpClient" class="headerlink" title="Java RMI，Socket，HttpClient"></a>Java RMI，Socket，HttpClient</h4><h4 id="cookie-与-session"><a href="#cookie-与-session" class="headerlink" title="cookie 与 session"></a>cookie 与 session</h4><p>cookie被禁用，如何实现session</p>
-<h4 id="用Java写一个简单的静态文件的HTTP服务器"><a href="#用Java写一个简单的静态文件的HTTP服务器" class="headerlink" title="用Java写一个简单的静态文件的HTTP服务器"></a>用Java写一个简单的静态文件的HTTP服务器</h4><blockquote>
-<p>实现客户端缓存功能，支持返回304 实现可并发下载一个文件 使用线程池处理客户端请求 使用nio处理客户端请求 支持简单的rewrite规则 上述功能在实现的时候需要满足“开闭原则”</p>
-</blockquote>
-<h4 id="了解nginx和apache服务器的特性并搭建一个对应的服务器"><a href="#了解nginx和apache服务器的特性并搭建一个对应的服务器" class="headerlink" title="了解nginx和apache服务器的特性并搭建一个对应的服务器"></a>了解nginx和apache服务器的特性并搭建一个对应的服务器</h4><h4 id="用Java实现FTP、SMTP协议"><a href="#用Java实现FTP、SMTP协议" class="headerlink" title="用Java实现FTP、SMTP协议"></a>用Java实现FTP、SMTP协议</h4><h4 id="进程间通讯的方式"><a href="#进程间通讯的方式" class="headerlink" title="进程间通讯的方式"></a>进程间通讯的方式</h4><h4 id="什么是CDN？如果实现？"><a href="#什么是CDN？如果实现？" class="headerlink" title="什么是CDN？如果实现？"></a>什么是CDN？如果实现？</h4><h4 id="什么是DNS？"><a href="#什么是DNS？" class="headerlink" title="什么是DNS？"></a>什么是DNS？</h4><h4 id="反向代理"><a href="#反向代理" class="headerlink" title="反向代理"></a>反向代理</h4><p>框架知识</p>
-<h4 id="Servlet线程安全问题"><a href="#Servlet线程安全问题" class="headerlink" title="Servlet线程安全问题"></a>Servlet线程安全问题</h4><h4 id="Servlet中的filter和listener"><a href="#Servlet中的filter和listener" class="headerlink" title="Servlet中的filter和listener"></a>Servlet中的filter和listener</h4><h4 id="Hibernate的缓存机制"><a href="#Hibernate的缓存机制" class="headerlink" title="Hibernate的缓存机制"></a>Hibernate的缓存机制</h4><h4 id="Hiberate的懒加载"><a href="#Hiberate的懒加载" class="headerlink" title="Hiberate的懒加载"></a>Hiberate的懒加载</h4><h4 id="Spring-Bean的初始化"><a href="#Spring-Bean的初始化" class="headerlink" title="Spring Bean的初始化"></a>Spring Bean的初始化</h4><h4 id="Spring的AOP原理"><a href="#Spring的AOP原理" class="headerlink" title="Spring的AOP原理"></a>Spring的AOP原理</h4><h4 id="自己实现Spring的IOC"><a href="#自己实现Spring的IOC" class="headerlink" title="自己实现Spring的IOC"></a>自己实现Spring的IOC</h4><h4 id="Spring-MVC"><a href="#Spring-MVC" class="headerlink" title="Spring MVC"></a>Spring MVC</h4><h4 id="Spring-Boot2-0"><a href="#Spring-Boot2-0" class="headerlink" title="Spring Boot2.0"></a>Spring Boot2.0</h4><p>Spring Boot的starter原理，自己实现一个starter</p>
-<h4 id="Spring-Security"><a href="#Spring-Security" class="headerlink" title="Spring Security"></a>Spring Security</h4><p>应用服务器</p>
-<h4 id="JBoss"><a href="#JBoss" class="headerlink" title="JBoss"></a>JBoss</h4><h4 id="tomcat"><a href="#tomcat" class="headerlink" title="tomcat"></a>tomcat</h4><h4 id="jetty"><a href="#jetty" class="headerlink" title="jetty"></a>jetty</h4><h4 id="Weblogic"><a href="#Weblogic" class="headerlink" title="Weblogic"></a>Weblogic</h4><p>工具</p>
-<h4 id="git-amp-svn"><a href="#git-amp-svn" class="headerlink" title="git &amp; svn"></a>git &amp; svn</h4><h4 id="maven-amp-gradle"><a href="#maven-amp-gradle" class="headerlink" title="maven &amp; gradle"></a>maven &amp; gradle</h4><p><img src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" alt="img"></p>
-<h1 id="三、-高级篇"><a href="#三、-高级篇" class="headerlink" title="三、 高级篇"></a>三、 高级篇</h1><p>新技术</p>
-<h4 id="Java-8"><a href="#Java-8" class="headerlink" title="Java 8"></a>Java 8</h4><p>lambda表达式、Stream API、</p>
-<h4 id="Java-9"><a href="#Java-9" class="headerlink" title="Java 9"></a>Java 9</h4><p>Jigsaw、Jshell、Reactive Streams</p>
-<h4 id="Java-10"><a href="#Java-10" class="headerlink" title="Java 10"></a>Java 10</h4><p>局部变量类型推断、G1的并行Full GC、ThreadLocal握手机制</p>
-<h4 id="Spring-5"><a href="#Spring-5" class="headerlink" title="Spring 5"></a>Spring 5</h4><p>响应式编程</p>
-<h4 id="Spring-Boot-2-0"><a href="#Spring-Boot-2-0" class="headerlink" title="Spring Boot 2.0"></a>Spring Boot 2.0</h4><p>性能优化</p>
-<p>使用单例、使用Future模式、使用线程池、选择就绪、减少上下文切换、减少锁粒度、数据压缩、结果缓存</p>
-<p>线上问题分析</p>
-<h4 id="dump获取"><a href="#dump获取" class="headerlink" title="dump获取"></a>dump获取</h4><p>线程Dump、内存Dump、gc情况</p>
-<h4 id="dump分析"><a href="#dump分析" class="headerlink" title="dump分析"></a>dump分析</h4><p>分析死锁、分析内存泄露</p>
-<h4 id="自己编写各种outofmemory，stackoverflow程序"><a href="#自己编写各种outofmemory，stackoverflow程序" class="headerlink" title="自己编写各种outofmemory，stackoverflow程序"></a>自己编写各种outofmemory，stackoverflow程序</h4><p>HeapOutOfMemory、 Young OutOfMemory、MethodArea OutOfMemory、ConstantPool OutOfMemory、DirectMemory OutOfMemory、Stack OutOfMemory Stack OverFlow</p>
-<h4 id="常见问题解决思路"><a href="#常见问题解决思路" class="headerlink" title="常见问题解决思路"></a>常见问题解决思路</h4><p>内存溢出、线程死锁、类加载冲突</p>
-<h4 id="使用工具尝试解决以下问题，并写下总结"><a href="#使用工具尝试解决以下问题，并写下总结" class="headerlink" title="使用工具尝试解决以下问题，并写下总结"></a>使用工具尝试解决以下问题，并写下总结</h4><p>当一个Java程序响应很慢时如何查找问题、</p>
-<p>当一个Java程序频繁FullGC时如何解决问题、</p>
-<p>如何查看垃圾回收日志、</p>
-<p>当一个Java应用发生OutOfMemory时该如何解决、</p>
-<p>如何判断是否出现死锁、</p>
-<p>如何判断是否存在内存泄露</p>
-<p>编译原理知识</p>
-<h4 id="编译与反编译"><a href="#编译与反编译" class="headerlink" title="编译与反编译"></a>编译与反编译</h4><h4 id="Java代码的编译与反编译"><a href="#Java代码的编译与反编译" class="headerlink" title="Java代码的编译与反编译"></a>Java代码的编译与反编译</h4><h4 id="Java的反编译工具"><a href="#Java的反编译工具" class="headerlink" title="Java的反编译工具"></a>Java的反编译工具</h4><h4 id="词法分析，语法分析（LL算法，递归下降算法，LR算法），语义分析，运行时环境，中间代码，代码生成，代码优化"><a href="#词法分析，语法分析（LL算法，递归下降算法，LR算法），语义分析，运行时环境，中间代码，代码生成，代码优化" class="headerlink" title="词法分析，语法分析（LL算法，递归下降算法，LR算法），语义分析，运行时环境，中间代码，代码生成，代码优化"></a>词法分析，语法分析（LL算法，递归下降算法，LR算法），语义分析，运行时环境，中间代码，代码生成，代码优化</h4><h2 id="操作系统知识"><a href="#操作系统知识" class="headerlink" title="操作系统知识"></a>操作系统知识</h2><h4 id="Linux的常用命令"><a href="#Linux的常用命令" class="headerlink" title="Linux的常用命令"></a>Linux的常用命令</h4><h4 id="进程同步"><a href="#进程同步" class="headerlink" title="进程同步"></a>进程同步</h4><h4 id="缓冲区溢出"><a href="#缓冲区溢出" class="headerlink" title="缓冲区溢出"></a>缓冲区溢出</h4><h4 id="分段和分页"><a href="#分段和分页" class="headerlink" title="分段和分页"></a>分段和分页</h4><h4 id="虚拟内存与主存"><a href="#虚拟内存与主存" class="headerlink" title="虚拟内存与主存"></a>虚拟内存与主存</h4><h2 id="数据库知识"><a href="#数据库知识" class="headerlink" title="数据库知识"></a>数据库知识</h2><h4 id="MySql-执行引擎"><a href="#MySql-执行引擎" class="headerlink" title="MySql 执行引擎"></a>MySql 执行引擎</h4><h4 id="MySQL-执行计划"><a href="#MySQL-执行计划" class="headerlink" title="MySQL 执行计划"></a>MySQL 执行计划</h4><p>如何查看执行计划，如何根据执行计划进行SQL优化</p>
-<h4 id="SQL优化"><a href="#SQL优化" class="headerlink" title="SQL优化"></a>SQL优化</h4><h4 id="事务"><a href="#事务" class="headerlink" title="事务"></a>事务</h4><p>事务的隔离级别、事务能不能实现锁的功能</p>
-<h4 id="数据库锁"><a href="#数据库锁" class="headerlink" title="数据库锁"></a>数据库锁</h4><p>行锁、表锁、使用数据库锁实现乐观锁、</p>
-<h4 id="数据库主备搭建"><a href="#数据库主备搭建" class="headerlink" title="数据库主备搭建"></a>数据库主备搭建</h4><h4 id="binlog"><a href="#binlog" class="headerlink" title="binlog"></a>binlog</h4><h4 id="内存数据库"><a href="#内存数据库" class="headerlink" title="内存数据库"></a>内存数据库</h4><p>h2</p>
-<h4 id="常用的nosql数据库"><a href="#常用的nosql数据库" class="headerlink" title="常用的nosql数据库"></a>常用的nosql数据库</h4><p>redis、memcached</p>
-<h4 id="分别使用数据库锁、NoSql实现分布式锁"><a href="#分别使用数据库锁、NoSql实现分布式锁" class="headerlink" title="分别使用数据库锁、NoSql实现分布式锁"></a>分别使用数据库锁、NoSql实现分布式锁</h4><h4 id="性能调优"><a href="#性能调优" class="headerlink" title="性能调优"></a>性能调优</h4><p>数据结构与算法知识</p>
-<h4 id="简单的数据结构"><a href="#简单的数据结构" class="headerlink" title="简单的数据结构"></a>简单的数据结构</h4><p>栈、队列、链表、数组、哈希表、</p>
-<h4 id="树"><a href="#树" class="headerlink" title="树"></a>树</h4><p>二叉树、字典树、平衡树、排序树、B树、B+树、R树、多路树、红黑树</p>
-<h4 id="排序算法"><a href="#排序算法" class="headerlink" title="排序算法"></a>排序算法</h4><p>各种排序算法和时间复杂度 深度优先和广度优先搜索 全排列、贪心算法、KMP算法、hash算法、海量数据处理</p>
-<h2 id="大数据知识"><a href="#大数据知识" class="headerlink" title="大数据知识"></a>大数据知识</h2><h4 id="Zookeeper"><a href="#Zookeeper" class="headerlink" title="Zookeeper"></a>Zookeeper</h4><p>基本概念、常见用法</p>
-<h4 id="Solr，Lucene，ElasticSearch"><a href="#Solr，Lucene，ElasticSearch" class="headerlink" title="Solr，Lucene，ElasticSearch"></a>Solr，Lucene，ElasticSearch</h4><p>在linux上部署solr，solrcloud，，新增、删除、查询索引</p>
-<h4 id="Storm，流式计算，了解Spark，S4"><a href="#Storm，流式计算，了解Spark，S4" class="headerlink" title="Storm，流式计算，了解Spark，S4"></a>Storm，流式计算，了解Spark，S4</h4><p>在linux上部署storm，用zookeeper做协调，运行storm hello world，local和remote模式运行调试storm topology。</p>
-<h4 id="Hadoop，离线计算"><a href="#Hadoop，离线计算" class="headerlink" title="Hadoop，离线计算"></a>Hadoop，离线计算</h4><p>HDFS、MapReduce</p>
-<h4 id="分布式日志收集flume，kafka，logstash"><a href="#分布式日志收集flume，kafka，logstash" class="headerlink" title="分布式日志收集flume，kafka，logstash"></a>分布式日志收集flume，kafka，logstash</h4><h4 id="数据挖掘，mahout"><a href="#数据挖掘，mahout" class="headerlink" title="数据挖掘，mahout"></a>数据挖掘，mahout</h4><h2 id="网络安全知识"><a href="#网络安全知识" class="headerlink" title="网络安全知识"></a>网络安全知识</h2><h4 id="什么是XSS"><a href="#什么是XSS" class="headerlink" title="什么是XSS"></a>什么是XSS</h4><p>XSS的防御</p>
-<h4 id="什么是CSRF"><a href="#什么是CSRF" class="headerlink" title="什么是CSRF"></a>什么是CSRF</h4><h4 id="什么是注入攻击"><a href="#什么是注入攻击" class="headerlink" title="什么是注入攻击"></a>什么是注入攻击</h4><p>SQL注入、XML注入、CRLF注入</p>
-<h4 id="什么是文件上传漏洞"><a href="#什么是文件上传漏洞" class="headerlink" title="什么是文件上传漏洞"></a>什么是文件上传漏洞</h4><h4 id="加密与解密"><a href="#加密与解密" class="headerlink" title="加密与解密"></a>加密与解密</h4><p>MD5，SHA1、DES、AES、RSA、DSA</p>
-<h4 id="什么是DOS攻击和DDOS攻击"><a href="#什么是DOS攻击和DDOS攻击" class="headerlink" title="什么是DOS攻击和DDOS攻击"></a>什么是DOS攻击和DDOS攻击</h4><p>memcached为什么可以导致DDos攻击、什么是反射型DDoS</p>
-<h4 id="SSL、TLS，HTTPS"><a href="#SSL、TLS，HTTPS" class="headerlink" title="SSL、TLS，HTTPS"></a>SSL、TLS，HTTPS</h4><h4 id="如何通过Hash碰撞进行DOS攻击"><a href="#如何通过Hash碰撞进行DOS攻击" class="headerlink" title="如何通过Hash碰撞进行DOS攻击"></a>如何通过Hash碰撞进行DOS攻击</h4><h4 id="用openssl签一个证书部署到apache或nginx"><a href="#用openssl签一个证书部署到apache或nginx" class="headerlink" title="用openssl签一个证书部署到apache或nginx"></a>用openssl签一个证书部署到apache或nginx</h4><p><img src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" alt="img"></p>
-<h1 id="四、架构篇"><a href="#四、架构篇" class="headerlink" title="四、架构篇"></a>四、架构篇</h1><p>分布式</p>
-<p>数据一致性、服务治理、服务降级</p>
-<h4 id="分布式事务"><a href="#分布式事务" class="headerlink" title="分布式事务"></a>分布式事务</h4><p>2PC、3PC、CAP、BASE、 可靠消息最终一致性、最大努力通知、TCC</p>
-<h4 id="Dubbo"><a href="#Dubbo" class="headerlink" title="Dubbo"></a>Dubbo</h4><p>服务注册、服务发现，服务治理</p>
-<h4 id="分布式数据库"><a href="#分布式数据库" class="headerlink" title="分布式数据库"></a>分布式数据库</h4><p>怎样打造一个分布式数据库、什么时候需要分布式数据库、mycat、otter、HBase</p>
-<h4 id="分布式文件系统"><a href="#分布式文件系统" class="headerlink" title="分布式文件系统"></a>分布式文件系统</h4><p>mfs、fastdfs</p>
-<h4 id="分布式缓存"><a href="#分布式缓存" class="headerlink" title="分布式缓存"></a>分布式缓存</h4><p>缓存一致性、缓存命中率、缓存冗余</p>
-<p>微服务</p>
-<p>SOA、康威定律</p>
-<h4 id="ServiceMesh"><a href="#ServiceMesh" class="headerlink" title="ServiceMesh"></a>ServiceMesh</h4><h4 id="Docker-amp-Kubernets"><a href="#Docker-amp-Kubernets" class="headerlink" title="Docker &amp; Kubernets"></a>Docker &amp; Kubernets</h4><h4 id="Spring-Boot"><a href="#Spring-Boot" class="headerlink" title="Spring Boot"></a>Spring Boot</h4><h4 id="Spring-Cloud"><a href="#Spring-Cloud" class="headerlink" title="Spring Cloud"></a>Spring Cloud</h4><p>高并发</p>
-<h4 id="分库分表"><a href="#分库分表" class="headerlink" title="分库分表"></a>分库分表</h4><h4 id="CDN技术"><a href="#CDN技术" class="headerlink" title="CDN技术"></a>CDN技术</h4><h4 id="消息队列"><a href="#消息队列" class="headerlink" title="消息队列"></a>消息队列</h4><p>ActiveMQ</p>
-<p>监控</p>
-<h4 id="监控什么"><a href="#监控什么" class="headerlink" title="监控什么"></a>监控什么</h4><p>CPU、内存、磁盘I/O、网络I/O等</p>
-<h4 id="监控手段"><a href="#监控手段" class="headerlink" title="监控手段"></a>监控手段</h4><p>进程监控、语义监控、机器资源监控、数据波动</p>
-<h4 id="监控数据采集"><a href="#监控数据采集" class="headerlink" title="监控数据采集"></a>监控数据采集</h4><p>日志、埋点</p>
-<h4 id="Dapper"><a href="#Dapper" class="headerlink" title="Dapper"></a>Dapper</h4><p>负载均衡</p>
-<p>tomcat负载均衡、Nginx负载均衡</p>
-<p>DNS</p>
-<p>DNS原理、DNS的设计</p>
-<p>CDN</p>
-<p>数据一致性</p>
-<p><img src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" alt="img"></p>
-<h1 id="五、-扩展篇"><a href="#五、-扩展篇" class="headerlink" title="五、 扩展篇"></a>五、 扩展篇</h1><p>云计算</p>
-<p>IaaS、SaaS、PaaS、虚拟化技术、openstack、Serverlsess</p>
-<p>搜索引擎</p>
-<p>Solr、Lucene、Nutch、Elasticsearch</p>
-<p>权限管理</p>
-<p>Shiro</p>
-<p>区块链</p>
-<p>哈希算法、Merkle树、公钥密码算法、共识算法、Raft协议、Paxos 算法与 Raft 算法、拜占庭问题与算法、消息认证码与数字签名</p>
-<h4 id="比特币"><a href="#比特币" class="headerlink" title="比特币"></a>比特币</h4><p>挖矿、共识机制、闪电网络、侧链、热点问题、分叉</p>
-<h4 id="以太坊"><a href="#以太坊" class="headerlink" title="以太坊"></a>以太坊</h4><h4 id="超级账本"><a href="#超级账本" class="headerlink" title="超级账本"></a>超级账本</h4><p>人工智能</p>
-<p>数学基础、机器学习、人工神经网络、深度学习、应用场景。</p>
-<h4 id="常用框架"><a href="#常用框架" class="headerlink" title="常用框架"></a>常用框架</h4><p>TensorFlow、DeepLearning4J</p>
-<p>其他语言</p>
-<p>Groovy、Python、Go、NodeJs、Swift、Rust</p>
-<p><img src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" alt="img"></p>
-<p>六、 推荐书籍</p>
-<p>《深入理解Java虚拟机》 </p>
-<p>《Effective Java》 </p>
-<p>《深入分析Java Web技术内幕》 </p>
-<p>《大型网站技术架构》 </p>
-<p>《代码整洁之道》 </p>
-<p>《Head First设计模式》 </p>
-<p>《maven实战》 </p>
-<p>《区块链原理、设计与应用》 </p>
-<p>《Java并发编程实战》 </p>
-<p>《鸟哥的Linux私房菜》 </p>
-<p>《从Paxos到Zookeeper》 </p>
-<p>《架构即未来》</p>
-
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-      
-
-      <div style="font-size: 12px;">
-        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
-      </div>
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2018/03/23/java工程师成神之路/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
-    <article id="post-MySQL开发规范" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2018/03/13/MySQL开发规范/">MySQL开发规范</a>
-    </h1>
-  
-
-        
-        <a href="/2018/03/13/MySQL开发规范/" class="archive-article-date">
-  	<time datetime="2018-03-13T06:14:53.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-03-13</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h2 id="一-命名规范"><a href="#一-命名规范" class="headerlink" title="一. 命名规范"></a>一. 命名规范</h2><ol>
-<li><h3 id="库名、表名、字段名必须使用小写字母，并采用下划线分割"><a href="#库名、表名、字段名必须使用小写字母，并采用下划线分割" class="headerlink" title="库名、表名、字段名必须使用小写字母，并采用下划线分割"></a>库名、表名、字段名必须使用小写字母，并采用下划线分割</h3><ul>
-<li>为了统一规范， 库名、表名、字段名使用小写字母，禁用关键字（index,order等）。</li>
-</ul>
-</li>
-<li><h3 id="前缀命令规范"><a href="#前缀命令规范" class="headerlink" title="前缀命令规范"></a>前缀命令规范</h3><ul>
-<li>视图以<code>view_</code>开头，事件以<code>event_</code>开头，触发器以<code>trig_</code>开头，存储过程以<code>proc_</code>开头，函数以<code>func_</code>开头，应用上面禁用</li>
-<li>普通索引以<code>idx_各个列名简称</code>，唯一索引以<code>uk_各个列名简称</code>命名，中间用<code>_</code>隔开。如 <code>idx_col1_col2_col3(col1,col2,col3)</code>，如果列过长，用简写</li>
-<li>临时表以<code>tmp_实体表名</code>，线上禁用，备份表以<code>bak_日期_实体表名</code>，尽可能备份至HDFS</li>
-</ul>
-</li>
-<li><h3 id="库名、表名、字段名禁止超过32个字符，需见名知意"><a href="#库名、表名、字段名禁止超过32个字符，需见名知意" class="headerlink" title="库名、表名、字段名禁止超过32个字符，需见名知意"></a>库名、表名、字段名禁止超过32个字符，需见名知意</h3><p>库名、表名、字段名支持最多32个字符，但为了统一规范、易于辨识以及减少传输量，禁止超过32个字符，例：业务名称/实体_表作用</p>
-</li>
-<li><h3 id="按日期时间分表须符合-YYYYMMDD格式"><a href="#按日期时间分表须符合-YYYYMMDD格式" class="headerlink" title="按日期时间分表须符合_YYYYMMDD格式"></a>按日期时间分表须符合_YYYYMMDD格式</h3><p>按月或日生成的表，以<code>_YYYYMM[DD]</code>方式命名。</p>
-</li>
-</ol>
-<h2 id="二-库表基础规范"><a href="#二-库表基础规范" class="headerlink" title="二. 库表基础规范"></a>二. 库表基础规范</h2><ol>
-<li><h3 id="使用Innodb存储引擎"><a href="#使用Innodb存储引擎" class="headerlink" title="使用Innodb存储引擎"></a>使用Innodb存储引擎</h3><p>所有表必须使用默认存储引擎InnoDB。</p>
-</li>
-<li><h3 id="表编码方式统一使用UTF8或UTF8MB4的"><a href="#表编码方式统一使用UTF8或UTF8MB4的" class="headerlink" title="表编码方式统一使用UTF8或UTF8MB4的"></a>表编码方式统一使用UTF8或UTF8MB4的</h3><p>创建索引时utf8比utf8mb4少一个字节，所以明确没有emoj时，尽量使用utf8。</p>
-</li>
-<li><h3 id="所有表都要添加注释"><a href="#所有表都要添加注释" class="headerlink" title="所有表都要添加注释"></a>所有表都要添加注释</h3><p>所有字段必需要有注释，包括表注释，并标注简单意义</p>
-</li>
-<li><h3 id="控制单表字段数量"><a href="#控制单表字段数量" class="headerlink" title="控制单表字段数量"></a>控制单表字段数量</h3><ul>
-<li>单表字段数上限50左右，再多的话考虑垂直分表，一是冷热数据分离，二是大字段分离，三是常在一起做条件和返回列的不分离。</li>
-<li>表字段控制少而精，可以提高IO效率，内存缓存更多有效数据，从而提高响应速度和并发能力，后续 alter table 也更快。</li>
-</ul>
-</li>
-<li><h3 id="所有表都必须要显式指定主键"><a href="#所有表都必须要显式指定主键" class="headerlink" title="所有表都必须要显式指定主键"></a>所有表都必须要显式指定主键</h3><ul>
-<li>双活的表必须禁用自增主键【snowflake】，InnoDB表实际是一棵索引组织表，顺序存储可以提高存取效率，充分利用磁盘空间。还有对一些复杂查询可能需要自连接来优化时需要用到。</li>
-<li>需要全局唯一主键时，gmt_create这类的能使用主键排序的尽量使用主键做分页排序，不浪费索引</li>
-<li>少数情况可以使用联合唯一主键，需与DBA协商</li>
-</ul>
-</li>
-<li><h3 id="不使用外键"><a href="#不使用外键" class="headerlink" title="不使用外键"></a>不使用外键</h3><p>外键严重影响数据库性能，增加表维护复杂度，所以线上禁用外键</p>
-</li>
-<li><h3 id="字段名称统一"><a href="#字段名称统一" class="headerlink" title="字段名称统一"></a>字段名称统一</h3><ul>
-<li>每张表原则上必须含有gmt_create,gmt_modify，gmt_create为创建时间。gmt_modify属性为NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP，gmt_create属性为NOT NULL DEFAULT CURRENT_TIMESTAMP，统一放至字段最后</li>
-<li>所有相同意义的表采用统一字段名称，并且字段类型一致，这样应用与维护人员见字段知其含义，方便理解</li>
-</ul>
-</li>
-<li><h3 id="简单单表数据量控制在1000w以内"><a href="#简单单表数据量控制在1000w以内" class="headerlink" title="简单单表数据量控制在1000w以内"></a>简单单表数据量控制在1000w以内</h3></li>
-<li><h3 id="尽量保证单表存储空间小于10GB"><a href="#尽量保证单表存储空间小于10GB" class="headerlink" title="尽量保证单表存储空间小于10GB"></a>尽量保证单表存储空间小于10GB</h3></li>
-<li><p><strong>建表时不要加入COLLATE相关内容</strong></p>
-</li>
-</ol>
-<h2 id="三-字段规范"><a href="#三-字段规范" class="headerlink" title="三. 字段规范"></a>三. 字段规范</h2><ol>
-<li><h3 id="char、varchar、text等字符串类型定义"><a href="#char、varchar、text等字符串类型定义" class="headerlink" title="char、varchar、text等字符串类型定义"></a>char、varchar、text等字符串类型定义</h3><ul>
-<li>对于长度基本固定的列，如果该列恰好更新又特别频繁，适合char</li>
-<li>varchar虽然存储变长字符串，但不可太小也不可太大。UTF8最多能存21844个汉字，或65532个英文</li>
-<li>TEXT类型与VARCHAR都类似，存储可变长度，最大限制也是2^16，但是它20bytes以后的内容是在数据页以外的空间存储（row_format=dynamic），对它的使用需要多一次寻址，没有默认值。</li>
-<li>把text/blob拆到另一个表中，如果只存不读的禁用，建议直接存HDFS</li>
-<li>BLOB可以看出varbinary的扩展版本，内容以二进制字符串存储，无字符集，区分大小写，有一种经常提但不用的场景：不要在数据库里存储图片。</li>
-<li>字符集为utf8，varchar类型最大只能创建索引为前255字节；字符集为utf8mb4，varchar类型最大只能创建索引为前191字节。所以字段造型时首选int，如果varchar时字段做查询的越小越好，长度不要超过191。</li>
-</ul>
-</li>
-<li><h3 id="int、tinyint、decimal等数字类型定义"><a href="#int、tinyint、decimal等数字类型定义" class="headerlink" title="int、tinyint、decimal等数字类型定义"></a>int、tinyint、decimal等数字类型定义</h3><ul>
-<li>使用tinyint来代替 enum和booleanENUM类型在需要修改或增加枚举值时，需要在线DDL，成本较高；ENUM列值如果含有数字类型，可能会引起默认值混淆tinyint使用1个字节，一般用于status,type,flag的列</li>
-<li>建议使用 UNSIGNED 存储非负数值相比不使用 unsigned，可以扩大一倍使用数值范围</li>
-<li>int使用固定4个字节存储，int(11)与int(4)只是显示宽度的区别</li>
-<li>使用int存储IPv4地址，可节省 9%+的数据存储空间</li>
-<li>使用Decimal 代替float/double存储精确浮点数对于货币、金额这样的类型，可以使用（货币使用bigint+币种+最小单位），如果精度不高，可以使用decimal(9,2)。float默认只能能精确到6位有效数字</li>
-</ul>
-</li>
-<li><h3 id="timestamp与datetime选择"><a href="#timestamp与datetime选择" class="headerlink" title="timestamp与datetime选择"></a>timestamp与datetime选择</h3><ul>
-<li>datetime 和 timestamp类型所占的存储空间不同，前者8个字节，后者4个字节，这样造成的后果是两者能表示的时间范围不同。前者范围为1000-01-01 00:00:00 ~ 9999-12-31 23:59:59，后者范围为 1970-01-01 00:00:00 到 2037-12-31 23:59:59。所以 TIMESTAMP 支持的范围比 DATATIME 要小。</li>
-<li>timestamp可以在insert/update行时，自动更新时间字段（如 NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP），但一个表只能有一个这样的定义。</li>
-<li>timestamp显示与时区有关，内部总是以 UTC 毫秒 来存的。还受到严格模式的限制</li>
-<li>优先使用timestamp，datetime也没问题，timestamp精度可以到秒后6位，即timestamp(6)</li>
-<li>where条件里不要对时间列上使用时间函数</li>
-</ul>
-</li>
-<li><h3 id="建议字段都定义为NOT-NULL加上default值"><a href="#建议字段都定义为NOT-NULL加上default值" class="headerlink" title="建议字段都定义为NOT NULL加上default值"></a>建议字段都定义为NOT NULL加上default值</h3><ul>
-<li>如果是索引字段，一定要定义为not null 。因为null值会影响cordinate统计，影响优化器对索引的选择</li>
-<li>如果不能保证insert时一定有值过来，定义时使用default ‘’ ，或 0</li>
-<li>上面两条如果需要双机房同步，那同步的表新增或更改必须为NULL，再行初始化数据</li>
-</ul>
-</li>
-<li><h3 id="类型选择原则"><a href="#类型选择原则" class="headerlink" title="类型选择原则"></a>类型选择原则</h3><p>Int-&gt;char-&gt;varchar-&gt;text，从左到右性能越差</p>
-</li>
-</ol>
-<h2 id="四-索引规范"><a href="#四-索引规范" class="headerlink" title="四. 索引规范"></a>四. 索引规范</h2><ol>
-<li><h3 id="索引个数限制"><a href="#索引个数限制" class="headerlink" title="索引个数限制"></a>索引个数限制</h3><ul>
-<li>索引是双刃剑，会增加维护负担，增大IO压力，索引占用空间是成倍增加的</li>
-<li>单张表的索引数量控制在5个以内，索引的大小尽量比表小。若单张表多个字段在查询需求上都要单独用到索引，需要经过DBA评估。</li>
-</ul>
-</li>
-<li><h3 id="避免冗余索引"><a href="#避免冗余索引" class="headerlink" title="避免冗余索引"></a>避免冗余索引</h3><ul>
-<li>InnoDB表是一棵索引组织表，主键是和数据放在一起的聚集索引，普通索引最终指向的是主键地址，所以把主键做最后一列是多余的。如id作为主键，联合索引(user_id,id)上的id就完全多余</li>
-<li>(a,b,c)、(a,b)，后者为冗余索引。可以利用前缀索引来达到加速目的，减轻维护负担</li>
-</ul>
-</li>
-<li><h3 id="索引创建原则"><a href="#索引创建原则" class="headerlink" title="索引创建原则"></a>索引创建原则</h3><ul>
-<li>尽可能选择过滤效果好的列上创建索引</li>
-<li>索引选择性计算方法（基数 ÷ 数据行数）Selectivity = Cardinality / Total Rows = select count(distinct col1)/count(*) from tbname，越接近1说明col1上使用索引的过滤效果越好</li>
-<li>如果某列为sex，数据倾斜比较大，male占比99%，female占比1%，而每次查询都为female，则需要创建该列的索引</li>
-</ul>
-</li>
-<li><h3 id="最左前缀原则"><a href="#最左前缀原则" class="headerlink" title="最左前缀原则"></a>最左前缀原则</h3><ul>
-<li>mysql使用联合索引时，从左向右匹配，遇到断开或者范围查询时，无法用到后续的索引列比如索引idx_c1<em>c2</em>c3 (c1,c2,c3)，相当于创建了(c1)、(c1,c2)、(c1,c2,c3)三个索引，where条件包含上面三种情况的字段比较则可以用到索引，但像 where c1=a and c3=c 只能用到c1列的索引，像 c2=b and c3=c等情况就完全用不到这个索引</li>
-<li>遇到范围查询(&gt;、&lt;、between、like)也会停止索引匹配，比如 c1=a and c2 &gt; 2 and c3=c，只有c1,c2列上的比较能用到索引，(c1,c2,c3)排列的索引才可能会都用上</li>
-<li>where条件里面字段的顺序与索引顺序无关，mysql优化器会自动调整顺序</li>
-<li>mysql的optimizer_switch，可以配置icp，mrr等特性。mrr为多个字段做合并，如已存在c1,c2,c3索引，查询时c1=’a’ and/or c2=’b’，则会使用到索引合并，如果大部分查询没有c1和c2同时存在，则建议创建单列索引</li>
-</ul>
-</li>
-<li><h3 id="前缀索引"><a href="#前缀索引" class="headerlink" title="前缀索引"></a>前缀索引</h3><ul>
-<li>前缀索引尽量第一列区分度高，这样如果优化器判断时会比较准确 ,A列1000个不同值，B列有100000个不同值，这样建议索引创建时idx_B_A(B,A)</li>
-</ul>
-</li>
-<li><h3 id="合理使用覆盖索引减少IO"><a href="#合理使用覆盖索引减少IO" class="headerlink" title="合理使用覆盖索引减少IO"></a>合理使用覆盖索引减少IO</h3><p>INNODB存储引擎中，secondary index(非主键索引，又称为辅助索引、二级索引)没有直接存储行地址，而是存储主键值。如果用户需要查询secondary index中所不包含的数据列，则需要先通过secondary index查找到主键值，然后再通过主键查询到其他数据列，因此需要查询两次。覆盖索引则可以在一个索引中获取所有需要的数据列，从而避免回表进行二次查找，节省IO因此效率较高。例如SELECT email，uid FROM user_email WHERE uid=xx，如果uid不是主键，适当时候可以将索引添加为index(uid，email)，以获得性能提升。</p>
-</li>
-<li><h3 id="不要在频繁更新的列上创建索引"><a href="#不要在频繁更新的列上创建索引" class="headerlink" title="不要在频繁更新的列上创建索引"></a>不要在频繁更新的列上创建索引</h3></li>
-</ol>
-<h2 id="五-SQL设计"><a href="#五-SQL设计" class="headerlink" title="五. SQL设计"></a>五. SQL设计</h2><ol>
-<li><h3 id="杜绝直接-SELECT-读取全部字段"><a href="#杜绝直接-SELECT-读取全部字段" class="headerlink" title="杜绝直接 SELECT * 读取全部字段"></a>杜绝直接 SELECT * 读取全部字段</h3><p>即使需要所有字段，减少网络带宽消耗，能有效利用覆盖索引，表结构变更对程序基本无影响</p>
-</li>
-<li><h3 id="能确定返回结果只有一条时，使用-limit-1"><a href="#能确定返回结果只有一条时，使用-limit-1" class="headerlink" title="能确定返回结果只有一条时，使用 limit 1"></a>能确定返回结果只有一条时，使用 limit 1</h3><p><strong>在保证数据不会有误的前提下</strong>，能确定结果集数量时，多使用limit，尽快的返回结果。</p>
-</li>
-<li><h3 id="建议不要使用隐式类型转换"><a href="#建议不要使用隐式类型转换" class="headerlink" title="建议不要使用隐式类型转换"></a>建议不要使用隐式类型转换</h3></li>
-<li><h3 id="禁止在where条件列上使用函数"><a href="#禁止在where条件列上使用函数" class="headerlink" title="禁止在where条件列上使用函数"></a>禁止在where条件列上使用函数</h3><ul>
-<li>会导致索引失效，如lower(email)，f_qq % 4。可放到右边的常量上计算</li>
-<li>返回小结果集不是很大的情况下，可以对返回列使用函数，简化程序开发，但尽量不要使用函数索引</li>
-</ul>
-</li>
-<li><h3 id="使用like模糊匹配，-不要放首位"><a href="#使用like模糊匹配，-不要放首位" class="headerlink" title="使用like模糊匹配，%不要放首位"></a>使用like模糊匹配，%不要放首位</h3><p>会导致索引失效，有这种搜索需求是，考虑其它方案，如es全文搜索</p>
-</li>
-<li><h3 id="使用join时，where条件尽量使用充分利用同一表上的索引"><a href="#使用join时，where条件尽量使用充分利用同一表上的索引" class="headerlink" title="使用join时，where条件尽量使用充分利用同一表上的索引"></a>使用join时，where条件尽量使用充分利用同一表上的索引</h3><ul>
-<li>如 select t1.a,t2.b * from t1,t2 where t1.a=t2.a and t1.b=123 and t2.c= 4 ，如果t1.c与t2.c字段相同，那么t1上的索引(b,c)就只用到b了。此时如果把where条件中的t2.c=4改成t1.c=4，那么可以用到完整的索引</li>
-<li>这种情况可能会在字段冗余设计（反范式）时出现</li>
-<li>正确选取inner join和left join</li>
-</ul>
-</li>
-<li><h3 id="少用或不用子查询，改用join"><a href="#少用或不用子查询，改用join" class="headerlink" title="少用或不用子查询，改用join"></a>少用或不用子查询，改用join</h3><p>mysql 5.6版本只支持nest loop，让mysql自已判断需要使用的索引</p>
-</li>
-<li><h3 id="考虑使用union-all，少使用union，注意考虑去重"><a href="#考虑使用union-all，少使用union，注意考虑去重" class="headerlink" title="考虑使用union all，少使用union，注意考虑去重"></a>考虑使用union all，少使用union，注意考虑去重</h3><ul>
-<li>union all不去重，而少了排序操作，速度相对比union要快，如果没有去重的需求，优先使用union all</li>
-<li>如果UNION结果中有使用limit，在2个子SQL可能有许多返回值的情况下，各自加上limit。如果还有order by，请找DBA。</li>
-</ul>
-</li>
-<li><h3 id="IN的内容尽量不超过200个"><a href="#IN的内容尽量不超过200个" class="headerlink" title="IN的内容尽量不超过200个"></a>IN的内容尽量不超过200个</h3><p>超过200个值使用批量的方式，否则一次执行会影响数据库的并发能力，因为单SQL只能且一直占用单CPU，而且可能导致主从复制延迟</p>
-</li>
-<li><h3 id="拒绝大事务"><a href="#拒绝大事务" class="headerlink" title="拒绝大事务"></a>拒绝大事务</h3><p>比如在一个事务里进行多个select，多个update，如果是高频事务，会严重影响MySQL并发能力，因为事务持有的锁等资源只在事务rollback/commit时才能释放。但同时也要权衡数据写入的一致性。</p>
-</li>
-<li><h3 id="避免使用is-null-is-not-null这样的比较"><a href="#避免使用is-null-is-not-null这样的比较" class="headerlink" title="避免使用is null, is not null这样的比较"></a>避免使用is null, is not null这样的比较</h3></li>
-<li><h3 id="杜绝危险SQL"><a href="#杜绝危险SQL" class="headerlink" title="杜绝危险SQL"></a>杜绝危险SQL</h3></li>
-<li><ul>
-<li>去掉where 1=1 这样无意义或恒真的条件，如果遇到update/delete或遭到sql注入就恐怖了</li>
-<li>SQL中不允许出现DDL语句。一般也不给予create/alter这类权限</li>
-</ul>
-</li>
-<li><p>编写SQL 慎用分组、聚合</p>
-<p>​</p>
-<p>在编写SQL中，原则上不能使用以下方法，尽可能将这些逻辑交由应用实现</p>
-<p>​</p>
-<p>1、group by having<br>2、count/sum/avg etc.<br>3、order by 非id<br>4、3张及3张以上表做嵌套<br>5、left join/ right join<br>6、select * from<br>7、无where条件的查询</p>
-</li>
-</ol>
-<h2 id="六-行为规范"><a href="#六-行为规范" class="headerlink" title="六. 行为规范"></a>六. 行为规范</h2><ol>
-<li><strong>不允许在DBA不知情的情况下导现网数据</strong></li>
-<li><strong>大批量更新，如修复数据，避开高峰期，并通知DBA</strong></li>
-<li><strong>及时处理已下线业务的SQL</strong></li>
-<li><strong>复杂sql上线审核</strong><br>因为目前还没有SQL审查机制，复杂sql如多表join,count,group by，主动上报DBA评估。</li>
-<li><strong>重要项目的数据库方案选型和设计必须提前通知DBA参与</strong></li>
-<li><strong>严格按照现有的SQL规范提交SQL审核，如果有不确认单独和DBA沟通，如SQL较多，建议以脚本文件方式提交</strong></li>
-<li><strong>每周定某段时间窗口内提交SQL，其他时间段需要走紧急审批流程，原则上至少提前一天提交脚本审核</strong><br>我们约定每周周一、周二、周三、周四下午3点到5点间执行SQL，其他时间段需要走紧急流程（流程后续优化），周五提交原则上周一才能执行</li>
-<li><strong>严格执行【在线业务，客户直接使用，保证实时性】，【客户olap应用】，【离线、运营相关】，【内部系统】 存放，核心业务与其他业务隔离，业务耦合度高的应用尽可能放在一个实例中</strong></li>
-<li><strong>提交SQL时，不允许出现drop table if exists</strong></li>
-<li><strong>重要项目涉及数据库DBA必须参加，不然影响项目进度由项目自己负责</strong></li>
-<li><strong>表字段名称修改如果有otter同步时，则必须要保证两边数据没写入</strong></li>
-<li><strong>count(*)无条件，或者扫描行数较大，大于10000行，理论上都是不被允许的，计数功能尽可能交由redis处理</strong></li>
-<li><strong>批量操作必须由DBA审核执行</strong></li>
-<li><strong>杭州、上海机房双活、双向，自增长主键的使用必须禁用</strong></li>
-<li><strong>在线数据库的人工变更（已有表结构变更、数据导入、更新、删除等）须要提前申请，主管审批，并知会运营可能的影响面</strong></li>
-</ol>
-<h2 id="七-使用建议"><a href="#七-使用建议" class="headerlink" title="七.使用建议"></a>七.使用建议</h2><ol>
-<li><h3 id="order-by-limit"><a href="#order-by-limit" class="headerlink" title="order by .. limit"></a>order by .. limit</h3><p>这种查询更多的是通过索引去优化，但order by的字段有讲究，比如主键id与gmt_create都是顺序递增，那就可以考虑order by id而非 gmt_create 。</p>
-</li>
-<li><h3 id="c1-lt-a-order-by-c2"><a href="#c1-lt-a-order-by-c2" class="headerlink" title="c1 &lt; a order by c2"></a>c1 &lt; a order by c2</h3><p>与上面不同的是，order by之前有个范围查询，由前面的内容可知，用不到类似(c1,c2)的索引，但是可以利用(c2,c1)索引。另外还可以改写成join的方式实现。</p>
-</li>
-<li><h3 id="分页优化"><a href="#分页优化" class="headerlink" title="分页优化"></a>分页优化</h3><p>建议使用合理的分页方式以提高分页效率，大页情况下不使用跳跃式分页假如有类似下面分页语句:SELECT <em>FROM table1 ORDER BY ftime DESC LIMIT 10000,10;这种分页方式会导致大量的io，因为MySQL使用的是提前读取策略。推荐分页方式：SELECT </em>FROM table1 WHERE ftime &lt; last_time ORDER BY ftime DESC LIMIT 10即传入上一次分页的界值</p>
-<p>SELECT * FROM table as t1 inner JOIN (SELECT id FROM table ORDER BY time LIMIT 10000，10) as t2 ON <a href="http://t1.id/" target="_blank" rel="external">t1.id</a>=<a href="http://t2.id/" target="_blank" rel="external">t2.id</a></p>
-</li>
-<li><h3 id="count计数"><a href="#count计数" class="headerlink" title="count计数"></a>count计数</h3><ul>
-<li>首先count(<em>)、count(1)、count(col1)是有区别的，count(</em>)表示整个结果集有多少条记录，count(1)表示结果集里以primary key统计数量，绝大多数情况下count(<em>)与count(1)效果一样的，但count(col1)表示的是结果集里 col1 列 NOT null 的记录数。优先采用count(</em>)</li>
-<li>大数据量count是消耗资源的操作，甚至会拖慢整个库，查询性能问题无法解决的，应从产品设计上进行重构。例如当频繁需要count的查询，考虑使用汇总表</li>
-<li>遇到distinct的情况，group by方式可能效率更高。</li>
-</ul>
-</li>
-<li><h3 id="delete-update语句改成select再explain"><a href="#delete-update语句改成select再explain" class="headerlink" title="delete,update语句改成select再explain"></a>delete,update语句改成select再explain</h3></li>
-<li><h3 id="涉及到复杂sql时，务必先参考已有索引设计，先explain"><a href="#涉及到复杂sql时，务必先参考已有索引设计，先explain" class="headerlink" title="涉及到复杂sql时，务必先参考已有索引设计，先explain"></a>涉及到复杂sql时，务必先参考已有索引设计，先explain</h3><ul>
-<li>简单SQL拆分，不以代码处理复杂为由。</li>
-<li>比如 OR 条件： f_phone=’10000’ or f_mobile=’10000’，两个字段各自有索引，可以使用索引合并使用两个索引。不过建议拆分成2个sql，或者union all，如果非要用mysql索引实现，则需要创建两列单列索引，打开index_merge_union后会转义成union。</li>
-<li>先explain的好处是可以为了利用索引，增加更多查询限制条件</li>
-</ul>
-</li>
-<li><h3 id="减少与数据库交互的次数，尽量采用批量SQL语句"><a href="#减少与数据库交互的次数，尽量采用批量SQL语句" class="headerlink" title="减少与数据库交互的次数，尽量采用批量SQL语句"></a>减少与数据库交互的次数，尽量采用批量SQL语句</h3><ul>
-<li><code>INSERT ... ON DUPLICATE KEY UPDATE ...</code>，插入行后会导致在一个UNIQUE索引或PRIMARY KEY中出现重复值，则执行旧行UPDATE，如果不重复则直接插入，影响1行。</li>
-<li><code>REPLACE INTO</code>类似，但它是冲突时删除旧行。<code>INSERT IGNORE</code>相反，保留旧行，丢弃要插入的新行。</li>
-<li>INSERT INTO VALUES(),(),()，合并插入。</li>
-</ul>
-</li>
-<li><h3 id="隐式类型使用注意事项"><a href="#隐式类型使用注意事项" class="headerlink" title="隐式类型使用注意事项"></a>隐式类型使用注意事项</h3><ul>
-<li><p>两个参数至少有一个是 NULL 时，比较的结果也是 NULL，例外是使用 &lt;=&gt; 对两个 NULL 做比较时会返回 1，这两种情况都不需要做类型转换</p>
-</li>
-<li><p>两个参数都是字符串，会按照字符串来比较，不做类型转换</p>
-</li>
-<li><p>两个参数都是整数，按照整数来比较，不做类型转换</p>
-</li>
-<li><p>十六进制的值和非数字做比较时，会被当做二进制串</p>
-</li>
-<li><p>有一个参数是 TIMESTAMP 或 DATETIME，并且另外一个参数是常量，常量会被转换为 timestamp</p>
-</li>
-<li><p>有一个参数是 decimal 类型，如果另外一个参数是 decimal 或者整数，会将整数转换为 decimal 后进行比较，如果另外一个参数是浮点数，则会把 decimal 转换为浮点数进行比较</p>
-</li>
-<li><p>所有其他情况下，两个参数都会被转换为浮点数再进行比较。</p>
-<p>例：A列为int类型时，A=’123’隐式转换后可以使用索引；A为char类型时，A=123隐式转换后无法使用索引</p>
-</li>
-</ul>
-</li>
-<li><h3 id="任何新的select-update-delete上线，建议都要先explain，看索引使用情况"><a href="#任何新的select-update-delete上线，建议都要先explain，看索引使用情况" class="headerlink" title="任何新的select,update,delete上线，建议都要先explain，看索引使用情况"></a>任何新的select,update,delete上线，建议都要先explain，看索引使用情况</h3><p>尽量避免extra列出现：Using File Sort，Using Temporary，rows超过1000的要谨慎上线。explain解读</p>
-</li>
-<li><ul>
-<li><code>type</code>：ALL, index, range, ref, eq_ref, const, system（从左到右，性能从差到好）</li>
-<li><code>possible_keys</code>：指出MySQL能使用哪个索引在表中找到记录，查询涉及到的字段上若存在索引，则该索引将被列出，但不一定被查询使用</li>
-<li><code>key</code>：表示MySQL实际决定使用的键（索引）如果没有选择索引，键是NULL。要想强制MySQL使用或忽视possible_keys列中的索引，在查询中使用FORCE INDEX、USE INDEX或者IGNORE INDEX</li>
-<li><code>ref</code>：表示选择 <code>key</code> 列上的索引，哪些列或常量被用于查找索引列上的值</li>
-<li><code>rows</code>：根据表统计信息及索引选用情况，估算的找到所需的记录所需要读取的行数</li>
-<li><code>Extra``Using temporary</code>：表示MySQL需要使用临时表来存储结果集，常见于排序和分组查询<code>Using filesort</code>：MySQL中无法利用索引完成的排序操作称为“文件排序”</li>
-</ul>
-</li>
-</ol>
-<h2 id="八-SQL提交规范"><a href="#八-SQL提交规范" class="headerlink" title="八.SQL提交规范"></a>八.SQL提交规范</h2><p><strong>业务名称或者功能模块:  </strong>某个应用的用户表【越详细越好】</p>
-<p><strong>实例库名：</strong>  asgard</p>
-<p><strong>建表语句： </strong> </p>
-<p>CREATE TABLE <code>user</code> (</p>
-<p>  <code>id</code> int(11) NOT NULL AUTO_INCREMENT,</p>
-<p>  <code>login_id</code> varchar(200) DEFAULT NULL 登录id,</p>
-<p>  <code>password</code> varchar(100) DEFAULT NULL COMMENT ‘密码’,</p>
-<p>  <code>user_name</code> varchar(45) DEFAULT NULL COMMENT ‘姓名’,</p>
-<p>  <code>user_type</code> int(1) NOT NULL COMMENT ‘应用类型：1.内网应用，走域帐号；2.外网应用，只做映射关系’,</p>
-<p>  <code>user_code</code> varchar(45) NULL COMMENT ‘asgard的管理员：asgard_admin 内部应用 fraudmetrix 外部应用’,</p>
-<p>  <code>status</code> int(1) DEFAULT ‘0’ COMMENT ‘是否可用，0:停用，1:可用’,</p>
-<p>  <code>created_by</code> varchar(100) DEFAULT NULL COMMENT ‘新增者’,</p>
-<p>  <code>updated_by</code> varchar(100) DEFAULT NULL COMMENT ‘修改者’,</p>
-<p>  <code>gmt_create</code> timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT ‘创建时间’,</p>
-<p>  <code>gmt_modify</code> timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT ‘修改时间’,</p>
-<p>  PRIMARY KEY (<code>id</code>),</p>
-<p>  KEY <code>idx_loginId</code> (<code>login_id</code>(191)) ,</p>
-<p>  KEY <code>idx_userType</code> (<code>user_type</code>) ,</p>
-<p>  KEY <code>idx_userCode</code> (<code>user_code</code>) </p>
-<p>) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT=’用户表’</p>
-<p>注：时间字段放于最后</p>
-<p><strong>查询条件（包括DML中的条件）及每个条件占比数据量：</strong>  </p>
-<p>where login_id=1 100%不同值 算法：count(distinct login_id) / count(1)</p>
-<p>where user_name=1 and status=1 order by id desc limit 5 80%不同值，算法：count(distinct user_name,status) / count(1)</p>
-<p>原则上大于20%以上就要创建下索引</p>
-<p><strong>表的预估数据量条数：</strong>  10K条左右</p>
-<p><strong>表的预估并发量QPS：</strong>  50</p>
-<p><strong>分库分表要求： </strong> 无【原则上1000万以上需要分库分表，这个待中间件上线上正式实施】</p>
-<p><strong>其他说明：</strong>  无</p>
-
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-      
-
-      <div style="font-size: 12px;">
-        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
-      </div>
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2018/03/13/MySQL开发规范/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
-    <article id="post-java范型通配符" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2018/03/08/java范型通配符/">java范型使用小结</a>
-    </h1>
-  
-
-        
-        <a href="/2018/03/08/java范型通配符/" class="archive-article-date">
-  	<time datetime="2018-03-08T08:33:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-03-08</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h1 id="范型通配符"><a href="#范型通配符" class="headerlink" title="范型通配符"></a>范型通配符</h1><ol>
-<li>&lt;? extends Hero&gt;</li>
-</ol>
-<p>ArrayList heroList&lt;? extends Hero&gt; 表示<br>只能放子类<br>所以 可以确凿的是，从heroList取出来的对象，一定是可以转型成Hero的</p>
-<ol>
-<li>&lt;? super Hero&gt;</li>
-</ol>
-<p>ArrayList heroList&lt;? super Hero&gt; 表示<br>heroList的泛型可能是Hero<br>heroList的泛型可能是Object<br>可以往里面插入Hero以及Hero的子类<br>但是取出来有风险，因为不确定取出来是Hero还是Object</p>
-<ol>
-<li>泛型通配符?</li>
-</ol>
-<p>泛型通配符? 代表任意泛型<br>既然?代表任意泛型，那么换句话说，这个容器什么泛型都有可能<br>所以只能以Object的形式取出来<br>并且不能往里面放对象，因为不知道到底是一个什么泛型的容器</p>
-<p>一、泛型由来<br>Java语言类型包括八种基本类型(byte short int long float double boolean char)和复杂类型，复杂类型包括类和数组。<br>早期Java版本（1.4之前）如果要代指某个泛化类对象，只能使用Object，这样写出来的代码需要增加强转，而且缺少类型检查，代码缺少健壮性。在1.5之后，Java引入了泛型(Generic)的概念，提供了一套抽象的类型表示方法。利用泛型，我们可以：<br>1、表示多个可变类型之间的相互关系：HashMap<t,s>表示类型T与S的映射，HashMap<t, s="" extends="" t="">表示T的子类与T的映射关系</t,></t,s></p>
-<p>2、细化类的能力：ArrayList<t> 可以容纳任何指定类型T的数据，当T代指人，则是人的有序列表，当T代指杯子，则是杯子的有序列表，所有对象个体可以共用相同的操作行为</t></p>
-<p>3、复杂类型被细分成更多类型：List<people>和List<cup>是两种不同的类型，这意味着List<people> listP = new ArrayList<cup>()是不可编译的。后面会提到，这种检查基于编译而非运行，所以说是不可编译并非不可运行，因为运行时ArrayList不保留Cup信息。另外要注意，即使People继承自Object，List<object> listO = new ArrayList<people>()也是不可编译的，应理解为两种不同类型。因为listO可以容纳任意类型，而实例化的People列表只能接收People实例，这会破坏数据类型完整性。</people></object></cup></people></cup></people></p>
-<p>4、简化代码实现：假设有一个执行过程，对不同类型的数据，进行某些流程一致的处理，不引入泛型的实现方法为：<br>[java] view plain copy<br>public void addToArray(Integer data, Integer array[], int pos) {<br>    array[pos] = data;<br>}<br>public void addToArray(Long data, Long array[], int pos) {<br>    array[pos] = data;<br>}<br>这是一种典型的多态行为——重载，但是不够简化。引入泛型的写法更优雅：<br>[java] view plain copy<br>public <t> void addToArray(T data, T array[], int pos) {<br>    array[pos] = data;<br>}  </t></p>
-<p>二、泛型定义与使用（泛型类和泛型方法）<br>1、泛型参数的命名风格：<br>1）尽量用简便的命名来命名泛型，若类型无特定意义，尽量使用一个字符<br>2）尽量使用全大写来命名泛型形参，以此与其他类型区分开<br>3）单字母的泛型建议用T命名，如果有多个泛型，可以取T周围的大写字母，注意，如果泛型本身有意义，可以不遵守这一条，比如缓存管理CacheManager<param, data="">，该类负责管理缓存查询条件与数据的映射，用单字母就不太合适，使用多字母更好<br>4）对于泛型函数或者泛型内部类在某个泛型类中出现的情况，建议泛型函数和内部类的泛型形参名称与外层类的泛型名称保持不同，否则容易引起混淆。类似这种：<br>[java] view plain copy<br>public class GenericClass<t> {<br>     public <t> void testGenericMethod(T t) {<br>     }<br>}  </t></t></param,></p>
-<p>其实testGenericMethod方法的形参与外面GenericClass的形参完全没有关系。换句话说，泛型方法的泛型是优先使用方法泛型定义的。这种更应该写成：<br>[java] view plain copy<br>public class GenericClass<t> {<br>     public <s> void testGenericMethod(S s) {<br>     }<br>}  </s></t></p>
-<p>2、泛型存在两种用法：泛型类和泛型方法</p>
-<p>1）泛型类<br>定义泛型类时，在类名后加&lt;&gt;，尖括号内可以定义一个或多个泛型参数，并指定泛型参数的取值范围，多个参数用逗号(,)分割<br>泛型类中定义的泛型全类可用（静态方法、静态代码块、静态成员变量除外）<br>父类定义的泛型参数子类无法继承，所以子类得自己写<br>[java] view plain copy<br>public class GenericClass<t extends="" aclass=""> {<br>    T data;<br>    void setData(T t) {<br>        data = t;<br>    }<br>    T getData() {<br>        return data;<br>    }<br>}  </t></p>
-<p>2）泛型方法<br>定义泛型方法，在方法修饰符后，返回参数前加上&lt;&gt;，尖括号内可以定义一个或多个泛型参数，并指定泛型参数取值范围，多个参数用逗号(,)分割<br>泛型方法中定义的泛型作用域在方法内<br>[java] view plain copy<br>public class GenericMethodClass {<br>    public <t extends="" aclass,="" s="" t=""> T setData(T t, S s) {<br>        //do something<br>        return t;<br>    }<br>}  </t></p>
-<p>定义泛型方法，更多是为了表达返回值和方法形参间的关系，本例中方法第一个参数T继承AClass，第二个参数S继承T，返回值是第一个参数。<br>如果仅仅是为了实现了多态，应优先使用通配符。类似如下：<br>[java] view plain copy<br>public void addList(List&lt;?&gt; list) {<br>    //todo<br>}  </p>
-<p>3、定义了多个泛型类型参数时，一定要在使用时都指定类型，否则会编译出错。</p>
-<p>4、对泛型类的类型参数赋值包含两种方法：<br>1）类变量或实例化：<br>List<string> listS;<br>listS = new ArrayList<string>();</string></string></p>
-<p>2）继承<br>public class MyList<s> extends ArrayList<s> implements IMyInterface<s> {<br>}<br>S是对ArrayList内部定义的泛型E的赋值。</s></s></s></p>
-<p>5、对泛型方法的赋值：<br>[java] view plain copy<br>public <t> T testMethod1(T t, List<t> list) {<br>}  </t></t></p>
-<p>public <t> T testMethod2(List<t> list1, List<t> list2){<br>}  </t></t></t></p>
-<p>People n = null;  </p>
-<p>List<people> list1 = null;<br>testMethod1(n, list1);//此时泛型参数T为People  </people></p>
-<p>List<integer> list2 = null;<br>testMethod2(list1, list2);//编译报错  </integer></p>
-<p>三、通配符<br>1）上述泛型赋值都是赋予泛型参数确定值，我们还可以赋予泛型参数不确定值，也就是通配符?。使用通配符?表示一个未知的类型。类似如下：<br>List&lt;?&gt; list;存放任意的对象<br>List&lt;? extends AClass&gt; listSubAClass; //存放AClass的子类<br>List&lt;? extends BClass&gt; listSuperBClass; //存放BClass的父类</p>
-<p>2）通配符通常与泛型关键字一起使用。</p>
-<p>3）在Java集合框架中，对于未知类型的容器类，只能读取其中元素，不能添加元素。这是因为，对不确定的参数类型，编译器无法识别添加元素的类型和容器的类型是否兼容，唯一的例外是NULL。同时，其读取的元素只能用Object来存储。</p>
-<p>4）通配符不能用在泛型类和泛型方法声明中，类似如下：<br>[java] view plain copy<br>public class GenericClass&lt;?&gt; { //编译错误<br>  public &lt;?&gt; void testGenericMethod(? t) { //编译错误<br>  }<br>}  </p>
-<p>四、泛型关键字<br>1、泛型关键字有二个 extends和super，分别表示类型上界和类型下界<br>T extends AClass 表示T继承自AClass类<br>? super AClass 表示?是AClass的父类，注意：super只能与通配符?搭配使用，我们不能写：<br>public class GenericClass<t super="" aclass=""> { //错误<br>}<br>此例子中super换成extends是正确的，表示泛型T继承自AClass，T换成通配符?也是可以的，表示未知类型的下界是AClass。</t></p>
-<p>2、通配符与泛型关键字组合使用</p>
-<p>举两个例子：<br>下界：<br>[java] view plain copy<br>List&lt;? super People&gt; list = new ArrayList&lt;&gt;();<br>People people = new People();<br>list.add(people);<br>People data= list.get(0 ); //编译出错，报错Object不能转为People  </p>
-<p>上界：<br>[java] view plain copy<br>List&lt;? extends People&gt; list = new ArrayList&lt;&gt;();<br>People people = new People();<br>list.add(people);// 编译出错，不能向容器中添加确定的元素<br>People data= list.get( 0);  </p>
-<p>总结就是：上界添加(add)受限，下界查询(get)受限</p>
-<p>五、泛型实现原理<br>1、Java泛型是编译时技术，在运行时不包含类型信息，仅其实例中包含类型参数的定义信息。<br>2、Java利用编译器擦除（erasure，前端处理）实现泛型，基本上就是泛型版本源码到非泛型版本源码的转化。<br>3、擦除去掉了所有的泛型类内所有的泛型类型信息，所有在尖括号之间的类型信息都被扔掉.<br>举例来说：List<string>类型被转换为List，所有对类型变量String的引用被替换成类型变量的上限(通常是Object)。<br>而且，无论何时结果代码类型不正确，会插入一个到合适类型的转换。<br>[java] view plain copy</string></p>
-<p><t> T badCast(T t, Object o) {<br>return (T) o; // unchecked warning<br>}<br>这说明String类型参数在List运行时并不存在。它们也就不会添加任何的时间或者空间上的负担。但同时，这也意味着你不能依靠他们进行类型转换。</t></p>
-<p>4、一个泛型类被其所有调用共享<br>对于上文中的GenericClass，在编译后其内部是不存入泛型信息的，也就是说：<br>[java] view plain copy<br>GenericClass<aclass> gclassA = new GenericClass<aclass>();<br>GenericClass<bclass> gclassB = new GenericClass<bclass>();<br>gClassA.getClass() == gClassB.getClass()<br>这个判断返回的值是true，而非false，因为一个泛型类所有实例运行时具有相同的运行时类，其实际类型参数被擦除了。</bclass></bclass></aclass></aclass></p>
-<p>那么是不是GenericClass里完全不存AClass的信息呢？这个也不是，它内部存储的是泛型向上父类的引用，比如：<br>GenericClass<aclass extends="" charsequence="">, 其编译后内部存储的泛型替代是Charsequence，而不是Object。</aclass></p>
-<p>那么我们编码时的泛型的类型判断是怎么实现的呢？<br>其实这个过程是编译时检查的，也就是说限制gClassA.add(new BClass()) 这样的使用的方式的主体，不是运行时代码，而是编译时监测。</p>
-<p>泛型的意义就在于，对所有其支持的类型参数，有相同的行为，从而可以被当作不同类型使用；类的静态变量和方法在所有实例间共享使用，所以不能使用泛型。</p>
-<p>5、泛型与instanceof<br>泛型擦除了类型信息，所以使用instanceof检查某个实例是否是特定类型的泛型类是不可行的：<br>GenericClass genericClass = new GenericClass<string>();<br>if (genericClass instanceof GenericClass<string>) {} // 编译错误</string></string></p>
-<p>同时：<br>GenericClass<string> class1 = (GenericClass<string>) genericClass； //会报警告</string></string></p>
-<p>六、Class与泛型（摘自网络）<br>从Java1.5后Class类就改为了泛型实现，Class类内定义的泛型T指的是Class对象代表的类型。比如说String.class类型代表Class<string>，People.class类型代表Class<people>。<br>主要用于提高反射代码的类型安全。</people></string></p>
-<p>Class类的newInstance返回泛型T的对象，故而可以在反射时创建更精确的类型。<br>举例来说：假定你要写一个工具方法来进行一个数据库查询，给定一个SQL语句，并返回一个数据库中符合查询条件<br>的对象集合(collection)。<br>一个方法是显式的传递一个工厂对象，像下面的代码：<br>[java] view plain copy<br>interface Factory<t> {<br>    public T[] make();<br>}<br>public <t> Collection<t> select(Factory<t> factory, String statement) {<br>     Collection<t> result = new ArrayList<t>();<br>     /<em> run sql query using jdbc </em>/<br>     for ( int i=0; i&lt;10; i++ ) { /<em> iterate over jdbc results </em>/<br>         T item = factory.make();<br>         /<em> use reflection and set all of item’s fields from sql results </em>/<br>         result.add( item );<br>      }<br>      return result;<br>}  </t></t></t></t></t></t></p>
-<p>你可以这样调用：<br>[java] view plain copy<br>select(new Factory<empinfo>() {<br>      public EmpInfo make() {<br>          return new EmpInfo();<br>      }<br>  } , ”selection string”);<br>也可以声明一个类 EmpInfoFactory 来支持接口 Factory：<br>[java] view plain copy<br>class EmpInfoFactory implements Factory<empinfo> {<br>      …<br>      public EmpInfo make() {<br>            return new EmpInfo();<br>      }<br>}<br>然后调用：<br>[java] view plain copy<br>select(getMyEmpInfoFactory(), “selection string”);  </empinfo></empinfo></p>
-<p>这个解决方案的缺点是它需要下面的二者之一：<br>调用处那冗长的匿名工厂类，或为每个要使用的类型声明一个工厂类并传递其对象给调用的地方<br>这很不自然。<br>使用class类型参数值是非常自然的，它可以被反射使用。没有泛型的代码可能是：<br>[java] view plain copy<br>Collection emps = sqlUtility.select(EmpInfo.class, ”select <em> from emps”);<br>…<br>public static Collection select(Class c, String sqlStatement) {<br>          Collection result = new ArrayList();<br>          /</em> run sql query using jdbc <em>/<br>          for ( /</em> iterate over jdbc results <em>/ ) {<br>                Object item = c.newInstance();<br>                /</em> use reflection and set all of item’s fields from sql results */<br>                result.add(item);<br>          }<br>          return result;<br>   }<br>}  </p>
-<p>但是这不能给我们返回一个我们要的精确类型的集合。现在Class是泛型的，我们可以写：<br>[java] view plain copy<br>Collection<empinfo> emps=sqlUtility.select(EmpInfo.class, ”select <em> from emps”);<br>…<br>public static <t> Collection<t> select(Class<t>c, String sqlStatement) {<br>     Collection<t> result = new ArrayList<t>();<br>     /</t></t></t></t></t></em> run sql query using jdbc <em>/<br>     for ( /</em> iterate over jdbc results <em>/ ) {<br>         T item = c.newInstance();<br>         /</em> use reflection and set all of item’s fields from sql results */<br>         result.add(item);<br>     }<br>     return result;<br>}  </empinfo></p>
-<p>籍此以类型安全的方式获取我们需要的集合。<br>这项技术是一个非常有用的技巧，在处理注释(annotations)的新API中被广泛使用。</p>
-<p>七、容器与泛型<br>Java泛型的最深入人心的应用就是容器（Collections）了。容器不需要考虑它要装什么东西，它的职责就是表达它装的东西的集合所具有的功能。因此是天然的泛型支持者。<br>在没有泛型时，如果要封装一个列表，简化应该是这样的：<br>[java] view plain copy<br>public class ArrayList {<br>    Object[] array = new Object[10];<br>    int i = 0;<br>    public void add(Object object) {<br>          array[i++] = object;<br>    }  </p>
-<pre><code>public Object get(int index) {  
-      return array[index];  
-}  
-</code></pre><p>}  </p>
-<p>这意味着我们把元素存进去，取出来还要强转，类型安全无法保证（存入一个Integer再存一个Long，转出时强转成Integer就崩溃了）。用泛型可以在编译时保证不能存入非泛型支持的数据，保证类型安全。<br>按照我们之前说的，ArrayList内不存储泛型信息，而是存储泛型的最近父类，对ArrayList<t>而言就是Object，所以其内部代码是：<br>[java] view plain copy<br>public class ArrayList<t> {<br>    Object[] array = new Object[10];<br>    int i = 0;<br>    public void add(T object) {<br>          array[i++] = object;<br>    }  </t></t></p>
-<pre><code>public T get(int index) {  
-      return (T)array[index];  
-}  
-</code></pre><p>}  </p>
-<p>保证我们加进去和取出来的数据都是经过类型检查的。</p>
-<p>八、总结<br>1、泛型是Java为类型安全而做的一个优化，它在内部保证了数据类型一致性，细化了可变参数的类型，且能更好的表示类型间的相关性。<br>2、泛型是编译时技术，其起作用的时机是编译时，完善的编译器会报告错误的泛型使用，保证代码不能编译通过。<br>3、平常写代码时，要认真思考是否有使用泛型的必要。通常来讲，如果方法或类描述的是数据类型无关的逻辑，且其数据类型可变时，则应该使用泛型。</p>
-
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-      
-
-      <div style="font-size: 12px;">
-        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
-      </div>
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2018/03/08/java范型通配符/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
   
     <nav id="page-nav">
       <a class="extend prev" rel="prev" href="/page/5/">&laquo; Prev</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/4/">4</a><a class="page-number" href="/page/5/">5</a><span class="page-number current">6</span><a class="page-number" href="/page/7/">7</a><a class="page-number" href="/page/8/">8</a><span class="space">&hellip;</span><a class="page-number" href="/page/13/">13</a><a class="extend next" rel="next" href="/page/7/">Next &raquo;</a>
@@ -2165,11 +1952,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">Dubbo</a>
+                <a href="javascript:void(0)" class="js-tag color3">java并发包</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">java并发包</a>
+                <a href="javascript:void(0)" class="js-tag color1">Dubbo</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -2193,10 +1980,6 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">redis</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">java内存模型</a>
               </li>
              
@@ -2209,7 +1992,7 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">mysql</a>
+                <a href="javascript:void(0)" class="js-tag color1">redis</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -2217,15 +2000,19 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">mysql</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Python</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">限流</a>
+                <a href="javascript:void(0)" class="js-tag color1">react</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">react</a>
+                <a href="javascript:void(0)" class="js-tag color3">限流</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -2261,15 +2048,15 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">python</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">Mac</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">maven</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">python</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -2281,15 +2068,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">分布式锁</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">zookeeper</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">前端指南</a>
+                <a href="javascript:void(0)" class="js-tag color5">分布式锁</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -2297,11 +2080,15 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">善用佳软</a>
+                <a href="javascript:void(0)" class="js-tag color5">前端指南</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">jvm</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">善用佳软</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -2317,11 +2104,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">HashMap</a>
+                <a href="javascript:void(0)" class="js-tag color3">单例</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">单例</a>
+                <a href="javascript:void(0)" class="js-tag color3">HashMap</a>
               </li>
              
               <li class="article-tag-list-item">
