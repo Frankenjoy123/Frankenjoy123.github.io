@@ -151,6 +151,335 @@
           <div id="js-content" class="content-ll">
             
   
+    <article id="post-maven-deploy" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2017/11/29/maven-deploy/">maven deploy</a>
+    </h1>
+  
+
+        
+        <a href="/2017/11/29/maven-deploy/" class="archive-article-date">
+  	<time datetime="2017-11-29T05:11:38.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2017-11-29</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>指定文件deploy</p>
+<figure class="highlight armasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">mvn </span>clean deploy -f pom-deploy.xml</span><br></pre></td></tr></table></figure>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">maven</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+      
+
+      <div style="font-size: 12px;">
+        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
+      </div>
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2017/11/29/maven-deploy/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
+    <article id="post-zookeeper详解" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2017/11/26/zookeeper详解/">zookeeper详解</a>
+    </h1>
+  
+
+        
+        <a href="/2017/11/26/zookeeper详解/" class="archive-article-date">
+  	<time datetime="2017-11-26T13:47:28.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2017-11-26</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="start"><a href="#start" class="headerlink" title="start"></a>start</h1><figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">bin/zkServer<span class="selector-class">.sh</span> start</span><br><span class="line"></span><br><span class="line">$ bin/zkCli<span class="selector-class">.sh</span> -server <span class="number">127.0</span>.<span class="number">0.1</span>:<span class="number">2181</span></span><br></pre></td></tr></table></figure>
+<h1 id="zk-client-操作"><a href="#zk-client-操作" class="headerlink" title="zk client 操作"></a>zk client 操作</h1><pre><code>stat path [watch]
+set path data [version]
+ls path [watch]
+delquota [-n|-b] path
+ls2 path [watch]
+setAcl path acl
+setquota -n|-b val path
+history
+redo cmdno
+printwatches on|off
+delete path [version]
+sync path
+listquota path
+rmr path
+get path [watch]
+create [-s] [-e] path data acl
+addauth scheme auth
+quit
+getAcl path
+close
+connect host:port
+</code></pre><h1 id="伪集群搭建"><a href="#伪集群搭建" class="headerlink" title="伪集群搭建"></a>伪集群搭建</h1><p>参考：<a href="http://zookeeper.apache.org/doc/trunk/zookeeperStarted.html" target="_blank" rel="external">http://zookeeper.apache.org/doc/trunk/zookeeperStarted.html</a></p>
+<p><strong>集群配置：</strong></p>
+<p>1、配置文件conf/zoo.cfg，除了单机模式的配置之外，还需要新加server.x信息，如下所示。</p>
+<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">tickTime</span>=2000</span><br><span class="line"><span class="attribute">dataDir</span>=D:\09tmp\zookeeper\data</span><br><span class="line"><span class="attribute">clientPort</span>=2181</span><br><span class="line"><span class="attribute">initLimit</span>=5</span><br><span class="line"><span class="attribute">syncLimit</span>=2</span><br><span class="line">server.<span class="attribute">1</span>=zoo1:2888:3888</span><br><span class="line">server.<span class="attribute">2</span>=zoo2:2888:3888</span><br><span class="line">server.<span class="attribute">3</span>=zoo3:2888:3888</span><br></pre></td></tr></table></figure>
+<p>​    zoox表示的是zookeeper服务器的IP地址，第一个端口2888：在zookeeper服务器之间及和leader连接时使用，第二个端口号：3888是在进行leader选举时使用。</p>
+<p>2、同时需要在配置项dataDir所指示目录下创建文件myid文件，其内容为该1中server.x中的x，表示该zookeeper服务器的编号。 </p>
+<p>3、为了降低更新的延迟，需要为事物日志的存放专门指定存储路径，该配置项为：dataLogDir    </p>
+<figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># The number of milliseconds of each tick</span></span><br><span class="line"><span class="attr">tickTime</span>=<span class="number">2000</span></span><br><span class="line"><span class="comment"># The number of ticks that the initial </span></span><br><span class="line"><span class="comment"># synchronization phase can take</span></span><br><span class="line"><span class="attr">initLimit</span>=<span class="number">10</span></span><br><span class="line"><span class="comment"># The number of ticks that can pass between </span></span><br><span class="line"><span class="comment"># sending a request and getting an acknowledgement</span></span><br><span class="line"><span class="attr">syncLimit</span>=<span class="number">5</span></span><br><span class="line"><span class="comment"># the directory where the snapshot is stored.</span></span><br><span class="line"><span class="comment"># do not use /tmp for storage, /tmp here is just </span></span><br><span class="line"><span class="comment"># example sakes.</span></span><br><span class="line"><span class="attr">dataDir</span>=D:\\<span class="number">09</span>tmp\\zookeeper\\data</span><br><span class="line"><span class="attr">dataLogDir</span>=D:\\<span class="number">09</span>tmp\\zookeeper\\log</span><br></pre></td></tr></table></figure>
+<p><strong>伪集群配置：</strong></p>
+<p>1、由于所有zookeeper服务器都在一台物理机器上，因此zoo1.cfg中配置项server.x的端口信息，不能相同。且配置项dataDir和dataLogDir也需要为伪服务器单独指定。配置项clientPort在三个服务器中也要配置不同的值，示例如下：</p>
+<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">tickTime</span>=2000</span><br><span class="line"><span class="attribute">dataDir</span>=D:\09tmp\zookeeper\data\\1</span><br><span class="line"><span class="attribute">dataLogDir</span>=D:\09tmp\zookeeper\log\\1</span><br><span class="line"><span class="attribute">clientPort</span>=2181</span><br><span class="line"><span class="attribute">initLimit</span>=5</span><br><span class="line"><span class="attribute">syncLimit</span>=2</span><br><span class="line">server.<span class="attribute">1</span>=localhost:2888:3888</span><br><span class="line">server.<span class="attribute">2</span>=localhost:2889:3889</span><br><span class="line">server.<span class="attribute">3</span>=localhost:2890:3890</span><br></pre></td></tr></table></figure>
+<p>2、同时需要准备zoo2.cfg和zoo3.cfg配置文件，参考1进行配置</p>
+<p>3、在D:\09tmp\zookeeper\data\1、D:\09tmp\zookeeper\data\2和D:\09tmp\zookeeper\data\3中分别创建文件myid，里面填写对应的zookeeper服务器编号。</p>
+<p>4、创建三个文件：zkEnv1.cmd、zkEnv2.cmd和zkEnv3.cmd分别用来指定使用不同的zoo.cfg。</p>
+<p>5、创建三个文件：zkServer1.cmd、zkServer2.cmd和zkServer3.cmd分别用来指定不同的文件zkEnv.cmd。</p>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">zookeeper</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+      
+
+      <div style="font-size: 12px;">
+        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
+      </div>
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2017/11/26/zookeeper详解/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
+    <article id="post-Mockito浅谈" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2017/11/25/Mockito浅谈/">Mockito浅谈</a>
+    </h1>
+  
+
+        
+        <a href="/2017/11/25/Mockito浅谈/" class="archive-article-date">
+  	<time datetime="2017-11-25T02:54:39.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2017-11-25</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="Mockito简介"><a href="#Mockito简介" class="headerlink" title="Mockito简介"></a>Mockito简介</h1><ul>
+<li>什么是mock？<br>在软件开发的世界之外, “mock”一词是指模仿或者效仿。 因此可以将“mock”理解为一个替身，替代者. 在软件开发中提及”mock”，通常理解为模拟对象或者Fake。</li>
+<li>为什么需要Mock?<br>Mock是为了解决units之间由于耦合而难于被测试的问题。所以mock object是unit test的一部分。</li>
+</ul>
+<h1 id="Mock的好处是什么"><a href="#Mock的好处是什么" class="headerlink" title="Mock的好处是什么?"></a>Mock的好处是什么?</h1><ul>
+<li><p>提前创建测试，TDD（测试驱动开发） </p>
+<blockquote>
+<p>这是个最大的好处吧。如果你创建了一个Mock那么你就可以在service接口创建之前写Service Tests了，这样你就能在开发过程中把测试添加到你的自动化测试环境中了。换句话说，模拟使你能够使用测试驱动开发。 </p>
+</blockquote>
+</li>
+<li><p>团队可以并行工作 </p>
+<blockquote>
+<p>这类似于上面的那点；为不存在的代码创建测试。但前面讲的是开发人员编写测试程序，这里说的是测试团队来创建。当还没有任何东西要测的时候测试团队如何来创建测试呢？模拟并针对模拟测试！这意味着当service借口需要测试时，实际上QA团队已经有了一套完整的测试组件；没有出现一个团队等待另一个团队完成的情况。这使得模拟的效益型尤为突出了。</p>
+</blockquote>
+</li>
+<li><p>你可以创建一个验证或者演示程序。 </p>
+<blockquote>
+<p>由于Mocks非常高效，Mocks可以用来创建一个概念证明，作为一个示意图，或者作为一个你正考虑构建项目的演示程序。这为你决定项目接下来是否要进行提供了有力的基础，但最重要的还是提供了实际的设计决策。 </p>
+</blockquote>
+</li>
+<li><p>为无法访问的资源编写测试</p>
+<blockquote>
+<p>这个好处不属于实际效益的一种，而是作为一个必要时的“救生圈”。有没有遇到这样的情况？当你想要测试一个service接口，但service需要经过防火墙访问，防火墙不能为你打开或者你需要认证才能访问。遇到这样情况时，你可以在你能访问的地方使用MockService替代，这就是一个“救生圈”功能。 </p>
+</blockquote>
+</li>
+<li><p>Mock 可以交给用户 </p>
+<blockquote>
+<p>在有些情况下，某种原因你需要允许一些外部来源访问你的测试系统，像合作伙伴或者客户。这些原因导致别人也可以访问你的敏感信息，而你或许只是想允许访问部分测试环境。在这种情况下，如何向合作伙伴或者客户提供一个测试系统来开发或者做测试呢？最简单的就是提供一个mock，无论是来自于你的网络或者客户的网络。soapUI mock非常容易配置，他可以运行在soapUI或者作为一个war包发布到你的java服务器里面。</p>
+</blockquote>
+</li>
+<li><p>隔离系统 </p>
+<blockquote>
+<p>有时，你希望在没有系统其他部分的影响下测试系统单独的一部分。由于其他系统部分会给测试数据造成干扰，影响根据数据收集得到的测试结论。使用mock你可以移除掉除了需要测试部分的系统依赖的模拟。当隔离这些mocks后，mocks就变得非常简单可靠，快速可预见。这为你提供了一个移除了随机行为，有重复模式并且可以监控特殊系统的测试环境。 </p>
+</blockquote>
+</li>
+</ul>
+<h1 id="Mockito使用示例"><a href="#Mockito使用示例" class="headerlink" title="Mockito使用示例"></a>Mockito使用示例</h1><h2 id="模拟对象"><a href="#模拟对象" class="headerlink" title="模拟对象"></a>模拟对象</h2><figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 模拟LinkedList 的一个对象  </span></span><br><span class="line">LinkedList mockedList = mock(LinkedList.<span class="keyword">class</span>);</span><br><span class="line"><span class="comment">// 此时调用get方法，会返回null，因为还没有对方法调用的返回值做模拟</span></span><br><span class="line">System.<span class="keyword">out</span>.println(mockedList.<span class="keyword">get</span>(<span class="number">0</span>));</span><br></pre></td></tr></table></figure>
+<h2 id="模拟方法调用的返回值"><a href="#模拟方法调用的返回值" class="headerlink" title="模拟方法调用的返回值"></a>模拟方法调用的返回值</h2><figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 模拟获取第一个元素时，返回字符串first。  给特定的方法调用返回固定值在官方说法中称为stub。</span></span><br><span class="line"><span class="keyword">when</span>(mockedList.<span class="keyword">get</span>(<span class="number">0</span>)).thenReturn(<span class="string">"first"</span>);</span><br><span class="line"><span class="comment">// 此时打印输出first</span></span><br><span class="line">System.<span class="keyword">out</span>.println(mockedList.<span class="keyword">get</span>(<span class="number">0</span>));</span><br></pre></td></tr></table></figure>
+<h2 id="模拟方法调用抛出异常"><a href="#模拟方法调用抛出异常" class="headerlink" title="模拟方法调用抛出异常"></a>模拟方法调用抛出异常</h2><figure class="highlight arduino"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 模拟获取第二个元素时，抛出RuntimeException  </span></span><br><span class="line">when(mockedList.<span class="built_in">get</span>(<span class="number">1</span>)).thenThrow(<span class="keyword">new</span> RuntimeException());</span><br><span class="line"><span class="comment">// 此时将会抛出RuntimeException  </span></span><br><span class="line">System.out.<span class="built_in">println</span>(mockedList.<span class="built_in">get</span>(<span class="number">1</span>));</span><br></pre></td></tr></table></figure>
+<p>如果一个函数没有返回值类型，那么可以使用此方法模拟异常抛出</p>
+<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="title">doThrow</span><span class="params">(new RuntimeException(<span class="string">"clear exception"</span>)</span></span>).when(mockedList).<span class="attribute">clear</span>();</span><br><span class="line">mockedList.<span class="attribute">clear</span>();</span><br></pre></td></tr></table></figure>
+<h2 id="模拟调用方法时的参数匹配"><a href="#模拟调用方法时的参数匹配" class="headerlink" title="模拟调用方法时的参数匹配"></a>模拟调用方法时的参数匹配</h2><figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// anyInt()匹配任何int参数，这意味着参数为任意值，其返回值均是element  </span></span><br><span class="line"><span class="keyword">when</span>(mockedList.<span class="keyword">get</span>(anyInt())).thenReturn(<span class="string">"element"</span>);</span><br><span class="line"><span class="comment">// 此时打印是element</span></span><br><span class="line">System.<span class="keyword">out</span>.println(mockedList.<span class="keyword">get</span>(<span class="number">999</span>));</span><br></pre></td></tr></table></figure>
+<h2 id="模拟方法调用次数"><a href="#模拟方法调用次数" class="headerlink" title="模拟方法调用次数"></a>模拟方法调用次数</h2><figure class="highlight less"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 调用add一次</span></span><br><span class="line"><span class="selector-tag">mockedList</span><span class="selector-class">.add</span>(<span class="string">"once"</span>); </span><br><span class="line"><span class="comment">// 下面两个写法验证效果一样，均验证add方法是否被调用了一次</span></span><br><span class="line"><span class="selector-tag">verify</span>(mockedList)<span class="selector-class">.add</span>(<span class="string">"once"</span>);</span><br><span class="line"><span class="selector-tag">verify</span>(mockedList, times(<span class="number">1</span>))<span class="selector-class">.add</span>(<span class="string">"once"</span>);</span><br></pre></td></tr></table></figure>
+<h2 id="校验行为"><a href="#校验行为" class="headerlink" title="校验行为"></a>校验行为</h2><figure class="highlight gcode"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// mock creation</span></span><br><span class="line">List mockedList = mock<span class="comment">(List.class)</span>;</span><br><span class="line"><span class="comment">// using mock object</span></span><br><span class="line">mockedList.add<span class="comment">("one")</span>;</span><br><span class="line">mockedList.clear<span class="comment">()</span>;</span><br><span class="line"><span class="comment">//verification</span></span><br><span class="line">verify<span class="comment">(mockedList)</span>.add<span class="comment">("one")</span>;</span><br><span class="line">verify<span class="comment">(mockedList)</span>.clear<span class="comment">()</span>;</span><br></pre></td></tr></table></figure>
+<h2 id="模拟方法调用-Stubbing"><a href="#模拟方法调用-Stubbing" class="headerlink" title="模拟方法调用(Stubbing)"></a>模拟方法调用(Stubbing)</h2><figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//You can mock concrete classes, not just interfaces</span></span><br><span class="line">LinkedList mockedList = mock(LinkedList.<span class="keyword">class</span>);</span><br><span class="line"><span class="comment">//stubbing</span></span><br><span class="line"><span class="keyword">when</span>(mockedList.<span class="keyword">get</span>(<span class="number">0</span>)).thenReturn(<span class="string">"first"</span>);</span><br><span class="line"><span class="keyword">when</span>(mockedList.<span class="keyword">get</span>(<span class="number">1</span>)).thenThrow(new RuntimeException());</span><br><span class="line"><span class="comment">//following prints "first"</span></span><br><span class="line">System.<span class="keyword">out</span>.println(mockedList.<span class="keyword">get</span>(<span class="number">0</span>));</span><br><span class="line"><span class="comment">//following throws runtime exception</span></span><br><span class="line">System.<span class="keyword">out</span>.println(mockedList.<span class="keyword">get</span>(<span class="number">1</span>));</span><br><span class="line"><span class="comment">//following prints "null" because get(999) was not stubbed</span></span><br><span class="line">System.<span class="keyword">out</span>.println(mockedList.<span class="keyword">get</span>(<span class="number">999</span>));</span><br><span class="line"></span><br><span class="line">verify(mockedList).<span class="keyword">get</span>(<span class="number">0</span>);</span><br></pre></td></tr></table></figure>
+<h2 id="参数匹配"><a href="#参数匹配" class="headerlink" title="参数匹配"></a>参数匹配</h2><figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//stubbing using built-in anyInt() argument matcher</span></span><br><span class="line"><span class="keyword">when</span>(mockedList.<span class="keyword">get</span>(anyInt())).thenReturn(<span class="string">"element"</span>);</span><br><span class="line"><span class="comment">//stubbing using custom matcher (let's say isValid() returns your own matcher implementation):</span></span><br><span class="line"><span class="keyword">when</span>(mockedList.contains(argThat(isValid()))).thenReturn(<span class="string">"element"</span>);</span><br><span class="line"><span class="comment">//following prints "element"</span></span><br><span class="line">System.<span class="keyword">out</span>.println(mockedList.<span class="keyword">get</span>(<span class="number">999</span>));</span><br><span class="line"><span class="comment">//you can also verify using an argument matcher</span></span><br><span class="line">verify(mockedList).<span class="keyword">get</span>(anyInt());</span><br><span class="line"><span class="comment">//argument matchers can also be written as Java 8 Lambdas</span></span><br><span class="line">verify(mockedList).add(someString -&gt; someString.length() &gt; <span class="number">5</span>);</span><br></pre></td></tr></table></figure>
+<h2 id="校验方法调用次数"><a href="#校验方法调用次数" class="headerlink" title="校验方法调用次数"></a>校验方法调用次数</h2><figure class="highlight less"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//using mock</span></span><br><span class="line"><span class="selector-tag">mockedList</span><span class="selector-class">.add</span>(<span class="string">"once"</span>);</span><br><span class="line"></span><br><span class="line"><span class="selector-tag">mockedList</span><span class="selector-class">.add</span>(<span class="string">"twice"</span>);</span><br><span class="line"><span class="selector-tag">mockedList</span><span class="selector-class">.add</span>(<span class="string">"twice"</span>);</span><br><span class="line"></span><br><span class="line"><span class="selector-tag">mockedList</span><span class="selector-class">.add</span>(<span class="string">"three times"</span>);</span><br><span class="line"><span class="selector-tag">mockedList</span><span class="selector-class">.add</span>(<span class="string">"three times"</span>);</span><br><span class="line"><span class="selector-tag">mockedList</span><span class="selector-class">.add</span>(<span class="string">"three times"</span>);</span><br><span class="line"><span class="comment">//following two verifications work exactly the same - times(1) is used by default</span></span><br><span class="line"><span class="selector-tag">verify</span>(mockedList)<span class="selector-class">.add</span>(<span class="string">"once"</span>);</span><br><span class="line"><span class="selector-tag">verify</span>(mockedList, times(<span class="number">1</span>))<span class="selector-class">.add</span>(<span class="string">"once"</span>);</span><br><span class="line"><span class="comment">//exact number of invocations verification</span></span><br><span class="line"><span class="selector-tag">verify</span>(mockedList, times(<span class="number">2</span>))<span class="selector-class">.add</span>(<span class="string">"twice"</span>);</span><br><span class="line"><span class="selector-tag">verify</span>(mockedList, times(<span class="number">3</span>))<span class="selector-class">.add</span>(<span class="string">"three times"</span>);</span><br><span class="line"><span class="comment">//verification using never(). never() is an alias to times(0)</span></span><br><span class="line"><span class="selector-tag">verify</span>(mockedList, never())<span class="selector-class">.add</span>(<span class="string">"never happened"</span>);</span><br><span class="line"><span class="comment">//verification using atLeast()/atMost()</span></span><br><span class="line"><span class="selector-tag">verify</span>(mockedList, atLeastOnce())<span class="selector-class">.add</span>(<span class="string">"three times"</span>);</span><br><span class="line"><span class="selector-tag">verify</span>(mockedList, atLeast(<span class="number">2</span>))<span class="selector-class">.add</span>(<span class="string">"five times"</span>);</span><br><span class="line"><span class="selector-tag">verify</span>(mockedList, atMost(<span class="number">5</span>))<span class="selector-class">.add</span>(<span class="string">"three times"</span>);</span><br></pre></td></tr></table></figure>
+<h2 id="模拟无返回方法抛出异常"><a href="#模拟无返回方法抛出异常" class="headerlink" title="模拟无返回方法抛出异常"></a>模拟无返回方法抛出异常</h2><figure class="highlight pony"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">doThrow(<span class="function"><span class="keyword">new</span> <span class="title">RuntimeException</span>()).<span class="title">when</span>(mockedList).<span class="title">clear</span>();</span></span><br><span class="line"><span class="function"><span class="comment">//following throws RuntimeException:</span></span></span><br><span class="line"><span class="function"><span class="title">mockedList</span>.<span class="title">clear</span>();</span></span><br></pre></td></tr></table></figure>
+<h2 id="校验方法调用顺序"><a href="#校验方法调用顺序" class="headerlink" title="校验方法调用顺序"></a>校验方法调用顺序</h2><figure class="highlight dart"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// A. Single mock whose methods must be invoked in a particular order</span></span><br><span class="line"><span class="built_in">List</span> singleMock = mock(<span class="built_in">List</span>.<span class="keyword">class</span>);</span><br><span class="line"><span class="comment">//using a single mock</span></span><br><span class="line">singleMock.add(<span class="string">"was added first"</span>);</span><br><span class="line">singleMock.add(<span class="string">"was added second"</span>);</span><br><span class="line"><span class="comment">//create an inOrder verifier for a single mock</span></span><br><span class="line">InOrder inOrder = inOrder(singleMock);</span><br><span class="line"><span class="comment">//following will make sure that add is first called with "was added first, then with "was added second"</span></span><br><span class="line">inOrder.verify(singleMock).add(<span class="string">"was added first"</span>);</span><br><span class="line">inOrder.verify(singleMock).add(<span class="string">"was added second"</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">// B. Multiple mocks that must be used in a particular order</span></span><br><span class="line"><span class="built_in">List</span> firstMock = mock(<span class="built_in">List</span>.<span class="keyword">class</span>);</span><br><span class="line"><span class="built_in">List</span> secondMock = mock(<span class="built_in">List</span>.<span class="keyword">class</span>);</span><br><span class="line"><span class="comment">//using mocks</span></span><br><span class="line">firstMock.add(<span class="string">"was called first"</span>);</span><br><span class="line">secondMock.add(<span class="string">"was called second"</span>);</span><br><span class="line"><span class="comment">//create inOrder object passing any mocks that need to be verified in order</span></span><br><span class="line">InOrder inOrder = inOrder(firstMock, secondMock);</span><br><span class="line"><span class="comment">//following will make sure that firstMock was called before secondMock</span></span><br><span class="line">inOrder.verify(firstMock).add(<span class="string">"was called first"</span>);</span><br><span class="line">inOrder.verify(secondMock).add(<span class="string">"was called second"</span>);</span><br><span class="line"><span class="comment">// Oh, and A + B can be mixed together at will</span></span><br></pre></td></tr></table></figure>
+<h2 id="校验方法是否从未调用"><a href="#校验方法是否从未调用" class="headerlink" title="校验方法是否从未调用"></a>校验方法是否从未调用</h2><figure class="highlight less"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//using mocks - only mockOne is interacted</span></span><br><span class="line"><span class="selector-tag">mockOne</span><span class="selector-class">.add</span>(<span class="string">"one"</span>);</span><br><span class="line"><span class="comment">//ordinary verification</span></span><br><span class="line"><span class="selector-tag">verify</span>(mockOne)<span class="selector-class">.add</span>(<span class="string">"one"</span>);</span><br><span class="line"><span class="comment">//verify that method was never called on a mock</span></span><br><span class="line"><span class="selector-tag">verify</span>(mockOne, never())<span class="selector-class">.add</span>(<span class="string">"two"</span>);</span><br><span class="line"><span class="comment">//verify that other mocks were not interacted</span></span><br><span class="line"><span class="selector-tag">verifyZeroInteractions</span>(mockTwo, mockThree);</span><br></pre></td></tr></table></figure>
+<h2 id="快速创建Mock对象"><a href="#快速创建Mock对象" class="headerlink" title="快速创建Mock对象"></a>快速创建Mock对象</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ArticleManagerTest</span> </span>&#123;</span><br><span class="line">   <span class="meta">@Mock</span> <span class="keyword">private</span> ArticleCalculator calculator;</span><br><span class="line">      <span class="meta">@Mock</span> <span class="keyword">private</span> ArticleDatabase database;</span><br><span class="line">      <span class="meta">@Mock</span> <span class="keyword">private</span> UserProvider userProvider;</span><br><span class="line">      <span class="meta">@Before</span></span><br><span class="line">      <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">before</span><span class="params">()</span></span>&#123;</span><br><span class="line">          MockitoAnnotations.initMocks(<span class="keyword">this</span>);</span><br><span class="line">      &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="自定义返回不同结果"><a href="#自定义返回不同结果" class="headerlink" title="自定义返回不同结果"></a>自定义返回不同结果</h2><figure class="highlight arduino"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">when(mock.someMethod(<span class="string">"some arg"</span>))</span><br><span class="line">   .thenThrow(<span class="keyword">new</span> RuntimeException())  <span class="comment">// 第一次会抛出异常</span></span><br><span class="line">   .thenReturn(<span class="string">"foo"</span>); <span class="comment">// 第二次会返回这个结果</span></span><br><span class="line"><span class="comment">//First call: throws runtime exception:</span></span><br><span class="line">mock.someMethod(<span class="string">"some arg"</span>); <span class="comment">// 第一次</span></span><br><span class="line"><span class="comment">//Second call: prints "foo"</span></span><br><span class="line">System.out.<span class="built_in">println</span>(mock.someMethod(<span class="string">"some arg"</span>)); <span class="comment">// 第二次</span></span><br><span class="line"><span class="comment">//Any consecutive call: prints "foo" as well (last stubbing wins).</span></span><br><span class="line">System.out.<span class="built_in">println</span>(mock.someMethod(<span class="string">"some arg"</span>)); <span class="comment">// 第n次(n&gt; 2)，依旧以最后返回最后一个配置</span></span><br></pre></td></tr></table></figure>
+<h2 id="对返回结果进行拦截"><a href="#对返回结果进行拦截" class="headerlink" title="对返回结果进行拦截"></a>对返回结果进行拦截</h2><figure class="highlight processing"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">when(mock.someMethod(anyString())).thenAnswer(<span class="keyword">new</span> Answer() &#123;</span><br><span class="line">    <span class="keyword">Object</span> answer(InvocationOnMock invocation) &#123;</span><br><span class="line">        <span class="keyword">Object</span>[] args = invocation.getArguments();</span><br><span class="line">        <span class="keyword">Object</span> mock = invocation.getMock();</span><br><span class="line">        <span class="keyword">return</span> <span class="string">"called with arguments: "</span> + args;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;);</span><br><span class="line"><span class="comment">//the following prints "called with arguments: foo"</span></span><br><span class="line">System.out.<span class="built_in">println</span>(mock.someMethod(<span class="string">"foo"</span>));</span><br></pre></td></tr></table></figure>
+<h2 id="Mock函数操作"><a href="#Mock函数操作" class="headerlink" title="Mock函数操作"></a>Mock函数操作</h2><p>可以通过doThrow(), doAnswer(), doNothing(), doReturn() and doCallRealMethod() 来自定义函数操作。</p>
+<h2 id="暗中调用真实对象"><a href="#暗中调用真实对象" class="headerlink" title="暗中调用真实对象"></a>暗中调用真实对象</h2><figure class="highlight processing"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">List list = <span class="keyword">new</span> LinkedList();</span><br><span class="line">List spy = spy(list);</span><br><span class="line"><span class="comment">//optionally, you can stub out some methods:</span></span><br><span class="line">when(spy.<span class="built_in">size</span>()).thenReturn(<span class="number">100</span>);</span><br><span class="line"><span class="comment">//using the spy calls *real* methods</span></span><br><span class="line">spy.<span class="built_in">add</span>(<span class="string">"one"</span>);</span><br><span class="line">spy.<span class="built_in">add</span>(<span class="string">"two"</span>);</span><br><span class="line"><span class="comment">//prints "one" - the first element of a list</span></span><br><span class="line">System.out.<span class="built_in">println</span>(spy.<span class="built_in">get</span>(<span class="number">0</span>));</span><br><span class="line"><span class="comment">//size() method was stubbed - 100 is printed</span></span><br><span class="line">System.out.<span class="built_in">println</span>(spy.<span class="built_in">size</span>());</span><br><span class="line"><span class="comment">//optionally, you can verify</span></span><br><span class="line">verify(spy).<span class="built_in">add</span>(<span class="string">"one"</span>);</span><br><span class="line">   verify(spy).<span class="built_in">add</span>(<span class="string">"two"</span>);</span><br></pre></td></tr></table></figure>
+<h2 id="改变默认返回值"><a href="#改变默认返回值" class="headerlink" title="改变默认返回值"></a>改变默认返回值</h2><figure class="highlight lisp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Foo mock = mock(<span class="name">Foo</span>.class, Mockito.RETURNS_SMART_NULLS)<span class="comment">;</span></span><br><span class="line">Foo mockTwo = mock(<span class="name">Foo</span>.class, new YourOwnAnswer())<span class="comment">;</span></span><br></pre></td></tr></table></figure>
+<h2 id="捕获函数的参数值"><a href="#捕获函数的参数值" class="headerlink" title="捕获函数的参数值"></a>捕获函数的参数值</h2><figure class="highlight mipsasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">ArgumentCaptor&lt;Person&gt; argument = ArgumentCaptor.forClass(Person.class)<span class="comment">;</span></span><br><span class="line">verify(mock).doSomething(argument.capture())<span class="comment">;</span></span><br><span class="line">assertEquals(<span class="string">"John"</span>, argument.getValue().getName())<span class="comment">;</span></span><br></pre></td></tr></table></figure>
+<h2 id="部分Mock"><a href="#部分Mock" class="headerlink" title="部分Mock"></a>部分Mock</h2><figure class="highlight pony"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//you can create partial mock with spy() method:</span></span><br><span class="line"><span class="type">List</span> list = spy(<span class="function"><span class="keyword">new</span> <span class="title">LinkedList</span>());</span></span><br><span class="line"><span class="function"><span class="comment">//you can enable partial mock capabilities selectively on mocks:</span></span></span><br><span class="line"><span class="function"><span class="title">Foo</span> <span class="title">mock</span> = <span class="title">mock</span>(<span class="type">Foo</span>.class);</span></span><br><span class="line"><span class="function"><span class="comment">//Be sure the real implementation is 'safe'.</span></span></span><br><span class="line"><span class="function"><span class="comment">//If real implementation throws exceptions or depends on specific state of the object then you're in trouble.</span></span></span><br><span class="line"><span class="function"><span class="title">when</span>(mock.someMethod()).<span class="title">thenCallRealMethod</span>();</span></span><br></pre></td></tr></table></figure>
+<h2 id="重置Mock"><a href="#重置Mock" class="headerlink" title="重置Mock"></a>重置Mock</h2><figure class="highlight dart"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">List</span> mock = mock(<span class="built_in">List</span>.<span class="keyword">class</span>);</span><br><span class="line">when(mock.size()).thenReturn(<span class="number">10</span>);</span><br><span class="line">mock.add(<span class="number">1</span>);</span><br><span class="line">reset(mock);</span><br><span class="line"><span class="comment">//at this point the mock forgot any interactions &amp; stubbing</span></span><br></pre></td></tr></table></figure>
+<h2 id="序列化"><a href="#序列化" class="headerlink" title="序列化"></a>序列化</h2><figure class="highlight lisp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">List&lt;Object&gt; list = new ArrayList&lt;Object&gt;()<span class="comment">;</span></span><br><span class="line">List&lt;Object&gt; spy = mock(<span class="name">ArrayList</span>.class, withSettings()</span><br><span class="line">                 .spiedInstance(<span class="name">list</span>)</span><br><span class="line">                 .defaultAnswer(<span class="name">CALLS_REAL_METHODS</span>)</span><br><span class="line">                 .serializable())<span class="comment">;</span></span><br></pre></td></tr></table></figure>
+<h2 id="检查超时"><a href="#检查超时" class="headerlink" title="检查超时"></a>检查超时</h2><figure class="highlight gcode"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//passes when someMethod() is called within given time span</span></span><br><span class="line">verify<span class="comment">(mock, timeout(100)</span>).someMethod<span class="comment">()</span>;</span><br><span class="line"><span class="comment">//above is an alias to:</span></span><br><span class="line">verify<span class="comment">(mock, timeout(100)</span>.times<span class="comment">(1)</span>).someMethod<span class="comment">()</span>;</span><br><span class="line"><span class="comment">//passes when som`eMethod() is called *exactly* 2 times within given time span</span></span><br><span class="line">verify<span class="comment">(mock, timeout(100)</span>.times<span class="comment">(2)</span>).someMethod<span class="comment">()</span>;</span><br><span class="line"><span class="comment">//passes when someMethod() is called *at least* 2 times within given time span</span></span><br><span class="line">verify<span class="comment">(mock, timeout(100)</span>.atLeast<span class="comment">(2)</span>).someMethod<span class="comment">()</span>;</span><br><span class="line"><span class="comment">//verifies someMethod() within given time span using given verification mode</span></span><br><span class="line"><span class="comment">//useful only if you have your own custom verification modes.</span></span><br><span class="line">verify<span class="comment">(mock, new Timeout(100, yourOwnVerificationMode)</span>).someMethod<span class="comment">()</span>;</span><br></pre></td></tr></table></figure>
+<h2 id="Mock详情"><a href="#Mock详情" class="headerlink" title="Mock详情"></a>Mock详情</h2><figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="selector-tag">Mockito</span><span class="selector-class">.mockingDetails</span>(<span class="selector-tag">someObject</span>)<span class="selector-class">.isMock</span>();</span><br><span class="line"><span class="selector-tag">Mockito</span><span class="selector-class">.mockingDetails</span>(<span class="selector-tag">someObject</span>)<span class="selector-class">.isSpy</span>();</span><br></pre></td></tr></table></figure>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">test</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+      
+
+      <div style="font-size: 12px;">
+        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
+      </div>
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2017/11/25/Mockito浅谈/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
     <article id="post-linux命令" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
@@ -795,325 +1124,6 @@
 
 
   
-    <article id="post-cron详解" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2017/11/10/cron详解/">cron详解</a>
-    </h1>
-  
-
-        
-        <a href="/2017/11/10/cron详解/" class="archive-article-date">
-  	<time datetime="2017-11-10T14:07:43.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2017-11-10</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>Cron表达式是一个字符串，字符串以5或6个空格隔开，分为6或7个域，每一个域代表一个含义，Cron有如下两种语法格式： </p>
-<p><em>Seconds Minutes Hours DayofMonth Month DayofWeek Year</em></p>
-<p><em>或 Seconds Minutes Hours DayofMonth Month DayofWeek</em></p>
-<p>每一个域可出现的字符如下：<br>Seconds:可出现”, - <em> /“四个字符，有效范围为0-59的整数<br>Minutes:可出现”, - </em> /“四个字符，有效范围为0-59的整数<br>Hours:可出现”, - <em> /“四个字符，有效范围为0-23的整数<br>DayofMonth:可出现”, - </em> / ? L W C”八个字符，有效范围为0-31的整数<br>Month:可出现”, - <em> /“四个字符，有效范围为1-12的整数或JAN-DEc<br>DayofWeek:可出现”, - </em> / ? L C #”四个字符，有效范围为1-7的整数或SUN-SAT两个范围。1表示星期天，2表示星期一， 依次类推<br>Year:可出现”, - * /“四个字符，有效范围为1970-2099年</p>
-<p>每一个域都使用数字，但还可以出现如下特殊字符，它们的含义是：<br>(1)<em>：表示匹配该域的任意值，假如在Minutes域使用</em>, 即表示每分钟都会触发事件。</p>
-<p>(2)?:只能用在DayofMonth和DayofWeek两个域。它也匹配域的任意值，但实际不会。因为DayofMonth和 DayofWeek会相互影响。例如想在每月的20日触发调度，不管20日到底是星期几，则只能使用如下写法： 13 13 15 20 <em> ?, 其中最后一位只能用？，而不能使用</em>，如果使用*表示不管星期几都会触发，实际上并不是这样。<br>(3)-:表示范围，例如在Minutes域使用5-20，表示从5分到20分钟每分钟触发一次<br>(4)/：表示起始时间开始触发，然后每隔固定时间触发一次，例如在Minutes域使用5/20,则意味着5分钟触发一次，而25，45等分别触发一次.<br>(5),:表示列出枚举值值。例如：在Minutes域使用5,20，则意味着在5和20分每分钟触发一次。<br>(6)L:表示最后，只能出现在DayofWeek和DayofMonth域，如果在DayofWeek域使用5L,意味着在最后的一个星期四触发。<br>(7)W: 表示有效工作日(周一到周五),只能出现在DayofMonth域，系统将在离指定日期的最近的有效工作日触发事件。例如：在 DayofMonth使用5W，如果5日是星期六，则将在最近的工作日：星期五，即4日触发。如果5日是星期天，则在6日(周一)触发；如果5日在星期一 到星期五中的一天，则就在5日触发。另外一点，W的最近寻找不会跨过月份<br>(8)LW:这两个字符可以连用，表示在某个月最后一个工作日，即最后一个星期五。<br>(9)#:用于确定每个月第几个星期几，只能出现在DayofMonth域。例如在4#2，表示某月的第二个星期三。</p>
-<p>举几个例子:<br>0 0 2 1 <em> ? </em> 表示在每月的1日的凌晨2点调度任务<br>0 15 10 ? * MON-FRI 表示周一到周五每天上午10：15执行作业<br>0 15 10 ? 6L 2002-2006 表示2002-2006年的每个月的最后一个星期五上午10:15执行作</p>
-
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-      
-
-      <div style="font-size: 12px;">
-        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
-      </div>
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2017/11/10/cron详解/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
-    <article id="post-Git-教程" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2017/11/08/Git-教程/">Git 教程</a>
-    </h1>
-  
-
-        
-        <a href="/2017/11/08/Git-教程/" class="archive-article-date">
-  	<time datetime="2017-11-08T05:35:59.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2017-11-08</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h3 id="配置作者邮件"><a href="#配置作者邮件" class="headerlink" title="配置作者邮件"></a>配置作者邮件</h3><figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"> git<span class="built_in"> config </span>--global --<span class="builtin-name">edit</span> </span><br><span class="line"> </span><br><span class="line"> git<span class="built_in"> config </span>--global user.name <span class="string">"your name"</span></span><br><span class="line">git<span class="built_in"> config </span>--global user.email <span class="string">"your email"</span></span><br></pre></td></tr></table></figure>
-<h3 id="回退到某次commit，提交远程分支"><a href="#回退到某次commit，提交远程分支" class="headerlink" title="回退到某次commit，提交远程分支"></a>回退到某次commit，提交远程分支</h3><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">查看<span class="keyword">commit</span> <span class="keyword">id</span></span><br><span class="line">git <span class="keyword">log</span></span><br><span class="line">git <span class="keyword">log</span> <span class="comment">--pretty=oneline</span></span><br><span class="line"></span><br><span class="line">本地回退</span><br><span class="line">git <span class="keyword">reset</span> <span class="comment">--hard commit_id</span></span><br><span class="line">git <span class="keyword">reset</span> <span class="comment">--hard HEAD^         回退到上个版本</span></span><br><span class="line"></span><br><span class="line">强推到远程：</span><br><span class="line">git push origin <span class="keyword">HEAD</span> <span class="comment">--force</span></span><br></pre></td></tr></table></figure>
-<pre><code>HEAD指向的版本就是当前版本，因此，Git允许我们在版本的历史之间穿梭，使用命令
-git reset --hard commit_id。
-git reset --hard HEAD^
-
-穿梭前，用git log可以查看提交历史，以便确定要回退到哪个版本。
-git log --pretty=oneline
-
-要重返未来，用git reflog查看命令历史，以便确定要回到未来的哪个版本。
-git reflog
-</code></pre><h3 id="git-同步github上fork的项目"><a href="#git-同步github上fork的项目" class="headerlink" title="git 同步github上fork的项目"></a>git 同步github上fork的项目</h3><figure class="highlight crmsh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">git checkout <span class="literal">master</span></span><br><span class="line">git remote -v</span><br><span class="line">git remote add leader git@github.com:MyCATApache/tcp-proxy.git</span><br><span class="line">git fetch leader</span><br><span class="line">git merge leader/<span class="literal">master</span></span><br><span class="line">git push origin <span class="literal">master</span></span><br></pre></td></tr></table></figure>
-<p>同步远程服务器，本地复制一份origin</p>
-<pre><code>git fetch origin
-</code></pre><p>建立本地分支 dev -&gt; origin/dev</p>
-<pre><code>git checkout -b dev  origin/dev
-</code></pre><p>git checkout -b [分支名] [远程名]/[分支名]。</p>
-<p>如果你有 1.6.2 以上版本的 Git，还可以用 –track 选项简化：</p>
-<pre><code>$ git checkout --track origin/serverfix
-</code></pre><p>创建分支(remeber)</p>
-<pre><code>git branch iss53
-</code></pre><p>checkout分支(remeber)</p>
-<pre><code>git checkout iss53
-</code></pre><p>创建并checkout分支</p>
-<pre><code>git branch -b iss53
-</code></pre><p>查看所有分支</p>
-<pre><code>git branch -a
-</code></pre><p>推送本地分支到服务器分支<br><code>git push [远程名]  [本地分支]:[远程分支]</code></p>
-<p>删除远程分支  </p>
-<pre><code>git branch -r -d origin/branch-name  
-git push origin :branch-name  
-</code></pre><p>删除本地分支<br><code>git branch -d iss53</code></p>
-<p>当你在 master 下</p>
-<pre><code>$ git pull
-# 等于 fetch origin，然后 merge origin/master
-</code></pre><p>当你在 develop 下</p>
-<pre><code>$ git pull
-# 等于 fetch origin，然后 merge origin/develop
-</code></pre><p>在master分支中</p>
-<pre><code>$ git checkout -b hotfix
-$ vim index.html
-$ git commit -a -m &apos;fixed the broken email address&apos;
-$ git checkout master
-$ git merge hotfix
-$ git branch -d hotfix
-
-git checkout iss53
-Vim index.html
-Git commit -a -m ‘your message’
-
-git merge master. 可以合并master中hotfix的更新
-
-git checkout master
-git merge iss53  可以用git status查看合并产生冲突的文件   git add表示解决，保存到暂存区，再git commit即可
-git branch -d is53
-</code></pre><p>相比git reset，它不会改变现在的提交历史。因此，git revert可以用在公共分支上，git reset应该用在私有分支上。<br>你也可以把git revert当作撤销已经提交的更改，而git reset HEAD用来撤销没有提交的更改。<br>就像git checkout 一样，git revert 也有可能会重写文件。所以，Git会在你执行revert之前要求你提交或者缓存你工作目录中的更改。</p>
-<p>强制重写本地master分支</p>
-<pre><code>git fetch origin master
-git reset --hard FETCH_HEAD
-git clean -df
-</code></pre><p>强制删除远程分支的某个文件</p>
-<pre><code>git rm --cached --force .idea/libraries/Maven__org_springframework_spring_core_4_1_6_RELEASE.xml
-</code></pre><p>​<br>​    </p>
-<h4 id="git-修改remote地址"><a href="#git-修改remote地址" class="headerlink" title="git 修改remote地址"></a>git 修改remote地址</h4><figure class="highlight dsconfig"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">	方法有三种：</span><br><span class="line">1.修改命令</span><br><span class="line"><span class="string">git </span><span class="string">remote </span><span class="built_in">set-url</span> <span class="string">origin </span>[<span class="string">url]</span></span><br><span class="line">例如：<span class="string">Git </span><span class="string">remote </span><span class="built_in">set-url</span> <span class="string">origin </span><span class="string">gitlab@</span><span class="string">gitlab.</span><span class="string">chumob.</span><span class="string">com:PHP/</span><span class="string">hasoffer.</span><span class="string">git</span></span><br><span class="line"><span class="string">2.</span>先删后加</span><br><span class="line"><span class="string">git </span><span class="string">remote </span><span class="string">rm </span><span class="string">origin</span></span><br><span class="line"><span class="string">git </span><span class="string">remote </span><span class="string">add </span><span class="string">origin </span>[<span class="string">url]</span></span><br><span class="line">3.直接修改<span class="string">config文</span>件</span><br></pre></td></tr></table></figure>
-<h4 id="git-diff"><a href="#git-diff" class="headerlink" title="git diff"></a>git diff</h4><pre><code>旧的在前，新的在后
-git diff d1afe9 b588527d &gt; ~/Desktop/patch.diff
-
-git apply --reject ~/Desktop/patch.diff
-
-$ git diff 608e120 4abe32e --name-only
-$ git diff 608e120 4abe32e --name-only | xargs zip update.zip
-</code></pre><h4 id="git-mergetool"><a href="#git-mergetool" class="headerlink" title="git mergetool"></a>git mergetool</h4><figure class="highlight stata"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">下载diffmerge（http:<span class="comment">//download.sourcegear.com/DiffMerge/4.2.1/DiffMerge.4.2.1.1013.intel.stable.pkg）</span></span><br><span class="line">配置git</span><br><span class="line"></span><br><span class="line">确保/usr/<span class="keyword">local</span>/bin/diffmerge存在，若不存在，建立符号链接（ln /Applications/DiffMerge.<span class="keyword">app</span>/Contents/MacOS/DiffMerge /usr/<span class="keyword">local</span>/bin/diffmerge）</span><br><span class="line">git config --<span class="keyword">global</span> diff.tool diffmerge</span><br><span class="line">git config --<span class="keyword">global</span> difftool.diffmerge.cmd <span class="string">"/usr/local/bin/diffmerge \"</span>\<span class="variable">$LOCAL</span>\<span class="string">" \"</span>\<span class="variable">$REMOTE</span>\<span class="string">""</span></span><br><span class="line">git config --<span class="keyword">global</span> <span class="keyword">merge</span>.tool diffmerge</span><br><span class="line">git config --<span class="keyword">global</span> mergetool.diffmerge.trustExitCode true</span><br><span class="line">git config --<span class="keyword">global</span> mergetool.diffmerge.cmd <span class="string">"/usr/local/bin/diffmerge --merge --result=\"</span>\<span class="variable">$MERGED</span>\<span class="string">" \"</span>\<span class="variable">$LOCAL</span>\<span class="string">" \"</span>\<span class="variable">$BASE</span>\<span class="string">" \"</span>\<span class="variable">$REMOTE</span>\<span class="string">""</span></span><br><span class="line">冲突发生后使用 git mergetool 进行<span class="keyword">merge</span></span><br></pre></td></tr></table></figure>
-<h3 id="git-tag"><a href="#git-tag" class="headerlink" title="git tag"></a>git tag</h3><pre><code>$ git tag -a v1.4 -m &apos;my version 1.4&apos;
-$ git tag
-v0.1
-v1.3
-v1.4
-</code></pre><h4 id="git-merge"><a href="#git-merge" class="headerlink" title="git merge"></a>git merge</h4><pre><code>Git merge –no-ff 可以保存你之前的分支历史。能够更好的查看 merge历史，以及branch 状态。
-
-git merge 则不会显示 feature，只保留单条分支记录。    
-</code></pre><p>####添加子项目<br><figure class="highlight jboss-cli"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">git submodule add <span class="params">--name</span> tools <span class="params">--force</span> http:<span class="string">//git.zenzet.com/lss-server/lss-data-mining-tools</span></span><br><span class="line"><span class="keyword">cd</span> tools</span><br><span class="line">git submodule init</span><br><span class="line">git submodule update</span><br><span class="line">git clone <span class="params">--recursive</span> https:<span class="string">//github.com/chaconinc/MainProject</span></span><br></pre></td></tr></table></figure></p>
-<h2 id="git-stash"><a href="#git-stash" class="headerlink" title="git stash"></a>git stash</h2><figure class="highlight stata"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">git stash [<span class="keyword">save</span> message] [-k|--<span class="keyword">no</span>-<span class="keyword">keep</span>-index] [--patch]</span><br><span class="line"></span><br><span class="line">这是git stash保存进度的完整命令形式</span><br><span class="line">使用<span class="keyword">save</span>可以对进度添加备注</span><br><span class="line"># git stash <span class="keyword">save</span> <span class="string">"这是保存的进度"</span></span><br><span class="line"></span><br><span class="line">现在执行<span class="keyword">list</span>，会发现后面会出现自定义的被合租</span><br><span class="line"># git stash <span class="keyword">list</span></span><br><span class="line">stash@&#123;0&#125;: <span class="keyword">On</span> master: 这是保存的进度</span><br><span class="line"></span><br><span class="line">-k和--<span class="keyword">no</span>-<span class="keyword">keep</span>-index指定保存进度后，是否重置暂存区</span><br><span class="line">--patch 会显示工作区和HEAD的差异,通过编辑差异文件，排除不需要保存的内容。和git add -p命令类似</span><br></pre></td></tr></table></figure>
-<figure class="highlight fsharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">git stash  对当前的暂存区和工作区状态进行保存。 </span><br><span class="line">git stash list  列出所有保存的进度列表。 </span><br><span class="line">git stash pop [--index] <span class="meta">[&lt;stash&gt;]</span> 恢复工作进度</span><br><span class="line"></span><br><span class="line">--index 参数：不仅恢复工作区，还恢复暂存区</span><br><span class="line">&lt;stash&gt; 指定恢复某一个具体进度。如果没有这个参数，默认恢复最新进度</span><br><span class="line"></span><br><span class="line">如：以下命令恢复编号为<span class="number">0</span>的进度的工作区和暂存区</span><br><span class="line"># git stash pop --index stash@&#123;<span class="number">0</span>&#125;</span><br></pre></td></tr></table></figure>
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">git</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-      
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/git//" class="article-tag-list-link color4">git</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-
-      <div style="font-size: 12px;">
-        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
-      </div>
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2017/11/08/Git-教程/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
-    <article id="post-Mac笔记本快捷键" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2017/11/08/Mac笔记本快捷键/">Mac笔记本快捷键</a>
-    </h1>
-  
-
-        
-        <a href="/2017/11/08/Mac笔记本快捷键/" class="archive-article-date">
-  	<time datetime="2017-11-08T05:23:49.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2017-11-08</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <figure class="highlight mathematica"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Command + <span class="keyword">K</span> 清屏</span><br><span class="line"><span class="keyword">Control</span> + <span class="keyword">C</span> 退出命令</span><br></pre></td></tr></table></figure>
-<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">⌘ Command</span><br><span class="line">⇧ Shift</span><br><span class="line">⌥ Option</span><br><span class="line">⌃ Control</span><br><span class="line">↩︎ Return/Enter</span><br><span class="line">⌫ Delete</span><br><span class="line">⌦ 向前删除键（Fn+Delete）</span><br><span class="line">↑ 上箭头</span><br><span class="line">↓ 下箭头</span><br><span class="line">← 左箭头</span><br><span class="line">→ 右箭头</span><br><span class="line">⇞<span class="built_in"> Page </span>Up（Fn+↑）</span><br><span class="line">⇟<span class="built_in"> Page </span>Down（Fn+↓）</span><br><span class="line">Home Fn + ←</span><br><span class="line">End Fn + →</span><br><span class="line">⇥ 右制表符（Tab键）</span><br><span class="line">⇤ 左制表符（Shift+Tab）</span><br><span class="line">⎋ Escape (Esc)</span><br></pre></td></tr></table></figure>
-
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">快捷键</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-      
-
-      <div style="font-size: 12px;">
-        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
-      </div>
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2017/11/08/Mac笔记本快捷键/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
   
     <nav id="page-nav">
       <a class="extend prev" rel="prev" href="/page/9/">&laquo; Prev</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/8/">8</a><a class="page-number" href="/page/9/">9</a><span class="page-number current">10</span><a class="page-number" href="/page/11/">11</a><a class="page-number" href="/page/12/">12</a><a class="page-number" href="/page/13/">13</a><a class="extend next" rel="next" href="/page/11/">Next &raquo;</a>
@@ -1231,19 +1241,15 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">JVM</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">java</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">Maven</a>
+                <a href="javascript:void(0)" class="js-tag color4">JVM</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">redis</a>
+                <a href="javascript:void(0)" class="js-tag color1">Maven</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1255,15 +1261,19 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">redis</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">快捷键</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">test</a>
+                <a href="javascript:void(0)" class="js-tag color1">mysql</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">mysql</a>
+                <a href="javascript:void(0)" class="js-tag color5">test</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1315,11 +1325,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">Mac</a>
+                <a href="javascript:void(0)" class="js-tag color1">maven</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">maven</a>
+                <a href="javascript:void(0)" class="js-tag color4">Mac</a>
               </li>
              
               <li class="article-tag-list-item">

@@ -8,24 +8,18 @@
   <meta name="renderer" content="webkit">
   <meta http-equiv="X-UA-Compatible" content="IE=edge" >
   <link rel="dns-prefetch" href="http://yoursite.com">
-  <title>API gateway实践 | xiaowu&#39;s blog</title>
+  <title>Spring Boot Web篇 | xiaowu&#39;s blog</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="一.API Gateway 场景及作用初衷: 企业微服务,统一流量管理,前后置任务,动态路由,安全防护等API相关的通用能力.  前置（Pre） 鉴权、安全、增加请求参数,恶意请求拦截 隔离机制 (Hystrix | 限流(ip,url,user)-线程池,信号量)   路由（Route） OriginServer(源服务访问)、请求转发、流量拷贝 重试机制(幂等考虑:只重试网络错误) 灰度发布">
+  <meta name="description" content="标准优化技术  资源变化 响应头：Last-Modified 请求头：If-Modified-Since  资源缓存 响应头：ETag  请求头：If-None-Match">
 <meta property="og:type" content="article">
-<meta property="og:title" content="API gateway实践">
-<meta property="og:url" content="http://yoursite.com/2018/04/09/API-gateway实践/index.html">
+<meta property="og:title" content="Spring Boot Web篇">
+<meta property="og:url" content="http://yoursite.com/2018/08/13/Spring-Boot-Web篇/index.html">
 <meta property="og:site_name" content="xiaowu&#39;s blog">
-<meta property="og:description" content="一.API Gateway 场景及作用初衷: 企业微服务,统一流量管理,前后置任务,动态路由,安全防护等API相关的通用能力.  前置（Pre） 鉴权、安全、增加请求参数,恶意请求拦截 隔离机制 (Hystrix | 限流(ip,url,user)-线程池,信号量)   路由（Route） OriginServer(源服务访问)、请求转发、流量拷贝 重试机制(幂等考虑:只重试网络错误) 灰度发布">
-<meta property="og:image" content="http://wiki.tongdun.me/download/attachments/23771641/image2018-3-19%200%3A35%3A2.png?version=1&modificationDate=1521390903000&api=v2">
-<meta property="og:image" content="http://blog.didispace.com/content/images/posts/spring-cloud-zuul-exception-3-4.png">
-<meta property="og:image" content="http://7xnbs3.com1.z0.glb.clouddn.com/18-3-19/45541994.jpg">
-<meta property="og:image" content="http://7xnbs3.com1.z0.glb.clouddn.com/18-3-19/68971967.jpg">
-<meta property="og:image" content="http://7xnbs3.com1.z0.glb.clouddn.com/18-3-19/6378748.jpg">
-<meta property="og:updated_time" content="2018-04-09T10:26:03.000Z">
+<meta property="og:description" content="标准优化技术  资源变化 响应头：Last-Modified 请求头：If-Modified-Since  资源缓存 响应头：ETag  请求头：If-None-Match">
+<meta property="og:updated_time" content="2018-08-14T12:44:27.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="API gateway实践">
-<meta name="twitter:description" content="一.API Gateway 场景及作用初衷: 企业微服务,统一流量管理,前后置任务,动态路由,安全防护等API相关的通用能力.  前置（Pre） 鉴权、安全、增加请求参数,恶意请求拦截 隔离机制 (Hystrix | 限流(ip,url,user)-线程池,信号量)   路由（Route） OriginServer(源服务访问)、请求转发、流量拷贝 重试机制(幂等考虑:只重试网络错误) 灰度发布">
-<meta name="twitter:image" content="http://wiki.tongdun.me/download/attachments/23771641/image2018-3-19%200%3A35%3A2.png?version=1&modificationDate=1521390903000&api=v2">
+<meta name="twitter:title" content="Spring Boot Web篇">
+<meta name="twitter:description" content="标准优化技术  资源变化 响应头：Last-Modified 请求头：If-Modified-Since  资源缓存 响应头：ETag  请求头：If-None-Match">
   
     <link rel="alternative" href="/atom.xml" title="xiaowu&#39;s blog" type="application/atom+xml">
   
@@ -159,491 +153,40 @@
             <canvas data-colors="#eaeaea" data-sectionHeight="100" data-contentId="js-content" id="myCanvas1" class="anm-canvas"></canvas>
           </div>
           <div id="js-content" class="content-ll">
-            <article id="post-API-gateway实践" class="article article-type-post " itemscope itemprop="blogPost">
+            <article id="post-Spring-Boot-Web篇" class="article article-type-post " itemscope itemprop="blogPost">
   <div class="article-inner">
     
       <header class="article-header">
         
   
     <h1 class="article-title" itemprop="name">
-      API gateway实践
+      Spring Boot Web篇
     </h1>
   
 
         
-        <a href="/2018/04/09/API-gateway实践/" class="archive-article-date">
-  	<time datetime="2018-04-09T10:25:50.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-04-09</time>
+        <a href="/2018/08/13/Spring-Boot-Web篇/" class="archive-article-date">
+  	<time datetime="2018-08-13T01:38:25.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-08-13</time>
 </a>
         
       </header>
     
     <div class="article-entry" itemprop="articleBody">
       
-        <h1 id="一-API-Gateway-场景及作用"><a href="#一-API-Gateway-场景及作用" class="headerlink" title="一.API Gateway 场景及作用"></a>一.API Gateway 场景及作用</h1><p>初衷: 企业微服务,统一<code>流量管理,前后置任务,动态路由,安全防护</code>等API相关的通用能力.</p>
+        <ul>
+<li><p>标准优化技术</p>
 <ul>
-<li>前置（Pre）<ul>
-<li>鉴权、安全、增加请求参数,恶意请求拦截</li>
-<li>隔离机制 (Hystrix | 限流(ip,url,user)-线程池,信号量)</li>
-</ul>
+<li><p>资源变化</p>
+<p>响应头：Last-Modified</p>
+<p>请求头：If-Modified-Since</p>
 </li>
-<li>路由（Route）<ul>
-<li>OriginServer(源服务访问)、请求转发、流量拷贝</li>
-<li>重试机制(幂等考虑:只重试网络错误)</li>
-<li>灰度发布</li>
-</ul>
+<li><p>资源缓存</p>
+<p>响应头：ETag</p>
+<p> 请求头：If-None-Match</p>
 </li>
-<li>后置（Post）<ul>
-<li>统计返回值和调用时间、记录日志、增加跨域头等</li>
-</ul>
-</li>
-<li>错误（Error）<ul>
-<li>过程中断</li>
 </ul>
 </li>
 </ul>
-<h2 id="业务网关"><a href="#业务网关" class="headerlink" title="业务网关"></a><a href="http://0.0.0.0:4000/2018/03/15/%EF%BB%BFAPI%20Gateway%20%E5%AE%9E%E8%B7%B5%E4%BD%93%E9%AA%8C/#%E4%B8%9A%E5%8A%A1%E7%BD%91%E5%85%B3" target="_blank" rel="external">业务网关</a></h2><p>当业务系统所在分布式,集群组合环境中,如需对流量进行统一管理.那么业务API Gateway就出现了.</p>
-<blockquote>
-<p>动态路由、业务数据过滤、统一鉴权、流量复制、环境差异(dev,test,production). 等业务视角的API Gateway能力</p>
-</blockquote>
-<p><img src="http://wiki.tongdun.me/download/attachments/23771641/image2018-3-19%200%3A35%3A2.png?version=1&amp;modificationDate=1521390903000&amp;api=v2" alt="img"></p>
-<h2 id="常见选型"><a href="#常见选型" class="headerlink" title="常见选型"></a><a href="http://0.0.0.0:4000/2018/03/15/%EF%BB%BFAPI%20Gateway%20%E5%AE%9E%E8%B7%B5%E4%BD%93%E9%AA%8C/#%E5%B8%B8%E8%A7%81%E9%80%89%E5%9E%8B" target="_blank" rel="external">常见选型</a></h2><p>对于 API Gateway，常见的选型有基于 <code>Openresty 的 Kong</code>、基于 <code>Go 的 Tyk</code>和基于 <code>Java 的 Zuul</code>.<br>基本是技术栈的差异.</p>
-<ul>
-<li><p>OpenResty Kong</p>
-<blockquote>
-<p>OpenResty® 是一个基于 Nginx 与 Lua 的高性能 Web 平台，其内部集成了大量精良的 Lua 库、第三方模块以及大多数的依赖项。用于方便地搭建能够处理超高并发、扩展性极高的动态 Web 应用、Web 服务和动态网关<br>详见: <a href="http://openresty.org/cn/" target="_blank" rel="external">http://openresty.org/cn/</a></p>
-</blockquote>
-</li>
-<li><p>Zuul</p>
-<blockquote>
-<p>Zuul通过使用其他Netflix OSS组件给予我们很多洞察力，灵活性和灵活性：<br><code>Hystrix</code> 被用来包装呼叫到我们的来源，这使我们能够在发生问题时减少流量并划分优先级<br><code>Ribbon</code> 用于处理来自Zuul的所有出站请求，它提供了有关网络性能和错误的详细信息，并处理负载均衡的软件负载平衡<br><code>Turbine</code> 实时聚合精细度量指标，以便我们可以快速观察并对问题做出反应<br><code>Archaius</code> 处理配置并提供动态更改属性的功能<br>详见: <a href="https://github.com/Netflix/zuul/wiki/How-We-Use-Zuul-At-Netflix" target="_blank" rel="external">https://github.com/Netflix/zuul/wiki/How-We-Use-Zuul-At-Netflix</a></p>
-</blockquote>
-</li>
-</ul>
-<hr>
-<h1 id="二-Zuul-概述"><a href="#二-Zuul-概述" class="headerlink" title="二.Zuul 概述"></a><a href="http://0.0.0.0:4000/2018/03/15/%EF%BB%BFAPI%20Gateway%20%E5%AE%9E%E8%B7%B5%E4%BD%93%E9%AA%8C/#%E4%BA%8C-Zuul-%E6%A6%82%E8%BF%B0" target="_blank" rel="external">二.Zuul 概述</a></h1><ul>
-<li>技术本质: web servlet应用. <code>入口: ZuulController extends ServletWrappingController</code></li>
-<li>框架能力: 实现了基础的流操作(接管,解析,转发,异常控制), 还设计以filter为切面,供开发者按需扩展的机制.</li>
-</ul>
-<h2 id="过滤器-机制"><a href="#过滤器-机制" class="headerlink" title="过滤器,机制"></a><a href="http://0.0.0.0:4000/2018/03/15/%EF%BB%BFAPI%20Gateway%20%E5%AE%9E%E8%B7%B5%E4%BD%93%E9%AA%8C/#%E8%BF%87%E6%BB%A4%E5%99%A8-%E6%9C%BA%E5%88%B6" target="_blank" rel="external">过滤器,机制</a></h2><p><img src="http://blog.didispace.com/content/images/posts/spring-cloud-zuul-exception-3-4.png" alt="img"></p>
-<ul>
-<li>内置过滤器:</li>
-</ul>
-<table>
-<thead>
-<tr>
-<th>类型</th>
-<th>顺序</th>
-<th>过滤器</th>
-<th>功能</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>pre</td>
-<td>-3</td>
-<td>ServletDetectionFilter</td>
-<td>标记处理Servlet的类型</td>
-</tr>
-<tr>
-<td>pre</td>
-<td>-2</td>
-<td>Servlet30WrapperFilter</td>
-<td>包装HttpServletRequest请求</td>
-</tr>
-<tr>
-<td>pre</td>
-<td>-1</td>
-<td>FormBodyWrapperFilter</td>
-<td>包装请求体</td>
-</tr>
-<tr>
-<td>pre</td>
-<td>1</td>
-<td>DebugFilter</td>
-<td>标记调试标志</td>
-</tr>
-<tr>
-<td>pre</td>
-<td>5</td>
-<td>PreDecorationFilter</td>
-<td>处理请求上下文供后续使用</td>
-</tr>
-<tr>
-<td>route</td>
-<td>10</td>
-<td>RibbonRoutingFilter</td>
-<td>serviceId请求转发</td>
-</tr>
-<tr>
-<td>route</td>
-<td>100</td>
-<td>SimpleHostRoutingFilter</td>
-<td>url请求转发</td>
-</tr>
-<tr>
-<td>route</td>
-<td>500</td>
-<td>SendForwardFilter</td>
-<td>forward请求转发</td>
-</tr>
-<tr>
-<td>post</td>
-<td>0</td>
-<td>SendErrorFilter</td>
-<td>处理有错误的请求响应</td>
-</tr>
-<tr>
-<td>post</td>
-<td>500</td>
-<td>SendForwardFilter</td>
-<td>处理forward</td>
-</tr>
-<tr>
-<td>post</td>
-<td>1000</td>
-<td>SendResponseFilter</td>
-<td>处理正常的请求响应</td>
-</tr>
-</tbody>
-</table>
-<p>详见:org.springframework.cloud.netflix.zuul.filters.support.FilterConstants#DEBUG_FILTER_ORDER</p>
-<h2 id="扩展实现方向"><a href="#扩展实现方向" class="headerlink" title="扩展实现方向"></a><a href="http://0.0.0.0:4000/2018/03/15/%EF%BB%BFAPI%20Gateway%20%E5%AE%9E%E8%B7%B5%E4%BD%93%E9%AA%8C/#%E6%89%A9%E5%B1%95%E5%AE%9E%E7%8E%B0%E6%96%B9%E5%90%91" target="_blank" rel="external">扩展实现方向</a></h2><ul>
-<li><code>验证与安全保障</code>: 识别面向各类资源的验证要求并拒绝那些与要求不符的请求。</li>
-<li><code>审查与监控</code>: 在边缘位置追踪有意义数据及统计结果，从而为我们带来准确的生产状态结论。</li>
-<li><code>动态路由</code>: 以动态方式根据需要将请求路由至不同后端集群处。</li>
-<li><code>压力测试</code>: 逐渐增加指向集群的负载流量，从而计算性能水平。</li>
-<li><code>负载分配</code>: 为每一种负载类型分配对应容量，并弃用超出限定值的请求。</li>
-<li><code>静态响应处理</code>: 在边缘位置直接建立部分响应，从而避免其流入内部集群。</li>
-<li><code>多区域弹性</code>跨越AWS区域进行请求路由，旨在实现ELB使用多样化并保证边缘位置与使用者尽可能接近。</li>
-</ul>
-<p><code>单个实现均可以独立展开总结</code></p>
-<hr>
-<h1 id="三-Zuul-应用"><a href="#三-Zuul-应用" class="headerlink" title="三.Zuul 应用"></a><a href="http://0.0.0.0:4000/2018/03/15/%EF%BB%BFAPI%20Gateway%20%E5%AE%9E%E8%B7%B5%E4%BD%93%E9%AA%8C/#%E4%B8%89-Zuul-%E5%BA%94%E7%94%A8" target="_blank" rel="external">三.Zuul 应用</a></h1><h2 id="系统设计"><a href="#系统设计" class="headerlink" title="系统设计"></a><a href="http://0.0.0.0:4000/2018/03/15/%EF%BB%BFAPI%20Gateway%20%E5%AE%9E%E8%B7%B5%E4%BD%93%E9%AA%8C/#%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1" target="_blank" rel="external">系统设计</a></h2><p><img src="http://7xnbs3.com1.z0.glb.clouddn.com/18-3-19/45541994.jpg" alt="img"></p>
-<h2 id="功能"><a href="#功能" class="headerlink" title="功能"></a><a href="http://0.0.0.0:4000/2018/03/15/%EF%BB%BFAPI%20Gateway%20%E5%AE%9E%E8%B7%B5%E4%BD%93%E9%AA%8C/#%E5%8A%9F%E8%83%BD" target="_blank" rel="external">功能</a></h2><ul>
-<li>集群及节点管理:对接triton，定时刷新-可配</li>
-<li>健康检查:故障节点管理(失效,恢复机制)</li>
-<li>负载均衡:权重（Weighted Round-Robin）</li>
-<li>集群路由:合作方与集群关系 见:<code>SELECT business_code, partner_code,cluster FROM forseti.partner_cluster WHERE status=1;</code></li>
-<li>冠军挑战者: 见:<code>forseti.policy_set where challenged_uuid IS NOT NULL</code></li>
-<li>缓存技术方案:启动时加载,可配定时更新. [ChallengerCache,ClusterNodeCache,PartnerConfigCache]</li>
-<li>流量拷贝(http Copy):见shutter配置<code>forseti-gateway-observe.properties</code>-<code>httpcopy.register:***</code></li>
-<li>内部请求头处理: 非内网访问清理测试标记</li>
-<li>超时控制</li>
-<li>环境控制:stg环境不需要httpCopy,且无集群路由(固定集群),但有挑战者集群</li>
-<li>特殊合作方处理:大麦504转200</li>
-<li>日志管理:整体控制日志量,access日志独立</li>
-<li>监控管理:gateway,filter,业务,异常等.metrics采样,供grafana制图.</li>
-</ul>
-<hr>
-<h2 id="基本实现"><a href="#基本实现" class="headerlink" title="基本实现"></a><a href="http://0.0.0.0:4000/2018/03/15/%EF%BB%BFAPI%20Gateway%20%E5%AE%9E%E8%B7%B5%E4%BD%93%E9%AA%8C/#%E5%9F%BA%E6%9C%AC%E5%AE%9E%E7%8E%B0" target="_blank" rel="external">基本实现</a></h2><h3 id="使用zuul-filter"><a href="#使用zuul-filter" class="headerlink" title="使用zuul filter"></a><a href="http://0.0.0.0:4000/2018/03/15/%EF%BB%BFAPI%20Gateway%20%E5%AE%9E%E8%B7%B5%E4%BD%93%E9%AA%8C/#%E4%BD%BF%E7%94%A8zuul-filter" target="_blank" rel="external">使用zuul filter</a></h3><table>
-<thead>
-<tr>
-<th>1234567891011</th>
-<th>PreHeaderFilterPrePartnerClusterFilterRouteChallengerDispatchFilterRouteHttpCopyFilterRoutePartnerDispatchFilterErrorFilterPostAccessLogFilterPostHeaderFilter</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td></td>
-</tr>
-</tbody>
-</table>
-<ul>
-<li><p>PreHeaderFilter</p>
-<p>| 123456789101112131415161718192021222324252627282930313233343536373839404142434445464748495051525354555657 | /<em>** 内部请求头处理(测试标记、超时)</em>/@SuppressWarnings(“SpringJavaInjectionPointsAutowiringInspection”)@Servicepublic class PreHeaderFilter extends ZuulFilter {public final static Logger logger = LoggerFactory.getLogger(PreHeaderFilter.class);@AutowiredShutterObserve shutterObserve;@AutowiredSimpleDiscoveryClient simpleDiscoveryClient;@Overridepublic String filterType() {return FilterConstants.PRE_TYPE; // 可以在请求被路由之前调用}@Overridepublic int filterOrder() {return FilterConstants.DEBUG_FILTER_ORDER+1;}@Overridepublic boolean shouldFilter() {return true;// 是否执行该过滤器，此处为true，说明需要过滤}@Overridepublic Object run() {RequestContext ctx = RequestContext.getCurrentContext();HttpServletRequest request = ctx.getRequest();// 当前会话的超时设置 TODO 依据合作方设置有困难// 仅办公网&amp;内网支持.客户不支持 “service-type”, “x-perf-test”, “test-flag”,对非公网测试标记访问,进行处理:剔除标记String clientHost = request.getRemoteHost();if (Arrays.asList(shutterObserve.getAddress_internal().split(“,”)).contains(clientHost)|| IpUtil.isInRange(clientHost, “10.0.0.0/8”)// 10.0.0.0/8,172.16.0.0/12,192.168.0.0/16|| IpUtil.isInRange(clientHost, “172.16.0.0/12”)|| IpUtil.isInRange(clientHost, “192.168.0.0/17”)) {return null;}// 非内网访问,清理测试标记ctx.addZuulRequestHeader(“service-type”, null);ctx.addZuulRequestHeader(“x-perf-test”, null);ctx.addZuulRequestHeader(“test-flag”, null);return null;}} |<br>| ———————————————————— | ———————————————————— |<br>|                                                              |                                                              |</p>
-</li>
-</ul>
-<h3 id="对接triton-用作服务发现-替代方案-Netflix-eureka"><a href="#对接triton-用作服务发现-替代方案-Netflix-eureka" class="headerlink" title="对接triton,用作服务发现 (替代方案:Netflix/eureka)"></a><a href="http://0.0.0.0:4000/2018/03/15/%EF%BB%BFAPI%20Gateway%20%E5%AE%9E%E8%B7%B5%E4%BD%93%E9%AA%8C/#%E5%AF%B9%E6%8E%A5triton-%E7%94%A8%E4%BD%9C%E6%9C%8D%E5%8A%A1%E5%8F%91%E7%8E%B0-%E6%9B%BF%E4%BB%A3%E6%96%B9%E6%A1%88-Netflix-eureka" target="_blank" rel="external">对接triton,用作服务发现 (替代方案:Netflix/eureka)</a></h3><table>
-<thead>
-<tr>
-<th>1</th>
-<th><a href="http://10.57.18.211/api/v1/apps/ips?app_name=forseti-api&amp;env=production" target="_blank" rel="external">http://10.57.18.211/api/v1/apps/ips?app_name=forseti-api&amp;env=production</a></th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td></td>
-</tr>
-</tbody>
-</table>
-<p>eureka应用参考见:<code>微服务：Eureka+Zuul+Ribbon+Feign+Hystrix构建微服务架构</code><br><a href="http://blog.csdn.net/qq_18675693/article/details/53282031" target="_blank" rel="external">http://blog.csdn.net/qq_18675693/article/details/53282031</a><br>wiki: <a href="https://github.com/Netflix/eureka/wiki/Configuring-Eureka" target="_blank" rel="external">https://github.com/Netflix/eureka/wiki/Configuring-Eureka</a></p>
-<h3 id="引入Ribbon-实现集群负载管理"><a href="#引入Ribbon-实现集群负载管理" class="headerlink" title="引入Ribbon,实现集群负载管理"></a><a href="http://0.0.0.0:4000/2018/03/15/%EF%BB%BFAPI%20Gateway%20%E5%AE%9E%E8%B7%B5%E4%BD%93%E9%AA%8C/#%E5%BC%95%E5%85%A5Ribbon-%E5%AE%9E%E7%8E%B0%E9%9B%86%E7%BE%A4%E8%B4%9F%E8%BD%BD%E7%AE%A1%E7%90%86" target="_blank" rel="external">引入Ribbon,实现集群负载管理</a></h3><table>
-<thead>
-<tr>
-<th>12345678910111213141516171819202122</th>
-<th># Max number of retries on the same server (excluding the first try)sample-client.ribbon.MaxAutoRetries=1# Max number of next servers to retry (excluding the first server)sample-client.ribbon.MaxAutoRetriesNextServer=1# Whether all operations can be retried for this clientsample-client.ribbon.OkToRetryOnAllOperations=true# Interval to refresh the server list from the sourcesample-client.ribbon.ServerListRefreshInterval=2000# Connect timeout used by Apache HttpClientsample-client.ribbon.ConnectTimeout=3000# Read timeout used by Apache HttpClientsample-client.ribbon.ReadTimeout=3000# Initial list of servers, can be changed via Archaius dynamic property at runtimesample-client.ribbon.listOfServers=www.microsoft.com:80,www.yahoo.com:80,www.google.com:80详见:<a href="https://github.com/Netflix/ribbon/wiki/Getting-Started" target="_blank" rel="external">https://github.com/Netflix/ribbon/wiki/Getting-Started</a></th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td></td>
-</tr>
-</tbody>
-</table>
-<ul>
-<li><p>示例:</p>
-<p>| 1234567891011121314151617181920 | # Routes定义<code>origin</code>zuul.routes.origin.stripPrefix=falsezuul.routes.origin.path=/greeting/**zuul.routes.origin.serviceId=originService# Ribbon Service定义originService.ribbon.NFLoadBalancerClassName=com.netflix.loadbalancer.DynamicServerListLoadBalancer## 设置(默认:AvailabilityFilteringRule)originService.ribbon.NFLoadBalancerRuleClassName=cn.fraudmetrix.forseti.gateway.rule.CustomWeightedResponseTimeRule## Initial list of servers, can be changed via Archaius dynamic property at runtimeoriginService.ribbon.listOfServers=localhost:8090,localhost:8091## 连接超时(default:2000) Connect timeout used by Apache HttpClientoriginService.ribbon.ConnectTimeout=1000## 响应超时(default:5000) Read timeout used by Apache HttpClientoriginService.ribbon.ReadTimeout=60000详见: <a href="https://github.com/Netflix/ribbon/wiki/Working-with-load-balancers" target="_blank" rel="external">https://github.com/Netflix/ribbon/wiki/Working-with-load-balancers</a> |<br>| ——————————- | ———————————————————— |<br>|                                 |                                                              |</p>
-</li>
-</ul>
-<h3 id="异常响应控制-org-springframework-boot-autoconfigure-web"><a href="#异常响应控制-org-springframework-boot-autoconfigure-web" class="headerlink" title="异常响应控制 (org.springframework.boot.autoconfigure.web)"></a><a href="http://0.0.0.0:4000/2018/03/15/%EF%BB%BFAPI%20Gateway%20%E5%AE%9E%E8%B7%B5%E4%BD%93%E9%AA%8C/#%E5%BC%82%E5%B8%B8%E5%93%8D%E5%BA%94%E6%8E%A7%E5%88%B6-org-springframework-boot-autoconfigure-web-%E6%8F%90%E4%BE%9B" target="_blank" rel="external">异常响应控制 (org.springframework.boot.autoconfigure.web)</a></h3><table>
-<thead>
-<tr>
-<th>123456789101112</th>
-<th>@Componentpublic class CustomErrorAttribute extends DefaultErrorAttributes {@Overridepublic Map<string, object=""> getErrorAttributes(RequestAttributes requestAttributes, boolean includeStackTrace) {Map<string, object=""> result = super.getErrorAttributes(requestAttributes, includeStackTrace);result.put(“status”, 500);result.put(“error”, “error”);result.put(“exception”, “exception”);result.put(“message”, “message”);return result;}}</string,></string,></th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td></td>
-</tr>
-</tbody>
-</table>
-<h3 id="自定义权重轮训"><a href="#自定义权重轮训" class="headerlink" title="自定义权重轮训"></a><a href="http://0.0.0.0:4000/2018/03/15/%EF%BB%BFAPI%20Gateway%20%E5%AE%9E%E8%B7%B5%E4%BD%93%E9%AA%8C/#%E8%87%AA%E5%AE%9A%E4%B9%89%E6%9D%83%E9%87%8D%E8%BD%AE%E8%AE%AD" target="_blank" rel="external">自定义权重轮训</a></h3><h4 id="基于权重随机"><a href="#基于权重随机" class="headerlink" title="基于权重随机"></a><a href="http://0.0.0.0:4000/2018/03/15/%EF%BB%BFAPI%20Gateway%20%E5%AE%9E%E8%B7%B5%E4%BD%93%E9%AA%8C/#%E5%9F%BA%E4%BA%8E%E6%9D%83%E9%87%8D%E9%9A%8F%E6%9C%BA" target="_blank" rel="external">基于权重随机</a></h4><table>
-<thead>
-<tr>
-<th>12345678910</th>
-<th>int n = 0, resultIndex = 0;double random = new Random().nextDouble() * prizeArea.get(prizeArea.size()-1);for (Integer inte : prizeArea) {if (inte &gt;= random) {resultIndex = n;System.out.println(“命中(“ + random + “):” + inte);break;}n++;}</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td></td>
-</tr>
-</tbody>
-</table>
-<h4 id="基于加权轮询"><a href="#基于加权轮询" class="headerlink" title="基于加权轮询"></a><a href="http://0.0.0.0:4000/2018/03/15/%EF%BB%BFAPI%20Gateway%20%E5%AE%9E%E8%B7%B5%E4%BD%93%E9%AA%8C/#%E5%9F%BA%E4%BA%8E%E5%8A%A0%E6%9D%83%E8%BD%AE%E8%AF%A2" target="_blank" rel="external">基于加权轮询</a></h4><table>
-<thead>
-<tr>
-<th>1234567891011121314151617181920212223242526272829</th>
-<th>/<em>** 算法流程：</em> 假设有一组服务器 S = {S0, S1, …, Sn-1}<em> 有相应的权重，变量currentIndex表示上次选择的服务器</em> 权值currentWeight初始化为0，currentIndex初始化为-1 ，当第一次的时候返回 权值取最大的那个服务器，<em> 通过权重的不断递减 寻找 适合的服务器返回</em>/public Server getServer( ) {while (true) {currentIndex = (currentIndex + 1) % serverCount;// 每次从上一次命中节点,的下个节点开始权值比较if (currentIndex == 0) {// 第0台,第size台机器,取余才会得0 (让外部所有节点权值都进行权值比较,至找到合适的权值节点)// 当前权值减最大公约数(gcd)相比每次减(1,2,最大公差,n)的优点:<code>维持整数比例关系</code>的<code>最小值表现</code>.公约数可保持权重平衡,最大公约数可最快的轮换节点.currentWeight = currentWeight - gcdWeight;// max - gcd (权值衰减直到近一个合适的权重,才会换节点)if (currentWeight &lt;= 0) {// 首次:0 - gcd = 负值 / 权重衰减至最大公约数时-gcd = 0值,此时需要重置最大权值currentWeight = maxWeight;// 为负时,取重置为最大权重(从最大权重节点开始递减选择)if (currentWeight == 0) {return null;}}}if (servers.get(currentIndex).getWeight() &gt;= currentWeight) {// 第一次:节点1~size权重&gt;currentWeight(maxWeight),返回节点:最大权值return servers.get(currentIndex);}}}详见: <a href="http://zh.linuxvirtualserver.org/node/37" target="_blank" rel="external">http://zh.linuxvirtualserver.org/node/37</a></th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td></td>
-</tr>
-</tbody>
-</table>
-<p><img src="http://7xnbs3.com1.z0.glb.clouddn.com/18-3-19/68971967.jpg" alt="img"></p>
-<ul>
-<li><p>最大公约数的意义</p>
-<p>| 12345 | 公约数在加权轮询中的意义: 在保持权重平衡(整数倍)的情况下,转换为更小值得表现(即减少”层高”),从而加速轮询周期(一圈)最大公约数在加权轮询中的意义: 平衡基础的最小值表现,最快的轮询周期.(思考上图:仅调用6次情况下,有公约数处理可以提前达到负载均衡)减最大公约数(gcd)相比每次减(1,2,最大公差,n)的优点:<code>维持整数比例关系</code>的<code>最小值表现</code>.公约数可保持权重平衡,最大公约数可最快的轮换节点.关键字:<code>公约数保平衡</code>, <code>最大公约数得最小比例值</code>, <code>最大公约数做差可最快轮询周期,更少数量调用的均衡实现</code> |<br>| —– | ———————————————————— |<br>|       |                                                              |</p>
-</li>
-</ul>
-<hr>
-<h1 id="四-Zuul-Ribbon-源码分析"><a href="#四-Zuul-Ribbon-源码分析" class="headerlink" title="四.Zuul,Ribbon 源码分析"></a><a href="http://0.0.0.0:4000/2018/03/15/%EF%BB%BFAPI%20Gateway%20%E5%AE%9E%E8%B7%B5%E4%BD%93%E9%AA%8C/#%E5%9B%9B-Zuul-Ribbon-%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90" target="_blank" rel="external">四.Zuul,Ribbon 源码分析</a></h1><h2 id="1-filter调用栈"><a href="#1-filter调用栈" class="headerlink" title="1.filter调用栈"></a><a href="http://0.0.0.0:4000/2018/03/15/%EF%BB%BFAPI%20Gateway%20%E5%AE%9E%E8%B7%B5%E4%BD%93%E9%AA%8C/#1-filter%E8%B0%83%E7%94%A8%E6%A0%88" target="_blank" rel="external">1.filter调用栈</a></h2><ul>
-<li><p>入口servlet: <code>ZuulController extends ServletWrappingController</code></p>
-<p>| 123  | setServletClass(ZuulServlet.class);return super.handleRequestInternal(request, response); |<br>| —- | ———————————————————— |<br>|      |                                                              |</p>
-</li>
-<li><p>ZuulServlet: com.netflix.zuul.http.ZuulServlet#service</p>
-<p>| 123456789101112131415161718192021222324252627282930313233343536 | @Overridepublic void service(javax.servlet.ServletRequest servletRequest, javax.servlet.ServletResponse servletResponse) throws ServletException, IOException {try {init((HttpServletRequest) servletRequest, (HttpServletResponse) servletResponse);// Marks this request as having passed through the “Zuul engine”, as opposed to servlets// explicitly bound in web.xml, for which requests will not have the same data attachedRequestContext context = RequestContext.getCurrentContext();context.setZuulEngineRan();try {preRoute();} catch (ZuulException e) {error(e);postRoute();return;}try {route();} catch (ZuulException e) {error(e);postRoute();return;}try {postRoute();} catch (ZuulException e) {error(e);return;}} catch (Throwable e) {error(new ZuulException(e, 500, “UNHANDLED<em>EXCEPTION</em>“ + e.getClass().getName()));} finally {RequestContext.getCurrentContext().unset();} |<br>| ———————————————————— | ———————————————————— |<br>|                                                              |                                                              |</p>
-</li>
-<li><p>FilterProcessor: com.netflix.zuul.FilterProcessor#runFilters</p>
-<p>| 1234567891011121314151617 | public Object runFilters(String sType) throws Throwable {if (RequestContext.getCurrentContext().debugRouting()) {Debug.addRoutingDebug(“Invoking {“ + sType + “} type filters”);}boolean bResult = false;List<zuulfilter> list = FilterLoader.getInstance().getFiltersByType(sType);if (list != null) {for (int i = 0; i &lt; list.size(); i++) {ZuulFilter zuulFilter = list.get(i);Object result = processZuulFilter(zuulFilter);if (result != null &amp;&amp; result instanceof Boolean) {bResult |= ((Boolean) result);}}}return bResult;} |<br>| ————————- | ———————————————————— |<br>|                           |                                                              |</zuulfilter></p>
-</li>
-<li><p>ZuulFilter: com.netflix.zuul.ZuulFilter#runFilter</p>
-<p>| 123456789101112131415161718192021 | public ZuulFilterResult runFilter() {ZuulFilterResult zr = new ZuulFilterResult();if (!isFilterDisabled()) {if (shouldFilter()) {Tracer t = TracerFactory.instance().startMicroTracer(“ZUUL::” + this.getClass().getSimpleName());try {Object res = run();zr = new ZuulFilterResult(res, ExecutionStatus.SUCCESS);} catch (Throwable e) {t.setName(“ZUUL::” + this.getClass().getSimpleName() + “ failed”);zr = new ZuulFilterResult(ExecutionStatus.FAILED);zr.setException(e);} finally {t.stopAndLog();}} else {zr = new ZuulFilterResult(ExecutionStatus.SKIPPED);}}return zr;} |<br>| ——————————— | ———————————————————— |<br>|                                   |                                                              |</p>
-</li>
-<li><p>PreHeaderFilter (自定义实现filter)</p>
-<p>| 1234567891011121314151617181920212223 | public class PreHeaderFilter extends ZuulFilter {@Overridepublic String filterType() {return FilterConstants.PRE_TYPE; // 可以在请求被路由之前调用}@Overridepublic int filterOrder() {return FilterConstants.DEBUG_FILTER_ORDER+1;}@Overridepublic boolean shouldFilter() {return true;// 是否执行该过滤器，此处为true，说明需要过滤}@Overridepublic Object run() {return null;}} |<br>| ————————————- | ———————————————————— |<br>|                                       |                                                              |</p>
-</li>
-<li><p>至此,以上调用栈可以通过自有filter断点卡住,观察线程栈.</p>
-</li>
-</ul>
-<h2 id="2-Route路由控制-forward"><a href="#2-Route路由控制-forward" class="headerlink" title="2.Route路由控制(forward)"></a><a href="http://0.0.0.0:4000/2018/03/15/%EF%BB%BFAPI%20Gateway%20%E5%AE%9E%E8%B7%B5%E4%BD%93%E9%AA%8C/#2-Route%E8%B7%AF%E7%94%B1%E6%8E%A7%E5%88%B6-forward" target="_blank" rel="external">2.Route路由控制(forward)</a></h2><h3 id="情况一-route直接关系host"><a href="#情况一-route直接关系host" class="headerlink" title="情况一: route直接关系host"></a><a href="http://0.0.0.0:4000/2018/03/15/%EF%BB%BFAPI%20Gateway%20%E5%AE%9E%E8%B7%B5%E4%BD%93%E9%AA%8C/#%E6%83%85%E5%86%B5%E4%B8%80-route%E7%9B%B4%E6%8E%A5%E5%85%B3%E7%B3%BBhost" target="_blank" rel="external">情况一: route直接关系host</a></h3><table>
-<thead>
-<tr>
-<th>123</th>
-<th>zuul.routes.riskService.stripPrefix=falsezuul.routes.riskService.path=/riskService/**zuul.routes.riskService.routeHost=localhost:8090</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td></td>
-</tr>
-</tbody>
-</table>
-<ul>
-<li><p>进入SimpleHostRoutingFilter</p>
-<p>| 12345678910111213141516 | public class SimpleHostRoutingFilter extends ZuulFilter {@Overridepublic boolean shouldFilter() {return RequestContext.getCurrentContext().getRouteHost() != null&amp;&amp; RequestContext.getCurrentContext().sendZuulResponse();}@Overridepublic Object run() {…CloseableHttpResponse response = forward(this.httpClient, verb, uri, request,headers, params, requestEntity);…}} |<br>| ———————– | ———————————————————— |<br>|                         |                                                              |</p>
-</li>
-</ul>
-<h3 id="情况二-route关系到serviceId-类集群"><a href="#情况二-route关系到serviceId-类集群" class="headerlink" title="情况二: route关系到serviceId(类集群)"></a><a href="http://0.0.0.0:4000/2018/03/15/%EF%BB%BFAPI%20Gateway%20%E5%AE%9E%E8%B7%B5%E4%BD%93%E9%AA%8C/#%E6%83%85%E5%86%B5%E4%BA%8C-route%E5%85%B3%E7%B3%BB%E5%88%B0serviceId-%E7%B1%BB%E9%9B%86%E7%BE%A4" target="_blank" rel="external">情况二: route关系到serviceId(类集群)</a></h3><table>
-<thead>
-<tr>
-<th>123</th>
-<th>zuul.routes.riskService.stripPrefix=falsezuul.routes.riskService.path=/riskService/**zuul.routes.riskService.serviceId=originService</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td></td>
-</tr>
-</tbody>
-</table>
-<ul>
-<li><p>进入RibbonRoutingFilter</p>
-<p>| 1234567891011121314151617 | public class RibbonRoutingFilter extends ZuulFilter {@Overridepublic boolean shouldFilter() {RequestContext ctx = RequestContext.getCurrentContext();return (ctx.getRouteHost() == null &amp;&amp; ctx.get(SERVICE_ID_KEY) != null &amp;&amp; ctx.sendZuulResponse());}@Overridepublic Object run() {…RibbonCommandContext commandContext = buildCommandContext(context);ClientHttpResponse response = forward(commandContext);…}} |<br>| ————————- | ———————————————————— |<br>|                           |                                                              |</p>
-</li>
-<li><p>forward中还有<code>自定义负载均衡实现</code>. (怎么过来的,断点了解)</p>
-<p>| 123456 | public class CustomWeightedResponseTimeRule extends RoundRobinRule {@Overridepublic Server choose(ILoadBalancer lb, Object key) {…}} |<br>| —— | ———————————————————— |<br>|        |                                                              |</p>
-</li>
-</ul>
-<hr>
-<h2 id="3-Ribbon结构"><a href="#3-Ribbon结构" class="headerlink" title="3.Ribbon结构"></a><a href="http://0.0.0.0:4000/2018/03/15/%EF%BB%BFAPI%20Gateway%20%E5%AE%9E%E8%B7%B5%E4%BD%93%E9%AA%8C/#3-Ribbon%E7%BB%93%E6%9E%84" target="_blank" rel="external">3.Ribbon结构</a></h2><h3 id="核心类-BaseLoadBalancer-默认实现"><a href="#核心类-BaseLoadBalancer-默认实现" class="headerlink" title="核心类: BaseLoadBalancer 默认实现"></a><a href="http://0.0.0.0:4000/2018/03/15/%EF%BB%BFAPI%20Gateway%20%E5%AE%9E%E8%B7%B5%E4%BD%93%E9%AA%8C/#%E6%A0%B8%E5%BF%83%E7%B1%BB-BaseLoadBalancer-%E9%BB%98%E8%AE%A4%E5%AE%9E%E7%8E%B0" target="_blank" rel="external">核心类: BaseLoadBalancer 默认实现</a></h3><table>
-<thead>
-<tr>
-<th>123456</th>
-<th>IClientConfig ribbonClientConfig: DefaultClientConfigImpl配置IRule ribbonRule: RoundRobinRule 轮询策略IPing ribbonPing: DummyPingServerList ribbonServerList: ConfigurationBasedServerListServerListFilter ribbonServerListFilter: ZonePreferenceServerListFilterILoadBalancer ribbonLoadBalancer: ZoneAwareLoadBalancer</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td></td>
-</tr>
-</tbody>
-</table>
-<h3 id="配置及可选项"><a href="#配置及可选项" class="headerlink" title="配置及可选项"></a><a href="http://0.0.0.0:4000/2018/03/15/%EF%BB%BFAPI%20Gateway%20%E5%AE%9E%E8%B7%B5%E4%BD%93%E9%AA%8C/#%E9%85%8D%E7%BD%AE%E5%8F%8A%E5%8F%AF%E9%80%89%E9%A1%B9" target="_blank" rel="external">配置及可选项</a></h3><table>
-<thead>
-<tr>
-<th>12345</th>
-<th>NFLoadBalancerClassNameNFLoadBalancerRuleClassNameNFLoadBalancerPingClassNameNIWSServerListClassNameNIWSServerListFilterClassName</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td></td>
-</tr>
-</tbody>
-</table>
-<h3 id="NFLoadBalancerRuleClassName可选项-负载均衡"><a href="#NFLoadBalancerRuleClassName可选项-负载均衡" class="headerlink" title="NFLoadBalancerRuleClassName可选项(负载均衡)"></a><a href="http://0.0.0.0:4000/2018/03/15/%EF%BB%BFAPI%20Gateway%20%E5%AE%9E%E8%B7%B5%E4%BD%93%E9%AA%8C/#NFLoadBalancerRuleClassName%E5%8F%AF%E9%80%89%E9%A1%B9-%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1" target="_blank" rel="external">NFLoadBalancerRuleClassName可选项(负载均衡)</a></h3><table>
-<thead>
-<tr>
-<th>1234567891011121314</th>
-<th># BestAvailableRule ：最佳使用性规则，选择正在请求中的并发数最小的那个server，除非这个server在熔断中。# ZoneAvoidanceRule：区域敏感性规则，如果这个ip区域内有一个或多个实例不可达或响应变慢，都会降低该ip区域内其他ip被选中的权重。# AvailabilityFilteringRule：可用性敏感规则，首先轮询选择一个server，如果该server没有熔断并且正在请求中的数量没有达到限制，则选中它。# WeightedResponseTimeRule：响应平均值规则，起始为轮训算法，并开启一个计时器，每三十秒收集一次每个server的平均响应时间，当信息足够时，给每个server附上一个权重，并按权重随机选择server，高权重的server会被高概率选中。# ConsistentHashRule：hash一致性规则，如果http请求的header中存在一个key[‘rest_consistent_key’]，则按它的value进行一致性hash选择相同的那个server，如果不存在，则使用服务启动时随机生成的一个字符串作为key。</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td></td>
-</tr>
-</tbody>
-</table>
-<h3 id="Pinger-工作机制-可作为健康检查"><a href="#Pinger-工作机制-可作为健康检查" class="headerlink" title="Pinger 工作机制(可作为健康检查)"></a><a href="http://0.0.0.0:4000/2018/03/15/%EF%BB%BFAPI%20Gateway%20%E5%AE%9E%E8%B7%B5%E4%BD%93%E9%AA%8C/#Pinger-%E5%B7%A5%E4%BD%9C%E6%9C%BA%E5%88%B6-%E5%8F%AF%E4%BD%9C%E4%B8%BA%E5%81%A5%E5%BA%B7%E6%A3%80%E6%9F%A5" target="_blank" rel="external">Pinger 工作机制(可作为健康检查)</a></h3><p><code>BaseLoadBalancer.PingTask</code> 10s的自动检测 / 每30s的service刷新检查</p>
-<table>
-<thead>
-<tr>
-<th>12345</th>
-<th>PingUrl 真实的去ping 某个url，判断其是否alivePingConstant 固定返回某服务是否可用，默认返回true，即可用NoOpPing 不去ping,直接返回true,即可用。DummyPing 直接返回true，并实现了initWithNiwsConfig方法。NIWSDiscoveryPing，根据DiscoveryEnabledServer的InstanceInfo的InstanceStatus去判断，如果为InstanceStatus.UP，则为可用，否则不可用。</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td></td>
-</tr>
-</tbody>
-</table>
-<h3 id="动态创建Ribbon-client"><a href="#动态创建Ribbon-client" class="headerlink" title="动态创建Ribbon client"></a><a href="http://0.0.0.0:4000/2018/03/15/%EF%BB%BFAPI%20Gateway%20%E5%AE%9E%E8%B7%B5%E4%BD%93%E9%AA%8C/#%E5%8A%A8%E6%80%81%E5%88%9B%E5%BB%BARibbon-client" target="_blank" rel="external">动态创建Ribbon client</a></h3><table>
-<thead>
-<tr>
-<th>1234567891011121314151617181920212223</th>
-<th>// 不存在时会自动创建默认ClientIClientConfig iClientConfig = springClientFactory.getClientConfig(serviceName);// IClientConfig iClientConfig = ClientFactory.getNamedConfig(serviceName);logger.debug(“initWithNiwsConfig [{}] before:{}”, serviceName, iClientConfig);String loadBalancer = “com.netflix.loadbalancer.DynamicServerListLoadBalancer”;String rule = “cn.fraudmetrix.forseti.gateway.rule.CustomWeightedResponseTimeRule”;// 自定义权重轮询// 方式一:不可覆盖设置// iClientConfig.set(CommonClientConfigKey.NFLoadBalancerClassName, loadBalancer);// iClientConfig.set(CommonClientConfigKey.ListOfServers, listOfServers);// iClientConfig.set(CommonClientConfigKey.NFLoadBalancerRuleClassName, rule);// 加权轮训// 方式二:可以覆盖设置ConcurrentCompositeConfiguration config = ((ConcurrentCompositeConfiguration) ConfigurationManager.getConfigInstance());config.setOverrideProperty(serviceName + “.ribbon.NFLoadBalancerClassName”, loadBalancer);// TODO 配置生效,实例未生效(暂无影响)config.setOverrideProperty(serviceName + “.ribbon.listOfServers”, String.join(“,”, listOfServers));config.setOverrideProperty(serviceName + “.ribbon.NFLoadBalancerRuleClassName”, rule);// 负载均衡规则:加权轮训config.setOverrideProperty(serviceName + “.ribbon.ConnectTimeout”, 1000);// 留意稳定性config.setOverrideProperty(serviceName + “.ribbon.ReadTimeout”, 60000);//2000DynamicServerListLoadBalancer dynamicServerListLoadBalancer = (DynamicServerListLoadBalancer) springClientFactory.getLoadBalancer(serviceName);// 运行实例dynamicServerListLoadBalancer.initWithNiwsConfig(dynamicServerListLoadBalancer.getClientConfig());</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td></td>
-</tr>
-</tbody>
-</table>
-<h3 id="基础轮询算法"><a href="#基础轮询算法" class="headerlink" title="基础轮询算法"></a><a href="http://0.0.0.0:4000/2018/03/15/%EF%BB%BFAPI%20Gateway%20%E5%AE%9E%E8%B7%B5%E4%BD%93%E9%AA%8C/#%E5%9F%BA%E7%A1%80%E8%BD%AE%E8%AF%A2%E7%AE%97%E6%B3%95" target="_blank" rel="external">基础轮询算法</a></h3><ul>
-<li><p>RoundRobinRule</p>
-<p>| 12345678910111213141516 | private AtomicInteger nextServerCyclicCounter;/<strong>* Inspired by the implementation of {@link AtomicInteger#incrementAndGet()}.</strong> @param modulo The modulo to bound the value of the counter.<em> @return The next value.</em>/private int incrementAndGetModulo(int modulo) {for (;;) {int current = nextServerCyclicCounter.get();int next = (current + 1) % modulo;if (nextServerCyclicCounter.compareAndSet(current, next))return next;}} |<br>| ———————– | ———————————————————— |<br>|                         |                                                              |</p>
-</li>
-<li><p>RoundRobinRuleTest</p>
-<p>| 1234567891011121314151617181920212223242526 | import java.util.concurrent.atomic.AtomicInteger;public class RoundRobinRuleTest {private static AtomicInteger nextServerCyclicCounter;/<strong>* Inspired by the implementation of {@link AtomicInteger#incrementAndGet()}.</strong> @param modulo The modulo to bound the value of the counter.<em> @return The next value.</em>/private static int incrementAndGetModulo(int modulo) {for (; ;) {int current = nextServerCyclicCounter.get();int next = (current + 1) % modulo;if (nextServerCyclicCounter.compareAndSet(current, next))return next;}}public static void main(String[] args) {nextServerCyclicCounter = new AtomicInteger(0);for (int i = 0; i &lt; 100; i++) {System.out.println(incrementAndGetModulo(3));}}} |<br>| ——————————————- | ———————————————————— |<br>|                                             |                                                              |</p>
-</li>
-</ul>
-<hr>
-<p>参考<br><code>Getting Started · Netflix/ribbon Wiki · GitHub</code><br><a href="https://github.com/Netflix/ribbon/wiki/Getting-Started" target="_blank" rel="external">https://github.com/Netflix/ribbon/wiki/Getting-Started</a></p>
-<p><code>使用负载平衡器·Netflix / Ribbon Wiki·GitHub</code><br><a href="https://github.com/Netflix/ribbon/wiki/Working-with-load-balancers" target="_blank" rel="external">https://github.com/Netflix/ribbon/wiki/Working-with-load-balancers</a></p>
-<p><code>端到端示例·Netflix / ribbon维基·GitHub</code><br><a href="https://github.com/Netflix/ribbon/wiki/End-to-End-Examples" target="_blank" rel="external">https://github.com/Netflix/ribbon/wiki/End-to-End-Examples</a></p>
-<p><code>深入理解Ribbon之源码解析</code><br><a href="http://blog.csdn.net/forezp/article/details/74820899" target="_blank" rel="external">http://blog.csdn.net/forezp/article/details/74820899</a></p>
-<hr>
-<h1 id="五-工具-amp-监控-metrics采样-grafana制图及报警"><a href="#五-工具-amp-监控-metrics采样-grafana制图及报警" class="headerlink" title="五. 工具 &amp; 监控 (metrics采样,grafana制图及报警)"></a><a href="http://0.0.0.0:4000/2018/03/15/%EF%BB%BFAPI%20Gateway%20%E5%AE%9E%E8%B7%B5%E4%BD%93%E9%AA%8C/#%E4%BA%94-%E5%B7%A5%E5%85%B7-amp-%E7%9B%91%E6%8E%A7-metrics%E9%87%87%E6%A0%B7-grafana%E5%88%B6%E5%9B%BE%E5%8F%8A%E6%8A%A5%E8%AD%A6" target="_blank" rel="external">五. 工具 &amp; 监控 (metrics采样,grafana制图及报警)</a></h1><h2 id="工具"><a href="#工具" class="headerlink" title="工具"></a><a href="http://0.0.0.0:4000/2018/03/15/%EF%BB%BFAPI%20Gateway%20%E5%AE%9E%E8%B7%B5%E4%BD%93%E9%AA%8C/#%E5%B7%A5%E5%85%B7" target="_blank" rel="external">工具</a></h2><ul>
-<li>网关基础状态观察页(gateway工作状态,故障节点情况)<ul>
-<li><a href="http://localhost:8080/watchNowRoute" target="_blank" rel="external">http://localhost:8080/watchNowRoute</a></li>
-<li><a href="http://localhost:8080/watchNowServiceSpring" target="_blank" rel="external">http://localhost:8080/watchNowServiceSpring</a></li>
-<li><a href="http://localhost:8080/cache" target="_blank" rel="external">http://localhost:8080/cache</a></li>
-<li><a href="http://localhost:8080/cache/refresh" target="_blank" rel="external">http://localhost:8080/cache/refresh</a></li>
-<li><a href="http://localhost:8080/cache/setClusterNodeWeighted?cluster=originService&amp;server=localhost:8090&amp;weighted=150" target="_blank" rel="external">http://localhost:8080/cache/setClusterNodeWeighted?cluster=originService&amp;server=localhost:8090&amp;weighted=150</a></li>
-</ul>
-</li>
-</ul>
-<h2 id="监控-metrics采样-grafana制图及报警"><a href="#监控-metrics采样-grafana制图及报警" class="headerlink" title="监控 (metrics采样,grafana制图及报警)"></a><a href="http://0.0.0.0:4000/2018/03/15/%EF%BB%BFAPI%20Gateway%20%E5%AE%9E%E8%B7%B5%E4%BD%93%E9%AA%8C/#%E7%9B%91%E6%8E%A7-metrics%E9%87%87%E6%A0%B7-grafana%E5%88%B6%E5%9B%BE%E5%8F%8A%E6%8A%A5%E8%AD%A6" target="_blank" rel="external">监控 (metrics采样,grafana制图及报警)</a></h2><p>详见: <a href="http://10.57.17.82:3000/dashboard/db/forseti-gateway?orgId=1&amp;from=now-30m&amp;to=now&amp;var-interval=10s" target="_blank" rel="external">http://10.57.17.82:3000/dashboard/db/forseti-gateway?orgId=1&amp;from=now-30m&amp;to=now&amp;var-interval=10s</a></p>
-<table>
-<thead>
-<tr>
-<th>12345</th>
-<th>forseti.gateway.clusterforseti.gateway.countforseti.gateway.filterforseti.gateway.zuulforseti.gateway.exception</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td></td>
-</tr>
-</tbody>
-</table>
-<p><img src="http://7xnbs3.com1.z0.glb.clouddn.com/18-3-19/6378748.jpg" alt="img"></p>
-<hr>
-<h1 id="六-指标情况-基准测试"><a href="#六-指标情况-基准测试" class="headerlink" title="六.指标情况(基准测试)"></a><a href="http://0.0.0.0:4000/2018/03/15/%EF%BB%BFAPI%20Gateway%20%E5%AE%9E%E8%B7%B5%E4%BD%93%E9%AA%8C/#%E5%85%AD-%E6%8C%87%E6%A0%87%E6%83%85%E5%86%B5-%E5%9F%BA%E5%87%86%E6%B5%8B%E8%AF%95" target="_blank" rel="external">六.指标情况(基准测试)</a></h1><h2 id="压测结果"><a href="#压测结果" class="headerlink" title="压测结果"></a><a href="http://0.0.0.0:4000/2018/03/15/%EF%BB%BFAPI%20Gateway%20%E5%AE%9E%E8%B7%B5%E4%BD%93%E9%AA%8C/#%E5%8E%8B%E6%B5%8B%E7%BB%93%E6%9E%9C" target="_blank" rel="external">压测结果</a></h2><p>local测试: forseti-gateway rt : 1~10ms. 平均2ms</p>
-<p>TODO 待压测出详细指标…</p>
-<p>…</p>
-<h2 id="网摘-仅供参考-绩效基准汇总如下"><a href="#网摘-仅供参考-绩效基准汇总如下" class="headerlink" title="网摘(仅供参考) : 绩效基准汇总如下"></a><a href="http://0.0.0.0:4000/2018/03/15/%EF%BB%BFAPI%20Gateway%20%E5%AE%9E%E8%B7%B5%E4%BD%93%E9%AA%8C/#%E7%BD%91%E6%91%98-%E4%BB%85%E4%BE%9B%E5%8F%82%E8%80%83-%E7%BB%A9%E6%95%88%E5%9F%BA%E5%87%86%E6%B1%87%E6%80%BB%E5%A6%82%E4%B8%8B" target="_blank" rel="external">网摘(仅供参考) : 绩效基准汇总如下</a></h2><p>1.Micro - 单核CPU情况下：</p>
-<table>
-<thead>
-<tr>
-<th>123</th>
-<th>（1）直接访问：每秒6519.68个请求，每个请求花费时间30.676ms（2）Nginx：每秒4888.24个请求, 每个请求花费时间40.915ms（3）Zuul: 每秒950.57个请求, 每个请求花费时间210.399ms</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td></td>
-</tr>
-</tbody>
-</table>
-<p>2.在M4.Large - 双核CPU情况下：</p>
-<table>
-<thead>
-<tr>
-<th>12</th>
-<th>（1）Nginx：每秒6187.14个请求，每个请求花费时间32.325ms（2）Zuul: 每秒2099.93个请求，每个请求花费时间95.241ms</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td></td>
-</tr>
-</tbody>
-</table>
-<p>3.在M4.2xLarge - 8核CPU情况下：</p>
-<table>
-<thead>
-<tr>
-<th>1234</th>
-<th>（1）zuul:每秒7036.9个请求，每个请求花费时间28.422ms（2）Linkerd: 每秒6995个请求，每个请求花费时间28.592ms（3）Nginx: 每秒6233.4个请求，每个请求花费时间32.085ms（4）Spring Cloud Gateway：每秒873.14个请求，每个请求花费时间229.058ms</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td></td>
-</tr>
-</tbody>
-</table>
-<p>Spring Cloud Gateway每秒可以处理873个请求，每个请求的平均时间为229ms。根据我们的测试，Spring Cloud Gateway的性能无法达到Zuul，Linkerd和Nginx的水平，至少在Github的当前代码库就是这种情况。</p>
-<p>参考<br><code>微服务API网关NGINX、ZUUL、Spring Cloud Gateway与 - 推酷</code><br><a href="https://www.tuicool.com/articles/Fbu26jM" target="_blank" rel="external">https://www.tuicool.com/articles/Fbu26jM</a></p>
-<p><code>Netflix Zuul与Nginx 性能对比</code> - Zuul的原始性能非常接近于Nginx<br><a href="https://www.tuicool.com/articles/ErEVZf6" target="_blank" rel="external">https://www.tuicool.com/articles/ErEVZf6</a></p>
 
       
 
@@ -726,7 +269,7 @@
     <a class="close js-modal-close" href="javascript:;"><i class="icon icon-close"></i></a>
     <p>扫一扫，分享到微信</p>
     <div class="wx-qrcode">
-      <img src="http://s.jiathis.com/qrcode.php?url=http://yoursite.com/2018/04/09/API-gateway实践/" alt="微信分享二维码">
+      <img src="http://s.jiathis.com/qrcode.php?url=http://yoursite.com/2018/08/13/Spring-Boot-Web篇/" alt="微信分享二维码">
     </div>
 </div>
 
@@ -740,18 +283,9 @@
   
 <nav id="article-nav">
   
-    <a href="/2018/04/09/Kibana-Elasticsearch体验/" id="article-nav-newer" class="article-nav-link-wrap">
-      <i class="icon-circle-left"></i>
-      <div class="article-nav-title">
-        
-          Kibana + Elasticsearch体验
-        
-      </div>
-    </a>
   
-  
-    <a href="/2018/04/09/分布式一致性算法paxos/" id="article-nav-older" class="article-nav-link-wrap">
-      <div class="article-nav-title">分布式一致性算法paxos</div>
+    <a href="/2018/08/12/Spring-boot体系/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">Spring boot体系</div>
       <i class="icon-circle-right"></i>
     </a>
   
@@ -897,19 +431,15 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">JVM</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">java</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">Maven</a>
+                <a href="javascript:void(0)" class="js-tag color4">JVM</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">redis</a>
+                <a href="javascript:void(0)" class="js-tag color1">Maven</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -921,15 +451,19 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">redis</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">快捷键</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">test</a>
+                <a href="javascript:void(0)" class="js-tag color1">mysql</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">mysql</a>
+                <a href="javascript:void(0)" class="js-tag color5">test</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -981,11 +515,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">Mac</a>
+                <a href="javascript:void(0)" class="js-tag color1">maven</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">maven</a>
+                <a href="javascript:void(0)" class="js-tag color4">Mac</a>
               </li>
              
               <li class="article-tag-list-item">
