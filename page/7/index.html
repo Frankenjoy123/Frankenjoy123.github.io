@@ -981,24 +981,7 @@
 <p>1、group by having<br>2、count/sum/avg etc.<br>3、order by 非id<br>4、3张及3张以上表做嵌套<br>5、left join/ right join<br>6、select * from<br>7、无where条件的查询</p>
 </li>
 </ol>
-<h2 id="六-行为规范"><a href="#六-行为规范" class="headerlink" title="六. 行为规范"></a>六. 行为规范</h2><ol>
-<li><strong>不允许在DBA不知情的情况下导现网数据</strong></li>
-<li><strong>大批量更新，如修复数据，避开高峰期，并通知DBA</strong></li>
-<li><strong>及时处理已下线业务的SQL</strong></li>
-<li><strong>复杂sql上线审核</strong><br>因为目前还没有SQL审查机制，复杂sql如多表join,count,group by，主动上报DBA评估。</li>
-<li><strong>重要项目的数据库方案选型和设计必须提前通知DBA参与</strong></li>
-<li><strong>严格按照现有的SQL规范提交SQL审核，如果有不确认单独和DBA沟通，如SQL较多，建议以脚本文件方式提交</strong></li>
-<li><strong>每周定某段时间窗口内提交SQL，其他时间段需要走紧急审批流程，原则上至少提前一天提交脚本审核</strong><br>我们约定每周周一、周二、周三、周四下午3点到5点间执行SQL，其他时间段需要走紧急流程（流程后续优化），周五提交原则上周一才能执行</li>
-<li><strong>严格执行【在线业务，客户直接使用，保证实时性】，【客户olap应用】，【离线、运营相关】，【内部系统】 存放，核心业务与其他业务隔离，业务耦合度高的应用尽可能放在一个实例中</strong></li>
-<li><strong>提交SQL时，不允许出现drop table if exists</strong></li>
-<li><strong>重要项目涉及数据库DBA必须参加，不然影响项目进度由项目自己负责</strong></li>
-<li><strong>表字段名称修改如果有otter同步时，则必须要保证两边数据没写入</strong></li>
-<li><strong>count(*)无条件，或者扫描行数较大，大于10000行，理论上都是不被允许的，计数功能尽可能交由redis处理</strong></li>
-<li><strong>批量操作必须由DBA审核执行</strong></li>
-<li><strong>杭州、上海机房双活、双向，自增长主键的使用必须禁用</strong></li>
-<li><strong>在线数据库的人工变更（已有表结构变更、数据导入、更新、删除等）须要提前申请，主管审批，并知会运营可能的影响面</strong></li>
-</ol>
-<h2 id="七-使用建议"><a href="#七-使用建议" class="headerlink" title="七.使用建议"></a>七.使用建议</h2><ol>
+<h2 id="使用建议"><a href="#使用建议" class="headerlink" title="使用建议"></a>使用建议</h2><ol>
 <li><h3 id="order-by-limit"><a href="#order-by-limit" class="headerlink" title="order by .. limit"></a>order by .. limit</h3><p>这种查询更多的是通过索引去优化，但order by的字段有讲究，比如主键id与gmt_create都是顺序递增，那就可以考虑order by id而非 gmt_create 。</p>
 </li>
 <li><h3 id="c1-lt-a-order-by-c2"><a href="#c1-lt-a-order-by-c2" class="headerlink" title="c1 &lt; a order by c2"></a>c1 &lt; a order by c2</h3><p>与上面不同的是，order by之前有个范围查询，由前面的内容可知，用不到类似(c1,c2)的索引，但是可以利用(c2,c1)索引。另外还可以改写成join的方式实现。</p>
@@ -1055,35 +1038,10 @@
 </ul>
 </li>
 </ol>
-<h2 id="八-SQL提交规范"><a href="#八-SQL提交规范" class="headerlink" title="八.SQL提交规范"></a>八.SQL提交规范</h2><p><strong>业务名称或者功能模块:  </strong>某个应用的用户表【越详细越好】</p>
-<p><strong>实例库名：</strong>  asgard</p>
-<p><strong>建表语句： </strong> </p>
-<p>CREATE TABLE <code>user</code> (</p>
-<p>  <code>id</code> int(11) NOT NULL AUTO_INCREMENT,</p>
-<p>  <code>login_id</code> varchar(200) DEFAULT NULL 登录id,</p>
-<p>  <code>password</code> varchar(100) DEFAULT NULL COMMENT ‘密码’,</p>
-<p>  <code>user_name</code> varchar(45) DEFAULT NULL COMMENT ‘姓名’,</p>
-<p>  <code>user_type</code> int(1) NOT NULL COMMENT ‘应用类型：1.内网应用，走域帐号；2.外网应用，只做映射关系’,</p>
-<p>  <code>user_code</code> varchar(45) NULL COMMENT ‘asgard的管理员：asgard_admin 内部应用 fraudmetrix 外部应用’,</p>
-<p>  <code>status</code> int(1) DEFAULT ‘0’ COMMENT ‘是否可用，0:停用，1:可用’,</p>
-<p>  <code>created_by</code> varchar(100) DEFAULT NULL COMMENT ‘新增者’,</p>
-<p>  <code>updated_by</code> varchar(100) DEFAULT NULL COMMENT ‘修改者’,</p>
-<p>  <code>gmt_create</code> timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT ‘创建时间’,</p>
-<p>  <code>gmt_modify</code> timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT ‘修改时间’,</p>
-<p>  PRIMARY KEY (<code>id</code>),</p>
-<p>  KEY <code>idx_loginId</code> (<code>login_id</code>(191)) ,</p>
-<p>  KEY <code>idx_userType</code> (<code>user_type</code>) ,</p>
-<p>  KEY <code>idx_userCode</code> (<code>user_code</code>) </p>
-<p>) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT=’用户表’</p>
-<p>注：时间字段放于最后</p>
 <p><strong>查询条件（包括DML中的条件）及每个条件占比数据量：</strong>  </p>
 <p>where login_id=1 100%不同值 算法：count(distinct login_id) / count(1)</p>
 <p>where user_name=1 and status=1 order by id desc limit 5 80%不同值，算法：count(distinct user_name,status) / count(1)</p>
 <p>原则上大于20%以上就要创建下索引</p>
-<p><strong>表的预估数据量条数：</strong>  10K条左右</p>
-<p><strong>表的预估并发量QPS：</strong>  50</p>
-<p><strong>分库分表要求： </strong> 无【原则上1000万以上需要分库分表，这个待中间件上线上正式实施】</p>
-<p><strong>其他说明：</strong>  无</p>
 
       
 
@@ -1873,11 +1831,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
           <ul class="article-tag-list" q-show="showTags">
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">AngularJS</a>
+                <a href="javascript:void(0)" class="js-tag color3">java并发包</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">java并发包</a>
+                <a href="javascript:void(0)" class="js-tag color5">AngularJS</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1909,11 +1867,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">linux</a>
+                <a href="javascript:void(0)" class="js-tag color1">redis</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">redis</a>
+                <a href="javascript:void(0)" class="js-tag color1">linux</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1921,19 +1879,19 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">mysql</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">test</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">Python</a>
+                <a href="javascript:void(0)" class="js-tag color1">mysql</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">限流</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">Python</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1961,11 +1919,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">influxdb</a>
+                <a href="javascript:void(0)" class="js-tag color1">debug</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">debug</a>
+                <a href="javascript:void(0)" class="js-tag color4">influxdb</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1973,7 +1931,7 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">python</a>
+                <a href="javascript:void(0)" class="js-tag color4">Mac</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1981,7 +1939,7 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">Mac</a>
+                <a href="javascript:void(0)" class="js-tag color2">python</a>
               </li>
              
               <li class="article-tag-list-item">
