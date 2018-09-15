@@ -151,6 +151,189 @@
           <div id="js-content" class="content-ll">
             
   
+    <article id="post-饿加载单例的误解-类加载机制" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2017/07/07/饿加载单例的误解-类加载机制/">饿加载单例的误解-类加载机制</a>
+    </h1>
+  
+
+        
+        <a href="/2017/07/07/饿加载单例的误解-类加载机制/" class="archive-article-date">
+  	<time datetime="2017-07-06T16:00:03.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2017-07-07</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="饿加载单例-期望是系统启动就自动初始化类-实际并不然"><a href="#饿加载单例-期望是系统启动就自动初始化类-实际并不然" class="headerlink" title="饿加载单例-期望是系统启动就自动初始化类(实际并不然)"></a>饿加载单例-期望是<code>系统启动就自动初始化类</code>(实际并不然)</h1><figure class="highlight cs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title">MySingleton_Static</span> &#123;</span><br><span class="line"> </span><br><span class="line">    <span class="comment">// 初始化时机：当任意static被被访问时,会初始化实例(建议initInstall)。否则将在getInstall访问时才创建(非饿加载)</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">int</span> initInstall = <span class="number">1</span>;<span class="comment">// (理解并不直观,所以不见得好/ 避免此类影响可结合内部类实例化当前类,getInstall中触发.如下文)</span></span><br><span class="line"> </span><br><span class="line">    <span class="comment">/* 考虑类加载机制的初始化条件(被new或内部static被访问),所以启动时并不会实例化*/</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> MySingleton_Static mySingleton = <span class="keyword">new</span> MySingleton_Static();</span><br><span class="line"> </span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="title">MySingleton_Static</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">        System.<span class="keyword">out</span>.println(<span class="string">"Loader"</span>);<span class="comment">// 监控实例化时机</span></span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> MySingleton_Static <span class="title">getInstance</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> mySingleton;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"> </span><br><span class="line"><span class="keyword">class</span> <span class="title">MySingleton_Static_test</span> &#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span>(<span class="params">String[] args</span>) </span>&#123;</span><br><span class="line">        System.<span class="keyword">out</span>.println(<span class="string">"test classLoader "</span>);<span class="comment">// test classLoader (并非第一时间初始化对象)</span></span><br><span class="line">        System.<span class="keyword">out</span>.println(<span class="string">"test classLoader "</span> + MySingleton_Static.initInstall);<span class="comment">// Loader &gt; test classLoader 1</span></span><br><span class="line">        System.<span class="keyword">out</span>.println(<span class="string">"test classLoader "</span> + MySingleton_Static.getInstance());<span class="comment">// [Loader] &gt; test classLoader **@14ae5a5</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h1 id="通过内部类，避免访问静态变量，导致实例被动初始化"><a href="#通过内部类，避免访问静态变量，导致实例被动初始化" class="headerlink" title="通过内部类，避免访问静态变量，导致实例被动初始化"></a>通过内部类，避免访问静态变量，导致实例被动初始化</h1><figure class="highlight cs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title">Singleton</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="title">Singleton</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">        System.<span class="keyword">out</span>.println(<span class="string">"Loader"</span>);<span class="comment">// 监控实例化时机</span></span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    <span class="comment">// 注意：static属性不是对象信息,而是在`方法区-运行时常量池`中。与类对象无关(同理类的序列化也不包含static属性)</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">int</span> initInstall = <span class="number">1</span>;<span class="comment">// 避免访问static触发类的初始化(仅能通过getInstance方法初始化)</span></span><br><span class="line"> </span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">class</span> <span class="title">SingletonHolder</span> &#123;</span><br><span class="line">        <span class="keyword">private</span> <span class="keyword">static</span> final Singleton INSTANCE = <span class="keyword">new</span> Singleton();</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> Singleton <span class="title">getInstance</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> SingletonHolder.INSTANCE;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"> </span><br><span class="line"><span class="keyword">class</span> <span class="title">Singleton_test</span> &#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span>(<span class="params">String[] args</span>) </span>&#123;</span><br><span class="line">        System.<span class="keyword">out</span>.println(<span class="string">"test classLoader "</span>);<span class="comment">// test classLoader (此时还没有初始化,如上文是合理的)</span></span><br><span class="line">        System.<span class="keyword">out</span>.println(<span class="string">"test classLoader "</span> + Singleton.initInstall);<span class="comment">// test classLoader 1 (没有触发类的初始化,因为没有new)</span></span><br><span class="line">        System.<span class="keyword">out</span>.println(<span class="string">"test classLoader "</span> + Singleton.getInstance());<span class="comment">// Loader &gt; test classLoader **@14ae5a5</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h1 id="结论："><a href="#结论：" class="headerlink" title="结论："></a>结论：</h1><p>类在<code>堆中的实例化</code>依赖<code>虚拟机栈</code>的执行，而<code>虚拟机栈的执行</code>依赖<code>类的初始化</code>。<code>饿加载单例</code>本身已经违背了<code>类的初始化条件</code>，所以基本不存在真正意义的饿加载。</p>
+<hr>
+<h1 id="饿加载-与-懒加载的区别"><a href="#饿加载-与-懒加载的区别" class="headerlink" title="饿加载  与 懒加载的区别"></a>饿加载  与 懒加载的区别</h1><p><code>饿加载</code> - 实例化交给了<code>static</code>，static的指令在<code>访问前并不会执行</code>，当<code>任意static</code>被访问时 <code>虚拟机</code>会将先初始化该类的<code>运行时常量池</code>执行该类中所有的static属性指令。其中如有<code>new Object()</code>也将被执行 ，并通过   <code>虚拟机栈-动态链接</code>  获得类的<code>具体实例</code></p>
+<p><code>懒加载</code> - 在static方法getInstance()访问时， 先是通过 <code>虚拟机栈-动态链接</code>找到<code>方法区-flags: ACC_STATIC mathod</code>并立即执行.其中指令将被<code>虚拟机-操作栈</code>执行, 并通过   <code>虚拟机栈-动态链接</code>  获得类的<code>具体实例</code></p>
+<ul>
+<li><code>flags: ACC_STATIC   mathod</code> (如main/ utilMathod )<br>static归属于方法区,虚拟机允许static方法在没有类的初始化前直接访问.<br>作用: <ul>
+<li>[main,getInstance]-用于类的初始化</li>
+<li>[utilMathod]-<code>无状态要求</code>的代码集(<code>调用方法本身,无需产生新对象  性能更好</code>.  直接从方法区中获取指令代码-当然初始化的对象也是从方法区获取指令代码)</li>
+</ul>
+</li>
+</ul>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">单例</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+      
+
+      <div style="font-size: 12px;">
+        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
+      </div>
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2017/07/07/饿加载单例的误解-类加载机制/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
+    <article id="post-饿加载单例的危险-jvm操作数栈" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2017/07/07/饿加载单例的危险-jvm操作数栈/">饿加载单例的危险-jvm操作数栈</a>
+    </h1>
+  
+
+        
+        <a href="/2017/07/07/饿加载单例的危险-jvm操作数栈/" class="archive-article-date">
+  	<time datetime="2017-07-06T16:00:02.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2017-07-07</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="疑惑性强的示例"><a href="#疑惑性强的示例" class="headerlink" title="疑惑性强的示例"></a>疑惑性强的示例</h1><figure class="highlight cs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title">SingleTon</span> &#123; </span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> SingleTon singleTon = <span class="keyword">new</span> SingleTon(); </span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">int</span> count1; </span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">int</span> count2 = <span class="number">0</span>; </span><br><span class="line"> </span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="title">SingleTon</span>(<span class="params"></span>) </span>&#123; </span><br><span class="line">        count1++; </span><br><span class="line">        count2++; </span><br><span class="line">    &#125; </span><br><span class="line"> </span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> SingleTon <span class="title">getInstance</span>(<span class="params"></span>) </span>&#123; </span><br><span class="line">        <span class="keyword">return</span> singleTon; </span><br><span class="line">    &#125; </span><br><span class="line">&#125; </span><br><span class="line"> </span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">Test</span> &#123; </span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span>(<span class="params">String[] args</span>) </span>&#123; </span><br><span class="line">        SingleTon singleTon = SingleTon.getInstance(); </span><br><span class="line">        System.<span class="keyword">out</span>.println(<span class="string">"count1="</span> + singleTon.count1); <span class="comment">// 1</span></span><br><span class="line">        System.<span class="keyword">out</span>.println(<span class="string">"count2="</span> + singleTon.count2); <span class="comment">// 0</span></span><br><span class="line">    &#125; </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>简单构想的结果应该是: <code>count=1</code> <code>count2=1</code> 实际的结果是:  <code>count=1</code> <code>count2=0</code></p>
+<hr>
+<h1 id="方便的看懂原理-要换个例子"><a href="#方便的看懂原理-要换个例子" class="headerlink" title="方便的看懂原理,要换个例子"></a>方便的看懂原理,要换个例子</h1><figure class="highlight cs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">SingleTon</span> &#123;</span><br><span class="line"> </span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">int</span> count1 = <span class="number">170</span>;<span class="comment">// 在第5行(即类初始化)前,将数值加入`方法区-运行时常量池`</span></span><br><span class="line"> </span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> SingleTon singleTon = <span class="keyword">new</span> SingleTon();</span><br><span class="line"> </span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">int</span> count;<span class="comment">// 此时虽然已经完成了初始化,但无赋值操作,将保持`方法区-运行时常量池`中的数值</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">int</span> count2 = <span class="number">188</span>;<span class="comment">// 此时已经完成了类初始化,再将188赋值,将会覆盖原值</span></span><br><span class="line"> </span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="title">SingleTon</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">        count++;</span><br><span class="line">        System.<span class="keyword">out</span>.println(<span class="string">" count++; "</span> + count);<span class="comment">// 1</span></span><br><span class="line">        count1++;</span><br><span class="line">        System.<span class="keyword">out</span>.println(<span class="string">" count1++; "</span> + count1);<span class="comment">// 171</span></span><br><span class="line">        count2++;</span><br><span class="line">        System.<span class="keyword">out</span>.println(<span class="string">" count2++; "</span> + count2);<span class="comment">// 1(栈帧中的操作数栈,此时还在第5行,还未执行count2的赋值)</span></span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> SingleTon <span class="title">getInstance</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> singleTon;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"> </span><br><span class="line"><span class="keyword">class</span> <span class="title">SingleTon_Test</span> &#123;</span><br><span class="line"> </span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span>(<span class="params">String[] args</span>) </span>&#123;</span><br><span class="line">        System.<span class="keyword">out</span>.println(<span class="string">"count ="</span> + SingleTon.count);<span class="comment">// 1 因无赋值操作,所以保持了`方法区-运行时常量池`中的数值</span></span><br><span class="line">        System.<span class="keyword">out</span>.println(<span class="string">"count1="</span> + SingleTon.count1);<span class="comment">// 171 count1已经在类初始化前将数值放入了`方法区-运行时常量池`,所以感觉无恙</span></span><br><span class="line">        System.<span class="keyword">out</span>.println(<span class="string">"count2="</span> + SingleTon.count2);<span class="comment">// 188 在已经完成了类初始化后,再将188赋值到 `方法区-运行时常量池` ,将会覆盖原值</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>简单构想的结果应该是:    <code>count=1</code>  <code>count1  =171</code>   <code>count2=189</code><br>实际上 <code>count2=188</code> 为什么?</p>
+<ul>
+<li>通过构造函数的日志可以推断,影响到<code>count2数值</code>的关键确定<code>count2=188</code>是否在类实例化后进行了覆盖<br>如何确定? 这时就可以想到<code>方法区-操作数栈信息</code>这里能直接体现程序在实际运行中 (<code>虚拟机栈-栈帧-操作数帧</code>)的轨迹.</li>
+</ul>
+<ul>
+<li>如图(方法区信息) :<br><img src="http://7xnbs3.com1.z0.glb.clouddn.com/17-7-7/95411964.jpg" alt=""></li>
+</ul>
+<ul>
+<li>new SingleTon()何时被执行? [即 <code>static属性在方法区的结构</code> ]<br>情况一:<code>所有的static变量</code>在方法区会包装成一个<code>static{}方法</code>,会有自己的<code>虚拟机-操作栈</code>,当其中任何变量被访问.<br>就会执行整个<code>static方法</code>,最终再将返回原访问的<code>static变量</code><br>情况二:主动<code>new Object()</code>时,在执行构造方法前,会先执行<code>static变量的static{}方法</code>.</li>
+</ul>
+<ul>
+<li>完整方法区信息<figure class="highlight lasso"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br></pre></td><td class="code"><pre><span class="line">G:\liuxiang_code_git\myServer\@jvm\demo<span class="params">-classLoader</span>\target\classes&gt;javap <span class="params">-v</span> SingleTon.class</span><br><span class="line">Classfile /G:/liuxiang_code_git/myServer/@jvm/demo<span class="params">-classLoader</span>/target/classes/SingleTon.class</span><br><span class="line">  Last modified <span class="number">2017</span><span class="number">-7</span><span class="number">-7</span>; size <span class="number">1023</span> <span class="built_in">bytes</span></span><br><span class="line">  MD5 checksum afb31d9e86dc5fe19907b4d4d78d38e9</span><br><span class="line">  Compiled from <span class="string">"SingleTon.java"</span></span><br><span class="line"><span class="keyword">public</span> class SingleTon</span><br><span class="line">  minor version: <span class="number">0</span></span><br><span class="line">  major version: <span class="number">52</span></span><br><span class="line">  flags: ACC_PUBLIC, ACC_SUPER</span><br><span class="line">Constant pool:</span><br><span class="line">   #1 = Methodref          #18.#36        <span class="comment">// java/lang/Object."&lt;init&gt;":()V</span></span><br><span class="line">   #2 = Fieldref           #16.#37        <span class="comment">// SingleTon.count:I</span></span><br><span class="line">   #3 = Fieldref           #38.#39        <span class="comment">// java/lang/System.out:Ljava/io/PrintStream;</span></span><br><span class="line">   #4 = Class              #40            <span class="comment">// java/lang/StringBuilder</span></span><br><span class="line">   #5 = Methodref          #4.#36         <span class="comment">// java/lang/StringBuilder."&lt;init&gt;":()V</span></span><br><span class="line">   #6 = <span class="built_in">String</span>             #41            <span class="comment">//  count++;</span></span><br><span class="line">   #7 = Methodref          #4.#42         <span class="comment">// java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;</span></span><br><span class="line">   #8 = Methodref          #4.#43         <span class="comment">// java/lang/StringBuilder.append:(I)Ljava/lang/StringBuilder;</span></span><br><span class="line">   #9 = Methodref          #4.#44         <span class="comment">// java/lang/StringBuilder.toString:()Ljava/lang/String;</span></span><br><span class="line">  #10 = Methodref          #45.#46        <span class="comment">// java/io/PrintStream.println:(Ljava/lang/String;)V</span></span><br><span class="line">  #11 = Fieldref           #16.#47        <span class="comment">// SingleTon.count1:I</span></span><br><span class="line">  #12 = <span class="built_in">String</span>             #48            <span class="comment">//  count1++;</span></span><br><span class="line">  #13 = Fieldref           #16.#49        <span class="comment">// SingleTon.count2:I</span></span><br><span class="line">  #14 = <span class="built_in">String</span>             #50            <span class="comment">//  count2++;</span></span><br><span class="line">  #15 = Fieldref           #16.#51        <span class="comment">// SingleTon.singleTon:LSingleTon;</span></span><br><span class="line">  #16 = Class              #52            <span class="comment">// SingleTon</span></span><br><span class="line">  #17 = Methodref          #16.#36        <span class="comment">// SingleTon."&lt;init&gt;":()V</span></span><br><span class="line">  #18 = Class              #53            <span class="comment">// java/lang/Object</span></span><br><span class="line">  #19 = Utf8               count1</span><br><span class="line">  #20 = Utf8               I</span><br><span class="line">  #21 = Utf8               singleTon</span><br><span class="line">  #22 = Utf8               LSingleTon;</span><br><span class="line">  #23 = Utf8               count</span><br><span class="line">  #24 = Utf8               count2</span><br><span class="line">  #25 = Utf8               &lt;init&gt;</span><br><span class="line">  #26 = Utf8               ()V</span><br><span class="line">  #27 = Utf8               Code</span><br><span class="line">  #28 = Utf8               LineNumberTable</span><br><span class="line">  #29 = Utf8               LocalVariableTable</span><br><span class="line">  #30 = Utf8               this</span><br><span class="line">  #31 = Utf8               getInstance</span><br><span class="line">  #32 = Utf8               ()LSingleTon;</span><br><span class="line">  #33 = Utf8               &lt;clinit&gt;</span><br><span class="line">  #34 = Utf8               SourceFile</span><br><span class="line">  #35 = Utf8               SingleTon.java</span><br><span class="line">  #36 = NameAndType        #25:#26        <span class="comment">// "&lt;init&gt;":()V</span></span><br><span class="line">  #37 = NameAndType        #23:#20        <span class="comment">// count:I</span></span><br><span class="line">  #38 = Class              #54            <span class="comment">// java/lang/System</span></span><br><span class="line">  #39 = NameAndType        #55:#56        <span class="comment">// out:Ljava/io/PrintStream;</span></span><br><span class="line">  #40 = Utf8               java/lang/StringBuilder</span><br><span class="line">  #41 = Utf8                count++;</span><br><span class="line">  #42 = NameAndType        #57:#58        <span class="comment">// append:(Ljava/lang/String;)Ljava/lang/StringBuilder;</span></span><br><span class="line">  #43 = NameAndType        #57:#59        <span class="comment">// append:(I)Ljava/lang/StringBuilder;</span></span><br><span class="line">  #44 = NameAndType        #60:#61        <span class="comment">// toString:()Ljava/lang/String;</span></span><br><span class="line">  #45 = Class              #62            <span class="comment">// java/io/PrintStream</span></span><br><span class="line">  #46 = NameAndType        #63:#64        <span class="comment">// println:(Ljava/lang/String;)V</span></span><br><span class="line">  #47 = NameAndType        #19:#20        <span class="comment">// count1:I</span></span><br><span class="line">  #48 = Utf8                count1++;</span><br><span class="line">  #49 = NameAndType        #24:#20        <span class="comment">// count2:I</span></span><br><span class="line">  #50 = Utf8                count2++;</span><br><span class="line">  #51 = NameAndType        #21:#22        <span class="comment">// singleTon:LSingleTon;</span></span><br><span class="line">  #52 = Utf8               SingleTon</span><br><span class="line">  #53 = Utf8               java/lang/Object</span><br><span class="line">  #54 = Utf8               java/lang/System</span><br><span class="line">  #55 = Utf8               out</span><br><span class="line">  #56 = Utf8               Ljava/io/PrintStream;</span><br><span class="line">  #57 = Utf8               append</span><br><span class="line">  #58 = Utf8               (Ljava/lang/<span class="built_in">String</span>;)Ljava/lang/StringBuilder;</span><br><span class="line">  #59 = Utf8               (I)Ljava/lang/StringBuilder;</span><br><span class="line">  #60 = Utf8               toString</span><br><span class="line">  #61 = Utf8               ()Ljava/lang/<span class="built_in">String</span>;</span><br><span class="line">  #62 = Utf8               java/io/PrintStream</span><br><span class="line">  #63 = Utf8               println</span><br><span class="line">  #64 = Utf8               (Ljava/lang/<span class="built_in">String</span>;)V</span><br><span class="line">&#123;</span><br><span class="line">  <span class="keyword">public</span> static int count1;</span><br><span class="line">    descriptor: I</span><br><span class="line">    flags: ACC_PUBLIC, ACC_STATIC</span><br><span class="line"> </span><br><span class="line">  <span class="keyword">public</span> static int count;</span><br><span class="line">    descriptor: I</span><br><span class="line">    flags: ACC_PUBLIC, ACC_STATIC</span><br><span class="line"> </span><br><span class="line">  <span class="keyword">public</span> static int count2;</span><br><span class="line">    descriptor: I</span><br><span class="line">    flags: ACC_PUBLIC, ACC_STATIC</span><br><span class="line"> </span><br><span class="line">  <span class="keyword">public</span> static SingleTon getInstance();</span><br><span class="line">    descriptor: ()LSingleTon;</span><br><span class="line">    flags: ACC_PUBLIC, ACC_STATIC</span><br><span class="line">    Code:</span><br><span class="line">      <span class="built_in">stack</span>=<span class="number">1</span>, locals=<span class="number">0</span>, args_size=<span class="number">0</span></span><br><span class="line">         <span class="number">0</span>: getstatic     #15                 <span class="comment">// Field singleTon:LSingleTon;</span></span><br><span class="line">         <span class="number">3</span>: areturn</span><br><span class="line">      LineNumberTable:</span><br><span class="line">        line <span class="number">20</span>: <span class="number">0</span></span><br><span class="line"> </span><br><span class="line">  static &#123;&#125;;</span><br><span class="line">    descriptor: ()V</span><br><span class="line">    flags: ACC_STATIC</span><br><span class="line">    Code:</span><br><span class="line">      <span class="built_in">stack</span>=<span class="number">2</span>, locals=<span class="number">0</span>, args_size=<span class="number">0</span></span><br><span class="line">         <span class="number">0</span>: sipush        <span class="number">170</span></span><br><span class="line">         <span class="number">3</span>: putstatic     #11                 <span class="comment">// Field count1:I</span></span><br><span class="line">         <span class="number">6</span>: <span class="literal">new</span>           #16                 <span class="comment">// class SingleTon</span></span><br><span class="line">         <span class="number">9</span>: dup</span><br><span class="line">        <span class="number">10</span>: invokespecial #17                 <span class="comment">// Method "&lt;init&gt;":()V</span></span><br><span class="line">        <span class="number">13</span>: putstatic     #15                 <span class="comment">// Field singleTon:LSingleTon;</span></span><br><span class="line">        <span class="number">16</span>: sipush        <span class="number">188</span></span><br><span class="line">        <span class="number">19</span>: putstatic     #13                 <span class="comment">// Field count2:I</span></span><br><span class="line">        <span class="number">22</span>: <span class="keyword">return</span></span><br><span class="line">      LineNumberTable:</span><br><span class="line">        line <span class="number">3</span>: <span class="number">0</span></span><br><span class="line">        line <span class="number">5</span>: <span class="number">6</span></span><br><span class="line">        line <span class="number">8</span>: <span class="number">16</span></span><br><span class="line">&#125;</span><br><span class="line">SourceFile: <span class="string">"SingleTon.java"</span></span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">单例</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+      
+
+      <div style="font-size: 12px;">
+        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
+      </div>
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2017/07/07/饿加载单例的危险-jvm操作数栈/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
     <article id="post-linux vi 行号-位置-查找-区间-输出-过滤-下载" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
@@ -1422,11 +1605,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">mysql</a>
+                <a href="javascript:void(0)" class="js-tag color5">test</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">test</a>
+                <a href="javascript:void(0)" class="js-tag color1">mysql</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1462,6 +1645,10 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">rest</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">debug</a>
               </li>
              
@@ -1470,15 +1657,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">rest</a>
+                <a href="javascript:void(0)" class="js-tag color4">Mac</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">python</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">Mac</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1494,19 +1677,19 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">分布式锁</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">zookeeper</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">前端指南</a>
+                <a href="javascript:void(0)" class="js-tag color5">分布式锁</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">后端</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">前端指南</a>
               </li>
              
               <li class="article-tag-list-item">
