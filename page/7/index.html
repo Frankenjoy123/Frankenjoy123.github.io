@@ -151,6 +151,196 @@
           <div id="js-content" class="content-ll">
             
   
+    <article id="post-Grafana-mysql体验" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2018/04/09/Grafana-mysql体验/">Grafana mysql体验</a>
+    </h1>
+  
+
+        
+        <a href="/2018/04/09/Grafana-mysql体验/" class="archive-article-date">
+  	<time datetime="2018-04-09T10:29:11.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-04-09</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h1><p>在时序分析及监控展现领域，Grafana无疑是开源解决方案中的翘楚，其灵活的插件机制，支持各种漂亮的面板、丰富的数据源以及强大的应用。典型的面板有Graph、Text、Singlestat、PieChart、Table、Histogram等，支持的数据源有<code>ES</code>、Graphite、<code>InfluxDB</code>、OpenTSDB、<code>MySQL</code>、Druid 、<code>Prometheus</code>、<code>SimpleJson</code>等，提供的应用有Zabbix、K8s等</p>
+<ul>
+<li>+Elasticsearch<br>印象中Grafana是 InfluxDB 可视化工具，但基于Grafana良好的架构，DataSource可以变得多样性了，现在是支持ElasticSearch作为DataSource的。 Grafana的安装也非常简单，解压启动就可以了。DataSource都是动态添加上去的。Grafana作为一个纯粹的可视化工具，灵活性做到了极致。使用ElasticSearch作为DataSource，指定对应的Index，就可以建立DashBoard就行数据可视化了。相比Kibana，Grafana的template功能能把数据按照任意的维度进行切分展示，这就是它的强大之处。</li>
+</ul>
+<hr>
+<h1 id="部署"><a href="#部署" class="headerlink" title="部署"></a>部署</h1><p>Github地址：<a href="https://github.com/Grafana/Grafana" target="_blank" rel="external">https://github.com/Grafana/Grafana</a></p>
+<ul>
+<li><p>下载<br><a href="https://grafana.com/grafana/download" target="_blank" rel="external">https://grafana.com/grafana/download</a></p>
+</li>
+<li><p>mac安装</p>
+<p>| 12   | brew updatebrew install grafana |<br>| —- | ——————————- |<br>|      |                                 |</p>
+</li>
+</ul>
+<p><a href="http://docs.grafana.org/installation/mac/" target="_blank" rel="external">http://docs.grafana.org/installation/mac/</a><br><a href="http://docs.grafana.org/installation/configuration/" target="_blank" rel="external">http://docs.grafana.org/installation/configuration/</a></p>
+<ul>
+<li><p>启动Grafana</p>
+<p>| 12345678910111213 | 要启动Grafana使用自制服务首先确保安装了自制软件/服务。brew tap homebrew/services然后开始Grafana使用：brew services start grafana- 配置配置文件应该位于/usr/local/etc/grafana/grafana.ini。- 日志日志文件应该位于/usr/local/var/log/grafana/grafana.log。- 插件如果你想手动安装一个插件放在这里：/usr/local/var/lib/grafana/plugins。- 数据库默认的sqlite数据库位于 /usr/local/var/lib/grafana |<br>| —————– | ———————————————————— |<br>|                   |                                                              |</p>
+</li>
+<li><p>汉化(非必要)</p>
+<p>| 12   | git clone <a href="https://github.com/moonstack/grafana-for-chinese.git备份原有的" target="_blank" rel="external">https://github.com/moonstack/grafana-for-chinese.git备份原有的</a> /public/app/boot.js /public/app/features/org/prefs_control.js 再将master中的两个文件覆盖到对应的目录 刷新浏览器即可 |<br>| —- | ———————————————————— |<br>|      |                                                              |</p>
+</li>
+</ul>
+<p><a href="https://github.com/moonstack/grafana-for-chinese" target="_blank" rel="external">https://github.com/moonstack/grafana-for-chinese</a><br><a href="https://github.com/heruihong/gf-frontend" target="_blank" rel="external">https://github.com/heruihong/gf-frontend</a></p>
+<ul>
+<li>访问<br><a href="http://0.0.0.0:3000/" target="_blank" rel="external">http://0.0.0.0:3000/</a> ，默认账号/密码：admin/admin</li>
+<li>添加数据源<br><a href="http://docs.grafana.org/features/datasources/elasticsearch/" target="_blank" rel="external">http://docs.grafana.org/features/datasources/elasticsearch/</a><br><a href="http://docs.grafana.org/features/datasources/mysql/" target="_blank" rel="external">http://docs.grafana.org/features/datasources/mysql/</a></li>
+<li>导入dashboard/查看dashboard<br><a href="https://grafana.com/dashboards?dataSource=mysql" target="_blank" rel="external">https://grafana.com/dashboards?dataSource=mysql</a><br><a href="https://grafana.com/dashboards?dataSource=elasticsearch" target="_blank" rel="external">https://grafana.com/dashboards?dataSource=elasticsearch</a></li>
+</ul>
+<hr>
+<h1 id="制图-mysql"><a href="#制图-mysql" class="headerlink" title="制图(mysql)"></a>制图(mysql)</h1><p><code>Grafana + mysql数据源 - laomei - CSDN博客</code><br><a href="http://blog.csdn.net/sweatott/article/details/78278011" target="_blank" rel="external">http://blog.csdn.net/sweatott/article/details/78278011</a></p>
+<h2 id="图表数据展示规则-edit-Metrics"><a href="#图表数据展示规则-edit-Metrics" class="headerlink" title="图表数据展示规则 - edit - Metrics"></a>图表数据展示规则 - <code>edit - Metrics</code></h2><table>
+<thead>
+<tr>
+<th>123456789</th>
+<th>SELECTDATE_FORMAT(gmt_create,’%Y-%m-%d’),UNIX_TIMESTAMP(DATE_FORMAT(gmt_create,’%Y-%m-%d’)) as time_sec, – x轴:时间count(treaty_no) as value, – y轴:数值partner_code as metric – y轴分组:数据分组FROM treatyWHERE 1=1group by DATE_FORMAT(gmt_create,’%Y-%m-%d’)ORDER BY id ASC</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>更多文档见:<a href="http://docs.grafana.org/features/datasources/mysql/" target="_blank" rel="external">http://docs.grafana.org/features/datasources/mysql/</a><br><img src="http://7xnbs3.com1.z0.glb.clouddn.com/18-2-8/29820002.jpg" alt="img"></p>
+<h2 id="各报表面板设置"><a href="#各报表面板设置" class="headerlink" title="各报表面板设置"></a>各报表面板设置</h2><p><a href="http://docs.grafana.org/features/panels/graph/" target="_blank" rel="external">http://docs.grafana.org/features/panels/graph/</a> <code>图表</code><br><a href="http://docs.grafana.org/features/panels/singlestat/" target="_blank" rel="external">http://docs.grafana.org/features/panels/singlestat/</a> <code>仪图</code></p>
+<h2 id="templating-模板"><a href="#templating-模板" class="headerlink" title="templating 模板"></a>templating 模板</h2><p><a href="http://docs.grafana.org/reference/templating/" target="_blank" rel="external">http://docs.grafana.org/reference/templating/</a><br><a href="http://docs.grafana.org/features/datasources/mysql/#query-variable" target="_blank" rel="external">http://docs.grafana.org/features/datasources/mysql/#query-variable</a> <code>mysql的查询表达式</code><br><img src="http://7xnbs3.com1.z0.glb.clouddn.com/18-2-8/86842944.jpg" alt="img"></p>
+<p><img src="http://7xnbs3.com1.z0.glb.clouddn.com/18-3-19/55292517.jpg" alt="img"><br><img src="http://7xnbs3.com1.z0.glb.clouddn.com/18-3-19/45274927.jpg" alt="img"></p>
+<ul>
+<li><p>在查询中使用变量<br><a href="http://docs.grafana.org/features/datasources/mysql/#using-variables-in-queries" target="_blank" rel="external">http://docs.grafana.org/features/datasources/mysql/#using-variables-in-queries</a></p>
+<p>| 123456789 | SELECTDATE_FORMAT(gmt_create,’%Y-%m-%d’),UNIX_TIMESTAMP(DATE_FORMAT(gmt_create,’%Y-%m-%d’)) as time_sec, – x轴:时间count(treaty_no) as value, – y轴:数值partner_code as metric – y轴分组:数据分组FROM treatyWHERE 1=1 and partner_code in ($partner)group by DATE_FORMAT(gmt_create,’%Y-%m-%d’)ORDER BY id ASC |<br>| ——— | ———————————————————— |<br>|           |                                                              |</p>
+</li>
+<li><p>效果<br><img src="http://7xnbs3.com1.z0.glb.clouddn.com/18-2-8/52927063.jpg" alt="img"></p>
+</li>
+</ul>
+<hr>
+<h1 id="报警"><a href="#报警" class="headerlink" title="报警"></a>报警</h1><p><a href="http://docs.grafana.org/alerting/notifications/" target="_blank" rel="external">http://docs.grafana.org/alerting/notifications/</a><br><img src="http://7xnbs3.com1.z0.glb.clouddn.com/18-2-8/8688942.jpg" alt="img"></p>
+<ul>
+<li>Grafana添加<code>Webhook channel</code><br><a href="https://www.tuicool.com/articles/VZf6JjF" target="_blank" rel="external">https://www.tuicool.com/articles/VZf6JjF</a></li>
+<li>[图表-alert]设置数据触警规则</li>
+<li>[图表-alert]Notifications 定义发送渠道</li>
+</ul>
+<hr>
+<h1 id="问题"><a href="#问题" class="headerlink" title="问题"></a>问题</h1><h2 id="安装grafana-Homebrew出现”go-version-missing-for-“gotools”-resource-”的解决方案"><a href="#安装grafana-Homebrew出现”go-version-missing-for-“gotools”-resource-”的解决方案" class="headerlink" title="安装grafana,Homebrew出现”go: version missing for “gotools” resource!”的解决方案"></a>安装grafana,Homebrew出现”go: version missing for “gotools” resource!”的解决方案</h2><table>
+<thead>
+<tr>
+<th>12</th>
+<th>➜ Desktop brew install grafanaError: go: version missing for “gotools” resource!</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>尝试解决:</p>
+<table>
+<thead>
+<tr>
+<th>12</th>
+<th>git -C “$(brew –repo)” fetch –tagsbrew update –force</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>或 <code>git -C &quot;$(brew --repo)&quot; fetch --tags brew update --force</code><br><a href="http://blog.csdn.net/lanadeus/article/details/78271240" target="_blank" rel="external">http://blog.csdn.net/lanadeus/article/details/78271240</a><br><a href="https://github.com/Homebrew/homebrew-core/issues/19221" target="_blank" rel="external">https://github.com/Homebrew/homebrew-core/issues/19221</a><br><a href="https://blog.labbit.jp/%E8%AC%8E%E3%82%A8%E3%83%A9%E3%83%BCgotools%E3%81%AE%E8%A7%A3%E6%B6%88%E6%B3%95/" target="_blank" rel="external">https://blog.labbit.jp/%E8%AC%8E%E3%82%A8%E3%83%A9%E3%83%BCgotools%E3%81%AE%E8%A7%A3%E6%B6%88%E6%B3%95/</a></p>
+<p>实际解决: 重装brew</p>
+<table>
+<thead>
+<tr>
+<th>1</th>
+<th>/usr/bin/ruby -e “$(curl -fsSL <a href="https://raw.githubusercontent.com/Homebrew/install/master/install" target="_blank" rel="external">https://raw.githubusercontent.com/Homebrew/install/master/install</a>)”</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h2 id="新建template-query-错误"><a href="#新建template-query-错误" class="headerlink" title="新建template query 错误"></a>新建template query 错误</h2><table>
+<thead>
+<tr>
+<th>12</th>
+<th>TemplatingTemplate variables could not be initialized: sql: Scan error on column index 0: unsupported Scan, storing driver.Value type <nil> into type *string</nil></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>原因: 存在null值<br>解决: <code>where column is not null</code></p>
+<hr>
+<p>参考<br><code>基于Grafana+SimpleJson的灵活报表解决方案</code><br><a href="https://www.tuicool.com/articles/EBjUfmi" target="_blank" rel="external">https://www.tuicool.com/articles/EBjUfmi</a></p>
+<p><code>监控数据的可视化分析神器 Grafana - 推酷</code><br><a href="https://www.tuicool.com/articles/VZf6JjF" target="_blank" rel="external">https://www.tuicool.com/articles/VZf6JjF</a></p>
+<p><code>Kibana and Grafana - 推酷</code><br><a href="https://www.tuicool.com/articles/rURRF3U" target="_blank" rel="external">https://www.tuicool.com/articles/rURRF3U</a></p>
+<p><code>使用Prometheus+Grafana搭建监控系统实践 - 推酷</code><br><a href="https://www.tuicool.com/articles/QZRjAv3" target="_blank" rel="external">https://www.tuicool.com/articles/QZRjAv3</a></p>
+<p><code>监控数据的可视化分析神器 Grafana - 推酷</code> - <code>OneAlert 云告警</code><br><a href="https://www.tuicool.com/articles/VZf6JjF" target="_blank" rel="external">https://www.tuicool.com/articles/VZf6JjF</a></p>
+<p><code>grafana + influxdb + telegraf , 构建linux性能监控平台 - 推酷</code><br><a href="https://www.tuicool.com/articles/nyM3qyq" target="_blank" rel="external">https://www.tuicool.com/articles/nyM3qyq</a></p>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+      
+
+      <div style="font-size: 12px;">
+        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
+      </div>
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2018/04/09/Grafana-mysql体验/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
     <article id="post-Kibana-Elasticsearch体验" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
@@ -1492,243 +1682,9 @@
 
 
   
-    <article id="post-influxdb用法" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2018/03/07/influxdb用法/">influxdb用法</a>
-    </h1>
-  
-
-        
-        <a href="/2018/03/07/influxdb用法/" class="archive-article-date">
-  	<time datetime="2018-03-07T07:57:59.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-03-07</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><hr>
-<p>influxdb是目前比较流行的时间序列数据库。</p>
-<ul>
-<li>何谓时间序列数据库？<br>什么是时间序列数据库，最简单的定义就是数据格式里包含Timestamp字段的数据，比如某一时间环境的温度，CPU的使用率等。但是，有什么数据不包含Timestamp呢？几乎所有的数据其实都可以打上一个Timestamp字段。时间序列数据的更重要的一个属性是如何去查询它，包括数据的过滤，计算等等。</li>
-</ul>
-<h4 id="Influxdb"><a href="#Influxdb" class="headerlink" title="Influxdb"></a>Influxdb</h4><p>Influxdb是一个开源的分布式时序、时间和指标数据库，使用go语言编写，无需外部依赖。<br>它有三大特性：</p>
-<ol>
-<li>时序性（Time Series）：与时间相关的函数的灵活使用（诸如最大、最小、求和等）；</li>
-<li>度量（Metrics）：对实时大量数据进行计算；</li>
-<li>事件（Event）：支持任意的事件数据，换句话说，任意事件的数据我们都可以做操作。</li>
-</ol>
-<p>同时，它有以下几大特点：</p>
-<ul>
-<li>schemaless(无结构)，可以是任意数量的列；</li>
-<li>min, max, sum, count, mean, median 一系列函数，方便统计；</li>
-<li>Native HTTP API, 内置http支持，使用http读写；</li>
-<li>Powerful Query Language 类似sql；</li>
-<li>Built-in Explorer 自带管理工具。</li>
-</ul>
-<h3 id="Influxdb安装"><a href="#Influxdb安装" class="headerlink" title="Influxdb安装"></a>Influxdb安装</h3><hr>
-<blockquote>
-<p>注：本文使用的influxdb version是1.0.2</p>
-</blockquote>
-<p>在讲解具体的安装步骤之前，先说说influxdb的两个http端口：8083和8086</p>
-<ul>
-<li>port 8083：管理页面端口，访问localhost:8083可以进入你本机的influxdb管理页面；</li>
-<li>port 8086：http连接influxdb client端口，一般使用该端口往本机的influxdb读写数据。</li>
-</ul>
-<p><strong>OS X</strong></p>
-<figure class="highlight mipsasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">brew </span>update</span><br><span class="line"><span class="keyword">brew </span><span class="keyword">install </span>influxdb</span><br></pre></td></tr></table></figure>
-<p><strong>Docker Image</strong></p>
-<figure class="highlight ebnf"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">docker pull influxdb</span></span><br></pre></td></tr></table></figure>
-<p><strong>Ubuntu &amp; Debian</strong></p>
-<figure class="highlight vim"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">wget http<span class="variable">s:</span>//<span class="keyword">dl</span>.influxdata.<span class="keyword">com</span>/influxdb/releases/influxdb_1.<span class="number">0.2</span>_amd64.<span class="keyword">deb</span></span><br><span class="line">sudo dpkg -i influxdb_1.<span class="number">0.2</span>_amd64.<span class="keyword">deb</span></span><br></pre></td></tr></table></figure>
-<p><strong>RedHat &amp; CentOS</strong></p>
-<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">wget https:<span class="comment">//dl.influxdata.com/influxdb/releases/influxdb-1.0.2.x86_64.rpm</span></span><br><span class="line">sudo yum localinstall influxdb-<span class="number">1.0</span>.<span class="number">2</span><span class="selector-class">.x86_64</span><span class="selector-class">.rpm</span></span><br></pre></td></tr></table></figure>
-<p><strong>Standalone Linux Binaries (64-bit)</strong></p>
-<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">wget https:<span class="comment">//dl.influxdata.com/influxdb/releases/influxdb-1.0.2_linux_amd64.tar.gz  </span></span><br><span class="line">tar xvfz influxdb-<span class="number">1.0</span>.<span class="number">2</span>_linux_amd64<span class="selector-class">.tar</span><span class="selector-class">.gz</span></span><br></pre></td></tr></table></figure>
-<p><strong>Standalone Linux Binaries (32-bit)</strong></p>
-<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">wget https:<span class="comment">//dl.influxdata.com/influxdb/releases/influxdb-1.0.2_linux_i386.tar.gz</span></span><br><span class="line">tar xvfz influxdb-<span class="number">1.0</span>.<span class="number">2</span>_linux_i386<span class="selector-class">.tar</span><span class="selector-class">.gz</span></span><br></pre></td></tr></table></figure>
-<p><strong>Standalone Linux Binaries (ARM)</strong></p>
-<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">wget https:<span class="comment">//dl.influxdata.com/influxdb/releases/influxdb-1.0.2_linux_armhf.tar.gz</span></span><br><span class="line">tar xvfz influxdb-<span class="number">1.0</span>.<span class="number">2</span>_linux_armhf<span class="selector-class">.tar</span><span class="selector-class">.gz</span></span><br></pre></td></tr></table></figure>
-<p><strong>How to start？</strong><br>安装完之后，如何启动呢？</p>
-<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo<span class="built_in"> service </span>influxdb start</span><br></pre></td></tr></table></figure>
-<p>到这里influxdb安装启动完成，可以访问influxdb管理页面：<a href="https://link.jianshu.com?t=http://localhost:8083" target="_blank" rel="external">本地管理页面</a>，该版本没有登录用户及密码，可以自行设置读写的用户名和密码。</p>
-<p><strong>如何在命令行使用</strong><br>安装完毕之后，如何在命令行使用呢？</p>
-<p><img src="http://upload-images.jianshu.io/upload_images/3994601-9cc22a93bb379d76.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/573" alt="img"></p>
-<p>influxdb在命令行中使用</p>
-<h3 id="influxdb基本操作"><a href="#influxdb基本操作" class="headerlink" title="influxdb基本操作"></a>influxdb基本操作</h3><hr>
-<h4 id="名词解释"><a href="#名词解释" class="headerlink" title="名词解释"></a>名词解释</h4><p>在具体的讲解influxdb的相关操作之前先说说influxdb的一些专有名词，这些名词代表什么。</p>
-<h5 id="influxdb相关名词"><a href="#influxdb相关名词" class="headerlink" title="influxdb相关名词"></a>influxdb相关名词</h5><ul>
-<li>database：数据库；</li>
-<li>measurement：数据库中的表；</li>
-<li>points：表里面的一行数据。</li>
-</ul>
-<h5 id="influxDB中独有的一些概念"><a href="#influxDB中独有的一些概念" class="headerlink" title="influxDB中独有的一些概念"></a>influxDB中独有的一些概念</h5><p>Point由<strong>时间戳</strong>（time）、<strong>数据</strong>（field）和<strong>标签</strong>（tags）组成。</p>
-<ul>
-<li>time：每条数据记录的时间，也是数据库自动生成的主索引；</li>
-<li>fields：各种记录的值；</li>
-<li>tags：各种有索引的属性。</li>
-</ul>
-<p>还有一个重要的名词：<strong>series</strong><br>所有在数据库中的数据，都需要通过图表来表示，series表示这个表里面的所有的数据可以在图标上画成几条线（注：线条的个数由tags排列组合计算出来）<br>举个简单的小栗子：<br>有如下数据：</p>
-<p><img src="http://upload-images.jianshu.io/upload_images/3994601-f528ff65d64cf860.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/569" alt="img"></p>
-<p>error_time</p>
-<p>它的series为：</p>
-<p><img src="http://upload-images.jianshu.io/upload_images/3994601-cb52cbd8bf20d41b.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/569" alt="img"></p>
-<p>error_time_series</p>
-<h4 id="influxdb基本操作-1"><a href="#influxdb基本操作-1" class="headerlink" title="influxdb基本操作"></a>influxdb基本操作</h4><ul>
-<li><strong>数据库与表的操作</strong><br>可以直接在web管理页面做操作，当然也可以命令行。</li>
-</ul>
-<figure class="highlight vala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#创建数据库</span></span><br><span class="line">create database <span class="string">"db_name"</span></span><br><span class="line"><span class="meta">#显示所有的数据库</span></span><br><span class="line">show databases</span><br><span class="line"><span class="meta">#删除数据库</span></span><br><span class="line">drop database <span class="string">"db_name"</span></span><br><span class="line"><span class="meta">#使用数据库</span></span><br><span class="line">use db_name</span><br><span class="line"><span class="meta">#显示该数据库中所有的表</span></span><br><span class="line">show measurements</span><br><span class="line"><span class="meta">#创建表，直接在插入数据的时候指定表名</span></span><br><span class="line">insert test,host=<span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>,monitor_name=test count=<span class="number">1</span></span><br><span class="line"><span class="meta">#删除表</span></span><br><span class="line">drop measurement <span class="string">"measurement_name"</span></span><br></pre></td></tr></table></figure>
-<ul>
-<li><p>增</p>
-<p>​</p>
-<p>向数据库中插入数据。</p>
-<ul>
-<li>通过命令行</li>
-</ul>
-</li>
-</ul>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">use</span> testDb</span><br><span class="line"><span class="keyword">insert</span> <span class="keyword">test</span>,host=<span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>,monitor_name=<span class="keyword">test</span> <span class="keyword">count</span>=<span class="number">1</span></span><br></pre></td></tr></table></figure>
-<ul>
-<li>通过http接口</li>
-</ul>
-<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl -<span class="selector-tag">i</span> -XPOST <span class="string">'http://127.0.0.1:8086/write?db=testDb'</span> --data-binary <span class="string">'test,host=127.0.0.1,monitor_name=test count=1'</span></span><br></pre></td></tr></table></figure>
-<p>读者看到这里可能会观察到插入的数据的格式貌似比较奇怪，这是因为influxDB存储数据采用的是Line Protocol格式。那么何谓Line Protoco格式？</p>
-<p><strong>Line Protocol格式：</strong>写入数据库的Point的固定格式。<br>在上面的两种插入数据的方法中都有这样的一部分：</p>
-<figure class="highlight lsl"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">test,host=<span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>,monitor_name=test count=<span class="number">1</span></span><br></pre></td></tr></table></figure>
-<p>其中：</p>
-<ol>
-<li>test：表名；</li>
-<li>host=127.0.0.1,monitor_name=test：tag；</li>
-<li>count=1：field</li>
-</ol>
-<p>想对此格式有详细的了解参见<a href="https://link.jianshu.com?t=https://docs.influxdata.com/influxdb/v0.10/write_protocols/line/" target="_blank" rel="external">官方文档</a></p>
-<ul>
-<li><p>查</p>
-<p>​</p>
-<p>查询数据库中的数据。</p>
-<ul>
-<li>通过命令行</li>
-</ul>
-</li>
-</ul>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> <span class="keyword">test</span> <span class="keyword">order</span> <span class="keyword">by</span> <span class="keyword">time</span> <span class="keyword">desc</span></span><br></pre></td></tr></table></figure>
-<ul>
-<li>通过http接口</li>
-</ul>
-<figure class="highlight jboss-cli"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl -G 'http:<span class="string">//localhost</span><span class="function">:8086</span>/query?pretty=<span class="literal">true</span>' <span class="params">--data-urlencode</span> <span class="string">"db=testDb"</span> <span class="params">--data-urlencode</span> <span class="string">"q=select * from test order by time desc"</span></span><br></pre></td></tr></table></figure>
-<p>influxDB是支持类sql语句的，具体的查询语法都差不多，这里就不再做详细的赘述了。</p>
-<ul>
-<li><strong>数据保存策略（Retention Policies）</strong><br>influxDB是没有提供直接删除数据记录的方法，但是提供数据保存策略，主要用于指定数据保留时间，超过指定时间，就删除这部分数据。<ul>
-<li>查看当前数据库Retention Policies</li>
-</ul>
-</li>
-</ul>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">show</span> <span class="keyword">retention</span> policies <span class="keyword">on</span> <span class="string">"db_name"</span></span><br></pre></td></tr></table></figure>
-<p><img src="http://upload-images.jianshu.io/upload_images/3994601-4dbf9942cc0f671a.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/574" alt="img"></p>
-<p>retention_policies</p>
-<ul>
-<li>创建新的Retention Policies</li>
-</ul>
-<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">create retention<span class="built_in"> policy </span><span class="string">"rp_name"</span> on <span class="string">"db_name"</span> duration 3w replication 1 default</span><br></pre></td></tr></table></figure>
-<figure class="highlight haml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">-<span class="ruby">  rp_name：策略名；</span></span><br><span class="line"><span class="ruby">- db_name：具体的数据库名；</span></span><br><span class="line"><span class="ruby">- <span class="number">3</span>w：保存<span class="number">3</span>周，<span class="number">3</span>周之前的数据将被删除，influxdb具有各种事件参数，比如：h（小时），d（天），w（星期）；</span></span><br><span class="line"><span class="ruby">- replication <span class="number">1</span>：副本个数，一般为<span class="number">1</span>就可以了；</span></span><br><span class="line"><span class="ruby">- default：设置为默认策略</span></span><br></pre></td></tr></table></figure>
-<ul>
-<li>修改Retention Policies</li>
-</ul>
-<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">alter retention<span class="built_in"> policy </span><span class="string">"rp_name"</span> on <span class="string">"db_name"</span> duration 30d default</span><br></pre></td></tr></table></figure>
-<ul>
-<li>删除Retention Policies</li>
-</ul>
-<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">drop retention<span class="built_in"> policy </span><span class="string">"rp_name"</span></span><br></pre></td></tr></table></figure>
-<ul>
-<li><p>连续查询（Continous Queries）</p>
-<p>​</p>
-<p>当数据超过保存策略里指定的时间之后就会被删除，但是这时候可能并不想数据被完全删掉，怎么办？</p>
-<p>​</p>
-<p>influxdb提供了联系查询，可以做数据统计采样。</p>
-<ul>
-<li>查看数据库的Continous Queries</li>
-</ul>
-</li>
-</ul>
-<figure class="highlight ebnf"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">show continuous queries</span></span><br></pre></td></tr></table></figure>
-<p><img src="http://upload-images.jianshu.io/upload_images/3994601-d0d2b55ee261869d.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/440" alt="img"></p>
-<p>continuous_queries.</p>
-<ul>
-<li>创建新的Continous Queries</li>
-</ul>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">create</span> continous <span class="keyword">query</span> cq_name <span class="keyword">on</span> db_name <span class="keyword">begin</span> <span class="keyword">select</span> <span class="keyword">sum</span>(<span class="keyword">count</span>) <span class="keyword">into</span> new_table_name <span class="keyword">from</span> table_name <span class="keyword">group</span> <span class="keyword">by</span> <span class="keyword">time</span>(<span class="number">30</span>m) <span class="keyword">end</span></span><br></pre></td></tr></table></figure>
-<figure class="highlight haml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">-<span class="ruby"> cq_name：连续查询名字；</span></span><br><span class="line"><span class="ruby">- db_name：数据库名字；</span></span><br><span class="line"><span class="ruby">- sum(count)：计算总和；</span></span><br><span class="line"><span class="ruby">- table_name：当前表名；</span></span><br><span class="line"><span class="ruby">- new_table_name：存新的数据的表名；</span></span><br><span class="line"><span class="ruby">- <span class="number">30</span>m：时间间隔为<span class="number">30</span>分钟</span></span><br></pre></td></tr></table></figure>
-<ul>
-<li>删除Continous Queries</li>
-</ul>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">drop</span> continous <span class="keyword">query</span> cp_name <span class="keyword">on</span> db_name</span><br></pre></td></tr></table></figure>
-<ul>
-<li><strong>用户管理</strong><br>可以直接在web管理页面做操作，也可以命令行。</li>
-</ul>
-<figure class="highlight clean"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">#显示用户  </span><br><span class="line">show users</span><br><span class="line">#创建用户</span><br><span class="line">create user <span class="string">"username"</span> <span class="keyword">with</span> password <span class="string">'password'</span></span><br><span class="line">#创建管理员权限用户create user <span class="string">"username"</span> <span class="keyword">with</span> password <span class="string">'password'</span> <span class="keyword">with</span> all privileges</span><br><span class="line">#删除用户</span><br><span class="line">drop user <span class="string">"username"</span></span><br></pre></td></tr></table></figure>
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">influxdb</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-      
-
-      <div style="font-size: 12px;">
-        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
-      </div>
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2018/03/07/influxdb用法/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
   
     <nav id="page-nav">
-      <a class="extend prev" rel="prev" href="/page/6/">&laquo; Prev</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/5/">5</a><a class="page-number" href="/page/6/">6</a><span class="page-number current">7</span><a class="page-number" href="/page/8/">8</a><a class="page-number" href="/page/9/">9</a><span class="space">&hellip;</span><a class="page-number" href="/page/13/">13</a><a class="extend next" rel="next" href="/page/8/">Next &raquo;</a>
+      <a class="extend prev" rel="prev" href="/page/6/">&laquo; Prev</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/5/">5</a><a class="page-number" href="/page/6/">6</a><span class="page-number current">7</span><a class="page-number" href="/page/8/">8</a><a class="page-number" href="/page/9/">9</a><span class="space">&hellip;</span><a class="page-number" href="/page/14/">14</a><a class="extend next" rel="next" href="/page/8/">Next &raquo;</a>
     </nav>
   
 
@@ -1859,15 +1815,15 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">redis</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">linux</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">快捷键</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">redis</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1911,7 +1867,7 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">rest</a>
+                <a href="javascript:void(0)" class="js-tag color4">influxdb</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1919,7 +1875,7 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">influxdb</a>
+                <a href="javascript:void(0)" class="js-tag color5">rest</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1951,19 +1907,19 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">后端</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">前端指南</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">善用佳软</a>
+                <a href="javascript:void(0)" class="js-tag color3">后端</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">jvm</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">善用佳软</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1979,11 +1935,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">单例</a>
+                <a href="javascript:void(0)" class="js-tag color3">HashMap</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">HashMap</a>
+                <a href="javascript:void(0)" class="js-tag color3">单例</a>
               </li>
              
               <li class="article-tag-list-item">

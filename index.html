@@ -151,6 +151,118 @@
           <div id="js-content" class="content-ll">
             
   
+    <article id="post-Redis原理详解" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2018/09/15/Redis原理详解/">Redis原理详解</a>
+    </h1>
+  
+
+        
+        <a href="/2018/09/15/Redis原理详解/" class="archive-article-date">
+  	<time datetime="2018-09-15T13:10:43.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-09-15</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="expire"><a href="#expire" class="headerlink" title="expire"></a>expire</h2><blockquote>
+<p><a href="https://redis.io/commands/expire" target="_blank" rel="external">https://redis.io/commands/expire</a></p>
+</blockquote>
+<ul>
+<li>消极方式，访问Key，已过期删除</li>
+<li>积极方式，1秒10次。1. 选取20个随机的key 2.删除过期key 3.超过20%过期，执行1步骤。</li>
+</ul>
+<blockquote>
+<h2 id="How-Redis-expires-keys"><a href="#How-Redis-expires-keys" class="headerlink" title="How Redis expires keys"></a>How Redis expires keys</h2><p>Redis keys are expired in two ways: a passive way, and an active way.</p>
+<p>A key is passively expired simply when some client tries to access it, and the key is found to be timed out.</p>
+<p>Of course this is not enough as there are expired keys that will never be accessed again. These keys should be expired anyway, so periodically Redis tests a few keys at random among keys with an expire set. All the keys that are already expired are deleted from the keyspace.</p>
+<p>Specifically this is what Redis does 10 times per second:</p>
+<ol>
+<li>Test 20 random keys from the set of keys with an associated expire.</li>
+<li>Delete all the keys found expired.</li>
+<li>If more than 25% of keys were expired, start again from step 1.</li>
+</ol>
+<p>This is a trivial probabilistic algorithm, basically the assumption is that our sample is representative of the whole key space, and we continue to expire until the percentage of keys that are likely to be expired is under 25%</p>
+<p>This means that at any given moment the maximum amount of keys already expired that are using memory is at max equal to max amount of write operations per second divided by 4.</p>
+</blockquote>
+<h2 id="数据持久化"><a href="#数据持久化" class="headerlink" title="数据持久化"></a>数据持久化</h2><h3 id="rdb-（默认）"><a href="#rdb-（默认）" class="headerlink" title="rdb （默认）"></a>rdb （默认）</h3><blockquote>
+<p>  条件满足一个执行，每条规则之间是“或”的关系</p>
+<p>  In the example below the behaviour will be to save:<br>  after 900 sec (15 min) if at least 1 key changed<br>  after 300 sec (5 min) if at least 10 keys changed<br>  after 60 sec if at least 10000 keys changed</p>
+</blockquote>
+<figure class="highlight lsl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">save <span class="number">900</span> <span class="number">1</span> </span><br><span class="line">save <span class="number">300</span> <span class="number">10</span></span><br><span class="line">save <span class="number">60</span> <span class="number">10000</span></span><br></pre></td></tr></table></figure>
+<h3 id="aof"><a href="#aof" class="headerlink" title="aof"></a>aof</h3><ul>
+<li>默认的rdb能够满足持久化的需求，但是存在缺陷就是两次快照之间，可能会丢失数据。</li>
+</ul>
+<blockquote>
+<p>By default Redis asynchronously dumps the dataset on disk. This mode is<br>good enough in many applications, but an issue with the Redis process or<br>a power outage may result into a few minutes of writes lost (depending on<br>the configured save points).</p>
+</blockquote>
+<figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">appendonly</span> <span class="literal">yes</span></span><br><span class="line">appendfilename <span class="string">"appendonly.aof"</span></span><br></pre></td></tr></table></figure>
+<h2 id="lua脚本"><a href="#lua脚本" class="headerlink" title="lua脚本"></a>lua脚本</h2><h3 id="保证原子性"><a href="#保证原子性" class="headerlink" title="保证原子性"></a>保证原子性</h3><ul>
+<li><p>redis-cli –eval example.lua</p>
+</li>
+<li><p>比较暴力</p>
+</li>
+</ul>
+<h3 id="限流demo"><a href="#限流demo" class="headerlink" title="限流demo"></a>限流demo</h3><ul>
+<li>10秒内限流10次demo</li>
+<li>script load 导入脚本，生成sha</li>
+<li>evalsha “{sha}”</li>
+<li>lua执行死环境脚本，会有阻塞问题</li>
+<li>redis-cli –eval example.lua</li>
+</ul>
+<h2 id="单线程如何保证高性能"><a href="#单线程如何保证高性能" class="headerlink" title="单线程如何保证高性能"></a>单线程如何保证高性能</h2><h3 id="同步阻塞"><a href="#同步阻塞" class="headerlink" title="同步阻塞"></a>同步阻塞</h3><h3 id="同步非阻塞"><a href="#同步非阻塞" class="headerlink" title="同步非阻塞"></a>同步非阻塞</h3><h3 id="异步阻塞-redis实现，多路复用"><a href="#异步阻塞-redis实现，多路复用" class="headerlink" title="异步阻塞(redis实现，多路复用)"></a>异步阻塞(redis实现，多路复用)</h3><p>异步不一定是多线程</p>
+<h3 id="异步非阻塞"><a href="#异步非阻塞" class="headerlink" title="异步非阻塞"></a>异步非阻塞</h3><p>### </p>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+      
+
+      <div style="font-size: 12px;">
+        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
+      </div>
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2018/09/15/Redis原理详解/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
     <article id="post-springboot-stater自定义开发" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
@@ -1155,77 +1267,9 @@
 
 
   
-    <article id="post-node及npm安装-版本升级" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2018/07/26/node及npm安装-版本升级/">node及npm安装 版本升级</a>
-    </h1>
-  
-
-        
-        <a href="/2018/07/26/node及npm安装-版本升级/" class="archive-article-date">
-  	<time datetime="2018-07-26T06:50:39.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-07-26</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>#1.官网下载node</p>
-<p><a href="https://nodejs.org/en/download/" target="_blank" rel="external">https://nodejs.org/en/download/</a></p>
-<h1 id="2-升级npm"><a href="#2-升级npm" class="headerlink" title="2.升级npm"></a>2.升级npm</h1><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 先安装模块n</span></span><br><span class="line">npm install n -g</span><br><span class="line"><span class="meta">#</span><span class="bash"> 将 node 升级到最新稳定版</span></span><br><span class="line">n stable</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 将 npm 升级到最新版</span></span><br><span class="line">npm install npm -g</span><br><span class="line"><span class="meta">#</span><span class="bash"> 如果要指定版本，可以通过@指定版本</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> npm install npm@3.10.10 -g</span></span><br></pre></td></tr></table></figure>
-
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-      
-
-      <div style="font-size: 12px;">
-        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
-      </div>
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2018/07/26/node及npm安装-版本升级/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
   
     <nav id="page-nav">
-      <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="page-number" href="/page/3/">3</a><span class="space">&hellip;</span><a class="page-number" href="/page/13/">13</a><a class="extend next" rel="next" href="/page/2/">Next &raquo;</a>
+      <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="page-number" href="/page/3/">3</a><span class="space">&hellip;</span><a class="page-number" href="/page/14/">14</a><a class="extend next" rel="next" href="/page/2/">Next &raquo;</a>
     </nav>
   
 
@@ -1356,15 +1400,15 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">redis</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">linux</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">快捷键</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">redis</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1408,7 +1452,7 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">rest</a>
+                <a href="javascript:void(0)" class="js-tag color4">influxdb</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1416,7 +1460,7 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">influxdb</a>
+                <a href="javascript:void(0)" class="js-tag color5">rest</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1448,19 +1492,19 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">后端</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">前端指南</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">善用佳软</a>
+                <a href="javascript:void(0)" class="js-tag color3">后端</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">jvm</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">善用佳软</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1476,11 +1520,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">单例</a>
+                <a href="javascript:void(0)" class="js-tag color3">HashMap</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">HashMap</a>
+                <a href="javascript:void(0)" class="js-tag color3">单例</a>
               </li>
              
               <li class="article-tag-list-item">

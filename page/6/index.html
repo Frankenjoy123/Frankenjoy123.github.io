@@ -151,6 +151,84 @@
           <div id="js-content" class="content-ll">
             
   
+    <article id="post-LinkedBlockingQueue" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2018/05/08/LinkedBlockingQueue/">LinkedBlockingQueue</a>
+    </h1>
+  
+
+        
+        <a href="/2018/05/08/LinkedBlockingQueue/" class="archive-article-date">
+  	<time datetime="2018-05-08T02:23:22.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-05-08</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="锁分离"><a href="#锁分离" class="headerlink" title="锁分离"></a>锁分离</h2><p>take和put分别两个ReentrantLock锁</p>
+<figure class="highlight haxe"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/** Lock held by take, poll, etc */</span></span><br><span class="line"><span class="keyword">private</span> final ReentrantLock takeLock = <span class="keyword">new</span> <span class="type">ReentrantLock</span>();</span><br><span class="line"></span><br><span class="line"><span class="comment">/** Wait queue for waiting takes */</span></span><br><span class="line"><span class="keyword">private</span> final Condition notEmpty = takeLock.<span class="keyword">new</span><span class="type">Condition</span>();</span><br><span class="line"></span><br><span class="line"><span class="comment">/** Lock held by put, offer, etc */</span></span><br><span class="line"><span class="keyword">private</span> final ReentrantLock putLock = <span class="keyword">new</span> <span class="type">ReentrantLock</span>();</span><br><span class="line"></span><br><span class="line"><span class="comment">/** Wait queue for waiting puts */</span></span><br><span class="line"><span class="keyword">private</span> final Condition notFull = putLock.<span class="keyword">new</span><span class="type">Condition</span>();</span><br></pre></td></tr></table></figure>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">java并发包</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+      
+
+      <div style="font-size: 12px;">
+        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
+      </div>
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2018/05/08/LinkedBlockingQueue/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
     <article id="post-java并发包目录" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
@@ -316,6 +394,92 @@
 
 
   
+    <article id="post-使用zookeeper实现分布式锁(二)" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2018/05/06/使用zookeeper实现分布式锁(二)/">使用zookeeper实现分布式锁二</a>
+    </h1>
+  
+
+        
+        <a href="/2018/05/06/使用zookeeper实现分布式锁(二)/" class="archive-article-date">
+  	<time datetime="2018-05-06T15:13:09.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-05-06</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <blockquote>
+<p>推荐一个工具<br>基于redis和zookeeper分布式工具集-包括:分布式锁实现,分布式速率限制器,分布式ID生成器等.<br><a href="https://github.com/yujiasun/Distributed-Kit/blob/master/README.md" target="_blank" rel="external">https://github.com/yujiasun/Distributed-Kit/blob/master/README.md</a></p>
+</blockquote>
+<h1 id="1-分布式锁的由来"><a href="#1-分布式锁的由来" class="headerlink" title="1.分布式锁的由来"></a>1.分布式锁的由来</h1><p>在程序开发过程中不得不考虑的就是并发问题。在java中对于同一个jvm而言，jdk已经提供了lock和同步等。但是在分布式情况下，往往存在多个进程对一些资源产生竞争关系，而这些进程往往在不同的机器上，这个时候jdk中提供的已经不能满足。分布式锁顾明思议就是可以满足分布式情况下的并发锁。 下面我们讲解怎么利用zk实现分布式锁。</p>
+<h1 id="2-实现思路："><a href="#2-实现思路：" class="headerlink" title="2.实现思路："></a>2.实现思路：</h1><h2 id="2-1-zk简单介绍："><a href="#2-1-zk简单介绍：" class="headerlink" title="2.1 zk简单介绍："></a>2.1 zk简单介绍：</h2><p>ZooKeeper是Apache软件基金会的一个软件项目，他为大型分布式计算提供开源的分布式配置服务、同步服务和命名注册。在 ZooKeeper 中，节点类型可以分为持久节点（PERSISTENT ）、临时节点（EPHEMERAL），以及时序节点（SEQUENTIAL ），具体在节点创建过程中，一般是组合使用，可以生成 4 种节点类型：持久节点（PERSISTENT），持久顺序节点（PERSISTENT_SEQUENTIAL），临时节点（EPHEMERAL），临时顺序节点（EPHEMERAL_SEQUENTIAL）；具体节点含义，谷歌之。</p>
+<h2 id="2-2-利用zk实现："><a href="#2-2-利用zk实现：" class="headerlink" title="2.2 利用zk实现："></a>2.2 利用zk实现：</h2><p>当很多进程需要访问共享资源时，我们可以通过zk来实现分布式锁。主要步骤是：<br>1.建立一个节点，假如名为：lock 。节点类型为持久节点（PERSISTENT）<br>2.每当进程需要访问共享资源时，会调用分布式锁的lock()或tryLock()方法获得锁，这个时候会在第一步创建的lock节点下建立相应的顺序子节点，节点类型为临时顺序节点（EPHEMERAL_SEQUENTIAL），通过组成特定的名字name+lock+顺序号。<br>3.在建立子节点后，对lock下面的所有以name开头的子节点进行排序，判断刚刚建立的子节点顺序号是否是最小的节点，假如是最小节点，则获得该锁对资源进行访问。<br>4.假如不是该节点，就获得该节点的上一顺序节点，并给该节点是否存在注册监听事件。同时在这里阻塞。等待监听事件的发生，获得锁控制权。<br>5.当调用完共享资源后，调用unlock（）方法，关闭zk，进而可以引发监听事件，释放该锁。<br>实现的分布式锁是严格的按照顺序访问的并发锁。</p>
+<h1 id="3-代码实现："><a href="#3-代码实现：" class="headerlink" title="3.代码实现："></a>3.代码实现：</h1><p>下面将讲解使用java实现分布式锁：<br>1.建立类DistributedLock，实现java.util.concurrent.locks.Lock;和org.apache.zookeeper.Watcher接口<br>2.实现lock下面的方法：主要包括lock，tryLock，unlock等<br>3.实现watcher接口下的process方法。<br>4.在构造器中对zk进行初始化。<br>5.详细见代码注释</p>
+<figure class="highlight haxe"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> cn.wpeace.zktest;</span><br><span class="line"><span class="keyword">import</span> java.io.IOException;</span><br><span class="line"><span class="keyword">import</span> java.util.ArrayList;</span><br><span class="line"><span class="keyword">import</span> java.util.Collections;</span><br><span class="line"><span class="keyword">import</span> java.util.List;</span><br><span class="line"><span class="keyword">import</span> java.util.concurrent.CountDownLatch;</span><br><span class="line"><span class="keyword">import</span> java.util.concurrent.TimeUnit;</span><br><span class="line"><span class="keyword">import</span> java.util.concurrent.locks.Condition;</span><br><span class="line"><span class="keyword">import</span> java.util.concurrent.locks.Lock;</span><br><span class="line"><span class="keyword">import</span> org.apache.zookeeper.CreateMode;</span><br><span class="line"><span class="keyword">import</span> org.apache.zookeeper.KeeperException;</span><br><span class="line"><span class="keyword">import</span> org.apache.zookeeper.WatchedEvent;</span><br><span class="line"><span class="keyword">import</span> org.apache.zookeeper.Watcher;</span><br><span class="line"><span class="keyword">import</span> org.apache.zookeeper.ZooDefs;</span><br><span class="line"><span class="keyword">import</span> org.apache.zookeeper.ZooKeeper;</span><br><span class="line"><span class="keyword">import</span> org.apache.zookeeper.Watcher.Event.KeeperState;</span><br><span class="line"><span class="keyword">import</span> org.apache.zookeeper.data.Stat;</span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * @author peace</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">DistributedLock</span> <span class="keyword"><span class="keyword">implements</span> <span class="type">Lock</span></span>, <span class="title">Watcher</span></span>&#123;</span><br><span class="line">    <span class="keyword">private</span> ZooKeeper zk;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">String</span> root = <span class="string">"/locks"</span>;<span class="comment">//根</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">String</span> lockName;<span class="comment">//竞争资源的标志</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">String</span> waitNode;<span class="comment">//等待前一个锁</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">String</span> myZnode;<span class="comment">//当前锁</span></span><br><span class="line">    <span class="keyword">private</span> CountDownLatch latch;<span class="comment">//计数器</span></span><br><span class="line">    <span class="keyword">private</span> CountDownLatch connectedSignal=<span class="keyword">new</span> <span class="type">CountDownLatch</span>(<span class="number">1</span>);</span><br><span class="line">    <span class="keyword">private</span> int sessionTimeout = <span class="number">30000</span>; </span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 创建分布式锁,使用前请确认config配置的zookeeper服务可用</span></span><br><span class="line"><span class="comment">     * @param config 192.168.1.127:2181</span></span><br><span class="line"><span class="comment">     * @param lockName 竞争资源标志,lockName中不能包含单词_lock_</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> DistributedLock(<span class="keyword">String</span> config, <span class="keyword">String</span> lockName)&#123;</span><br><span class="line">        <span class="built_in">this</span>.lockName = lockName;</span><br><span class="line">        <span class="comment">// 创建一个与服务器的连接</span></span><br><span class="line">         <span class="keyword">try</span> &#123;</span><br><span class="line">            zk = <span class="keyword">new</span> <span class="type">ZooKeeper</span>(config, sessionTimeout, <span class="built_in">this</span>);</span><br><span class="line">            connectedSignal.await();</span><br><span class="line">            Stat stat = zk.exists(root, <span class="literal">false</span>);<span class="comment">//此去不执行 Watcher</span></span><br><span class="line">            <span class="keyword">if</span>(stat == <span class="literal">null</span>)&#123;</span><br><span class="line">                <span class="comment">// 创建根节点</span></span><br><span class="line">                zk.create(root, <span class="keyword">new</span> <span class="type">byte</span>[<span class="number">0</span>], ZooDefs.Ids.OPEN_ACL_UNSAFE,CreateMode.PERSISTENT); </span><br><span class="line">            &#125;</span><br><span class="line">        &#125; <span class="keyword">catch</span> (IOException e) &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> <span class="type">LockException</span>(e);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (KeeperException e) &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> <span class="type">LockException</span>(e);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> <span class="type">LockException</span>(e);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * zookeeper节点的监视器</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> void process(WatchedEvent event) &#123;</span><br><span class="line">        <span class="comment">//建立连接用</span></span><br><span class="line">        <span class="keyword">if</span>(event.getState()==KeeperState.SyncConnected)&#123;</span><br><span class="line">            connectedSignal.countDown();</span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">//其他线程放弃锁的标志</span></span><br><span class="line">        <span class="keyword">if</span>(<span class="built_in">this</span>.latch != <span class="literal">null</span>) &#123;  </span><br><span class="line">            <span class="built_in">this</span>.latch.countDown();  </span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> void lock() &#123;   </span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="keyword">if</span>(<span class="built_in">this</span>.tryLock())&#123;</span><br><span class="line">                System.out.println(<span class="string">"Thread "</span> + Thread.currentThread().getId() + <span class="string">" "</span> +myZnode + <span class="string">" get lock true"</span>);</span><br><span class="line">                <span class="keyword">return</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">else</span>&#123;</span><br><span class="line">                waitForLock(waitNode, sessionTimeout);<span class="comment">//等待锁</span></span><br><span class="line">            &#125;</span><br><span class="line">        &#125; <span class="keyword">catch</span> (KeeperException e) &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> <span class="type">LockException</span>(e);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> <span class="type">LockException</span>(e);</span><br><span class="line">        &#125; </span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">public</span> boolean tryLock() &#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="keyword">String</span> splitStr = <span class="string">"_lock_"</span>;</span><br><span class="line">            <span class="keyword">if</span>(lockName.contains(splitStr))</span><br><span class="line">                <span class="keyword">throw</span> <span class="keyword">new</span> <span class="type">LockException</span>(<span class="string">"lockName can not contains \\u000B"</span>);</span><br><span class="line">            <span class="comment">//创建临时子节点</span></span><br><span class="line">            myZnode = zk.create(root + <span class="string">"/"</span> + lockName + splitStr, <span class="keyword">new</span> <span class="type">byte</span>[<span class="number">0</span>], ZooDefs.Ids.OPEN_ACL_UNSAFE,CreateMode.EPHEMERAL_SEQUENTIAL);</span><br><span class="line">            System.out.println(myZnode + <span class="string">" is created "</span>);</span><br><span class="line">            <span class="comment">//取出所有子节点</span></span><br><span class="line">            List&lt;<span class="keyword">String</span>&gt; subNodes = zk.getChildren(root, <span class="literal">false</span>);</span><br><span class="line">            <span class="comment">//取出所有lockName的锁</span></span><br><span class="line">            List&lt;<span class="keyword">String</span>&gt; lockObjNodes = <span class="keyword">new</span> <span class="type">ArrayList</span>&lt;<span class="keyword">String</span>&gt;();</span><br><span class="line">            <span class="keyword">for</span> (<span class="keyword">String</span> node : <span class="type">subNodes</span>) &#123;</span><br><span class="line">                <span class="keyword">String</span> _node = node.split(splitStr)[<span class="number">0</span>];</span><br><span class="line">                <span class="keyword">if</span>(_node.equals(lockName))&#123;</span><br><span class="line">                    lockObjNodes.add(node);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">            Collections.sort(lockObjNodes);</span><br><span class="line"></span><br><span class="line">            <span class="keyword">if</span>(myZnode.equals(root+<span class="string">"/"</span>+lockObjNodes.<span class="keyword">get</span>(<span class="number">0</span>)))&#123;</span><br><span class="line">                <span class="comment">//如果是最小的节点,则表示取得锁</span></span><br><span class="line">                System.out.println(myZnode + <span class="string">"=="</span> + lockObjNodes.<span class="keyword">get</span>(<span class="number">0</span>));</span><br><span class="line">                <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="comment">//如果不是最小的节点，找到比自己小1的节点</span></span><br><span class="line">            <span class="keyword">String</span> subMyZnode = myZnode.substring(myZnode.lastIndexOf(<span class="string">"/"</span>) + <span class="number">1</span>);</span><br><span class="line">            waitNode = lockObjNodes.<span class="keyword">get</span>(Collections.binarySearch(lockObjNodes, subMyZnode) - <span class="number">1</span>);<span class="comment">//找到前一个子节点</span></span><br><span class="line">        &#125; <span class="keyword">catch</span> (KeeperException e) &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> <span class="type">LockException</span>(e);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> <span class="type">LockException</span>(e);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">public</span> boolean tryLock(long time, TimeUnit unit) &#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="keyword">if</span>(<span class="built_in">this</span>.tryLock())&#123;</span><br><span class="line">                <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">return</span> waitForLock(waitNode,time);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">private</span> boolean waitForLock(<span class="keyword">String</span> lower, long waitTime) throws InterruptedException, KeeperException &#123;</span><br><span class="line">        Stat stat = zk.exists(root + <span class="string">"/"</span> + lower,<span class="literal">true</span>);<span class="comment">//同时注册监听。</span></span><br><span class="line">        <span class="comment">//判断比自己小一个数的节点是否存在,如果不存在则无需等待锁,同时注册监听</span></span><br><span class="line">        <span class="keyword">if</span>(stat != <span class="literal">null</span>)&#123;</span><br><span class="line">            System.out.println(<span class="string">"Thread "</span> + Thread.currentThread().getId() + <span class="string">" waiting for "</span> + root + <span class="string">"/"</span> + lower);</span><br><span class="line">            <span class="built_in">this</span>.latch = <span class="keyword">new</span> <span class="type">CountDownLatch</span>(<span class="number">1</span>);</span><br><span class="line">            <span class="built_in">this</span>.latch.await(waitTime, TimeUnit.MILLISECONDS);<span class="comment">//等待，这里应该一直等待其他线程释放锁</span></span><br><span class="line">            <span class="built_in">this</span>.latch = <span class="literal">null</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">public</span> void unlock() &#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            System.out.println(<span class="string">"unlock "</span> + myZnode);</span><br><span class="line">            zk.delete(myZnode,<span class="number">-1</span>);</span><br><span class="line">            myZnode = <span class="literal">null</span>;</span><br><span class="line">            zk.close();</span><br><span class="line">        &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125; <span class="keyword">catch</span> (KeeperException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">public</span> void lockInterruptibly() throws InterruptedException &#123;</span><br><span class="line">        <span class="built_in">this</span>.lock();</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">public</span> Condition <span class="keyword">new</span><span class="type">Condition</span>() &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">LockException</span> <span class="keyword"><span class="keyword">extends</span> <span class="type">RuntimeException</span></span> </span>&#123;</span><br><span class="line">        <span class="keyword">private</span> <span class="keyword">static</span> final long serialVersionUID = <span class="number">1</span>L;</span><br><span class="line">        <span class="keyword">public</span> LockException(<span class="keyword">String</span> e)&#123;</span><br><span class="line">            <span class="keyword">super</span>(e);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">public</span> LockException(Exception e)&#123;</span><br><span class="line">            <span class="keyword">super</span>(e);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>4.测试：<br>1.下载我的工程代码：点击下载<br>2.或者直接使用该类：</p>
+<p> DistributedLock lock   = new DistributedLock(“192.168.1.127:2181”,”lock”);<br> lock.lock();<br> //共享资源<br> if(lock != null)<br>  lock.unlock();<br>1<br>2<br>3<br>4<br>5<br>3.执行步骤：<br>1.启动zk:zkServer.sh start<br>2.启动测试代码<br>3.执行结果：<br>05<br>06</p>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">分布式锁</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+      
+
+      <div style="font-size: 12px;">
+        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
+      </div>
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2018/05/06/使用zookeeper实现分布式锁(二)/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
     <article id="post-使用zookeeper实现分布式锁(一)" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
@@ -393,92 +557,6 @@
       
         <p class="article-more-link">
           <a class="article-more-a" href="/2018/05/06/使用zookeeper实现分布式锁(一)/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
-    <article id="post-使用zookeeper实现分布式锁(二)" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2018/05/06/使用zookeeper实现分布式锁(二)/">使用zookeeper实现分布式锁二</a>
-    </h1>
-  
-
-        
-        <a href="/2018/05/06/使用zookeeper实现分布式锁(二)/" class="archive-article-date">
-  	<time datetime="2018-05-06T15:13:09.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-05-06</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <blockquote>
-<p>推荐一个工具<br>基于redis和zookeeper分布式工具集-包括:分布式锁实现,分布式速率限制器,分布式ID生成器等.<br><a href="https://github.com/yujiasun/Distributed-Kit/blob/master/README.md" target="_blank" rel="external">https://github.com/yujiasun/Distributed-Kit/blob/master/README.md</a></p>
-</blockquote>
-<h1 id="1-分布式锁的由来"><a href="#1-分布式锁的由来" class="headerlink" title="1.分布式锁的由来"></a>1.分布式锁的由来</h1><p>在程序开发过程中不得不考虑的就是并发问题。在java中对于同一个jvm而言，jdk已经提供了lock和同步等。但是在分布式情况下，往往存在多个进程对一些资源产生竞争关系，而这些进程往往在不同的机器上，这个时候jdk中提供的已经不能满足。分布式锁顾明思议就是可以满足分布式情况下的并发锁。 下面我们讲解怎么利用zk实现分布式锁。</p>
-<h1 id="2-实现思路："><a href="#2-实现思路：" class="headerlink" title="2.实现思路："></a>2.实现思路：</h1><h2 id="2-1-zk简单介绍："><a href="#2-1-zk简单介绍：" class="headerlink" title="2.1 zk简单介绍："></a>2.1 zk简单介绍：</h2><p>ZooKeeper是Apache软件基金会的一个软件项目，他为大型分布式计算提供开源的分布式配置服务、同步服务和命名注册。在 ZooKeeper 中，节点类型可以分为持久节点（PERSISTENT ）、临时节点（EPHEMERAL），以及时序节点（SEQUENTIAL ），具体在节点创建过程中，一般是组合使用，可以生成 4 种节点类型：持久节点（PERSISTENT），持久顺序节点（PERSISTENT_SEQUENTIAL），临时节点（EPHEMERAL），临时顺序节点（EPHEMERAL_SEQUENTIAL）；具体节点含义，谷歌之。</p>
-<h2 id="2-2-利用zk实现："><a href="#2-2-利用zk实现：" class="headerlink" title="2.2 利用zk实现："></a>2.2 利用zk实现：</h2><p>当很多进程需要访问共享资源时，我们可以通过zk来实现分布式锁。主要步骤是：<br>1.建立一个节点，假如名为：lock 。节点类型为持久节点（PERSISTENT）<br>2.每当进程需要访问共享资源时，会调用分布式锁的lock()或tryLock()方法获得锁，这个时候会在第一步创建的lock节点下建立相应的顺序子节点，节点类型为临时顺序节点（EPHEMERAL_SEQUENTIAL），通过组成特定的名字name+lock+顺序号。<br>3.在建立子节点后，对lock下面的所有以name开头的子节点进行排序，判断刚刚建立的子节点顺序号是否是最小的节点，假如是最小节点，则获得该锁对资源进行访问。<br>4.假如不是该节点，就获得该节点的上一顺序节点，并给该节点是否存在注册监听事件。同时在这里阻塞。等待监听事件的发生，获得锁控制权。<br>5.当调用完共享资源后，调用unlock（）方法，关闭zk，进而可以引发监听事件，释放该锁。<br>实现的分布式锁是严格的按照顺序访问的并发锁。</p>
-<h1 id="3-代码实现："><a href="#3-代码实现：" class="headerlink" title="3.代码实现："></a>3.代码实现：</h1><p>下面将讲解使用java实现分布式锁：<br>1.建立类DistributedLock，实现java.util.concurrent.locks.Lock;和org.apache.zookeeper.Watcher接口<br>2.实现lock下面的方法：主要包括lock，tryLock，unlock等<br>3.实现watcher接口下的process方法。<br>4.在构造器中对zk进行初始化。<br>5.详细见代码注释</p>
-<figure class="highlight haxe"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> cn.wpeace.zktest;</span><br><span class="line"><span class="keyword">import</span> java.io.IOException;</span><br><span class="line"><span class="keyword">import</span> java.util.ArrayList;</span><br><span class="line"><span class="keyword">import</span> java.util.Collections;</span><br><span class="line"><span class="keyword">import</span> java.util.List;</span><br><span class="line"><span class="keyword">import</span> java.util.concurrent.CountDownLatch;</span><br><span class="line"><span class="keyword">import</span> java.util.concurrent.TimeUnit;</span><br><span class="line"><span class="keyword">import</span> java.util.concurrent.locks.Condition;</span><br><span class="line"><span class="keyword">import</span> java.util.concurrent.locks.Lock;</span><br><span class="line"><span class="keyword">import</span> org.apache.zookeeper.CreateMode;</span><br><span class="line"><span class="keyword">import</span> org.apache.zookeeper.KeeperException;</span><br><span class="line"><span class="keyword">import</span> org.apache.zookeeper.WatchedEvent;</span><br><span class="line"><span class="keyword">import</span> org.apache.zookeeper.Watcher;</span><br><span class="line"><span class="keyword">import</span> org.apache.zookeeper.ZooDefs;</span><br><span class="line"><span class="keyword">import</span> org.apache.zookeeper.ZooKeeper;</span><br><span class="line"><span class="keyword">import</span> org.apache.zookeeper.Watcher.Event.KeeperState;</span><br><span class="line"><span class="keyword">import</span> org.apache.zookeeper.data.Stat;</span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * @author peace</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">DistributedLock</span> <span class="keyword"><span class="keyword">implements</span> <span class="type">Lock</span></span>, <span class="title">Watcher</span></span>&#123;</span><br><span class="line">    <span class="keyword">private</span> ZooKeeper zk;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">String</span> root = <span class="string">"/locks"</span>;<span class="comment">//根</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">String</span> lockName;<span class="comment">//竞争资源的标志</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">String</span> waitNode;<span class="comment">//等待前一个锁</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">String</span> myZnode;<span class="comment">//当前锁</span></span><br><span class="line">    <span class="keyword">private</span> CountDownLatch latch;<span class="comment">//计数器</span></span><br><span class="line">    <span class="keyword">private</span> CountDownLatch connectedSignal=<span class="keyword">new</span> <span class="type">CountDownLatch</span>(<span class="number">1</span>);</span><br><span class="line">    <span class="keyword">private</span> int sessionTimeout = <span class="number">30000</span>; </span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 创建分布式锁,使用前请确认config配置的zookeeper服务可用</span></span><br><span class="line"><span class="comment">     * @param config 192.168.1.127:2181</span></span><br><span class="line"><span class="comment">     * @param lockName 竞争资源标志,lockName中不能包含单词_lock_</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> DistributedLock(<span class="keyword">String</span> config, <span class="keyword">String</span> lockName)&#123;</span><br><span class="line">        <span class="built_in">this</span>.lockName = lockName;</span><br><span class="line">        <span class="comment">// 创建一个与服务器的连接</span></span><br><span class="line">         <span class="keyword">try</span> &#123;</span><br><span class="line">            zk = <span class="keyword">new</span> <span class="type">ZooKeeper</span>(config, sessionTimeout, <span class="built_in">this</span>);</span><br><span class="line">            connectedSignal.await();</span><br><span class="line">            Stat stat = zk.exists(root, <span class="literal">false</span>);<span class="comment">//此去不执行 Watcher</span></span><br><span class="line">            <span class="keyword">if</span>(stat == <span class="literal">null</span>)&#123;</span><br><span class="line">                <span class="comment">// 创建根节点</span></span><br><span class="line">                zk.create(root, <span class="keyword">new</span> <span class="type">byte</span>[<span class="number">0</span>], ZooDefs.Ids.OPEN_ACL_UNSAFE,CreateMode.PERSISTENT); </span><br><span class="line">            &#125;</span><br><span class="line">        &#125; <span class="keyword">catch</span> (IOException e) &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> <span class="type">LockException</span>(e);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (KeeperException e) &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> <span class="type">LockException</span>(e);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> <span class="type">LockException</span>(e);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * zookeeper节点的监视器</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> void process(WatchedEvent event) &#123;</span><br><span class="line">        <span class="comment">//建立连接用</span></span><br><span class="line">        <span class="keyword">if</span>(event.getState()==KeeperState.SyncConnected)&#123;</span><br><span class="line">            connectedSignal.countDown();</span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">//其他线程放弃锁的标志</span></span><br><span class="line">        <span class="keyword">if</span>(<span class="built_in">this</span>.latch != <span class="literal">null</span>) &#123;  </span><br><span class="line">            <span class="built_in">this</span>.latch.countDown();  </span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> void lock() &#123;   </span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="keyword">if</span>(<span class="built_in">this</span>.tryLock())&#123;</span><br><span class="line">                System.out.println(<span class="string">"Thread "</span> + Thread.currentThread().getId() + <span class="string">" "</span> +myZnode + <span class="string">" get lock true"</span>);</span><br><span class="line">                <span class="keyword">return</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">else</span>&#123;</span><br><span class="line">                waitForLock(waitNode, sessionTimeout);<span class="comment">//等待锁</span></span><br><span class="line">            &#125;</span><br><span class="line">        &#125; <span class="keyword">catch</span> (KeeperException e) &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> <span class="type">LockException</span>(e);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> <span class="type">LockException</span>(e);</span><br><span class="line">        &#125; </span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">public</span> boolean tryLock() &#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="keyword">String</span> splitStr = <span class="string">"_lock_"</span>;</span><br><span class="line">            <span class="keyword">if</span>(lockName.contains(splitStr))</span><br><span class="line">                <span class="keyword">throw</span> <span class="keyword">new</span> <span class="type">LockException</span>(<span class="string">"lockName can not contains \\u000B"</span>);</span><br><span class="line">            <span class="comment">//创建临时子节点</span></span><br><span class="line">            myZnode = zk.create(root + <span class="string">"/"</span> + lockName + splitStr, <span class="keyword">new</span> <span class="type">byte</span>[<span class="number">0</span>], ZooDefs.Ids.OPEN_ACL_UNSAFE,CreateMode.EPHEMERAL_SEQUENTIAL);</span><br><span class="line">            System.out.println(myZnode + <span class="string">" is created "</span>);</span><br><span class="line">            <span class="comment">//取出所有子节点</span></span><br><span class="line">            List&lt;<span class="keyword">String</span>&gt; subNodes = zk.getChildren(root, <span class="literal">false</span>);</span><br><span class="line">            <span class="comment">//取出所有lockName的锁</span></span><br><span class="line">            List&lt;<span class="keyword">String</span>&gt; lockObjNodes = <span class="keyword">new</span> <span class="type">ArrayList</span>&lt;<span class="keyword">String</span>&gt;();</span><br><span class="line">            <span class="keyword">for</span> (<span class="keyword">String</span> node : <span class="type">subNodes</span>) &#123;</span><br><span class="line">                <span class="keyword">String</span> _node = node.split(splitStr)[<span class="number">0</span>];</span><br><span class="line">                <span class="keyword">if</span>(_node.equals(lockName))&#123;</span><br><span class="line">                    lockObjNodes.add(node);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">            Collections.sort(lockObjNodes);</span><br><span class="line"></span><br><span class="line">            <span class="keyword">if</span>(myZnode.equals(root+<span class="string">"/"</span>+lockObjNodes.<span class="keyword">get</span>(<span class="number">0</span>)))&#123;</span><br><span class="line">                <span class="comment">//如果是最小的节点,则表示取得锁</span></span><br><span class="line">                System.out.println(myZnode + <span class="string">"=="</span> + lockObjNodes.<span class="keyword">get</span>(<span class="number">0</span>));</span><br><span class="line">                <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="comment">//如果不是最小的节点，找到比自己小1的节点</span></span><br><span class="line">            <span class="keyword">String</span> subMyZnode = myZnode.substring(myZnode.lastIndexOf(<span class="string">"/"</span>) + <span class="number">1</span>);</span><br><span class="line">            waitNode = lockObjNodes.<span class="keyword">get</span>(Collections.binarySearch(lockObjNodes, subMyZnode) - <span class="number">1</span>);<span class="comment">//找到前一个子节点</span></span><br><span class="line">        &#125; <span class="keyword">catch</span> (KeeperException e) &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> <span class="type">LockException</span>(e);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> <span class="type">LockException</span>(e);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">public</span> boolean tryLock(long time, TimeUnit unit) &#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="keyword">if</span>(<span class="built_in">this</span>.tryLock())&#123;</span><br><span class="line">                <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">return</span> waitForLock(waitNode,time);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">private</span> boolean waitForLock(<span class="keyword">String</span> lower, long waitTime) throws InterruptedException, KeeperException &#123;</span><br><span class="line">        Stat stat = zk.exists(root + <span class="string">"/"</span> + lower,<span class="literal">true</span>);<span class="comment">//同时注册监听。</span></span><br><span class="line">        <span class="comment">//判断比自己小一个数的节点是否存在,如果不存在则无需等待锁,同时注册监听</span></span><br><span class="line">        <span class="keyword">if</span>(stat != <span class="literal">null</span>)&#123;</span><br><span class="line">            System.out.println(<span class="string">"Thread "</span> + Thread.currentThread().getId() + <span class="string">" waiting for "</span> + root + <span class="string">"/"</span> + lower);</span><br><span class="line">            <span class="built_in">this</span>.latch = <span class="keyword">new</span> <span class="type">CountDownLatch</span>(<span class="number">1</span>);</span><br><span class="line">            <span class="built_in">this</span>.latch.await(waitTime, TimeUnit.MILLISECONDS);<span class="comment">//等待，这里应该一直等待其他线程释放锁</span></span><br><span class="line">            <span class="built_in">this</span>.latch = <span class="literal">null</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">public</span> void unlock() &#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            System.out.println(<span class="string">"unlock "</span> + myZnode);</span><br><span class="line">            zk.delete(myZnode,<span class="number">-1</span>);</span><br><span class="line">            myZnode = <span class="literal">null</span>;</span><br><span class="line">            zk.close();</span><br><span class="line">        &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125; <span class="keyword">catch</span> (KeeperException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">public</span> void lockInterruptibly() throws InterruptedException &#123;</span><br><span class="line">        <span class="built_in">this</span>.lock();</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">public</span> Condition <span class="keyword">new</span><span class="type">Condition</span>() &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">LockException</span> <span class="keyword"><span class="keyword">extends</span> <span class="type">RuntimeException</span></span> </span>&#123;</span><br><span class="line">        <span class="keyword">private</span> <span class="keyword">static</span> final long serialVersionUID = <span class="number">1</span>L;</span><br><span class="line">        <span class="keyword">public</span> LockException(<span class="keyword">String</span> e)&#123;</span><br><span class="line">            <span class="keyword">super</span>(e);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">public</span> LockException(Exception e)&#123;</span><br><span class="line">            <span class="keyword">super</span>(e);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>4.测试：<br>1.下载我的工程代码：点击下载<br>2.或者直接使用该类：</p>
-<p> DistributedLock lock   = new DistributedLock(“192.168.1.127:2181”,”lock”);<br> lock.lock();<br> //共享资源<br> if(lock != null)<br>  lock.unlock();<br>1<br>2<br>3<br>4<br>5<br>3.执行步骤：<br>1.启动zk:zkServer.sh start<br>2.启动测试代码<br>3.执行结果：<br>05<br>06</p>
-
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">分布式锁</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-      
-
-      <div style="font-size: 12px;">
-        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
-      </div>
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2018/05/06/使用zookeeper实现分布式锁(二)/">展开全文 >></a>
         </p>
       
 
@@ -1109,199 +1187,9 @@
 
 
   
-    <article id="post-Grafana-mysql体验" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2018/04/09/Grafana-mysql体验/">Grafana mysql体验</a>
-    </h1>
-  
-
-        
-        <a href="/2018/04/09/Grafana-mysql体验/" class="archive-article-date">
-  	<time datetime="2018-04-09T10:29:11.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-04-09</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h1 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h1><p>在时序分析及监控展现领域，Grafana无疑是开源解决方案中的翘楚，其灵活的插件机制，支持各种漂亮的面板、丰富的数据源以及强大的应用。典型的面板有Graph、Text、Singlestat、PieChart、Table、Histogram等，支持的数据源有<code>ES</code>、Graphite、<code>InfluxDB</code>、OpenTSDB、<code>MySQL</code>、Druid 、<code>Prometheus</code>、<code>SimpleJson</code>等，提供的应用有Zabbix、K8s等</p>
-<ul>
-<li>+Elasticsearch<br>印象中Grafana是 InfluxDB 可视化工具，但基于Grafana良好的架构，DataSource可以变得多样性了，现在是支持ElasticSearch作为DataSource的。 Grafana的安装也非常简单，解压启动就可以了。DataSource都是动态添加上去的。Grafana作为一个纯粹的可视化工具，灵活性做到了极致。使用ElasticSearch作为DataSource，指定对应的Index，就可以建立DashBoard就行数据可视化了。相比Kibana，Grafana的template功能能把数据按照任意的维度进行切分展示，这就是它的强大之处。</li>
-</ul>
-<hr>
-<h1 id="部署"><a href="#部署" class="headerlink" title="部署"></a>部署</h1><p>Github地址：<a href="https://github.com/Grafana/Grafana" target="_blank" rel="external">https://github.com/Grafana/Grafana</a></p>
-<ul>
-<li><p>下载<br><a href="https://grafana.com/grafana/download" target="_blank" rel="external">https://grafana.com/grafana/download</a></p>
-</li>
-<li><p>mac安装</p>
-<p>| 12   | brew updatebrew install grafana |<br>| —- | ——————————- |<br>|      |                                 |</p>
-</li>
-</ul>
-<p><a href="http://docs.grafana.org/installation/mac/" target="_blank" rel="external">http://docs.grafana.org/installation/mac/</a><br><a href="http://docs.grafana.org/installation/configuration/" target="_blank" rel="external">http://docs.grafana.org/installation/configuration/</a></p>
-<ul>
-<li><p>启动Grafana</p>
-<p>| 12345678910111213 | 要启动Grafana使用自制服务首先确保安装了自制软件/服务。brew tap homebrew/services然后开始Grafana使用：brew services start grafana- 配置配置文件应该位于/usr/local/etc/grafana/grafana.ini。- 日志日志文件应该位于/usr/local/var/log/grafana/grafana.log。- 插件如果你想手动安装一个插件放在这里：/usr/local/var/lib/grafana/plugins。- 数据库默认的sqlite数据库位于 /usr/local/var/lib/grafana |<br>| —————– | ———————————————————— |<br>|                   |                                                              |</p>
-</li>
-<li><p>汉化(非必要)</p>
-<p>| 12   | git clone <a href="https://github.com/moonstack/grafana-for-chinese.git备份原有的" target="_blank" rel="external">https://github.com/moonstack/grafana-for-chinese.git备份原有的</a> /public/app/boot.js /public/app/features/org/prefs_control.js 再将master中的两个文件覆盖到对应的目录 刷新浏览器即可 |<br>| —- | ———————————————————— |<br>|      |                                                              |</p>
-</li>
-</ul>
-<p><a href="https://github.com/moonstack/grafana-for-chinese" target="_blank" rel="external">https://github.com/moonstack/grafana-for-chinese</a><br><a href="https://github.com/heruihong/gf-frontend" target="_blank" rel="external">https://github.com/heruihong/gf-frontend</a></p>
-<ul>
-<li>访问<br><a href="http://0.0.0.0:3000/" target="_blank" rel="external">http://0.0.0.0:3000/</a> ，默认账号/密码：admin/admin</li>
-<li>添加数据源<br><a href="http://docs.grafana.org/features/datasources/elasticsearch/" target="_blank" rel="external">http://docs.grafana.org/features/datasources/elasticsearch/</a><br><a href="http://docs.grafana.org/features/datasources/mysql/" target="_blank" rel="external">http://docs.grafana.org/features/datasources/mysql/</a></li>
-<li>导入dashboard/查看dashboard<br><a href="https://grafana.com/dashboards?dataSource=mysql" target="_blank" rel="external">https://grafana.com/dashboards?dataSource=mysql</a><br><a href="https://grafana.com/dashboards?dataSource=elasticsearch" target="_blank" rel="external">https://grafana.com/dashboards?dataSource=elasticsearch</a></li>
-</ul>
-<hr>
-<h1 id="制图-mysql"><a href="#制图-mysql" class="headerlink" title="制图(mysql)"></a>制图(mysql)</h1><p><code>Grafana + mysql数据源 - laomei - CSDN博客</code><br><a href="http://blog.csdn.net/sweatott/article/details/78278011" target="_blank" rel="external">http://blog.csdn.net/sweatott/article/details/78278011</a></p>
-<h2 id="图表数据展示规则-edit-Metrics"><a href="#图表数据展示规则-edit-Metrics" class="headerlink" title="图表数据展示规则 - edit - Metrics"></a>图表数据展示规则 - <code>edit - Metrics</code></h2><table>
-<thead>
-<tr>
-<th>123456789</th>
-<th>SELECTDATE_FORMAT(gmt_create,’%Y-%m-%d’),UNIX_TIMESTAMP(DATE_FORMAT(gmt_create,’%Y-%m-%d’)) as time_sec, – x轴:时间count(treaty_no) as value, – y轴:数值partner_code as metric – y轴分组:数据分组FROM treatyWHERE 1=1group by DATE_FORMAT(gmt_create,’%Y-%m-%d’)ORDER BY id ASC</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td></td>
-</tr>
-</tbody>
-</table>
-<p>更多文档见:<a href="http://docs.grafana.org/features/datasources/mysql/" target="_blank" rel="external">http://docs.grafana.org/features/datasources/mysql/</a><br><img src="http://7xnbs3.com1.z0.glb.clouddn.com/18-2-8/29820002.jpg" alt="img"></p>
-<h2 id="各报表面板设置"><a href="#各报表面板设置" class="headerlink" title="各报表面板设置"></a>各报表面板设置</h2><p><a href="http://docs.grafana.org/features/panels/graph/" target="_blank" rel="external">http://docs.grafana.org/features/panels/graph/</a> <code>图表</code><br><a href="http://docs.grafana.org/features/panels/singlestat/" target="_blank" rel="external">http://docs.grafana.org/features/panels/singlestat/</a> <code>仪图</code></p>
-<h2 id="templating-模板"><a href="#templating-模板" class="headerlink" title="templating 模板"></a>templating 模板</h2><p><a href="http://docs.grafana.org/reference/templating/" target="_blank" rel="external">http://docs.grafana.org/reference/templating/</a><br><a href="http://docs.grafana.org/features/datasources/mysql/#query-variable" target="_blank" rel="external">http://docs.grafana.org/features/datasources/mysql/#query-variable</a> <code>mysql的查询表达式</code><br><img src="http://7xnbs3.com1.z0.glb.clouddn.com/18-2-8/86842944.jpg" alt="img"></p>
-<p><img src="http://7xnbs3.com1.z0.glb.clouddn.com/18-3-19/55292517.jpg" alt="img"><br><img src="http://7xnbs3.com1.z0.glb.clouddn.com/18-3-19/45274927.jpg" alt="img"></p>
-<ul>
-<li><p>在查询中使用变量<br><a href="http://docs.grafana.org/features/datasources/mysql/#using-variables-in-queries" target="_blank" rel="external">http://docs.grafana.org/features/datasources/mysql/#using-variables-in-queries</a></p>
-<p>| 123456789 | SELECTDATE_FORMAT(gmt_create,’%Y-%m-%d’),UNIX_TIMESTAMP(DATE_FORMAT(gmt_create,’%Y-%m-%d’)) as time_sec, – x轴:时间count(treaty_no) as value, – y轴:数值partner_code as metric – y轴分组:数据分组FROM treatyWHERE 1=1 and partner_code in ($partner)group by DATE_FORMAT(gmt_create,’%Y-%m-%d’)ORDER BY id ASC |<br>| ——— | ———————————————————— |<br>|           |                                                              |</p>
-</li>
-<li><p>效果<br><img src="http://7xnbs3.com1.z0.glb.clouddn.com/18-2-8/52927063.jpg" alt="img"></p>
-</li>
-</ul>
-<hr>
-<h1 id="报警"><a href="#报警" class="headerlink" title="报警"></a>报警</h1><p><a href="http://docs.grafana.org/alerting/notifications/" target="_blank" rel="external">http://docs.grafana.org/alerting/notifications/</a><br><img src="http://7xnbs3.com1.z0.glb.clouddn.com/18-2-8/8688942.jpg" alt="img"></p>
-<ul>
-<li>Grafana添加<code>Webhook channel</code><br><a href="https://www.tuicool.com/articles/VZf6JjF" target="_blank" rel="external">https://www.tuicool.com/articles/VZf6JjF</a></li>
-<li>[图表-alert]设置数据触警规则</li>
-<li>[图表-alert]Notifications 定义发送渠道</li>
-</ul>
-<hr>
-<h1 id="问题"><a href="#问题" class="headerlink" title="问题"></a>问题</h1><h2 id="安装grafana-Homebrew出现”go-version-missing-for-“gotools”-resource-”的解决方案"><a href="#安装grafana-Homebrew出现”go-version-missing-for-“gotools”-resource-”的解决方案" class="headerlink" title="安装grafana,Homebrew出现”go: version missing for “gotools” resource!”的解决方案"></a>安装grafana,Homebrew出现”go: version missing for “gotools” resource!”的解决方案</h2><table>
-<thead>
-<tr>
-<th>12</th>
-<th>➜ Desktop brew install grafanaError: go: version missing for “gotools” resource!</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td></td>
-</tr>
-</tbody>
-</table>
-<p>尝试解决:</p>
-<table>
-<thead>
-<tr>
-<th>12</th>
-<th>git -C “$(brew –repo)” fetch –tagsbrew update –force</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td></td>
-</tr>
-</tbody>
-</table>
-<p>或 <code>git -C &quot;$(brew --repo)&quot; fetch --tags brew update --force</code><br><a href="http://blog.csdn.net/lanadeus/article/details/78271240" target="_blank" rel="external">http://blog.csdn.net/lanadeus/article/details/78271240</a><br><a href="https://github.com/Homebrew/homebrew-core/issues/19221" target="_blank" rel="external">https://github.com/Homebrew/homebrew-core/issues/19221</a><br><a href="https://blog.labbit.jp/%E8%AC%8E%E3%82%A8%E3%83%A9%E3%83%BCgotools%E3%81%AE%E8%A7%A3%E6%B6%88%E6%B3%95/" target="_blank" rel="external">https://blog.labbit.jp/%E8%AC%8E%E3%82%A8%E3%83%A9%E3%83%BCgotools%E3%81%AE%E8%A7%A3%E6%B6%88%E6%B3%95/</a></p>
-<p>实际解决: 重装brew</p>
-<table>
-<thead>
-<tr>
-<th>1</th>
-<th>/usr/bin/ruby -e “$(curl -fsSL <a href="https://raw.githubusercontent.com/Homebrew/install/master/install" target="_blank" rel="external">https://raw.githubusercontent.com/Homebrew/install/master/install</a>)”</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td></td>
-</tr>
-</tbody>
-</table>
-<h2 id="新建template-query-错误"><a href="#新建template-query-错误" class="headerlink" title="新建template query 错误"></a>新建template query 错误</h2><table>
-<thead>
-<tr>
-<th>12</th>
-<th>TemplatingTemplate variables could not be initialized: sql: Scan error on column index 0: unsupported Scan, storing driver.Value type <nil> into type *string</nil></th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td></td>
-</tr>
-</tbody>
-</table>
-<p>原因: 存在null值<br>解决: <code>where column is not null</code></p>
-<hr>
-<p>参考<br><code>基于Grafana+SimpleJson的灵活报表解决方案</code><br><a href="https://www.tuicool.com/articles/EBjUfmi" target="_blank" rel="external">https://www.tuicool.com/articles/EBjUfmi</a></p>
-<p><code>监控数据的可视化分析神器 Grafana - 推酷</code><br><a href="https://www.tuicool.com/articles/VZf6JjF" target="_blank" rel="external">https://www.tuicool.com/articles/VZf6JjF</a></p>
-<p><code>Kibana and Grafana - 推酷</code><br><a href="https://www.tuicool.com/articles/rURRF3U" target="_blank" rel="external">https://www.tuicool.com/articles/rURRF3U</a></p>
-<p><code>使用Prometheus+Grafana搭建监控系统实践 - 推酷</code><br><a href="https://www.tuicool.com/articles/QZRjAv3" target="_blank" rel="external">https://www.tuicool.com/articles/QZRjAv3</a></p>
-<p><code>监控数据的可视化分析神器 Grafana - 推酷</code> - <code>OneAlert 云告警</code><br><a href="https://www.tuicool.com/articles/VZf6JjF" target="_blank" rel="external">https://www.tuicool.com/articles/VZf6JjF</a></p>
-<p><code>grafana + influxdb + telegraf , 构建linux性能监控平台 - 推酷</code><br><a href="https://www.tuicool.com/articles/nyM3qyq" target="_blank" rel="external">https://www.tuicool.com/articles/nyM3qyq</a></p>
-
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-      
-
-      <div style="font-size: 12px;">
-        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
-      </div>
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2018/04/09/Grafana-mysql体验/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
   
     <nav id="page-nav">
-      <a class="extend prev" rel="prev" href="/page/5/">&laquo; Prev</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/4/">4</a><a class="page-number" href="/page/5/">5</a><span class="page-number current">6</span><a class="page-number" href="/page/7/">7</a><a class="page-number" href="/page/8/">8</a><span class="space">&hellip;</span><a class="page-number" href="/page/13/">13</a><a class="extend next" rel="next" href="/page/7/">Next &raquo;</a>
+      <a class="extend prev" rel="prev" href="/page/5/">&laquo; Prev</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/4/">4</a><a class="page-number" href="/page/5/">5</a><span class="page-number current">6</span><a class="page-number" href="/page/7/">7</a><a class="page-number" href="/page/8/">8</a><span class="space">&hellip;</span><a class="page-number" href="/page/14/">14</a><a class="extend next" rel="next" href="/page/7/">Next &raquo;</a>
     </nav>
   
 
@@ -1432,15 +1320,15 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">redis</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">linux</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">快捷键</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">redis</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1484,7 +1372,7 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">rest</a>
+                <a href="javascript:void(0)" class="js-tag color4">influxdb</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1492,7 +1380,7 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">influxdb</a>
+                <a href="javascript:void(0)" class="js-tag color5">rest</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1524,19 +1412,19 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">后端</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">前端指南</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">善用佳软</a>
+                <a href="javascript:void(0)" class="js-tag color3">后端</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">jvm</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">善用佳软</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1552,11 +1440,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">单例</a>
+                <a href="javascript:void(0)" class="js-tag color3">HashMap</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">HashMap</a>
+                <a href="javascript:void(0)" class="js-tag color3">单例</a>
               </li>
              
               <li class="article-tag-list-item">
