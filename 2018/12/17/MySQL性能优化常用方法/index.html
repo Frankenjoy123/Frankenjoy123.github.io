@@ -10,16 +10,17 @@
   <link rel="dns-prefetch" href="http://yoursite.com">
   <title>MySQL性能优化常用方法 | xiaowu&#39;s blog</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="问题定位1234show process_list;--  查看执行计划show sql -&amp;gt; explain; 查看锁状态1234-- 表级锁的争用状态变量show status like &apos;table%&apos;;-- 行级锁争用状态变量show status like &apos;innodb_row_lock%&apos;; 锁表 read锁，即共享锁  1234lock table user use read">
+  <meta name="description" content="问题定位1234show process_list;--  查看执行计划show sql -&amp;gt; explain; 查看锁状态1234-- 表级锁的争用状态变量show status like &apos;table%&apos;;-- 行级锁争用状态变量show status like &apos;innodb_row_lock%&apos;;">
+<meta name="keywords" content="MySQL">
 <meta property="og:type" content="article">
 <meta property="og:title" content="MySQL性能优化常用方法">
 <meta property="og:url" content="http://yoursite.com/2018/12/17/MySQL性能优化常用方法/index.html">
 <meta property="og:site_name" content="xiaowu&#39;s blog">
-<meta property="og:description" content="问题定位1234show process_list;--  查看执行计划show sql -&amp;gt; explain; 查看锁状态1234-- 表级锁的争用状态变量show status like &apos;table%&apos;;-- 行级锁争用状态变量show status like &apos;innodb_row_lock%&apos;; 锁表 read锁，即共享锁  1234lock table user use read">
-<meta property="og:updated_time" content="2018-12-24T14:24:20.000Z">
+<meta property="og:description" content="问题定位1234show process_list;--  查看执行计划show sql -&amp;gt; explain; 查看锁状态1234-- 表级锁的争用状态变量show status like &apos;table%&apos;;-- 行级锁争用状态变量show status like &apos;innodb_row_lock%&apos;;">
+<meta property="og:updated_time" content="2019-01-03T02:21:13.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="MySQL性能优化常用方法">
-<meta name="twitter:description" content="问题定位1234show process_list;--  查看执行计划show sql -&amp;gt; explain; 查看锁状态1234-- 表级锁的争用状态变量show status like &apos;table%&apos;;-- 行级锁争用状态变量show status like &apos;innodb_row_lock%&apos;; 锁表 read锁，即共享锁  1234lock table user use read">
+<meta name="twitter:description" content="问题定位1234show process_list;--  查看执行计划show sql -&amp;gt; explain; 查看锁状态1234-- 表级锁的争用状态变量show status like &apos;table%&apos;;-- 行级锁争用状态变量show status like &apos;innodb_row_lock%&apos;;">
   
     <link rel="alternative" href="/atom.xml" title="xiaowu&#39;s blog" type="application/atom+xml">
   
@@ -175,6 +176,7 @@
       
         <h3 id="问题定位"><a href="#问题定位" class="headerlink" title="问题定位"></a>问题定位</h3><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">show</span> process_list;</span><br><span class="line"></span><br><span class="line"><span class="comment">--  查看执行计划</span></span><br><span class="line"><span class="keyword">show</span> <span class="keyword">sql</span> -&gt; <span class="keyword">explain</span>;</span><br></pre></td></tr></table></figure>
 <h3 id="查看锁状态"><a href="#查看锁状态" class="headerlink" title="查看锁状态"></a>查看锁状态</h3><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 表级锁的争用状态变量</span></span><br><span class="line"><span class="keyword">show</span> <span class="keyword">status</span> <span class="keyword">like</span> <span class="string">'table%'</span>;</span><br><span class="line"><span class="comment">-- 行级锁争用状态变量</span></span><br><span class="line"><span class="keyword">show</span> <span class="keyword">status</span> <span class="keyword">like</span> <span class="string">'innodb_row_lock%'</span>;</span><br></pre></td></tr></table></figure>
+<a id="more"></a>
 <h3 id="锁表"><a href="#锁表" class="headerlink" title="锁表"></a>锁表</h3><ul>
 <li><h4 id="read锁，即共享锁"><a href="#read锁，即共享锁" class="headerlink" title="read锁，即共享锁"></a>read锁，即共享锁</h4></li>
 </ul>
@@ -184,14 +186,13 @@
 </ul>
 <figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">lock table<span class="built_in"> user </span>use write;</span><br><span class="line"></span><br><span class="line">-- 解锁</span><br><span class="line">unlock tables;</span><br></pre></td></tr></table></figure>
 <h3 id="Innodb"><a href="#Innodb" class="headerlink" title="Innodb"></a>Innodb</h3><ul>
-<li><p>支持表锁和行锁</p>
-</li>
-<li></li>
+<li>支持表锁和行锁</li>
 </ul>
+<p>*</p>
 <h3 id="Myisam"><a href="#Myisam" class="headerlink" title="Myisam"></a>Myisam</h3><ul>
 <li>只支持表锁</li>
 </ul>
-<h3 id="行锁"><a href="#行锁" class="headerlink" title="行锁"></a>行锁</h3><p>缺点: </p>
+<h3 id="行锁"><a href="#行锁" class="headerlink" title="行锁"></a>行锁</h3><p>缺点:</p>
 <ul>
 <li>行级锁容易造成死锁</li>
 </ul>
@@ -235,6 +236,17 @@
     <div class="article-info article-info-index">
       
       
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">MySQL</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
       
 
       <div style="font-size: 12px;">
@@ -459,11 +471,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">JVM</a>
+                <a href="javascript:void(0)" class="js-tag color5">java</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">java</a>
+                <a href="javascript:void(0)" class="js-tag color4">JVM</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -479,15 +491,7 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">redis</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">快捷键</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">test</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -495,7 +499,15 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">Python</a>
+                <a href="javascript:void(0)" class="js-tag color1">MySQL</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">test</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">redis</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -508,6 +520,10 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">spring</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">Python</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -539,11 +555,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">Mac</a>
+                <a href="javascript:void(0)" class="js-tag color2">python</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">python</a>
+                <a href="javascript:void(0)" class="js-tag color4">Mac</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -583,6 +599,10 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">序列化</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">排序算法</a>
               </li>
              
@@ -595,11 +615,15 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">HashMap</a>
+                <a href="javascript:void(0)" class="js-tag color5">前端跨域</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">单例</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">HashMap</a>
               </li>
              
               <li class="article-tag-list-item">
