@@ -151,6 +151,117 @@
           <div id="js-content" class="content-ll">
             
   
+    <article id="post-MySQL事务隔离级别测试" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2018/08/10/MySQL事务隔离级别测试/">MySQL事务隔离级别测试</a>
+    </h1>
+  
+
+        
+        <a href="/2018/08/10/MySQL事务隔离级别测试/" class="archive-article-date">
+  	<time datetime="2018-08-10T01:26:46.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-08-10</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="一、事务的基本要素（ACID）"><a href="#一、事务的基本要素（ACID）" class="headerlink" title="一、事务的基本要素（ACID）"></a>一、事务的基本要素（ACID）</h2><p>　1、原子性（Atomicity）：事务开始后所有操作，要么全部做完，要么全部不做，不可能停滞在中间环节。事务执行过程中出错，会回滚到事务开始前的状态，所有的操作就像没有发生一样。也就是说事务是一个不可分割的整体，就像化学中学过的原子，是物质构成的基本单位。</p>
+<p>　2、一致性（Consistency）：事务开始前和结束后，数据库的完整性约束没有被破坏 。比如A向B转账，不可能A扣了钱，B却没收到。</p>
+<p>　3、隔离性（Isolation）：同一时间，只允许一个事务请求同一数据，不同的事务之间彼此没有任何干扰。比如A正在从一张银行卡中取钱，在A取钱的过程结束前，B不能向这张卡转账。</p>
+<p>4、持久性（Durability）：事务完成后，事务对数据库的所有更新将被保存到数据库，不能回滚。</p>
+<h2 id="二、事务的并发问题"><a href="#二、事务的并发问题" class="headerlink" title="二、事务的并发问题"></a>二、事务的并发问题</h2><p>1、<strong>脏读</strong>：事务A读取了事务B更新的数据，然后B回滚操作，那么A读取到的数据是脏数据</p>
+<p>2、<strong>不可重复读</strong>：事务 A 多次读取同一数据，事务 B 在事务A多次读取的过程中，对数据作了更新并提交，导致事务A多次读取同一数据时，结果 不一致。</p>
+<p>3、<strong>幻读</strong>：系统管理员A将数据库中所有学生的成绩从具体分数改为ABCDE等级，但是系统管理员B就在这个时候插入了一条具体分数的记录，当系统管理员A改结束后发现还有一条记录没有改过来，就好像发生了幻觉一样，这就叫幻读。</p>
+<p>小结：不可重复读的和幻读很容易混淆，不可重复读侧重于修改，幻读侧重于新增或删除。解决不可重复读的问题只需锁住满足条件的行，解决幻读需要锁表</p>
+<h2 id="三、MySQL事务隔离级别"><a href="#三、MySQL事务隔离级别" class="headerlink" title="三、MySQL事务隔离级别"></a>三、MySQL事务隔离级别</h2><table>
+<thead>
+<tr>
+<th>事务隔离级别</th>
+<th>脏读</th>
+<th>不可重复读</th>
+<th>幻读</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>读未提交（read-uncommitted）</td>
+<td>是</td>
+<td>是</td>
+<td>是</td>
+</tr>
+<tr>
+<td>不可重复读（read-committed）</td>
+<td>否</td>
+<td>是</td>
+<td>是</td>
+</tr>
+<tr>
+<td>可重复读（repeatable-read）</td>
+<td>否</td>
+<td>否</td>
+<td>是</td>
+</tr>
+<tr>
+<td>串行化（serializable）</td>
+<td>否</td>
+<td>否</td>
+<td>否</td>
+</tr>
+</tbody>
+</table>
+<h2 id="clientA"><a href="#clientA" class="headerlink" title="clientA"></a>clientA</h2><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="keyword">set</span> <span class="keyword">session</span> <span class="keyword">transaction</span> <span class="keyword">isolation</span> <span class="keyword">level</span> <span class="keyword">read</span> COMMITTED ;</span><br><span class="line"></span><br><span class="line"><span class="keyword">SELECT</span> @@tx_isolation;</span><br><span class="line"></span><br><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> person_test(</span><br><span class="line">  <span class="keyword">id</span> <span class="built_in">INT</span> <span class="keyword">UNSIGNED</span> AUTO_INCREMENT <span class="keyword">COMMENT</span> <span class="string">'id'</span> PRIMARY <span class="keyword">KEY</span> ,</span><br><span class="line">  age <span class="built_in">INT</span>  <span class="keyword">DEFAULT</span> <span class="number">0</span> <span class="keyword">COMMENT</span> <span class="string">'组织编号（部门编号）'</span>,</span><br><span class="line">  <span class="keyword">name</span> <span class="built_in">VARCHAR</span>(<span class="number">20</span>)  <span class="keyword">DEFAULT</span> <span class="string">''</span> <span class="keyword">COMMENT</span> <span class="string">'组织名称'</span>,</span><br><span class="line">  gmt_create <span class="keyword">timestamp</span> <span class="keyword">NOT</span> <span class="literal">NULL</span> <span class="keyword">DEFAULT</span> <span class="keyword">CURRENT_TIMESTAMP</span> <span class="keyword">COMMENT</span> <span class="string">'创建时间'</span>,</span><br><span class="line">  gmt_modify <span class="keyword">timestamp</span> <span class="keyword">NOT</span> <span class="literal">NULL</span> <span class="keyword">DEFAULT</span> <span class="keyword">CURRENT_TIMESTAMP</span> <span class="keyword">ON</span> <span class="keyword">UPDATE</span> <span class="keyword">CURRENT_TIMESTAMP</span> <span class="keyword">COMMENT</span> <span class="string">'修改时间'</span></span><br><span class="line">)<span class="keyword">ENGINE</span>=<span class="keyword">InnoDB</span> <span class="keyword">DEFAULT</span> <span class="keyword">CHARSET</span>=utf8</span><br><span class="line">  <span class="keyword">COMMENT</span> <span class="string">'person test'</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">BEGIN</span> ;</span><br><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> person_test(age, <span class="keyword">name</span>) <span class="keyword">VALUE</span> (<span class="number">18</span>,<span class="string">'xiaoming'</span>);</span><br><span class="line"><span class="keyword">SELECT</span> * <span class="keyword">FROM</span> person_test;</span><br><span class="line"><span class="keyword">COMMIT</span> ;</span><br><span class="line"></span><br><span class="line"><span class="keyword">BEGIN</span> ;</span><br><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> person_test(age,<span class="keyword">name</span>) <span class="keyword">VALUE</span> (<span class="number">18</span>,<span class="string">'jim'</span>);</span><br><span class="line"><span class="keyword">SELECT</span> * <span class="keyword">FROM</span> person_test;</span><br><span class="line"><span class="keyword">ROLLBACK</span> ;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">SELECT</span> * <span class="keyword">FROM</span> person_test <span class="keyword">WHERE</span> <span class="keyword">id</span>=<span class="number">10</span>;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">-- 隔离级别（read COMMITTED） set session transaction isolation level read COMMITTED ;</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">SELECT</span> @@tx_isolation;</span><br><span class="line"></span><br><span class="line"><span class="keyword">BEGIN</span> ;</span><br><span class="line"></span><br><span class="line"><span class="keyword">SELECT</span> * <span class="keyword">FROM</span> person_test;</span><br><span class="line"></span><br><span class="line"><span class="keyword">SELECT</span> * <span class="keyword">FROM</span> person_test;</span><br><span class="line"></span><br><span class="line"><span class="keyword">COMMIT</span> ;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">-- 隔离级别（REPEATABLE READ）</span></span><br><span class="line"><span class="keyword">set</span> <span class="keyword">session</span> <span class="keyword">transaction</span> <span class="keyword">isolation</span> <span class="keyword">level</span> REPEATABLE <span class="keyword">READ</span> ;</span><br><span class="line"></span><br><span class="line"><span class="keyword">SELECT</span> @@tx_isolation;</span><br><span class="line"></span><br><span class="line"><span class="keyword">BEGIN</span> ;</span><br><span class="line"></span><br><span class="line"><span class="keyword">SELECT</span> * <span class="keyword">FROM</span> person_test;</span><br><span class="line"></span><br><span class="line"><span class="keyword">SELECT</span> * <span class="keyword">FROM</span> person_test;</span><br><span class="line"></span><br><span class="line"><span class="keyword">COMMIT</span> ;</span><br><span class="line"></span><br><span class="line"><span class="keyword">SELECT</span> * <span class="keyword">FROM</span> person_test;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">BEGIN</span> ;</span><br><span class="line"></span><br><span class="line"><span class="keyword">SELECT</span> * <span class="keyword">FROM</span> person_test <span class="keyword">WHERE</span> age=<span class="number">18</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 这里测试并没有出现幻读情况</span></span><br><span class="line"><span class="keyword">SELECT</span> * <span class="keyword">FROM</span> person_test <span class="keyword">WHERE</span> age=<span class="number">18</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">COMMIT</span> ;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">-- 隔离级别（SERIALIZABLE）</span></span><br><span class="line"><span class="keyword">set</span> <span class="keyword">session</span> <span class="keyword">transaction</span> <span class="keyword">isolation</span> <span class="keyword">level</span> <span class="keyword">SERIALIZABLE</span> ;</span><br><span class="line"></span><br><span class="line"><span class="keyword">SELECT</span> @@tx_isolation;</span><br><span class="line"></span><br><span class="line"><span class="keyword">BEGIN</span> ;</span><br><span class="line"></span><br><span class="line"><span class="keyword">SELECT</span> * <span class="keyword">FROM</span> person_test;</span><br><span class="line"></span><br><span class="line"><span class="keyword">SELECT</span> * <span class="keyword">FROM</span> person_test;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 这里插入会dead lock</span></span><br><span class="line"><span class="comment">-- INSERT INTO person_test (age, name) VALUE (18,'he');</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">COMMIT</span> ;</span><br><span class="line"></span><br><span class="line"><span class="keyword">SELECT</span> * <span class="keyword">FROM</span> person_test;</span><br></pre></td></tr></table></figure>
+<h2 id="clientB"><a href="#clientB" class="headerlink" title="clientB"></a>clientB</h2><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="keyword">set</span> <span class="keyword">session</span> <span class="keyword">transaction</span> <span class="keyword">isolation</span> <span class="keyword">level</span> <span class="keyword">read</span> COMMITTED ;</span><br><span class="line"></span><br><span class="line"><span class="keyword">SELECT</span> @@tx_isolation;</span><br><span class="line"></span><br><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> person_test(</span><br><span class="line">  <span class="keyword">id</span> <span class="built_in">INT</span> <span class="keyword">UNSIGNED</span> AUTO_INCREMENT <span class="keyword">COMMENT</span> <span class="string">'id'</span> PRIMARY <span class="keyword">KEY</span> ,</span><br><span class="line">  age <span class="built_in">INT</span>  <span class="keyword">DEFAULT</span> <span class="number">0</span> <span class="keyword">COMMENT</span> <span class="string">'组织编号（部门编号）'</span>,</span><br><span class="line">  <span class="keyword">name</span> <span class="built_in">VARCHAR</span>(<span class="number">20</span>)  <span class="keyword">DEFAULT</span> <span class="string">''</span> <span class="keyword">COMMENT</span> <span class="string">'组织名称'</span>,</span><br><span class="line">  gmt_create <span class="keyword">timestamp</span> <span class="keyword">NOT</span> <span class="literal">NULL</span> <span class="keyword">DEFAULT</span> <span class="keyword">CURRENT_TIMESTAMP</span> <span class="keyword">COMMENT</span> <span class="string">'创建时间'</span>,</span><br><span class="line">  gmt_modify <span class="keyword">timestamp</span> <span class="keyword">NOT</span> <span class="literal">NULL</span> <span class="keyword">DEFAULT</span> <span class="keyword">CURRENT_TIMESTAMP</span> <span class="keyword">ON</span> <span class="keyword">UPDATE</span> <span class="keyword">CURRENT_TIMESTAMP</span> <span class="keyword">COMMENT</span> <span class="string">'修改时间'</span></span><br><span class="line">)<span class="keyword">ENGINE</span>=<span class="keyword">InnoDB</span> <span class="keyword">DEFAULT</span> <span class="keyword">CHARSET</span>=utf8</span><br><span class="line">  <span class="keyword">COMMENT</span> <span class="string">'person test'</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">BEGIN</span> ;</span><br><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> person_test(age, <span class="keyword">name</span>) <span class="keyword">VALUE</span> (<span class="number">18</span>,<span class="string">'lily'</span>);</span><br><span class="line"><span class="keyword">SELECT</span> * <span class="keyword">FROM</span> person_test;</span><br><span class="line"><span class="keyword">COMMIT</span> ;</span><br><span class="line"></span><br><span class="line"><span class="keyword">BEGIN</span> ;</span><br><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> person_test(age,<span class="keyword">name</span>) <span class="keyword">VALUE</span> (<span class="number">18</span>,<span class="string">'jim'</span>);</span><br><span class="line"><span class="keyword">SELECT</span> * <span class="keyword">FROM</span> person_test;</span><br><span class="line"><span class="keyword">ROLLBACK</span> ;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">BEGIN</span> ;</span><br><span class="line"><span class="keyword">UPDATE</span> person_test <span class="keyword">SET</span> <span class="keyword">name</span>= <span class="string">'zhangsan'</span> <span class="keyword">WHERE</span> <span class="keyword">id</span>=<span class="number">10</span>;</span><br><span class="line"><span class="keyword">SELECT</span> * <span class="keyword">FROM</span> person_test;</span><br><span class="line"><span class="keyword">ROLLBACK</span> ;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">-- 隔离级别（read COMMITTED） set session transaction isolation level read COMMITTED ;</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">SELECT</span> @@tx_isolation;</span><br><span class="line"></span><br><span class="line"><span class="keyword">BEGIN</span> ;</span><br><span class="line"><span class="keyword">UPDATE</span> person_test <span class="keyword">SET</span>  <span class="keyword">name</span> = <span class="string">'zhangsan'</span> <span class="keyword">WHERE</span> <span class="keyword">id</span>=<span class="number">10</span>;</span><br><span class="line"><span class="keyword">SELECT</span> * <span class="keyword">FROM</span> person_test;</span><br><span class="line"></span><br><span class="line"><span class="keyword">DELETE</span> <span class="keyword">FROM</span> person_test <span class="keyword">WHERE</span> <span class="keyword">id</span>=<span class="number">2</span>;</span><br><span class="line"><span class="keyword">SELECT</span> * <span class="keyword">FROM</span> person_test;</span><br><span class="line"><span class="keyword">COMMIT</span> ;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">-- 隔离级别（REPEATABLE READ）</span></span><br><span class="line"><span class="keyword">set</span> <span class="keyword">session</span> <span class="keyword">transaction</span> <span class="keyword">isolation</span> <span class="keyword">level</span> REPEATABLE <span class="keyword">READ</span> ;</span><br><span class="line"></span><br><span class="line"><span class="keyword">SELECT</span> @@tx_isolation;</span><br><span class="line"></span><br><span class="line"><span class="keyword">BEGIN</span> ;</span><br><span class="line"><span class="keyword">SELECT</span> * <span class="keyword">FROM</span> person_test;</span><br><span class="line"></span><br><span class="line"><span class="keyword">UPDATE</span> person_test <span class="keyword">SET</span>  <span class="keyword">name</span> = <span class="string">'zhangsanfeng'</span> <span class="keyword">WHERE</span> <span class="keyword">id</span>=<span class="number">10</span>;</span><br><span class="line"><span class="keyword">SELECT</span> * <span class="keyword">FROM</span> person_test;</span><br><span class="line"></span><br><span class="line"><span class="keyword">COMMIT</span> ;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">BEGIN</span> ;</span><br><span class="line"><span class="keyword">SELECT</span> * <span class="keyword">FROM</span> person_test <span class="keyword">WHERE</span> age=<span class="number">18</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> person_test (age,<span class="keyword">name</span>) <span class="keyword">VALUE</span> (<span class="number">18</span>,<span class="string">'qiang'</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">SELECT</span> * <span class="keyword">FROM</span> person_test <span class="keyword">WHERE</span> age=<span class="number">18</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">COMMIT</span> ;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">-- 隔离级别（SERIALIZABLE）</span></span><br><span class="line"><span class="keyword">set</span> <span class="keyword">session</span> <span class="keyword">transaction</span> <span class="keyword">isolation</span> <span class="keyword">level</span> <span class="keyword">SERIALIZABLE</span> ;</span><br><span class="line"></span><br><span class="line"><span class="keyword">SELECT</span> @@tx_isolation;</span><br><span class="line"></span><br><span class="line"><span class="keyword">BEGIN</span> ;</span><br><span class="line"></span><br><span class="line"><span class="keyword">SELECT</span> * <span class="keyword">FROM</span> person_test;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- SERIALIZABLE情况，不能增加，等待A客户端commit后 会帮助这边commit</span></span><br><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> person_test (age,<span class="keyword">name</span>) <span class="keyword">VALUE</span> (<span class="number">18</span>,<span class="string">'fen'</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> person_test (age , <span class="keyword">name</span>) <span class="keyword">VALUE</span> (<span class="number">18</span>,<span class="string">'fang'</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">SELECT</span> * <span class="keyword">FROM</span> person_test;</span><br><span class="line"></span><br><span class="line"><span class="keyword">COMMIT</span> ;</span><br></pre></td></tr></table></figure>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+      
+
+      <div style="font-size: 12px;">
+        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
+      </div>
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2018/08/10/MySQL事务隔离级别测试/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
     <article id="post-Spring-cloud-负载均衡" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
@@ -1581,95 +1692,6 @@
 
 
   
-    <article id="post-Mysql-for-mac-安装及环境配置" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2018/07/07/Mysql-for-mac-安装及环境配置/">Mysql for mac 安装及环境配置</a>
-    </h1>
-  
-
-        
-        <a href="/2018/07/07/Mysql-for-mac-安装及环境配置/" class="archive-article-date">
-  	<time datetime="2018-07-07T02:00:42.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-07-07</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h2 id="一-下载及安装"><a href="#一-下载及安装" class="headerlink" title="一.下载及安装"></a>一.下载及安装</h2><p>首先去官网下载mac对应版本的Mysql,尾缀为.dmg的程序包</p>
-<p>下载地址：<a href="https://dev.mysql.com/downloads/mysql/" target="_blank" rel="external">https://dev.mysql.com/downloads/mysql/</a></p>
-<p>下载完毕后，一步步傻瓜式安装即可，安装完后mysql会弹出一个框框，告诉你安装成功以及root用户的初始密码，注意Mysql for Mac 的初始密码是随机生成的，最好记住</p>
-<h2 id="二-更改初始密码"><a href="#二-更改初始密码" class="headerlink" title="二.更改初始密码"></a>二.更改初始密码</h2><p>A.打开终端</p>
-<p>1.进入mysql的bin目录下（默认安装的目录为 /usr/local/mysql/bin）</p>
-<p><code>cd /usr/local/mysql/bin/</code> </p>
-<p>2.输入指令，会提示输入密码（输入mac账户的root密码）</p>
-<p>sudo ./mysqld_safe –skip-grant-tables</p>
-<p>3.输入密码后，会发现有一些提示，且Mysql会自动重启</p>
-<p>B.另开一个终端</p>
-<p>1、输入指令1：（进入到mysql的bin目录下）<br>输入：<code>cd /usr/local/mysql/bin/</code><br>2、输入指令2：<br>输入：<code>./mysql</code><br>3、进入到mysql命令状态下：（<code>mysql&gt;</code>是mysql命令状态提示）<br>输入：mysql&gt; <code>FLUSH PRIVILEGES;</code><br>4、设置密码root<br>输入：<code>mysql&gt; SET PASSWORD FOR &#39;root&#39;@&#39;localhost&#39; = PASSWORD(&#39;root&#39;);</code></p>
-<p>至此，初始密码设置完毕</p>
-<h2 id="三-配置环境变量"><a href="#三-配置环境变量" class="headerlink" title="三.配置环境变量"></a>三.配置环境变量</h2><p>若不设置环境变量，输入命令太繁琐，每次登陆Mysql的命令为：/usr/local/mysql/bin/ mysql -u root -p</p>
-<p>windows系统直接在环境变量中添加mysql的路径就好，mac系统则需要在home目录下的.bash_profile文件中新建path路径指向mysql的路径</p>
-<p>查看home目录：</p>
-<p>输入命令 echo $HOME</p>
-<p>mac默认的home目录为当前用户根目录 /Users/silverlaw</p>
-<p>配置环境变量：</p>
-<p>1.打开终端,输入：</p>
-<p>open .bash_profile </p>
-<p>2.直接输入如下语句：</p>
-<p>export PATH=${PATH}:/usr/local/mysql/bin</p>
-<p>保存，关闭终端和TextEdit</p>
-<p>重新打开终端，输入：mysql -u root -p，即可成功登陆 </p>
-
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-      
-
-      <div style="font-size: 12px;">
-        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
-      </div>
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2018/07/07/Mysql-for-mac-安装及环境配置/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
   
     <nav id="page-nav">
       <a class="extend prev" rel="prev" href="/page/2/">&laquo; Prev</a><a class="page-number" href="/">1</a><a class="page-number" href="/page/2/">2</a><span class="page-number current">3</span><a class="page-number" href="/page/4/">4</a><a class="page-number" href="/page/5/">5</a><span class="space">&hellip;</span><a class="page-number" href="/page/15/">15</a><a class="extend next" rel="next" href="/page/4/">Next &raquo;</a>
@@ -1779,11 +1801,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">git</a>
+                <a href="javascript:void(0)" class="js-tag color4">ops</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">ops</a>
+                <a href="javascript:void(0)" class="js-tag color4">git</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1807,15 +1829,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">redis</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">快捷键</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">mysql</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">MySQL</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1823,7 +1841,15 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">redis</a>
+                <a href="javascript:void(0)" class="js-tag color1">MySQL</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">mysql</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">Python</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1836,10 +1862,6 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">spring</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">Python</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1859,15 +1881,15 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">influxdb</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">debug</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">rest</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">influxdb</a>
               </li>
              
               <li class="article-tag-list-item">

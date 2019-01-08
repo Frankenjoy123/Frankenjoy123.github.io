@@ -151,6 +151,191 @@
           <div id="js-content" class="content-ll">
             
   
+    <article id="post-微服务架构下分布式事务解决方式-GTS" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2018/10/10/微服务架构下分布式事务解决方式-GTS/">微服务架构下分布式事务解决方式-GTS</a>
+    </h1>
+  
+
+        
+        <a href="/2018/10/10/微服务架构下分布式事务解决方式-GTS/" class="archive-article-date">
+  	<time datetime="2018-10-10T02:31:57.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-10-10</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="1-微服务的发展"><a href="#1-微服务的发展" class="headerlink" title="1 微服务的发展"></a>1 微服务的发展</h2><p>微服务倡导将复杂的单体应用拆分为若干个功能简单、松耦合的服务，这样可以降低开发难度、增强扩展性、便于敏捷开发。当前被越来越多的开发者推崇，很多互联网行业巨头、开源社区等都开始了微服务的讨论和实践。Hailo有160个不同服务构成，NetFlix有大约600个服务。国内方面，阿里巴巴、<a href="http://www.sohu.com/a/203351190_468650" target="_blank" rel="external">腾讯</a>、<a href="http://blog.csdn.net/lambert310/article/details/78084859" target="_blank" rel="external">360</a>、京东、58同城等很多互联网公司都进行了微服务化实践。当前微服务的开发框架也非常多，比较著名的有<a href="http://dubbo.io/" target="_blank" rel="external">Dubbo</a>、<a href="https://springcloud.cc/" target="_blank" rel="external">SpringCloud</a>、<a href="http://thrift.apache.org/" target="_blank" rel="external">thrift</a> 、<a href="http://doc.oschina.net/grpc?t=57966" target="_blank" rel="external">grpc</a>等。</p>
+<h2 id="2-微服务落地存在的问题"><a href="#2-微服务落地存在的问题" class="headerlink" title="2 微服务落地存在的问题"></a>2 微服务落地存在的问题</h2><p>虽然微服务现在如火如荼，但对其实践其实仍处于探索阶段。很多中小型互联网公司，鉴于经验、技术实力等问题，微服务落地比较困难。如著名架构师Chris Richardson所言，目前存在的主要困难有如下几方面：</p>
+<p>1）单体应用拆分为分布式系统后，进程间的通讯机制和故障处理措施变的更加复杂。</p>
+<p>2）系统微服务化后，一个看似简单的功能，内部可能需要调用多个服务并操作多个数据库实现，服务调用的分布式事务问题变的非常突出。</p>
+<p>3）微服务数量众多，其测试、部署、监控等都变的更加困难。</p>
+<p>随着RPC框架的成熟，第一个问题已经逐渐得到解决。例如dubbo可以支持多种通讯协议，springcloud可以非常好的支持restful调用。对于第三个问题，随着docker、devops技术的发展以及各公有云paas平台自动化运维工具的推出，微服务的测试、部署与运维会变得越来越容易。</p>
+<p>而对于第二个问题，现在还没有通用方案很好的解决微服务产生的事务问题。分布式事务已经成为微服务落地最大的阻碍，也是最具挑战性的一个<a href="http://tech.huanqiu.com/news/2017-04/10451235.html" target="_blank" rel="external">技术难题</a>。 为此，本文将深入和大家探讨微服务架构下，分布式事务的各种解决方案，并重点为大家解读阿里巴巴提出的分布式事务解决方案—-GTS。<strong>该方案中提到的GTS是全新一代解决微服务问题的分布式事务互联网中间件</strong>。</p>
+<h2 id="3-SOA分布式事务解决方案"><a href="#3-SOA分布式事务解决方案" class="headerlink" title="3 SOA分布式事务解决方案"></a>3 SOA分布式事务解决方案</h2><h3 id="3-1-基于XA协议的两阶段提交方案"><a href="#3-1-基于XA协议的两阶段提交方案" class="headerlink" title="3.1 基于XA协议的两阶段提交方案"></a>3.1 基于XA协议的两阶段提交方案</h3><p>交易中间件与数据库通过 XA 接口规范，使用两阶段提交来完成一个全局事务， XA 规范的基础是两阶段提交协议。<br>第一阶段是表决阶段，所有参与者都将本事务能否成功的信息反馈发给协调者；第二阶段是执行阶段，协调者根据所有参与者的反馈，通知所有参与者，步调一致地在所有分支上提交或者回滚。</p>
+<p><img src="https://images2018.cnblogs.com/blog/1334519/201803/1334519-20180307150636190-1704712093.png" alt="img"></p>
+<p>两阶段提交方案应用非常广泛，几乎所有商业OLTP数据库都支持XA协议。但是两阶段提交方案锁定资源时间长，对性能影响很大，基本不适合解决微服务事务问题。</p>
+<h3 id="3-2-TCC方案"><a href="#3-2-TCC方案" class="headerlink" title="3.2 TCC方案"></a>3.2 TCC方案</h3><p><a href="https://wenku.baidu.com/view/be946bec0975f46527d3e104.html" target="_blank" rel="external">TCC方案</a>在电商、金融领域落地较多。TCC方案其实是两阶段提交的一种改进。其将整个业务逻辑的每个分支显式的分成了Try、Confirm、Cancel三个操作。Try部分完成业务的准备工作，confirm部分完成业务的提交，cancel部分完成事务的回滚。基本原理如下图所示。</p>
+<p><img src="https://images2018.cnblogs.com/blog/1334519/201803/1334519-20180307150648591-1729601878.png" alt="img"></p>
+<p>事务开始时，业务应用会向事务协调器注册启动事务。之后业务应用会调用所有服务的try接口，完成一阶段准备。之后事务协调器会根据try接口返回情况，决定调用confirm接口或者cancel接口。如果接口调用失败，会进行重试。</p>
+<p>TCC方案让应用自己定义数据库操作的粒度，使得降低锁冲突、提高吞吐量成为可能。 当然TCC方案也有不足之处，集中表现在以下两个方面：</p>
+<ul>
+<li><strong>对应用的侵入性强</strong>。业务逻辑的每个分支都需要实现try、confirm、cancel三个操作，应用侵入性较强，改造成本高。</li>
+<li><strong>实现难度较大</strong>。需要按照网络状态、系统故障等不同的失败原因实现不同的回滚策略。为了满足一致性的要求，confirm和cancel接口必须实现幂等。</li>
+</ul>
+<p>上述原因导致TCC方案大多被研发实力较强、有迫切需求的大公司所采用。微服务倡导服务的轻量化、易部署，而TCC方案中很多事务的处理逻辑需要应用自己编码实现，复杂且开发量大。</p>
+<h3 id="3-3-基于消息的最终一致性方案"><a href="#3-3-基于消息的最终一致性方案" class="headerlink" title="3.3 基于消息的最终一致性方案"></a>3.3 基于消息的最终一致性方案</h3><p>消息一致性方案是通过消息中间件保证上、下游应用数据操作的<a href="https://segmentfault.com/a/1190000011479826" target="_blank" rel="external">一致性</a>。基本思路是将本地操作和发送消息放在一个事务中，保证本地操作和消息发送要么两者都成功或者都失败。下游应用向消息系统订阅该消息，收到消息后执行相应操作。</p>
+<p><img src="https://images2018.cnblogs.com/blog/1334519/201803/1334519-20180307150703434-1501056265.png" alt="img"></p>
+<p>消息方案从本质上讲是将分布式事务转换为两个本地事务，然后依靠下游业务的重试机制达到最终一致性。基于消息的最终一致性方案对应用侵入性也很高，应用需要进行大量业务改造，成本较高。</p>
+<h2 id="4-GTS–分布式事务解决方案"><a href="#4-GTS–分布式事务解决方案" class="headerlink" title="4 GTS–分布式事务解决方案"></a>4 GTS–分布式事务解决方案</h2><p><a href="https://www.aliyun.com/aliware/txc?spm=5176.8142029.388261.386.a72376f4lqvQxv" target="_blank" rel="external">GTS是一款分布式事务中间件</a>，由阿里巴巴中间件部门研发，可以为微服务架构中的分布式事务提供一站式解决方案。</p>
+<p>更多GTS资料请访问<a href="https://weibo.com/jiangyu666" target="_blank" rel="external">创始人微博</a>。</p>
+<h3 id="4-1-GTS的核心优势"><a href="#4-1-GTS的核心优势" class="headerlink" title="4.1 GTS的核心优势"></a>4.1 GTS的核心优势</h3><ul>
+<li><p><strong>性能超强</strong></p>
+<p>GTS通过大量创新，解决了事务ACID特性与高性能、高可用、低侵入不可兼得的问题。单事务分支的平均响应时间在2ms左右，3台服务器组成的集群可以支撑3万TPS以上的分布式事务请求。</p>
+</li>
+<li><p><strong>应用侵入性极低</strong></p>
+<p>GTS对业务低侵入，业务代码最少只需要添加一行注解（@TxcTransaction）声明事务即可。业务与事务分离，将微服务从事务中解放出来，微服务关注于业务本身，不再需要考虑反向接口、幂等、回滚策略等复杂问题，极大降低了微服务开发的难度与工作量。</p>
+</li>
+<li><p><strong>完整解决方案</strong></p>
+<p>GTS支持多种主流的服务框架，包括EDAS，Dubbo，Spring Cloud等。<br>有些情况下，应用需要调用第三方系统的接口，而第三方系统没有接入GTS。此时需要用到GTS的MT模式。GTS的MT模式可以等价于TCC模式，用户可以根据自身业务需求自定义每个事务阶段的具体行为。MT模式提供了更多的灵活性，可能性，以达到特殊场景下的自定义优化及特殊功能的实现。</p>
+</li>
+<li><p><strong>容错能力强</strong></p>
+<p>GTS解决了XA事务协调器单点问题，实现真正的高可用，可以保证各种异常情况下的严格数据一致。</p>
+</li>
+</ul>
+<h3 id="4-2-GTS的应用场景"><a href="#4-2-GTS的应用场景" class="headerlink" title="4.2 GTS的应用场景"></a>4.2 GTS的应用场景</h3><p>GTS可应用在涉及服务调用的多个领域，包括但不限于金融支付、电信、电子商务、快递物流、广告营销、社交、即时通信、手游、视频、物联网、车联网等，详细介绍可以阅读 <a href="https://www.jianshu.com/u/c9668ae2b661" target="_blank" rel="external">《GTS–阿里巴巴分布式事务全新解决方案》</a>一文。</p>
+<h3 id="4-3-GTS与微服务的集成"><a href="#4-3-GTS与微服务的集成" class="headerlink" title="4.3 GTS与微服务的集成"></a>4.3 GTS与微服务的集成</h3><p>GTS包括客户端（GTS Client）、资源管理器（GTS RM）和事务协调器（GTS Server）三个部分。GTS Client主要用来界定事务边界，完成事务的发起与结束。GTS RM完成事务分支的创建、提交、回滚等操作。GTS Server主要负责分布式事务的整体推进，事务生命周期的管理。GTS和微服务集成的结构图如下所示，GTS Client需要和业务应用集成部署，RM与微服务集成部署。</p>
+<p><img src="https://images2018.cnblogs.com/blog/1334519/201803/1334519-20180307150720354-1188496664.png" alt="img"></p>
+<h3 id="4-4-GTS的输出形式"><a href="#4-4-GTS的输出形式" class="headerlink" title="4.4 GTS的输出形式"></a>4.4 GTS的输出形式</h3><p>GTS目前有三种输出形式：公有云输出、公网输出、专有云输出。</p>
+<h4 id="4-4-1-公有云输出"><a href="#4-4-1-公有云输出" class="headerlink" title="4.4.1 公有云输出"></a>4.4.1 公有云输出</h4><p>这种输出形式面向阿里云用户。如果用户的业务系统已经部署到阿里云上，可以申请开通公有云GTS。开通后业务应用即可通过GTS保证服务调用的一致性。这种使用场景下，业务系统和GTS间的网络环境比较理想，达到很好性能。</p>
+<p><img src="https://images2018.cnblogs.com/blog/1334519/201803/1334519-20180307150813657-193084867.png" alt="img"></p>
+<h4 id="4-4-2-公网输出"><a href="#4-4-2-公网输出" class="headerlink" title="4.4.2 公网输出"></a>4.4.2 公网输出</h4><p>这种输出形式面向于非阿里云的用户，使用更加方便、灵活，业务系统只要能连接互联网即可享受GTS提供的云服务（与公有云输出的差别在于客户端部署于用户本地，而不在云上）。</p>
+<p>在正常网络环境下，以包含两个本地事务的全局事务为例，事务完成时间在20ms左右，50个并发就可以轻松实现1000TPS以上分布式事务，对绝大多数业务来说性能是足够的。在公网环境，网络闪断很难完全避免，这种情况下GTS仍能保证服务调用的数据一致性。</p>
+<p><img src="https://images2018.cnblogs.com/blog/1334519/201803/1334519-20180307150800978-1059620711.png" alt="img"></p>
+<p>具体使用样例使用参见4.7节GTS的工程样例。</p>
+<h4 id="4-4-3-专有云输出"><a href="#4-4-3-专有云输出" class="headerlink" title="4.4.3 专有云输出"></a>4.4.3 专有云输出</h4><p>这种形式主要面向于已建设了自己专有云平台的大用户，GTS可以直接部署到用户的专有云上，为专有云提供分布式事务服务。目前已经有10多个特大型企业的专有云使用GTS解决分布式事务难题，性能与稳定性经过了用户的严格检测。</p>
+<h3 id="4-5-GTS的使用方式"><a href="#4-5-GTS的使用方式" class="headerlink" title="4.5 GTS的使用方式"></a>4.5 <a href="https://help.aliyun.com/document_detail/53298.html?spm=a2c4g.11186623.6.554.NZEXg9" target="_blank" rel="external">GTS的使用方式</a></h3><p>GTS对应用的侵入性非常低，使用也很简单。下面以订单存储应用为例说明。订单业务应用通过调用订单服务和库存服务完成订单业务，服务开发框架为Dubbo。</p>
+<h4 id="4-5-1-订单业务应用"><a href="#4-5-1-订单业务应用" class="headerlink" title="4.5.1 订单业务应用"></a>4.5.1 订单业务应用</h4><p>在业务函数外围使用@TxcTransaction注解即可开启分布式事务。Dubbo应用通过隐藏参数将GTS的事务xid传播到服务端。</p>
+<figure class="highlight haxe"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"> @TxcTransaction(timeout = <span class="number">1000</span> * <span class="number">10</span>)</span><br><span class="line"><span class="keyword">public</span> void Bussiness(OrderService orderService, StockService stockService, <span class="keyword">String</span> userId) &#123;</span><br><span class="line">    <span class="comment">//获取事务上下文</span></span><br><span class="line">    <span class="keyword">String</span> xid = TxcContext.getCurrentXid();</span><br><span class="line">    <span class="comment">//通过RpcContext将xid传到一个服务端</span></span><br><span class="line">    RpcContext.getContext().setAttachment(<span class="string">"xid"</span>, xid);</span><br><span class="line">    </span><br><span class="line">    <span class="comment">//执行自己的业务逻辑</span></span><br><span class="line">    int productId = <span class="keyword">new</span> <span class="type">Random</span>().nextInt(<span class="number">100</span>);</span><br><span class="line">    int productNum = <span class="keyword">new</span> <span class="type">Random</span>().nextInt(<span class="number">100</span>);</span><br><span class="line">    OrderDO orderDO = <span class="keyword">new</span> <span class="type">OrderDO</span>(userId, productId, productNum, <span class="keyword">new</span> <span class="type">Timestamp</span>(<span class="keyword">new</span> <span class="type">Date</span>().getTime()));</span><br><span class="line">    orderService.createOrder(orderDO);</span><br><span class="line">    </span><br><span class="line">    <span class="comment">//通过RpcContext将xid传到另一个服务端</span></span><br><span class="line">    RpcContext.getContext().setAttachment(<span class="string">"xid"</span>,xid);</span><br><span class="line">    stockService.updateStock(orderDO);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="4-5-2-服务提供者"><a href="#4-5-2-服务提供者" class="headerlink" title="4.5.2 服务提供者"></a>4.5.2 服务提供者</h4><p>更新库存方法</p>
+<figure class="highlight processing"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="built_in">int</span> updateStock(OrderDO orderDO) &#123;</span><br><span class="line"></span><br><span class="line"><span class="comment">//获取全局事务ID，并绑定到上下文</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">String</span> xid = RpcContext.getContext().getAttachment(<span class="string">"xid"</span>);</span><br><span class="line"></span><br><span class="line">TxcContext.bind(xid,<span class="keyword">null</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">//执行自己的业务逻辑</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">int</span> ret = jdbcTemplate.update(<span class="string">"update stock set amount = amount - ? where product_id = ?"</span>,<span class="keyword">new</span> <span class="keyword">Object</span>[]&#123;orderDO.getNumber(), orderDO.getProductId()&#125;);</span><br><span class="line"></span><br><span class="line">TxcContext.unbind();</span><br><span class="line"></span><br><span class="line"><span class="keyword">return</span> ret;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="4-6-GTS的应用情况"><a href="#4-6-GTS的应用情况" class="headerlink" title="4.6 GTS的应用情况"></a>4.6 GTS的应用情况</h3><p>GTS目前已经在淘宝、天猫、阿里影业、淘票票、阿里妈妈、1688等阿里各业务系统广泛使用，经受了16年和17年两年双十一海量请求的考验。某线上业务系统最高流量已达十万TPS（每秒钟10万笔事务）。</p>
+<p>GTS在公有云和专有云输出后，已经有了100多个线上用户，很多用户通过GTS解决SpringCloud、Dubbo、Edas等服务框架的分布式事务问题。业务领域涉及电力、物流、ETC、烟草、金融、零售、电商、共享出行等十几个行业，得到<a href="https://www.aliyun.com/aliware/hotproducts/gtscase1?open_id=42e50fd2-3b02-4d91-9468-4c785adaaff4-53709576&amp;open_cid=17680" target="_blank" rel="external">用户的一致认可</a>。</p>
+<p><img src="https://images2018.cnblogs.com/blog/1334519/201803/1334519-20180307150852411-2089496276.png" alt="img"></p>
+<p>上图是GTS与SpringCloud集成，应用于某共享出行系统。业务共享出行场景下，通过GTS支撑物联网系统、订单系统、支付系统、运维系统、分析系统等系各统应用的数据一致性，保证海量订单和数千万流水的交易。</p>
+<h3 id="4-7-GTS的工程样例"><a href="#4-7-GTS的工程样例" class="headerlink" title="4.7 GTS的工程样例"></a>4.7 GTS的工程样例</h3><p>GTS的公有云样例可参考阿里云网站。在公网环境下提供<a href="http://txc-console.oss-cn-beijing.aliyuncs.com/sample/sample-txc-simple.zip" target="_blank" rel="external">sample-txc-simple</a>和<a href="http://txc-console.oss-cn-beijing.aliyuncs.com/sample/sample-txc-dubbo.zip" target="_blank" rel="external">sample-txc-dubbo</a>两个样例工程。</p>
+<h4 id="4-7-1-sample-txc-simple样例"><a href="#4-7-1-sample-txc-simple样例" class="headerlink" title="4.7.1 sample-txc-simple样例"></a>4.7.1 sample-txc-simple样例</h4><h5 id="4-7-1-1-样例业务逻辑"><a href="#4-7-1-1-样例业务逻辑" class="headerlink" title="4.7.1.1 样例业务逻辑"></a>4.7.1.1 样例业务逻辑</h5><p>该样例是GTS的入门sample，案例的业务逻辑是从A账户转账给B账户，其中A和B分别位于两个MySQL数据库中，使用GTS事务保证A和B账户钱的总数始终不变。</p>
+<h5 id="4-7-1-2-样例搭建方法"><a href="#4-7-1-2-样例搭建方法" class="headerlink" title="4.7.1.2 样例搭建方法"></a>4.7.1.2 样例搭建方法</h5><p>1) 准备数据库环境</p>
+<p>安装MySQL，创建两个数据库db1和db2。在db1和db2中分别创建<strong>txc_undo_log</strong>表（SQL脚本见4.7.3）。在db1库中创建user_money_a表，在db2库中创建user_money_b表。</p>
+<p>2) 下载样例</p>
+<p>将sample-txc-simple文件下载到本地，样例中已经包含了GTS的SDK。</p>
+<p>3) 修改配置</p>
+<p>打开sample-txc-simple/src/main/resources目录下的txc-client-context.xml，将数据源的url、username、password修改为实际值。</p>
+<p>4) 运行样例</p>
+<p>在sample-txc-simple目录下执行build.sh编译本工程。编译完成后执行run.sh。</p>
+<h4 id="4-7-2-sample-txc-dubbo-样例"><a href="#4-7-2-sample-txc-dubbo-样例" class="headerlink" title="4.7.2 sample-txc-dubbo 样例"></a>4.7.2 sample-txc-dubbo 样例</h4><h5 id="4-7-2-1-样例业务逻辑"><a href="#4-7-2-1-样例业务逻辑" class="headerlink" title="4.7.2.1 样例业务逻辑"></a>4.7.2.1 样例业务逻辑</h5><p>本案例模拟了用户下订单、减库存的业务逻辑。客户端（Client）通过调用订单服务（OrderService）创建订单，之后通过调用库存服务（StockService）扣库存。其中订单服务读写订单数据库，库存服务读写库存数据库。由 GTS 保证跨服务事务的一致性。</p>
+<h5 id="4-7-2-2-样例搭建方法"><a href="#4-7-2-2-样例搭建方法" class="headerlink" title="4.7.2.2 样例搭建方法"></a>4.7.2.2 样例搭建方法</h5><p>1) 准备数据库环境</p>
+<p>安装MySQL，创建两个数据库db1和db2。在db1和db2中分别创建txc_undo_log表。在db1库中创建orders表，在db2库中创建stock表。</p>
+<p>2) 下载样例</p>
+<p>将样例文件sample-txc-dubbo下载到本地机器，样例中已经包含了GTS的SDK。</p>
+<p>3) 修改配置</p>
+<p>打开sample-txc-dubbo/src/main/resources目录，将dubbo-order-service.xml、dubbo-stock-service.xml两个文件中数据源的url、username、password修改为实际值。</p>
+<p>4) 运行样例</p>
+<p>a. 编译程序</p>
+<p>在工程根目录执行 build.sh 命令，编译工程。编译后会在 sample-txc-dubbo/client/bin 目录下生成 order_run.sh、stock_run.sh、client_run.sh 三个运行脚本对应订单服务、库存服务以及客户端。</p>
+<p>b. 运行程序</p>
+<p>在根目录执行run.sh，该脚本会依次启动order_run.sh(订单服务)、stock_run.sh(库存服务)和client_run.sh(客户端程序)。</p>
+<h5 id="4-7-2-3-其他说明"><a href="#4-7-2-3-其他说明" class="headerlink" title="4.7.2.3 其他说明"></a>4.7.2.3 其他说明</h5><p>样例使用Multicast注册中心的声明方式。如果本机使用无线网络，dubbo服务在绑定地址时有可能获取ipv6地址，可以通过jvm启动参数禁用。<br>方法是配置jvm启动参数 <strong>-Djava.net.preferIPv4Stack=true</strong>。</p>
+<h4 id="4-7-3-SQL"><a href="#4-7-3-SQL" class="headerlink" title="4.7.3 SQL"></a>4.7.3 SQL</h4><h5 id="4-7-3-1-建表-txc-undo-log"><a href="#4-7-3-1-建表-txc-undo-log" class="headerlink" title="4.7.3.1 建表 txc_undo_log"></a>4.7.3.1 建表 txc_undo_log</h5><p>CREATE TABLE <code>txc_undo_log</code> (</p>
+<p><code>id</code> bigint(20) NOT NULL AUTO_INCREMENT COMMENT ‘主键’,</p>
+<p><code>gmt_create</code> datetime NOT NULL COMMENT ‘创建时间’,</p>
+<p><code>gmt_modified</code> datetime NOT NULL COMMENT ‘修改时间’,</p>
+<p><code>xid</code> varchar(100) NOT NULL COMMENT ‘全局事务ID’,</p>
+<p><code>branch_id</code> bigint(20) NOT NULL COMMENT ‘分支事务ID’,</p>
+<p><code>rollback_info</code> longblob NOT NULL COMMENT ‘LOG’,</p>
+<p><code>status</code> int(11) NOT NULL COMMENT ‘状态’,</p>
+<p><code>server</code> varchar(32) NOT NULL COMMENT ‘分支所在DB IP’,</p>
+<p>PRIMARY KEY (<code>id</code>),</p>
+<p>KEY <code>unionkey</code> (<code>xid</code>,<code>branch_id</code>)</p>
+<p>) ENGINE=InnoDB AUTO_INCREMENT=211225994 DEFAULT CHARSET=utf8 COMMENT=’事务日志表’;</p>
+<h5 id="4-7-3-2-建表-user-money-a"><a href="#4-7-3-2-建表-user-money-a" class="headerlink" title="4.7.3.2 建表 user_money_a"></a>4.7.3.2 建表 user_money_a</h5><p>CREATE TABLE <code>user_money_a</code> (</p>
+<p><code>id</code> int(11) NOT NULL AUTO_INCREMENT,</p>
+<p><code>money</code> int(11) DEFAULT NULL,</p>
+<p>PRIMARY KEY (<code>id</code>)</p>
+<p>) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;</p>
+<h5 id="4-7-3-3-建表-user-money-b"><a href="#4-7-3-3-建表-user-money-b" class="headerlink" title="4.7.3.3 建表 user_money_b"></a>4.7.3.3 建表 user_money_b</h5><p>CREATE TABLE <code>user_money_b</code> (</p>
+<p><code>id</code> int(11) NOT NULL AUTO_INCREMENT,</p>
+<p><code>money</code> int(11) DEFAULT NULL,</p>
+<p>PRIMARY KEY (<code>id</code>)</p>
+<p>) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;</p>
+<h5 id="4-7-3-4-建表-orders"><a href="#4-7-3-4-建表-orders" class="headerlink" title="4.7.3.4 建表 orders"></a>4.7.3.4 建表 orders</h5><p>CREATE TABLE <code>orders</code> (</p>
+<p><code>id</code> bigint(20) NOT NULL AUTO_INCREMENT,</p>
+<p><code>user_id</code> varchar(255) NOT NULL,</p>
+<p><code>product_id</code> int(11) NOT NULL,</p>
+<p><code>number</code> int(11) NOT NULL,</p>
+<p><code>gmt_create</code> timestamp NOT NULL,</p>
+<p>PRIMARY KEY (<code>id</code>)</p>
+<p>) ENGINE=MyISAM AUTO_INCREMENT=351 DEFAULT CHARSET=utf8</p>
+<h5 id="4-7-3-5-建表-stock"><a href="#4-7-3-5-建表-stock" class="headerlink" title="4.7.3.5 建表 stock"></a>4.7.3.5 建表 stock</h5><p>CREATE TABLE <code>stock</code> (</p>
+<p><code>product_id</code> int(11) NOT NULL,</p>
+<p><code>price</code> float NOT NULL,</p>
+<p><code>amount</code> int(11) NOT NULL,</p>
+<p>PRIMARY KEY (<code>product_id</code>)</p>
+<p>) ENGINE=InnoDB DEFAULT CHARSET=utf8</p>
+<blockquote>
+<p><a href="https://www.cnblogs.com/jiangyu666/p/8522547.html" target="_blank" rel="external">https://www.cnblogs.com/jiangyu666/p/8522547.html</a></p>
+</blockquote>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+      
+
+      <div style="font-size: 12px;">
+        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
+      </div>
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2018/10/10/微服务架构下分布式事务解决方式-GTS/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
     <article id="post-Spring-AutowireCapableBeanFactory-整合-quartz" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
@@ -939,117 +1124,6 @@
 
 
   
-    <article id="post-MySQL事务隔离级别测试" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2018/08/10/MySQL事务隔离级别测试/">MySQL事务隔离级别测试</a>
-    </h1>
-  
-
-        
-        <a href="/2018/08/10/MySQL事务隔离级别测试/" class="archive-article-date">
-  	<time datetime="2018-08-10T01:26:46.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-08-10</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h2 id="一、事务的基本要素（ACID）"><a href="#一、事务的基本要素（ACID）" class="headerlink" title="一、事务的基本要素（ACID）"></a>一、事务的基本要素（ACID）</h2><p>　1、原子性（Atomicity）：事务开始后所有操作，要么全部做完，要么全部不做，不可能停滞在中间环节。事务执行过程中出错，会回滚到事务开始前的状态，所有的操作就像没有发生一样。也就是说事务是一个不可分割的整体，就像化学中学过的原子，是物质构成的基本单位。</p>
-<p>　2、一致性（Consistency）：事务开始前和结束后，数据库的完整性约束没有被破坏 。比如A向B转账，不可能A扣了钱，B却没收到。</p>
-<p>　3、隔离性（Isolation）：同一时间，只允许一个事务请求同一数据，不同的事务之间彼此没有任何干扰。比如A正在从一张银行卡中取钱，在A取钱的过程结束前，B不能向这张卡转账。</p>
-<p>4、持久性（Durability）：事务完成后，事务对数据库的所有更新将被保存到数据库，不能回滚。</p>
-<h2 id="二、事务的并发问题"><a href="#二、事务的并发问题" class="headerlink" title="二、事务的并发问题"></a>二、事务的并发问题</h2><p>1、<strong>脏读</strong>：事务A读取了事务B更新的数据，然后B回滚操作，那么A读取到的数据是脏数据</p>
-<p>2、<strong>不可重复读</strong>：事务 A 多次读取同一数据，事务 B 在事务A多次读取的过程中，对数据作了更新并提交，导致事务A多次读取同一数据时，结果 不一致。</p>
-<p>3、<strong>幻读</strong>：系统管理员A将数据库中所有学生的成绩从具体分数改为ABCDE等级，但是系统管理员B就在这个时候插入了一条具体分数的记录，当系统管理员A改结束后发现还有一条记录没有改过来，就好像发生了幻觉一样，这就叫幻读。</p>
-<p>小结：不可重复读的和幻读很容易混淆，不可重复读侧重于修改，幻读侧重于新增或删除。解决不可重复读的问题只需锁住满足条件的行，解决幻读需要锁表</p>
-<h2 id="三、MySQL事务隔离级别"><a href="#三、MySQL事务隔离级别" class="headerlink" title="三、MySQL事务隔离级别"></a>三、MySQL事务隔离级别</h2><table>
-<thead>
-<tr>
-<th>事务隔离级别</th>
-<th>脏读</th>
-<th>不可重复读</th>
-<th>幻读</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>读未提交（read-uncommitted）</td>
-<td>是</td>
-<td>是</td>
-<td>是</td>
-</tr>
-<tr>
-<td>不可重复读（read-committed）</td>
-<td>否</td>
-<td>是</td>
-<td>是</td>
-</tr>
-<tr>
-<td>可重复读（repeatable-read）</td>
-<td>否</td>
-<td>否</td>
-<td>是</td>
-</tr>
-<tr>
-<td>串行化（serializable）</td>
-<td>否</td>
-<td>否</td>
-<td>否</td>
-</tr>
-</tbody>
-</table>
-<h2 id="clientA"><a href="#clientA" class="headerlink" title="clientA"></a>clientA</h2><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="keyword">set</span> <span class="keyword">session</span> <span class="keyword">transaction</span> <span class="keyword">isolation</span> <span class="keyword">level</span> <span class="keyword">read</span> COMMITTED ;</span><br><span class="line"></span><br><span class="line"><span class="keyword">SELECT</span> @@tx_isolation;</span><br><span class="line"></span><br><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> person_test(</span><br><span class="line">  <span class="keyword">id</span> <span class="built_in">INT</span> <span class="keyword">UNSIGNED</span> AUTO_INCREMENT <span class="keyword">COMMENT</span> <span class="string">'id'</span> PRIMARY <span class="keyword">KEY</span> ,</span><br><span class="line">  age <span class="built_in">INT</span>  <span class="keyword">DEFAULT</span> <span class="number">0</span> <span class="keyword">COMMENT</span> <span class="string">'组织编号（部门编号）'</span>,</span><br><span class="line">  <span class="keyword">name</span> <span class="built_in">VARCHAR</span>(<span class="number">20</span>)  <span class="keyword">DEFAULT</span> <span class="string">''</span> <span class="keyword">COMMENT</span> <span class="string">'组织名称'</span>,</span><br><span class="line">  gmt_create <span class="keyword">timestamp</span> <span class="keyword">NOT</span> <span class="literal">NULL</span> <span class="keyword">DEFAULT</span> <span class="keyword">CURRENT_TIMESTAMP</span> <span class="keyword">COMMENT</span> <span class="string">'创建时间'</span>,</span><br><span class="line">  gmt_modify <span class="keyword">timestamp</span> <span class="keyword">NOT</span> <span class="literal">NULL</span> <span class="keyword">DEFAULT</span> <span class="keyword">CURRENT_TIMESTAMP</span> <span class="keyword">ON</span> <span class="keyword">UPDATE</span> <span class="keyword">CURRENT_TIMESTAMP</span> <span class="keyword">COMMENT</span> <span class="string">'修改时间'</span></span><br><span class="line">)<span class="keyword">ENGINE</span>=<span class="keyword">InnoDB</span> <span class="keyword">DEFAULT</span> <span class="keyword">CHARSET</span>=utf8</span><br><span class="line">  <span class="keyword">COMMENT</span> <span class="string">'person test'</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">BEGIN</span> ;</span><br><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> person_test(age, <span class="keyword">name</span>) <span class="keyword">VALUE</span> (<span class="number">18</span>,<span class="string">'xiaoming'</span>);</span><br><span class="line"><span class="keyword">SELECT</span> * <span class="keyword">FROM</span> person_test;</span><br><span class="line"><span class="keyword">COMMIT</span> ;</span><br><span class="line"></span><br><span class="line"><span class="keyword">BEGIN</span> ;</span><br><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> person_test(age,<span class="keyword">name</span>) <span class="keyword">VALUE</span> (<span class="number">18</span>,<span class="string">'jim'</span>);</span><br><span class="line"><span class="keyword">SELECT</span> * <span class="keyword">FROM</span> person_test;</span><br><span class="line"><span class="keyword">ROLLBACK</span> ;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">SELECT</span> * <span class="keyword">FROM</span> person_test <span class="keyword">WHERE</span> <span class="keyword">id</span>=<span class="number">10</span>;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">-- 隔离级别（read COMMITTED） set session transaction isolation level read COMMITTED ;</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">SELECT</span> @@tx_isolation;</span><br><span class="line"></span><br><span class="line"><span class="keyword">BEGIN</span> ;</span><br><span class="line"></span><br><span class="line"><span class="keyword">SELECT</span> * <span class="keyword">FROM</span> person_test;</span><br><span class="line"></span><br><span class="line"><span class="keyword">SELECT</span> * <span class="keyword">FROM</span> person_test;</span><br><span class="line"></span><br><span class="line"><span class="keyword">COMMIT</span> ;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">-- 隔离级别（REPEATABLE READ）</span></span><br><span class="line"><span class="keyword">set</span> <span class="keyword">session</span> <span class="keyword">transaction</span> <span class="keyword">isolation</span> <span class="keyword">level</span> REPEATABLE <span class="keyword">READ</span> ;</span><br><span class="line"></span><br><span class="line"><span class="keyword">SELECT</span> @@tx_isolation;</span><br><span class="line"></span><br><span class="line"><span class="keyword">BEGIN</span> ;</span><br><span class="line"></span><br><span class="line"><span class="keyword">SELECT</span> * <span class="keyword">FROM</span> person_test;</span><br><span class="line"></span><br><span class="line"><span class="keyword">SELECT</span> * <span class="keyword">FROM</span> person_test;</span><br><span class="line"></span><br><span class="line"><span class="keyword">COMMIT</span> ;</span><br><span class="line"></span><br><span class="line"><span class="keyword">SELECT</span> * <span class="keyword">FROM</span> person_test;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">BEGIN</span> ;</span><br><span class="line"></span><br><span class="line"><span class="keyword">SELECT</span> * <span class="keyword">FROM</span> person_test <span class="keyword">WHERE</span> age=<span class="number">18</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 这里测试并没有出现幻读情况</span></span><br><span class="line"><span class="keyword">SELECT</span> * <span class="keyword">FROM</span> person_test <span class="keyword">WHERE</span> age=<span class="number">18</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">COMMIT</span> ;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">-- 隔离级别（SERIALIZABLE）</span></span><br><span class="line"><span class="keyword">set</span> <span class="keyword">session</span> <span class="keyword">transaction</span> <span class="keyword">isolation</span> <span class="keyword">level</span> <span class="keyword">SERIALIZABLE</span> ;</span><br><span class="line"></span><br><span class="line"><span class="keyword">SELECT</span> @@tx_isolation;</span><br><span class="line"></span><br><span class="line"><span class="keyword">BEGIN</span> ;</span><br><span class="line"></span><br><span class="line"><span class="keyword">SELECT</span> * <span class="keyword">FROM</span> person_test;</span><br><span class="line"></span><br><span class="line"><span class="keyword">SELECT</span> * <span class="keyword">FROM</span> person_test;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 这里插入会dead lock</span></span><br><span class="line"><span class="comment">-- INSERT INTO person_test (age, name) VALUE (18,'he');</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">COMMIT</span> ;</span><br><span class="line"></span><br><span class="line"><span class="keyword">SELECT</span> * <span class="keyword">FROM</span> person_test;</span><br></pre></td></tr></table></figure>
-<h2 id="clientB"><a href="#clientB" class="headerlink" title="clientB"></a>clientB</h2><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="keyword">set</span> <span class="keyword">session</span> <span class="keyword">transaction</span> <span class="keyword">isolation</span> <span class="keyword">level</span> <span class="keyword">read</span> COMMITTED ;</span><br><span class="line"></span><br><span class="line"><span class="keyword">SELECT</span> @@tx_isolation;</span><br><span class="line"></span><br><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> person_test(</span><br><span class="line">  <span class="keyword">id</span> <span class="built_in">INT</span> <span class="keyword">UNSIGNED</span> AUTO_INCREMENT <span class="keyword">COMMENT</span> <span class="string">'id'</span> PRIMARY <span class="keyword">KEY</span> ,</span><br><span class="line">  age <span class="built_in">INT</span>  <span class="keyword">DEFAULT</span> <span class="number">0</span> <span class="keyword">COMMENT</span> <span class="string">'组织编号（部门编号）'</span>,</span><br><span class="line">  <span class="keyword">name</span> <span class="built_in">VARCHAR</span>(<span class="number">20</span>)  <span class="keyword">DEFAULT</span> <span class="string">''</span> <span class="keyword">COMMENT</span> <span class="string">'组织名称'</span>,</span><br><span class="line">  gmt_create <span class="keyword">timestamp</span> <span class="keyword">NOT</span> <span class="literal">NULL</span> <span class="keyword">DEFAULT</span> <span class="keyword">CURRENT_TIMESTAMP</span> <span class="keyword">COMMENT</span> <span class="string">'创建时间'</span>,</span><br><span class="line">  gmt_modify <span class="keyword">timestamp</span> <span class="keyword">NOT</span> <span class="literal">NULL</span> <span class="keyword">DEFAULT</span> <span class="keyword">CURRENT_TIMESTAMP</span> <span class="keyword">ON</span> <span class="keyword">UPDATE</span> <span class="keyword">CURRENT_TIMESTAMP</span> <span class="keyword">COMMENT</span> <span class="string">'修改时间'</span></span><br><span class="line">)<span class="keyword">ENGINE</span>=<span class="keyword">InnoDB</span> <span class="keyword">DEFAULT</span> <span class="keyword">CHARSET</span>=utf8</span><br><span class="line">  <span class="keyword">COMMENT</span> <span class="string">'person test'</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">BEGIN</span> ;</span><br><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> person_test(age, <span class="keyword">name</span>) <span class="keyword">VALUE</span> (<span class="number">18</span>,<span class="string">'lily'</span>);</span><br><span class="line"><span class="keyword">SELECT</span> * <span class="keyword">FROM</span> person_test;</span><br><span class="line"><span class="keyword">COMMIT</span> ;</span><br><span class="line"></span><br><span class="line"><span class="keyword">BEGIN</span> ;</span><br><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> person_test(age,<span class="keyword">name</span>) <span class="keyword">VALUE</span> (<span class="number">18</span>,<span class="string">'jim'</span>);</span><br><span class="line"><span class="keyword">SELECT</span> * <span class="keyword">FROM</span> person_test;</span><br><span class="line"><span class="keyword">ROLLBACK</span> ;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">BEGIN</span> ;</span><br><span class="line"><span class="keyword">UPDATE</span> person_test <span class="keyword">SET</span> <span class="keyword">name</span>= <span class="string">'zhangsan'</span> <span class="keyword">WHERE</span> <span class="keyword">id</span>=<span class="number">10</span>;</span><br><span class="line"><span class="keyword">SELECT</span> * <span class="keyword">FROM</span> person_test;</span><br><span class="line"><span class="keyword">ROLLBACK</span> ;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">-- 隔离级别（read COMMITTED） set session transaction isolation level read COMMITTED ;</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">SELECT</span> @@tx_isolation;</span><br><span class="line"></span><br><span class="line"><span class="keyword">BEGIN</span> ;</span><br><span class="line"><span class="keyword">UPDATE</span> person_test <span class="keyword">SET</span>  <span class="keyword">name</span> = <span class="string">'zhangsan'</span> <span class="keyword">WHERE</span> <span class="keyword">id</span>=<span class="number">10</span>;</span><br><span class="line"><span class="keyword">SELECT</span> * <span class="keyword">FROM</span> person_test;</span><br><span class="line"></span><br><span class="line"><span class="keyword">DELETE</span> <span class="keyword">FROM</span> person_test <span class="keyword">WHERE</span> <span class="keyword">id</span>=<span class="number">2</span>;</span><br><span class="line"><span class="keyword">SELECT</span> * <span class="keyword">FROM</span> person_test;</span><br><span class="line"><span class="keyword">COMMIT</span> ;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">-- 隔离级别（REPEATABLE READ）</span></span><br><span class="line"><span class="keyword">set</span> <span class="keyword">session</span> <span class="keyword">transaction</span> <span class="keyword">isolation</span> <span class="keyword">level</span> REPEATABLE <span class="keyword">READ</span> ;</span><br><span class="line"></span><br><span class="line"><span class="keyword">SELECT</span> @@tx_isolation;</span><br><span class="line"></span><br><span class="line"><span class="keyword">BEGIN</span> ;</span><br><span class="line"><span class="keyword">SELECT</span> * <span class="keyword">FROM</span> person_test;</span><br><span class="line"></span><br><span class="line"><span class="keyword">UPDATE</span> person_test <span class="keyword">SET</span>  <span class="keyword">name</span> = <span class="string">'zhangsanfeng'</span> <span class="keyword">WHERE</span> <span class="keyword">id</span>=<span class="number">10</span>;</span><br><span class="line"><span class="keyword">SELECT</span> * <span class="keyword">FROM</span> person_test;</span><br><span class="line"></span><br><span class="line"><span class="keyword">COMMIT</span> ;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">BEGIN</span> ;</span><br><span class="line"><span class="keyword">SELECT</span> * <span class="keyword">FROM</span> person_test <span class="keyword">WHERE</span> age=<span class="number">18</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> person_test (age,<span class="keyword">name</span>) <span class="keyword">VALUE</span> (<span class="number">18</span>,<span class="string">'qiang'</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">SELECT</span> * <span class="keyword">FROM</span> person_test <span class="keyword">WHERE</span> age=<span class="number">18</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">COMMIT</span> ;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">-- 隔离级别（SERIALIZABLE）</span></span><br><span class="line"><span class="keyword">set</span> <span class="keyword">session</span> <span class="keyword">transaction</span> <span class="keyword">isolation</span> <span class="keyword">level</span> <span class="keyword">SERIALIZABLE</span> ;</span><br><span class="line"></span><br><span class="line"><span class="keyword">SELECT</span> @@tx_isolation;</span><br><span class="line"></span><br><span class="line"><span class="keyword">BEGIN</span> ;</span><br><span class="line"></span><br><span class="line"><span class="keyword">SELECT</span> * <span class="keyword">FROM</span> person_test;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- SERIALIZABLE情况，不能增加，等待A客户端commit后 会帮助这边commit</span></span><br><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> person_test (age,<span class="keyword">name</span>) <span class="keyword">VALUE</span> (<span class="number">18</span>,<span class="string">'fen'</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> person_test (age , <span class="keyword">name</span>) <span class="keyword">VALUE</span> (<span class="number">18</span>,<span class="string">'fang'</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">SELECT</span> * <span class="keyword">FROM</span> person_test;</span><br><span class="line"></span><br><span class="line"><span class="keyword">COMMIT</span> ;</span><br></pre></td></tr></table></figure>
-
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-      
-
-      <div style="font-size: 12px;">
-        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
-      </div>
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2018/08/10/MySQL事务隔离级别测试/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
   
     <nav id="page-nav">
       <a class="extend prev" rel="prev" href="/">&laquo; Prev</a><a class="page-number" href="/">1</a><span class="page-number current">2</span><a class="page-number" href="/page/3/">3</a><a class="page-number" href="/page/4/">4</a><span class="space">&hellip;</span><a class="page-number" href="/page/15/">15</a><a class="extend next" rel="next" href="/page/3/">Next &raquo;</a>
@@ -1159,11 +1233,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">git</a>
+                <a href="javascript:void(0)" class="js-tag color4">ops</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">ops</a>
+                <a href="javascript:void(0)" class="js-tag color4">git</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1187,15 +1261,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">redis</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">快捷键</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">mysql</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">MySQL</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1203,7 +1273,15 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">redis</a>
+                <a href="javascript:void(0)" class="js-tag color1">MySQL</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">mysql</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">Python</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1216,10 +1294,6 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">spring</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">Python</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1239,15 +1313,15 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">influxdb</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">debug</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">rest</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">influxdb</a>
               </li>
              
               <li class="article-tag-list-item">

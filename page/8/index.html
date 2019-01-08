@@ -151,6 +151,128 @@
           <div id="js-content" class="content-ll">
             
   
+    <article id="post-使用redis实现分布式锁实践" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2018/05/06/使用redis实现分布式锁实践/">使用redis实现分布式锁实践</a>
+    </h1>
+  
+
+        
+        <a href="/2018/05/06/使用redis实现分布式锁实践/" class="archive-article-date">
+  	<time datetime="2018-05-06T14:40:15.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-05-06</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p><img src="http://p3.pstatp.com/large/pgc-image/1525577245216006a030f0d" alt="使用redis实现分布式锁实践"></p>
+<p>分布式锁在多实例部署,分布式系统中经常会使用到,这是因为基于jvm的锁无法满足多实例中锁的需求,本篇将讲下redis如何通过Lua脚本实现分布式锁,不同于网上的redission,完全是手动实现的</p>
+<p>我们先来看一个无锁的情况下会导致什么问题:</p>
+<p>这是一个普通的更新用户年龄的功能,各层代码如下,访问controller层,一个更新,一个查询</p>
+<p><img src="http://p3.pstatp.com/large/pgc-image/1525577245300d6b4ba688e" alt="使用redis实现分布式锁实践"></p>
+<p>这是service层,我们使用contdownlatch发令枪来模拟线程同时并发的情况,发令枪设为32,即32个线程同时去请求修改年龄,</p>
+<p><img src="http://p9.pstatp.com/large/pgc-image/15255772453050353afbd45" alt="使用redis实现分布式锁实践"></p>
+<p>这里使用线程池来提交多线程任务,看代码知道,这里我们已经有了判断年龄的操作,当查询用户查询大于0时,才去调更新用户年龄-1的方法,等下看看有没有用</p>
+<p><img src="http://p1.pstatp.com/large/pgc-image/15255772455100eb9a742aa" alt="使用redis实现分布式锁实践"></p>
+<p>这里是sql,可以看到两个sql,一个查询用户年龄,一个会执行用户年龄每次减1 ,</p>
+<p><img src="http://p3.pstatp.com/large/pgc-image/1525577245426fece8542f5" alt="使用redis实现分布式锁实践"></p>
+<p>这里是用户数据,我们可以看到,用户UID为UR12324的用户,他的年龄是30,接着我们来调32个线程来操作减他年龄</p>
+<p><img src="http://p3.pstatp.com/large/pgc-image/1525577245326426475964f" alt="使用redis实现分布式锁实践"></p>
+<p>我们请求下这个方法</p>
+<p><img src="http://p9.pstatp.com/large/pgc-image/15255772453534c74916aca" alt="使用redis实现分布式锁实践"></p>
+<p>然后看看结果:</p>
+<p><img src="http://p9.pstatp.com/large/pgc-image/1525577245371cd2ab4fb92" alt="使用redis实现分布式锁实践"></p>
+<p><img src="http://p3.pstatp.com/large/pgc-image/1525577245397080653b35e" alt="使用redis实现分布式锁实践"></p>
+<p>可以看到库中年龄已被减为-2,在未加锁的情况下,查询较验并没有什么作用,此时如果加个synchronized或lock锁肯定能避免这种情况,但我们本文讨论的是多实例或分布式环境中,此加锁方式仍然会产生问题,感兴趣的可以试下是不是</p>
+<p>下面我们开始实现一个redis分布式锁,来避免这种情况发生,先说说实现思路:</p>
+<p>1,线程请求访问前先调用加锁的方法,加锁就去里生成一个随机数同时保存在线程本地变量和redis的某key中,此key设有效期为200ms,具体值根据业务执行时间自行调整,加锁成功;</p>
+<p>2.其它线程试着访问拿出它本地变量与redis中某key进行比较,如果不一致,则说明有锁,此线程休眠一段时间,再试着加锁;</p>
+<p>3.加锁成功的线程在操作结束后删掉它持有锁(用lua实现,保证原子性,在它比对和删除锁的过程中,其它线程不会加锁成功),让其它线程再次加锁以执行任务;</p>
+<p>说明:锁的时间为200ms可预防线程挂掉之后死锁,200ms后会自动释放</p>
+<p>下面看看我们写的锁代码:</p>
+<p>片段1:使用redislock 实现lock来复写它的方法</p>
+<p><img src="http://p3.pstatp.com/large/pgc-image/1525577245501a99cfea50b" alt="使用redis实现分布式锁实践"></p>
+<p>片段2:试着加锁的方法</p>
+<p><img src="http://p9.pstatp.com/large/pgc-image/1525577245572b878463b14" alt="使用redis实现分布式锁实践"></p>
+<p>片段3:解锁方法,此处首先从线程本地变量获取它的随机数,然后调用lua脚本,与redis中key相比较,如果相同则删除,否则返回0;</p>
+<p><img src="http://p1.pstatp.com/large/pgc-image/1525577245614230673e2dd" alt="使用redis实现分布式锁实践"></p>
+<p>此为lua脚本方法,用此方法可以保证判断和删除的原子性,在此过程中没有线程可以操作此key</p>
+<p><img src="http://p3.pstatp.com/large/pgc-image/152557724561267daa09ca0" alt="使用redis实现分布式锁实践"></p>
+<p>到此为止,我们锁基本写完,来测试下有没有用:</p>
+<p><img src="http://p3.pstatp.com/large/pgc-image/152557724563138748e9e57" alt="使用redis实现分布式锁实践"></p>
+<p>我们在此方法前后分别加入加锁和解锁方法,使用方式和lock锁一样, 我们重新把年龄恢复到30后来测试一下吧</p>
+<p>先看看日志</p>
+<p><img src="http://p3.pstatp.com/large/pgc-image/1525577245640ca379362f7" alt="使用redis实现分布式锁实践"></p>
+<p>这里可以看到各个线程争夺锁的情况,再看看执行结果</p>
+<p><img src="http://p1.pstatp.com/large/pgc-image/1525577245717677655ba56" alt="使用redis实现分布式锁实践"></p>
+<p><img src="http://p1.pstatp.com/large/pgc-image/15255772457044fb33fcc98" alt="使用redis实现分布式锁实践"></p>
+<p>这里我们可以看到虽然是32个线程并发执行,但此值并不会变为负数,加锁成功.</p>
+<p>我们可以看到最后2个线程并没有执行方法</p>
+<p><img src="http://p9.pstatp.com/large/pgc-image/1525577245690a191cc80f9" alt="使用redis实现分布式锁实践"></p>
+<p><img src="http://p3.pstatp.com/large/pgc-image/152557724586592f2e563bd" alt="使用redis实现分布式锁实践"></p>
+<p>此时说明加锁成功,大家可以在分布式环境中测试更明显,有关极端情况下解锁失败后应该做什么也可以由我们自己决定,比redission要灵活,带锁的redis最好是单实例,在集群中可能会出问题,有机会我们再用zk实现下.</p>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">分布式锁</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+      
+
+      <div style="font-size: 12px;">
+        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
+      </div>
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2018/05/06/使用redis实现分布式锁实践/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
     <article id="post-RateLimit-使用guava来做接口限流" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
@@ -1318,96 +1440,6 @@
 
 
   
-    <article id="post-安全技术-哈希算法密码破解之彩虹表" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2018/03/27/安全技术-哈希算法密码破解之彩虹表/">安全技术--哈希算法密码破解之彩虹表</a>
-    </h1>
-  
-
-        
-        <a href="/2018/03/27/安全技术-哈希算法密码破解之彩虹表/" class="archive-article-date">
-  	<time datetime="2018-03-27T05:12:46.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-03-27</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h1 id="基础技能-安全技术——哈希算法密码破解之彩虹表-Rainbow-Table-学习"><a href="#基础技能-安全技术——哈希算法密码破解之彩虹表-Rainbow-Table-学习" class="headerlink" title="[基础技能] 安全技术——哈希算法密码破解之彩虹表(Rainbow Table)学习"></a><a href="http://www.cnblogs.com/yushuo1990/p/6007068.html" target="_blank" rel="external">[基础技能] 安全技术——哈希算法密码破解之彩虹表(Rainbow Table)学习</a></h1><h2 id="1、基础知识"><a href="#1、基础知识" class="headerlink" title="1、基础知识"></a>1、基础知识</h2><p>刚刚学习过数字签名的相关知识，以及数字签名的伪造技术，而伪造数字签名归根结底就是密码破解的一个过程，然而直接破解的速度是非常缓慢的，所以有人想出一种办法，<strong>直接建立出一个数据文件，里面事先记录了采用和目标采用同样算法计算后生成的Hash散列数值，在需要破解的时候直接调用这样的文件进行比对，破解效率就可以大幅度地，甚至成百近千近万倍地提高，这样事先构造的Hash散列数据文件在安全界被称之为Table。</strong></p>
-<p>其实简单理解就是使用一个大型数据字典来进行快速匹配暴力破解的方法，以空间来换取时间的方法。</p>
-<p>具体的需要一些基础知识做支撑：</p>
-<h4 id="1、哈希算法"><a href="#1、哈希算法" class="headerlink" title="1、哈希算法"></a>1、哈希算法</h4><p>哈希（Hash）算法是单向散列算法，它把某个较大的集合P映射到另一个较小的集合Q中，假如这个算法叫H，那么就有Q = H（P）。对于P中任何一个值p都有唯一确定的q与之对应，但是一个q可以对应多个p。作为一个有用的Hash算法，H还应该满足：</p>
-<blockquote>
-<p>H(p)速度比较快； 给出一个q，很难算出一个p满足q = H(p)；即单向性。</p>
-<p>给出一个p1，很难算出一个不等于p1的p2使得 H(p1)=H(p2)；强弱碰撞性。</p>
-</blockquote>
-<p>正因为有这样的特性，Hash算法经常被用来保存密码————这样不会泄露密码明文，又可以校验输入的密码是否正确。常用的 Hash算法有<strong>MD5、SHA1</strong>等。</p>
-<h4 id="2、破解HASH"><a href="#2、破解HASH" class="headerlink" title="2、破解HASH"></a>2、破解HASH</h4><p> 破解Hash的任务就是，对于给出的一个q，反算出一个p来满足q = H(p)。即直接采用碰撞的方法来打破它的强弱碰撞性。通常我们能想到的办法有两种：</p>
-<blockquote>
-<p>1、暴力破解法，把P中的每一个p都算一下H(p)，直到结果等于q；</p>
-<p>2、查表法，使用一个大型字典，把每个p和对应的q都记录下来，按q做一下索引，直接查找匹配。</p>
-</blockquote>
-<p> 两种办法理论上都是可以的，但是前一种需要大量时间，后一种需要大量存储。这种单纯的开销是很巨大的，所以目前我们认为Hash是足够安全的，十几位以上的密码也是强度足够的。</p>
-<h4 id="3、彩虹表-时空的平衡"><a href="#3、彩虹表-时空的平衡" class="headerlink" title="3、彩虹表 时空的平衡"></a>3、彩虹表 时空的平衡</h4><p> 对于HASH的传统做法是把H(X)的所有输出穷举，查找H(X[y])==H(P)，得出P==X[y]。而<strong>彩虹表则是使用散列链的方式进行</strong>。</p>
-<p>“散列链”是为了降低传统做法空间要求的技术，想法是定义一个衰减函数 R 把散列值变换成另一字符串。通过交替运算H函数和R函数，形成交替的密码和散列值链条。</p>
-<h2 id="2、详解"><a href="#2、详解" class="headerlink" title="2、详解"></a>2、详解</h2><p>当面对要破解的哈希函数<strong>H</strong>，首先定义一个约简函数（reduction function）<strong>R</strong>，<strong>该函数的定义域和值域需要和哈希函数相反</strong>，通过该函数可以将哈希值约简为一个与原文相同格式的值（”plain text” value）。需要强调的是，由于哈希函数H是不可逆的，所以对于密文进行R运算几乎不可能得到明文原文。例如，五位字母明文“zhihu”进行H运算后得到了“D2A82C9A”，而对“D2A82C9A”进行R运算后得到另一个五位字母格式的值“vfkkd”。因为这个值落在H的定义域中，因此可以对它继续进行H运算。<br>就这样，将H运算、R运算、H运算……这个过程反复地重复下去，重复一个特定的次数 k 以后，就得到一条哈希链，例如k为2时得到：</p>
-<p>要生成一个表，我们选择一组随机的初始密码，每一个密码计算一个固定长度K的链，并只存储每一个链的第一个和最后一个密码。第一密码被称为始点，最后一个被称为末点。在上面例举的链中，“zhihu”就是始点，“crepa”就是末点，<strong>其他密码（或散列值）并不被保存</strong>。</p>
-<p>造表过程：</p>
-<p><img src="https://images2015.cnblogs.com/blog/318110/201610/318110-20161028153238125-1334324190.png" alt="img"></p>
-<p>查表过程：</p>
-<p> <img src="https://images2015.cnblogs.com/blog/318110/201610/318110-20161028153254765-1597592300.png" alt="img"></p>
-<p>参考：</p>
-<h1 id="彩虹表破解开机密码、MD5算法等的原理"><a href="#彩虹表破解开机密码、MD5算法等的原理" class="headerlink" title="彩虹表破解开机密码、MD5算法等的原理"></a>彩虹表破解开机密码、MD5算法等的原理</h1><p><a href="http://www.91ri.org/7593.html" target="_blank" rel="external">http://www.91ri.org/7593.html</a></p>
-
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-      
-
-      <div style="font-size: 12px;">
-        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
-      </div>
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2018/03/27/安全技术-哈希算法密码破解之彩虹表/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
   
     <nav id="page-nav">
       <a class="extend prev" rel="prev" href="/page/7/">&laquo; Prev</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/6/">6</a><a class="page-number" href="/page/7/">7</a><span class="page-number current">8</span><a class="page-number" href="/page/9/">9</a><a class="page-number" href="/page/10/">10</a><span class="space">&hellip;</span><a class="page-number" href="/page/15/">15</a><a class="extend next" rel="next" href="/page/9/">Next &raquo;</a>
@@ -1517,11 +1549,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">git</a>
+                <a href="javascript:void(0)" class="js-tag color4">ops</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">ops</a>
+                <a href="javascript:void(0)" class="js-tag color4">git</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1545,15 +1577,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">redis</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">快捷键</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">mysql</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">MySQL</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1561,7 +1589,15 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">redis</a>
+                <a href="javascript:void(0)" class="js-tag color1">MySQL</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">mysql</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">Python</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1574,10 +1610,6 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">spring</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">Python</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1597,15 +1629,15 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">influxdb</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">debug</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">rest</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">influxdb</a>
               </li>
              
               <li class="article-tag-list-item">
