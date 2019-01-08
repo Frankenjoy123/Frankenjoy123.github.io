@@ -429,118 +429,6 @@
 
 
   
-    <article id="post-服务器异常案例" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2018/05/13/服务器异常案例/">服务器异常案例</a>
-    </h1>
-  
-
-        
-        <a href="/2018/05/13/服务器异常案例/" class="archive-article-date">
-  	<time datetime="2018-05-13T06:11:17.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-05-13</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>####1.某应用load&gt;7,ssh感到输入命令后,要等待1、2秒 才开始执行</p>
-<ul>
-<li>top命令查看cpu占用率,约70%,不至于导致ssh中命令响应变慢</li>
-<li>tsar查看最近的网络流量，正常</li>
-<li>iostat 1，发现(虚拟机)磁盘tps达到500+非常高</li>
-<li>jstack观察java中一个线程频繁操作磁盘</li>
-<li>lsof命令观察打开文件，并排查代码发现配置项有误导致磁盘上出现很多小的零碎文件，引发频繁的随机访问，修改配置项后问题解决<br>￼￼</li>
-</ul>
-<p>####2.应用Load&gt;10，GC正常，活跃线程数很多，CPU 100%</p>
-<ul>
-<li>ps -efL， 显示所有活跃线程ID和对应时间</li>
-<li>根据对应线程SPID找出jstack中的执行栈</li>
-<li>定位到问题代码，发现一个没同步保护的HashMap频繁并发put/get导致死循环</li>
-</ul>
-<figure class="highlight erlang-repl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">注意：</span><br><span class="line">通常cpu使用率达到了<span class="number">100</span><span class="comment">%，一般是某些线程在某种条件下进入死循环，退不出来</span></span><br></pre></td></tr></table></figure>
-<p>####3.容灾演习之后服务无法启动</p>
-<ul>
-<li>df –h 命令 /home 100%占用，日志文件巨大</li>
-<li>删掉由于断网引起的大量重连日志，重启</li>
-</ul>
-<p>####4.￼某应用机器load狂飙100+，报警不断</p>
-<ul>
-<li>收集各个系统指标，发现除了load之外没有异常，load&gt;进程数，应用响应正常</li>
-<li>jstack中Runnable状态线程很多“at<br>java.io.UnixFileSystem.getBooleanAttributes0(Native Method)”</li>
-<li>ps –Tel 打印所有线程状态，发现大量怨妇进程（状态D，既无法中断又无法继续）</li>
-<li>根据僵尸进程ID再次查找jstack中对应代码，为blocked的文件访问栈</li>
-<li>df命令hang住</li>
-<li>联系PE同学得知NAS故障,修复后重启OK</li>
-</ul>
-<p>####5.Java进程健在，应用运行一段时间失去响应</p>
-<ul>
-<li>jstat各个区域内存正常，应用服务器系统资源正常</li>
-<li>查看应用默认日志文件发现一行“WARN [common] 服务器 已停止运行:12201”</li>
-<li>jstack发现有线程“JBoss Shutdown Hook”健在，查找代码发现居然有二方包代码在抛出异常后调用system.exit(0)</li>
-</ul>
-<p>￼￼￼</p>
-
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">ops</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-      
-
-      <div style="font-size: 12px;">
-        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
-      </div>
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2018/05/13/服务器异常案例/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
     <article id="post-java服务器load飚高排查思路" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
@@ -607,6 +495,86 @@
       
         <p class="article-more-link">
           <a class="article-more-a" href="/2018/05/13/java服务器load飚高排查思路/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
+    <article id="post-JDK内置工具补充" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2018/05/13/JDK内置工具补充/">JAVA线上问题之Full GC问题定位</a>
+    </h1>
+  
+
+        
+        <a href="/2018/05/13/JDK内置工具补充/" class="archive-article-date">
+  	<time datetime="2018-05-13T06:11:17.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-05-13</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>####1.查看正在运行的JVM的参数</p>
+<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="selector-tag">jcmd</span> 24684 <span class="selector-tag">VM</span><span class="selector-class">.flags</span></span><br></pre></td></tr></table></figure>
+<p>返回结果：</p>
+<figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">-<span class="string">XX:</span>CICompilerCount=<span class="number">3</span> -<span class="string">XX:</span>ErrorFile=<span class="regexp">/data/</span>program<span class="regexp">/java_error.log -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/</span>data<span class="regexp">/program/</span>java.hprof -<span class="string">XX:</span>InitialHeapSize=<span class="number">130023424</span> -<span class="string">XX:</span>+ManagementServer -<span class="string">XX:</span>MaxHeapSize=<span class="number">2063597568</span> -<span class="string">XX:</span>MaxNewSize=<span class="number">687865856</span> -<span class="string">XX:</span>MinHeapDeltaBytes=<span class="number">524288</span> -<span class="string">XX:</span>NewSize=<span class="number">42991616</span> -<span class="string">XX:</span>OldSize=<span class="number">87031808</span> -<span class="string">XX:</span>+PrintGC -<span class="string">XX:</span>+PrintGCDateStamps -<span class="string">XX:</span>+PrintGCDetails -<span class="string">XX:</span>+PrintGCTimeStamps -<span class="string">XX:</span>+UseCompressedClassPointers -<span class="string">XX:</span>+UseCompressedOops -<span class="string">XX:</span>+UseParallelGC</span><br></pre></td></tr></table></figure>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">ops</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+      
+
+      <div style="font-size: 12px;">
+        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
+      </div>
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2018/05/13/JDK内置工具补充/">展开全文 >></a>
         </p>
       
 
@@ -3359,11 +3327,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">ops</a>
+                <a href="javascript:void(0)" class="js-tag color4">git</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">git</a>
+                <a href="javascript:void(0)" class="js-tag color4">ops</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -3383,11 +3351,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">linux</a>
+                <a href="javascript:void(0)" class="js-tag color1">redis</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">redis</a>
+                <a href="javascript:void(0)" class="js-tag color1">linux</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -3395,7 +3363,7 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">test</a>
+                <a href="javascript:void(0)" class="js-tag color1">mysql</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -3403,7 +3371,7 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">mysql</a>
+                <a href="javascript:void(0)" class="js-tag color5">test</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -3439,15 +3407,15 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">influxdb</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">debug</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">rest</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">influxdb</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -3515,11 +3483,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">单例</a>
+                <a href="javascript:void(0)" class="js-tag color3">HashMap</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">HashMap</a>
+                <a href="javascript:void(0)" class="js-tag color3">单例</a>
               </li>
              
               <li class="article-tag-list-item">
