@@ -151,6 +151,191 @@
           <div id="js-content" class="content-ll">
             
   
+    <article id="post-jdk之线上高内存占用" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2018/02/07/jdk之线上高内存占用/">jdk之线上高内存占用</a>
+    </h1>
+  
+
+        
+        <a href="/2018/02/07/jdk之线上高内存占用/" class="archive-article-date">
+  	<time datetime="2018-02-07T03:14:49.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-02-07</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <figure class="highlight tcl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#找到占用内存高的java进程</span></span><br><span class="line">top </span><br><span class="line"></span><br><span class="line"><span class="comment">#查看堆使用情况</span></span><br><span class="line">jmp -heap [<span class="keyword">pid</span>]</span><br><span class="line"><span class="comment">#查看占用内存高的对象</span></span><br><span class="line">jmp -histo:live [<span class="keyword">pid</span>] | head -n <span class="number">100</span></span><br><span class="line"><span class="comment">#查看占用内存高的对象,dump成文件，线下分析</span></span><br><span class="line">jmap -dump:live,<span class="keyword">format</span>=b,<span class="keyword">file</span>=xxx.xxx [<span class="keyword">pid</span>]</span><br><span class="line"></span><br><span class="line"><span class="comment">#查看进程的线程情况</span></span><br><span class="line">ps p [<span class="keyword">pid</span>] -L -o pcpu,pmem,<span class="keyword">pid</span>,tid,<span class="keyword">time</span>,tname,cmd</span><br><span class="line"></span><br><span class="line"><span class="comment">#线程id打印成16进制</span></span><br><span class="line">printf <span class="string">"%x\n"</span> [tid]</span><br><span class="line"></span><br><span class="line"><span class="comment">#输出java进程堆栈到文件</span></span><br><span class="line">jstack -l [<span class="keyword">pid</span>] &gt; jstack.log</span><br><span class="line"></span><br><span class="line"><span class="comment">#vim 查找16进制的tid， runnable正常状态，WAITING一直等那个条件发生，TIMED_WAITING定时的那个条件不到来也将定时唤醒自己</span></span><br><span class="line">vim jstack.log</span><br></pre></td></tr></table></figure>
+<p>jmap命令有下面几种常用的用法：</p>
+<p>•jmap [pid]</p>
+<p>•jmap -histo:live [pid] &gt;a.log</p>
+<p>•jmap -dump:live,format=b,file=xxx.xxx [pid]</p>
+<p>用得最多是后面两个。其中，jmap -histo:live [pid] 可以查看当前Java进程创建的活跃对象数目和占用内存大小。</p>
+<p>jmap -dump:live,format=b,file=xxx.xxx [pid] 则可以将当前Java进程的内存占用情况导出来，方便用专门的内存分析工具（例如：MAT）来分析。</p>
+<p>这个命令对于分析是否有内存泄漏很有帮助。具体怎么使用可以查看本博的另一篇文章：利用Eclipse Memory Analyzer Tool（MAT）分析内存泄漏</p>
+<p>首先看一下一个java进程的jmap输出：</p>
+<figure class="highlight nix"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br></pre></td><td class="code"><pre><span class="line">[lex@chou ~]$ jmap -heap <span class="number">837</span></span><br><span class="line">Attaching to process ID <span class="number">837</span>, please wait...</span><br><span class="line">Debugger attached successfully.</span><br><span class="line">Server compiler detected.</span><br><span class="line">JVM version is <span class="number">20.10</span>-b01</span><br><span class="line"></span><br><span class="line">using thread-local object allocation.</span><br><span class="line">Parallel GC <span class="keyword">with</span> <span class="number">2</span> thread(s)</span><br><span class="line"></span><br><span class="line">Heap Configuration:</span><br><span class="line">   <span class="attr">MinHeapFreeRatio</span> = <span class="number">40</span></span><br><span class="line">   <span class="attr">MaxHeapFreeRatio</span> = <span class="number">70</span></span><br><span class="line">   <span class="attr">MaxHeapSize</span>      = <span class="number">4294967296</span> (<span class="number">4096.0</span>MB)</span><br><span class="line">   <span class="attr">NewSize</span>          = <span class="number">1310720</span> (<span class="number">1.25</span>MB)</span><br><span class="line">   <span class="attr">MaxNewSize</span>       = <span class="number">17592186044415</span> MB</span><br><span class="line">   <span class="attr">OldSize</span>          = <span class="number">5439488</span> (<span class="number">5.1875</span>MB)</span><br><span class="line">   <span class="attr">NewRatio</span>         = <span class="number">2</span></span><br><span class="line">   <span class="attr">SurvivorRatio</span>    = <span class="number">8</span></span><br><span class="line">   <span class="attr">PermSize</span>         = <span class="number">21757952</span> (<span class="number">20.75</span>MB)</span><br><span class="line">   <span class="attr">MaxPermSize</span>      = <span class="number">85983232</span> (<span class="number">82.0</span>MB)</span><br><span class="line"></span><br><span class="line">Heap Usage:</span><br><span class="line">PS Young Generation</span><br><span class="line">Eden Space:</span><br><span class="line">   <span class="attr">capacity</span> = <span class="number">41025536</span> (<span class="number">39.125</span>MB)</span><br><span class="line">   <span class="attr">used</span>     = <span class="number">18413552</span> (<span class="number">17.560531616210938</span>MB)</span><br><span class="line">   <span class="attr">free</span>     = <span class="number">22611984</span> (<span class="number">21.564468383789062</span>MB)</span><br><span class="line">   <span class="number">44.883147900858624</span>% used</span><br><span class="line">From Space:</span><br><span class="line">   <span class="attr">capacity</span> = <span class="number">4325376</span> (<span class="number">4.125</span>MB)</span><br><span class="line">   <span class="attr">used</span>     = <span class="number">3702784</span> (<span class="number">3.53125</span>MB)</span><br><span class="line">   <span class="attr">free</span>     = <span class="number">622592</span> (<span class="number">0.59375</span>MB)</span><br><span class="line">   <span class="number">85.60606060606061</span>% used</span><br><span class="line">To Space:</span><br><span class="line">   <span class="attr">capacity</span> = <span class="number">4521984</span> (<span class="number">4.3125</span>MB)</span><br><span class="line">   <span class="attr">used</span>     = <span class="number">0</span> (<span class="number">0.0</span>MB)</span><br><span class="line">   <span class="attr">free</span>     = <span class="number">4521984</span> (<span class="number">4.3125</span>MB)</span><br><span class="line">   <span class="number">0.0</span>% used</span><br><span class="line">PS Old Generation</span><br><span class="line">   <span class="attr">capacity</span> = <span class="number">539820032</span> (<span class="number">514.8125</span>MB)</span><br><span class="line">   <span class="attr">used</span>     = <span class="number">108786168</span> (<span class="number">103.74657440185547</span>MB)</span><br><span class="line">   <span class="attr">free</span>     = <span class="number">431033864</span> (<span class="number">411.06592559814453</span>MB)</span><br><span class="line">   <span class="number">20.152302906758376</span>% used</span><br><span class="line">PS Perm Generation</span><br><span class="line">   <span class="attr">capacity</span> = <span class="number">85983232</span> (<span class="number">82.0</span>MB)</span><br><span class="line">   <span class="attr">used</span>     = <span class="number">60770232</span> (<span class="number">57.95500946044922</span>MB)</span><br><span class="line">   <span class="attr">free</span>     = <span class="number">25213000</span> (<span class="number">24.04499053955078</span>MB)</span><br><span class="line">   <span class="number">70.67684080542588</span>% used</span><br></pre></td></tr></table></figure>
+<p>然后再用ps看看：</p>
+<figure class="highlight lsl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">[lex@chou ~]$ ps -p <span class="number">837</span> -o vsz,rss</span><br><span class="line">   VSZ   RSS</span><br><span class="line"><span class="number">7794992</span> <span class="number">3047320</span></span><br></pre></td></tr></table></figure>
+<p>关于这里的几个generation网上资料一大把就不细说了，这里算一下求和可以得知前者总共给Java环境分配了644M的内存，而ps输出的VSZ和RSS分别是7.4G和2.9G，这到底是怎么回事呢？<br>前面jmap输出的内容里，MaxHeapSize 是在命令行上配的，-Xmx4096m，这个java程序可以用到的最大堆内存。<br>VSZ是指已分配的线性空间大小，这个大小通常并不等于程序实际用到的内存大小，产生这个的可能性很多，比如内存映射，共享的动态库，或者向系统申请了更多的堆，都会扩展线性空间大小，要查看一个进程有哪些内存映射，可以使用 pmap 命令来查看：</p>
+<figure class="highlight tap"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">[lex@chou ~]$ pmap -x 837</span><br><span class="line">837:   java</span><br><span class="line">Address           Kbytes     RSS   Dirty Mode   Mapping</span><br><span class="line">0000000040000000     <span class="number"> 36 </span>     <span class="number"> 4 </span>     <span class="number"> 0 </span>r-x--  java</span><br><span class="line">0000000040108000      <span class="number"> 8 </span>     <span class="number"> 8 </span>     <span class="number"> 8 </span>rwx--  java</span><br><span class="line">00000000418c9000  <span class="number"> 13676 </span> <span class="number"> 13676 </span> <span class="number"> 13676 </span>rwx--    [ anon ]</span><br><span class="line">00000006fae00000  <span class="number"> 83968 </span> <span class="number"> 83968 </span> <span class="number"> 83968 </span>rwx--    [ anon ]</span><br><span class="line">0000000700000000 <span class="number"> 527168 </span><span class="number"> 451636 </span><span class="number"> 451636 </span>rwx--    [ anon ]</span><br><span class="line">00000007202d0000 <span class="number"> 127040 </span>     <span class="number"> 0 </span>     <span class="number"> 0 </span>-----    [ anon ]</span><br><span class="line">...</span><br><span class="line">...</span><br><span class="line">00007f55ee124000      <span class="number"> 4 </span>     <span class="number"> 4 </span>     <span class="number"> 0 </span>r-xs-  az.png</span><br><span class="line">00007fff017ff000      <span class="number"> 4 </span>     <span class="number"> 4 </span>     <span class="number"> 0 </span>r-x--    [ anon ]</span><br><span class="line">ffffffffff600000      <span class="number"> 4 </span>     <span class="number"> 0 </span>     <span class="number"> 0 </span>r-x--    [ anon ]</span><br><span class="line">----------------  ------  ------  ---<span class="yaml"><span class="meta">---</span></span></span><br><span class="line"><span class="yaml"><span class="string">total</span> <span class="string">kB</span>         <span class="number">7796020</span> <span class="number">3037264</span> <span class="number">3023928</span></span></span><br></pre></td></tr></table></figure>
+<p>这里可以看到很多anon，这些表示这块内存是由mmap分配的。</p>
+<p>RSZ是Resident Set Size，常驻内存大小，即进程实际占用的物理内存大小， 在现在这个例子当中，RSZ和实际堆内存占用差了2.3G，这2.3G的内存组成分别为：</p>
+<ol>
+<li>JVM本身需要的内存，包括其加载的第三方库以及这些库分配的内存</li>
+<li>NIO的DirectBuffer是分配的native memory</li>
+<li>内存映射文件，包括JVM加载的一些JAR和第三方库，以及程序内部用到的。上面 pmap 输出的内容里，有一些静态文件所占用的大小不在Java的heap里，因此作为一个Web服务器，赶紧把静态文件从这个Web服务器中人移开吧，放到nginx或者CDN里去吧。</li>
+<li>JIT， JVM会将Class编译成native代码，这些内存也不会少，如果使用了Spring的AOP，CGLIB会生成更多的类，JIT的内存开销也会随之变大，而且Class本身JVM的GC会将其放到Perm Generation里去，很难被回收掉，面对这种情况，应该让JVM使用ConcurrentMarkSweep GC，并启用这个GC的相关参数允许将不使用的class从Perm Generation中移除， 参数配置： -XX:+UseConcMarkSweepGC -X:+CMSPermGenSweepingEnabled -X:+CMSClassUnloadingEnabled，如果不需要移除而Perm Generation空间不够，可以加大一点： -X:PermSize=256M -X:MaxPermSize=512M</li>
+<li>JNI，一些JNI接口调用的native库也会分配一些内存，如果遇到JNI库的内存泄露，可以使用valgrind等内存泄露工具来检测</li>
+<li>线程栈，每个线程都会有自己的栈空间，如果线程一多，这个的开销就很明显了</li>
+<li>jmap/jstack 采样，频繁的采样也会增加内存占用，如果你有服务器健康监控，记得这个频率别太高，否则健康监控变成致病监控了。</li>
+</ol>
+<p>关于JVM的几个GC堆和GC的情况，可以用jstat来监控，例如监控进程837每隔1000毫秒刷新一次，输出20次：</p>
+<figure class="highlight lsl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">[lex@chou ~]$ jstat -gcutil <span class="number">837</span> <span class="number">1000</span> <span class="number">20</span></span><br><span class="line">  S0     S1     E      O      P     YGC     YGCT    FGC    FGCT     GCT   </span><br><span class="line">  <span class="number">0.00</span>  <span class="number">80.43</span>  <span class="number">24.62</span>  <span class="number">87.44</span>  <span class="number">98.29</span>   <span class="number">7101</span>  <span class="number">119.652</span>    <span class="number">40</span>   <span class="number">19.719</span>  <span class="number">139.371</span></span><br><span class="line">  <span class="number">0.00</span>  <span class="number">80.43</span>  <span class="number">33.14</span>  <span class="number">87.44</span>  <span class="number">98.29</span>   <span class="number">7101</span>  <span class="number">119.652</span>    <span class="number">40</span>   <span class="number">19.719</span>  <span class="number">139.371</span></span><br></pre></td></tr></table></figure>
+<p>几个字段分别含义如下：</p>
+<table>
+<thead>
+<tr>
+<th>S0</th>
+<th>年轻代中第一个survivor（幸存区）已使用的占当前容量百分比</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>S1</td>
+<td>年轻代中第二个survivor（幸存区）已使用的占当前容量百分比</td>
+</tr>
+<tr>
+<td>E</td>
+<td>年轻代中Eden（伊甸园）已使用的占当前容量百分比</td>
+</tr>
+<tr>
+<td>O</td>
+<td>old代已使用的占当前容量百分比</td>
+</tr>
+<tr>
+<td>P</td>
+<td>perm代已使用的占当前容量百分比</td>
+</tr>
+<tr>
+<td>YGC</td>
+<td>从应用程序启动到采样时年轻代中gc次数</td>
+</tr>
+<tr>
+<td>YGCT</td>
+<td>从应用程序启动到采样时年轻代中gc所用时间(s)</td>
+</tr>
+<tr>
+<td>FGC</td>
+<td>从应用程序启动到采样时old代(全gc)gc次数</td>
+</tr>
+<tr>
+<td>FGCT</td>
+<td>从应用程序启动到采样时old代(全gc)gc所用时间(s)</td>
+</tr>
+<tr>
+<td>GCT</td>
+<td>从应用程序启动到采样时gc用的总时间(s)</td>
+</tr>
+</tbody>
+</table>
+<h1 id="结论"><a href="#结论" class="headerlink" title="结论"></a>结论</h1><p>因此如果正常情况下jmap输出的内存占用远小于 RSZ，可以不用太担心，除非发生一些严重错误，比如PermGen空间满了导致OutOfMemoryError发生，或者RSZ太高导致引起系统公愤被OOM Killer给干掉，就得注意了，该加内存加内存，没钱买内存加交换空间，或者按上面列的组成部分逐一排除。<br>这几个内存指标之间的关系是：VSZ &gt;&gt; RSZ &gt;&gt; Java程序实际使用的堆大小</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<ol>
+<li><p>使用top命令查看系统资源的使用情况，<strong>命令：</strong> <strong>top</strong></p>
+<p><img src="http://s1.51cto.com/images/20171205/1512456083123634.png?x-oss-process=image/watermark,size_16,text_QDUxQ1RP5Y2a5a6i,color_FFFFFF,t_100,g_se,x_10,y_10,shadow_90,type_ZmFuZ3poZW5naGVpdGk=" alt="blob.png"></p>
+<p>如图可以看到java的进程内存使用率较高，java进程的内存使用率达到了70%+</p>
+</li>
+</ol>
+<p>2.定位线程问题（通过命令查看9718进程的线程情况），<strong>命令：</strong> <strong>ps p 9718 -L -o pcpu,pmem,pid,tid,time,tname,cmd</strong></p>
+<p>  <img src="http://s1.51cto.com/images/20171205/1512456639489566.png?x-oss-process=image/watermark,size_16,text_QDUxQ1RP5Y2a5a6i,color_FFFFFF,t_100,g_se,x_10,y_10,shadow_90,type_ZmFuZ3poZW5naGVpdGk=" alt="blob.png"></p>
+<p> 由此可以看到这PID：9718的进程产生了很多线程。接下来就可以通过jstack查看内存使用的堆栈。</p>
+<ol>
+<li>查看内存使用的堆栈：在这里我们挑选了TID=9720的线程进行分析，首先需要将9731这个id转换为16进制。需输入如下命令，</li>
+</ol>
+<p> <strong>printf “%x\n” 9731</strong></p>
+<hr>
+<p><img src="http://s1.51cto.com/images/20171205/1512457511632355.png?x-oss-process=image/watermark,size_16,text_QDUxQ1RP5Y2a5a6i,color_FFFFFF,t_100,g_se,x_10,y_10,shadow_90,type_ZmFuZ3poZW5naGVpdGk=" alt="blob.png"></p>
+<p> 接下需要使用16进制的2603</p>
+<ol>
+<li>将PID为9718的堆栈信息打印到jstack.log中，<strong>命令：</strong> <strong>jstack -l 9718 &gt; jstack.log</strong></li>
+</ol>
+<hr>
+<p><strong>   <img src="http://s1.51cto.com/images/20171205/1512457331172686.png?x-oss-process=image/watermark,size_16,text_QDUxQ1RP5Y2a5a6i,color_FFFFFF,t_100,g_se,x_10,y_10,shadow_90,type_ZmFuZ3poZW5naGVpdGk=" alt="blob.png"></strong></p>
+<hr>
+<p><strong>5. 查看堆栈信息文件，命令：vim jstack.log</strong></p>
+<hr>
+<p><strong>   在进行搜索TID为2603的相关信息。如图：</strong></p>
+<hr>
+<p><strong>   <img src="http://s1.51cto.com/images/20171205/1512457632695909.png?x-oss-process=image/watermark,size_16,text_QDUxQ1RP5Y2a5a6i,color_FFFFFF,t_100,g_se,x_10,y_10,shadow_90,type_ZmFuZ3poZW5naGVpdGk=" alt="blob.png"></strong></p>
+<p>   可以看到这个线程状态为：WAITING。通过查看文件分析 看到大量 Java Thread State。</p>
+<p>   说明它在等待另一个条件的发生，来把自己唤醒，或者干脆它是调用了 sleep(N)。</p>
+<p>   此时线程状态大致为以下几种：</p>
+<p>   java.lang.Thread.State: WAITING (parking)：一直等那个条件发生；</p>
+<p>   java.lang.Thread.State: TIMED_WAITING (parking或sleeping)：定时的，那个条件不到来，也将定时唤醒自己。</p>
+<p>6.代码优化：将文件发送给开发。优化下线程</p>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">ops</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+      
+
+      <div style="font-size: 12px;">
+        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
+      </div>
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2018/02/07/jdk之线上高内存占用/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
     <article id="post-kubernetes之使用minikube本地部署" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
@@ -1395,176 +1580,6 @@
 
 
   
-    <article id="post-React生命周期" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2017/12/27/React生命周期/">React生命周期</a>
-    </h1>
-  
-
-        
-        <a href="/2017/12/27/React生命周期/" class="archive-article-date">
-  	<time datetime="2017-12-27T10:13:26.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2017-12-27</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>学习React，生命周期很重要，我们了解完生命周期的各个组件，对写高性能组件会有很大的帮助.</p>
-<h3 id="Ract生命周期"><a href="#Ract生命周期" class="headerlink" title="Ract生命周期"></a>Ract生命周期</h3><p>React 生命周期分为三种状态 1. 初始化 2.更新 3.销毁</p>
-<p><img src="http://images2015.cnblogs.com/blog/588767/201612/588767-20161205190022429-1074951616.jpg" alt="img"></p>
-<ul>
-<li><strong>初始化</strong></li>
-</ul>
-<p><em>1、getDefaultProps()</em></p>
-<blockquote>
-<p>设置默认的props，也可以用dufaultProps设置组件的默认属性.</p>
-</blockquote>
-<p><em>2、getInitialState()</em></p>
-<blockquote>
-<p>在使用es6的class语法时是没有这个钩子函数的，可以直接在constructor中定义this.state。此时可以访问this.props</p>
-</blockquote>
-<p><em>3、componentWillMount()</em></p>
-<blockquote>
-<p>组件初始化时只调用，以后组件更新不调用，整个生命周期只调用一次，此时可以修改state。</p>
-</blockquote>
-<p><em>4、 render()</em></p>
-<blockquote>
-<p>react最重要的步骤，创建虚拟dom，进行diff算法，更新dom树都在此进行。此时就不能更改state了。</p>
-</blockquote>
-<p><em>5、componentDidMount()</em></p>
-<blockquote>
-<p>组件渲染之后调用，只调用一次。</p>
-</blockquote>
-<ul>
-<li><strong>更新</strong></li>
-</ul>
-<p><em>6、componentWillReceiveProps(nextProps)</em></p>
-<blockquote>
-<p>组件初始化时不调用，组件接受新的props时调用。</p>
-</blockquote>
-<p><em>7、shouldComponentUpdate(nextProps, nextState)</em></p>
-<blockquote>
-<p>react性能优化非常重要的一环。组件接受新的state或者props时调用，我们可以设置在此对比前后两个props和state是否相同，如果相同则返回false阻止更新，因为相同的属性状态一定会生成相同的dom树，这样就不需要创造新的dom树和旧的dom树进行diff算法对比，节省大量性能，尤其是在dom结构复杂的时候</p>
-</blockquote>
-<p><em>8、componentWillUpdata(nextProps, nextState)</em></p>
-<blockquote>
-<p>组件初始化时不调用，只有在组件将要更新时才调用，此时可以修改state</p>
-</blockquote>
-<p><em>9、render()</em></p>
-<blockquote>
-<p>组件渲染</p>
-</blockquote>
-<p><em>10、componentDidUpdate()</em></p>
-<blockquote>
-<p>组件初始化时不调用，组件更新完成后调用，此时可以获取dom节点。</p>
-</blockquote>
-<ul>
-<li><strong>卸载</strong></li>
-</ul>
-<p><em>11、componentWillUnmount()</em></p>
-<blockquote>
-<p>组件将要卸载时调用，一些事件监听和定时器需要在此时清除。</p>
-</blockquote>
-<h3 id="结束语"><a href="#结束语" class="headerlink" title="结束语"></a>结束语</h3><p>以上就是React 的生命周期，大家可以自行写下code测试一下，在这里我就不贴code 了。</p>
-<p><strong>下面所写的，只适合前端的React。（React也支持后端渲染，而且和前端有点小区别，不过我没用过。）</strong></p>
-<h1 id="相关函数"><a href="#相关函数" class="headerlink" title="相关函数"></a>相关函数</h1><p>简单地说，React Component通过其定义的几个函数来控制组件在生命周期的各个阶段的动作。</p>
-<p>在ES6中，一个React组件是用一个class来表示的（具体可以参考<a href="https://link.jianshu.com?t=http://facebook.github.io/react/docs/reusable-components.html#es6-classes" target="_blank" rel="external">官方文档</a>），如下：</p>
-<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 定义一个TodoList的React组件，通过继承React.Component来实现</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">TodoList</span> <span class="keyword">extends</span> <span class="title">React</span>.<span class="title">Component</span> </span>&#123;</span><br><span class="line">  ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>这几个生命周期相关的函数有：</p>
-<figure class="highlight delphi"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">constructor</span><span class="params">(props, context)</span></span></span><br></pre></td></tr></table></figure>
-<p>构造函数，在创建组件的时候调用一次。</p>
-<figure class="highlight actionscript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">void</span> componentWillMount()</span><br></pre></td></tr></table></figure>
-<p>在组件挂载之前调用一次。如果在这个函数里面调用setState，本次的render函数可以看到更新后的state，并且只渲染一次。</p>
-<figure class="highlight actionscript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">void</span> componentDidMount()</span><br></pre></td></tr></table></figure>
-<p>在组件挂载之后调用一次。这个时候，子主键也都挂载好了，可以在这里使用refs。</p>
-<figure class="highlight lisp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">void componentWillReceiveProps(<span class="name">nextProps</span>)</span><br></pre></td></tr></table></figure>
-<p>props是父组件传递给子组件的。父组件发生render的时候子组件就会调用componentWillReceiveProps（不管props有没有更新，也不管父子组件之间有没有数据交换）。</p>
-<figure class="highlight lisp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">bool shouldComponentUpdate(<span class="name">nextProps</span>, nextState)</span><br></pre></td></tr></table></figure>
-<p>组件挂载之后，每次调用setState后都会调用shouldComponentUpdate判断是否需要重新渲染组件。默认返回true，需要重新render。在比较复杂的应用里，有一些数据的改变并不影响界面展示，可以在这里做判断，优化渲染效率。</p>
-<figure class="highlight lisp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">void componentWillUpdate(<span class="name">nextProps</span>, nextState)</span><br></pre></td></tr></table></figure>
-<p>shouldComponentUpdate返回true或者调用forceUpdate之后，componentWillUpdate会被调用。</p>
-<figure class="highlight actionscript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">void</span> componentDidUpdate()</span><br></pre></td></tr></table></figure>
-<p>除了首次render之后调用componentDidMount，其它render结束之后都是调用componentDidUpdate。</p>
-<p>componentWillMount、componentDidMount和componentWillUpdate、componentDidUpdate可以对应起来。区别在于，前者只有在挂载的时候会被调用；而后者在以后的每次更新渲染之后都会被调用。</p>
-<figure class="highlight less"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="selector-tag">ReactElement</span> <span class="selector-tag">render</span>()</span><br></pre></td></tr></table></figure>
-<p>render是一个React组件所必不可少的核心函数（上面的其它函数都不是必须的）。记住，不要在render里面修改state。</p>
-<figure class="highlight actionscript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">void</span> componentWillUnmount()</span><br></pre></td></tr></table></figure>
-<p>组件被卸载的时候调用。一般在componentDidMount里面注册的事件需要在这里删除。</p>
-<h1 id="更新方式"><a href="#更新方式" class="headerlink" title="更新方式"></a>更新方式</h1><p>在react中，触发render的有4条路径。</p>
-<p><strong>以下假设shouldComponentUpdate都是按照默认返回true的方式。</strong></p>
-<ol>
-<li>首次渲染Initial Render</li>
-<li>调用this.setState （并不是一次setState会触发一次render，React可能会合并操作，再一次性进行render）</li>
-<li>父组件发生更新（一般就是props发生改变，但是就算props没有改变或者父子组件之间没有数据交换也会触发render）</li>
-<li>调用this.forceUpdate</li>
-</ol>
-<p>下面是我对React组件四条更新路径地总结：</p>
-<p><img src="http://upload-images.jianshu.io/upload_images/1814354-4bf62e54553a32b7.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/700" alt="img"></p>
-<p>React组件更新路径.png</p>
-<p>注意，如果在shouldComponentUpdate里面返回false可以提前退出更新路径。</p>
-<h1 id="一个React组件生命周期的测试例子"><a href="#一个React组件生命周期的测试例子" class="headerlink" title="一个React组件生命周期的测试例子"></a>一个React组件生命周期的测试例子</h1><p>代码比较简单，没有逻辑，只是在每个相关函数里面alert一下。</p><h1><a href="https://link.jianshu.com?t=http://wximg.gtimg.com/shake_tv/test/lifeCycle2113.html" target="_blank" rel="external">点击链接</a>来试试这个例子。</h1><br>源码：<p></p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">LifeCycle</span> <span class="keyword">extends</span> <span class="title">React</span>.<span class="title">Component</span> </span>&#123;</span><br><span class="line">    <span class="keyword">constructor</span>(props) &#123;</span><br><span class="line">        <span class="keyword">super</span>(props);</span><br><span class="line">        alert(<span class="string">"Initial render"</span>);</span><br><span class="line">        alert(<span class="string">"constructor"</span>);</span><br><span class="line">        <span class="keyword">this</span>.state = &#123;<span class="attr">str</span>: <span class="string">"hello"</span>&#125;;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    componentWillMount() &#123;</span><br><span class="line">        alert(<span class="string">"componentWillMount"</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    componentDidMount() &#123;</span><br><span class="line">        alert(<span class="string">"componentDidMount"</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    componentWillReceiveProps(nextProps) &#123;</span><br><span class="line">        alert(<span class="string">"componentWillReceiveProps"</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    shouldComponentUpdate() &#123;</span><br><span class="line">        alert(<span class="string">"shouldComponentUpdate"</span>);</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">true</span>;        <span class="comment">// 记得要返回true</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    componentWillUpdate() &#123;</span><br><span class="line">        alert(<span class="string">"componentWillUpdate"</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    componentDidUpdate() &#123;</span><br><span class="line">        alert(<span class="string">"componentDidUpdate"</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    componentWillUnmount() &#123;</span><br><span class="line">        alert(<span class="string">"componentWillUnmount"</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    setTheState() &#123;</span><br><span class="line">        <span class="keyword">let</span> s = <span class="string">"hello"</span>;</span><br><span class="line">        <span class="keyword">if</span> (<span class="keyword">this</span>.state.str === s) &#123;</span><br><span class="line">            s = <span class="string">"HELLO"</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">this</span>.setState(&#123;</span><br><span class="line">            str: s</span><br><span class="line">        &#125;);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    forceItUpdate() &#123;</span><br><span class="line">        <span class="keyword">this</span>.forceUpdate();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    render() &#123;</span><br><span class="line">        alert(<span class="string">"render"</span>);</span><br><span class="line">        <span class="keyword">return</span>(</span><br><span class="line">            &lt;div&gt;</span><br><span class="line">                &lt;span&gt;&#123;<span class="string">"Props:"</span>&#125;&lt;h2&gt;&#123;<span class="built_in">parseInt</span>(<span class="keyword">this</span>.props.num)&#125;&lt;<span class="regexp">/h2&gt;&lt;/</span>span&gt;</span><br><span class="line">                &lt;br /&gt;</span><br><span class="line">                &lt;span&gt;&#123;<span class="string">"State:"</span>&#125;&lt;h2&gt;&#123;<span class="keyword">this</span>.state.str&#125;&lt;<span class="regexp">/h2&gt;&lt;/</span>span&gt;</span><br><span class="line">            &lt;<span class="regexp">/div&gt;</span></span><br><span class="line"><span class="regexp">        );</span></span><br><span class="line"><span class="regexp">    &#125;</span></span><br><span class="line"><span class="regexp">&#125;</span></span><br><span class="line"><span class="regexp"></span></span><br><span class="line"><span class="regexp">class Container  extends React.Component &#123;</span></span><br><span class="line"><span class="regexp">    constructor(props) &#123;</span></span><br><span class="line"><span class="regexp">        super(props);</span></span><br><span class="line"><span class="regexp">        this.state = &#123;</span></span><br><span class="line"><span class="regexp">            num: Math.random() * 100</span></span><br><span class="line"><span class="regexp">        &#125;;</span></span><br><span class="line"><span class="regexp">    &#125;</span></span><br><span class="line"><span class="regexp"></span></span><br><span class="line"><span class="regexp">    propsChange() &#123;</span></span><br><span class="line"><span class="regexp">        this.setState(&#123;</span></span><br><span class="line"><span class="regexp">            num: Math.random() * 100</span></span><br><span class="line"><span class="regexp">        &#125;);</span></span><br><span class="line"><span class="regexp">    &#125;</span></span><br><span class="line"><span class="regexp"></span></span><br><span class="line"><span class="regexp">    setLifeCycleState() &#123;</span></span><br><span class="line"><span class="regexp">        this.refs.rLifeCycle.setTheState();</span></span><br><span class="line"><span class="regexp">    &#125;</span></span><br><span class="line"><span class="regexp"></span></span><br><span class="line"><span class="regexp">    forceLifeCycleUpdate() &#123;</span></span><br><span class="line"><span class="regexp">        this.refs.rLifeCycle.forceItUpdate();</span></span><br><span class="line"><span class="regexp">    &#125;</span></span><br><span class="line"><span class="regexp"></span></span><br><span class="line"><span class="regexp">    unmountLifeCycle() &#123;</span></span><br><span class="line"><span class="regexp">        /</span><span class="regexp">/ 这里卸载父组件也会导致卸载子组件</span></span><br><span class="line"><span class="regexp">        React.unmountComponentAtNode(document.getElementById("container"));</span></span><br><span class="line"><span class="regexp">    &#125;</span></span><br><span class="line"><span class="regexp"></span></span><br><span class="line"><span class="regexp">    parentForceUpdate() &#123;</span></span><br><span class="line"><span class="regexp">        this.forceUpdate();</span></span><br><span class="line"><span class="regexp">    &#125;</span></span><br><span class="line"><span class="regexp"></span></span><br><span class="line"><span class="regexp">    render() &#123;</span></span><br><span class="line"><span class="regexp">        return (</span></span><br><span class="line"><span class="regexp">            &lt;div&gt;</span></span><br><span class="line"><span class="regexp">                &lt;a href="javascript:;" className="weui_btn weui_btn_primary" onClick=&#123;this.propsChange.bind(this)&#125;&gt;propsChange&lt;/</span>a&gt;</span><br><span class="line">                &lt;a href=<span class="string">"javascript:;"</span> className=<span class="string">"weui_btn weui_btn_primary"</span> onClick=&#123;<span class="keyword">this</span>.setLifeCycleState.bind(<span class="keyword">this</span>)&#125;&gt;setState&lt;<span class="regexp">/a&gt;</span></span><br><span class="line"><span class="regexp">                &lt;a href="javascript:;" className="weui_btn weui_btn_primary" onClick=&#123;this.forceLifeCycleUpdate.bind(this)&#125;&gt;forceUpdate&lt;/</span>a&gt;</span><br><span class="line">                &lt;a href=<span class="string">"javascript:;"</span> className=<span class="string">"weui_btn weui_btn_primary"</span> onClick=&#123;<span class="keyword">this</span>.unmountLifeCycle.bind(<span class="keyword">this</span>)&#125;&gt;unmount&lt;<span class="regexp">/a&gt;</span></span><br><span class="line"><span class="regexp">                &lt;a href="javascript:;" className="weui_btn weui_btn_primary" onClick=&#123;this.parentForceUpdate.bind(this)&#125;&gt;parentForceUpdateWithoutChange&lt;/</span>a&gt;</span><br><span class="line">                &lt;LifeCycle ref=<span class="string">"rLifeCycle"</span> num=&#123;<span class="keyword">this</span>.state.num&#125;&gt;<span class="xml"><span class="tag">&lt;/<span class="name">LifeCycle</span>&gt;</span></span></span><br><span class="line">            &lt;<span class="regexp">/div&gt;</span></span><br><span class="line"><span class="regexp">        );</span></span><br><span class="line"><span class="regexp">    &#125;</span></span><br><span class="line"><span class="regexp">&#125;</span></span><br><span class="line"><span class="regexp"></span></span><br><span class="line"><span class="regexp">ReactDom.render(</span></span><br><span class="line"><span class="regexp">    &lt;Container&gt;&lt;/</span>Container&gt;,</span><br><span class="line">    <span class="built_in">document</span>.getElementById(<span class="string">'container'</span>)</span><br><span class="line">);</span><br></pre></td></tr></table></figure>
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">react</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-      
-
-      <div style="font-size: 12px;">
-        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
-      </div>
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2017/12/27/React生命周期/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
   
     <nav id="page-nav">
       <a class="extend prev" rel="prev" href="/page/9/">&laquo; Prev</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/8/">8</a><a class="page-number" href="/page/9/">9</a><span class="page-number current">10</span><a class="page-number" href="/page/11/">11</a><a class="page-number" href="/page/12/">12</a><span class="space">&hellip;</span><a class="page-number" href="/page/15/">15</a><a class="extend next" rel="next" href="/page/11/">Next &raquo;</a>
@@ -1596,7 +1611,7 @@
 		isArchive: false,
 		isTag: false,
 		isCategory: false,
-		open_in_new: false,
+		open_in_new: true,
 		toc_hide_index: true,
 		root: "/",
 		innerArchive: true,
@@ -1674,11 +1689,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">ops</a>
+                <a href="javascript:void(0)" class="js-tag color4">git</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">git</a>
+                <a href="javascript:void(0)" class="js-tag color4">ops</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1698,11 +1713,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">linux</a>
+                <a href="javascript:void(0)" class="js-tag color1">redis</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">redis</a>
+                <a href="javascript:void(0)" class="js-tag color1">linux</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1714,19 +1729,15 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">MySQL</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">mysql</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">Python</a>
+                <a href="javascript:void(0)" class="js-tag color1">MySQL</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">react</a>
+                <a href="javascript:void(0)" class="js-tag color2">Python</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1738,6 +1749,10 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">react</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">tomcat</a>
               </li>
              
@@ -1746,15 +1761,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">elastic-job</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">guava</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">influxdb</a>
+                <a href="javascript:void(0)" class="js-tag color2">elastic-job</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1766,7 +1777,7 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">python</a>
+                <a href="javascript:void(0)" class="js-tag color4">influxdb</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1775,6 +1786,10 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">maven</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">python</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1794,11 +1809,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">后端</a>
+                <a href="javascript:void(0)" class="js-tag color5">前端指南</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">前端指南</a>
+                <a href="javascript:void(0)" class="js-tag color3">后端</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1826,7 +1841,7 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">HashMap</a>
+                <a href="javascript:void(0)" class="js-tag color5">前端跨域</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1834,7 +1849,7 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">前端跨域</a>
+                <a href="javascript:void(0)" class="js-tag color3">HashMap</a>
               </li>
              
               <li class="article-tag-list-item">

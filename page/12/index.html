@@ -151,6 +151,119 @@
           <div id="js-content" class="content-ll">
             
   
+    <article id="post-zookeeper详解" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2017/11/26/zookeeper详解/">zookeeper详解</a>
+    </h1>
+  
+
+        
+        <a href="/2017/11/26/zookeeper详解/" class="archive-article-date">
+  	<time datetime="2017-11-26T13:47:28.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2017-11-26</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="start"><a href="#start" class="headerlink" title="start"></a>start</h1><figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">bin/zkServer<span class="selector-class">.sh</span> start</span><br><span class="line"></span><br><span class="line">$ bin/zkCli<span class="selector-class">.sh</span> -server <span class="number">127.0</span>.<span class="number">0.1</span>:<span class="number">2181</span></span><br></pre></td></tr></table></figure>
+<h1 id="zk-client-操作"><a href="#zk-client-操作" class="headerlink" title="zk client 操作"></a>zk client 操作</h1><pre><code>stat path [watch]
+set path data [version]
+ls path [watch]
+delquota [-n|-b] path
+ls2 path [watch]
+setAcl path acl
+setquota -n|-b val path
+history
+redo cmdno
+printwatches on|off
+delete path [version]
+sync path
+listquota path
+rmr path
+get path [watch]
+create [-s] [-e] path data acl
+addauth scheme auth
+quit
+getAcl path
+close
+connect host:port
+</code></pre><h1 id="伪集群搭建"><a href="#伪集群搭建" class="headerlink" title="伪集群搭建"></a>伪集群搭建</h1><p>参考：<a href="http://zookeeper.apache.org/doc/trunk/zookeeperStarted.html" target="_blank" rel="external">http://zookeeper.apache.org/doc/trunk/zookeeperStarted.html</a></p>
+<p><strong>集群配置：</strong></p>
+<p>1、配置文件conf/zoo.cfg，除了单机模式的配置之外，还需要新加server.x信息，如下所示。</p>
+<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">tickTime</span>=2000</span><br><span class="line"><span class="attribute">dataDir</span>=D:\09tmp\zookeeper\data</span><br><span class="line"><span class="attribute">clientPort</span>=2181</span><br><span class="line"><span class="attribute">initLimit</span>=5</span><br><span class="line"><span class="attribute">syncLimit</span>=2</span><br><span class="line">server.<span class="attribute">1</span>=zoo1:2888:3888</span><br><span class="line">server.<span class="attribute">2</span>=zoo2:2888:3888</span><br><span class="line">server.<span class="attribute">3</span>=zoo3:2888:3888</span><br></pre></td></tr></table></figure>
+<p>​    zoox表示的是zookeeper服务器的IP地址，第一个端口2888：在zookeeper服务器之间及和leader连接时使用，第二个端口号：3888是在进行leader选举时使用。</p>
+<p>2、同时需要在配置项dataDir所指示目录下创建文件myid文件，其内容为该1中server.x中的x，表示该zookeeper服务器的编号。 </p>
+<p>3、为了降低更新的延迟，需要为事物日志的存放专门指定存储路径，该配置项为：dataLogDir    </p>
+<figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># The number of milliseconds of each tick</span></span><br><span class="line"><span class="attr">tickTime</span>=<span class="number">2000</span></span><br><span class="line"><span class="comment"># The number of ticks that the initial </span></span><br><span class="line"><span class="comment"># synchronization phase can take</span></span><br><span class="line"><span class="attr">initLimit</span>=<span class="number">10</span></span><br><span class="line"><span class="comment"># The number of ticks that can pass between </span></span><br><span class="line"><span class="comment"># sending a request and getting an acknowledgement</span></span><br><span class="line"><span class="attr">syncLimit</span>=<span class="number">5</span></span><br><span class="line"><span class="comment"># the directory where the snapshot is stored.</span></span><br><span class="line"><span class="comment"># do not use /tmp for storage, /tmp here is just </span></span><br><span class="line"><span class="comment"># example sakes.</span></span><br><span class="line"><span class="attr">dataDir</span>=D:\\<span class="number">09</span>tmp\\zookeeper\\data</span><br><span class="line"><span class="attr">dataLogDir</span>=D:\\<span class="number">09</span>tmp\\zookeeper\\log</span><br></pre></td></tr></table></figure>
+<p><strong>伪集群配置：</strong></p>
+<p>1、由于所有zookeeper服务器都在一台物理机器上，因此zoo1.cfg中配置项server.x的端口信息，不能相同。且配置项dataDir和dataLogDir也需要为伪服务器单独指定。配置项clientPort在三个服务器中也要配置不同的值，示例如下：</p>
+<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">tickTime</span>=2000</span><br><span class="line"><span class="attribute">dataDir</span>=D:\09tmp\zookeeper\data\\1</span><br><span class="line"><span class="attribute">dataLogDir</span>=D:\09tmp\zookeeper\log\\1</span><br><span class="line"><span class="attribute">clientPort</span>=2181</span><br><span class="line"><span class="attribute">initLimit</span>=5</span><br><span class="line"><span class="attribute">syncLimit</span>=2</span><br><span class="line">server.<span class="attribute">1</span>=localhost:2888:3888</span><br><span class="line">server.<span class="attribute">2</span>=localhost:2889:3889</span><br><span class="line">server.<span class="attribute">3</span>=localhost:2890:3890</span><br></pre></td></tr></table></figure>
+<p>2、同时需要准备zoo2.cfg和zoo3.cfg配置文件，参考1进行配置</p>
+<p>3、在D:\09tmp\zookeeper\data\1、D:\09tmp\zookeeper\data\2和D:\09tmp\zookeeper\data\3中分别创建文件myid，里面填写对应的zookeeper服务器编号。</p>
+<p>4、创建三个文件：zkEnv1.cmd、zkEnv2.cmd和zkEnv3.cmd分别用来指定使用不同的zoo.cfg。</p>
+<p>5、创建三个文件：zkServer1.cmd、zkServer2.cmd和zkServer3.cmd分别用来指定不同的文件zkEnv.cmd。</p>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">zookeeper</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+      
+
+      <div style="font-size: 12px;">
+        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
+      </div>
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2017/11/26/zookeeper详解/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
     <article id="post-Mockito浅谈" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
@@ -1132,84 +1245,6 @@ git merge 则不会显示 feature，只保留单条分支记录。
 
 
   
-    <article id="post-Mac笔记本快捷键" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2017/11/08/Mac笔记本快捷键/">Mac笔记本快捷键</a>
-    </h1>
-  
-
-        
-        <a href="/2017/11/08/Mac笔记本快捷键/" class="archive-article-date">
-  	<time datetime="2017-11-08T05:23:49.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2017-11-08</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <figure class="highlight mathematica"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Command + <span class="keyword">K</span> 清屏</span><br><span class="line"><span class="keyword">Control</span> + <span class="keyword">C</span> 退出命令</span><br></pre></td></tr></table></figure>
-<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">⌘ Command</span><br><span class="line">⇧ Shift</span><br><span class="line">⌥ Option</span><br><span class="line">⌃ Control</span><br><span class="line">↩︎ Return/Enter</span><br><span class="line">⌫ Delete</span><br><span class="line">⌦ 向前删除键（Fn+Delete）</span><br><span class="line">↑ 上箭头</span><br><span class="line">↓ 下箭头</span><br><span class="line">← 左箭头</span><br><span class="line">→ 右箭头</span><br><span class="line">⇞<span class="built_in"> Page </span>Up（Fn+↑）</span><br><span class="line">⇟<span class="built_in"> Page </span>Down（Fn+↓）</span><br><span class="line">Home Fn + ←</span><br><span class="line">End Fn + →</span><br><span class="line">⇥ 右制表符（Tab键）</span><br><span class="line">⇤ 左制表符（Shift+Tab）</span><br><span class="line">⎋ Escape (Esc)</span><br></pre></td></tr></table></figure>
-
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">快捷键</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-      
-
-      <div style="font-size: 12px;">
-        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
-      </div>
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2017/11/08/Mac笔记本快捷键/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
   
     <nav id="page-nav">
       <a class="extend prev" rel="prev" href="/page/11/">&laquo; Prev</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/10/">10</a><a class="page-number" href="/page/11/">11</a><span class="page-number current">12</span><a class="page-number" href="/page/13/">13</a><a class="page-number" href="/page/14/">14</a><a class="page-number" href="/page/15/">15</a><a class="extend next" rel="next" href="/page/13/">Next &raquo;</a>
@@ -1241,7 +1276,7 @@ git merge 则不会显示 feature，只保留单条分支记录。
 		isArchive: false,
 		isTag: false,
 		isCategory: false,
-		open_in_new: false,
+		open_in_new: true,
 		toc_hide_index: true,
 		root: "/",
 		innerArchive: true,
@@ -1319,11 +1354,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">ops</a>
+                <a href="javascript:void(0)" class="js-tag color4">git</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">git</a>
+                <a href="javascript:void(0)" class="js-tag color4">ops</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1343,11 +1378,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">linux</a>
+                <a href="javascript:void(0)" class="js-tag color1">redis</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">redis</a>
+                <a href="javascript:void(0)" class="js-tag color1">linux</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1359,19 +1394,15 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">MySQL</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">mysql</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">Python</a>
+                <a href="javascript:void(0)" class="js-tag color1">MySQL</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">react</a>
+                <a href="javascript:void(0)" class="js-tag color2">Python</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1383,6 +1414,10 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">react</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">tomcat</a>
               </li>
              
@@ -1391,15 +1426,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">elastic-job</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">guava</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">influxdb</a>
+                <a href="javascript:void(0)" class="js-tag color2">elastic-job</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1411,7 +1442,7 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">python</a>
+                <a href="javascript:void(0)" class="js-tag color4">influxdb</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1420,6 +1451,10 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">maven</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">python</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1439,11 +1474,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">后端</a>
+                <a href="javascript:void(0)" class="js-tag color5">前端指南</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">前端指南</a>
+                <a href="javascript:void(0)" class="js-tag color3">后端</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1471,7 +1506,7 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">HashMap</a>
+                <a href="javascript:void(0)" class="js-tag color5">前端跨域</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1479,7 +1514,7 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">前端跨域</a>
+                <a href="javascript:void(0)" class="js-tag color3">HashMap</a>
               </li>
              
               <li class="article-tag-list-item">

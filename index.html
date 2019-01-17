@@ -151,6 +151,141 @@
           <div id="js-content" class="content-ll">
             
   
+    <article id="post-tomcat架构解析" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2019/01/17/tomcat架构解析/">Tomcat架构解析及部署方式</a>
+    </h1>
+  
+
+        
+        <a href="/2019/01/17/tomcat架构解析/" class="archive-article-date">
+  	<time datetime="2019-01-17T02:33:48.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2019-01-17</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="Tomcat-架构"><a href="#Tomcat-架构" class="headerlink" title="Tomcat 架构"></a>Tomcat 架构</h1><h2 id="目录结构"><a href="#目录结构" class="headerlink" title="目录结构"></a>目录结构</h2><h3 id="conf-目录"><a href="#conf-目录" class="headerlink" title="conf 目录"></a>conf 目录</h3><p><code>catalina.policy</code> :  Tomcat 安全策略文件，控制 JVM 相关权限，具体可以参考<code>java.security.Permission</code></p>
+<p><code>catalina.properties</code> : Tomcat Catalina 行为控制配置文件，比如 Common ClassLoader</p>
+<p><code>logging.properties</code>  : Tomcat 日志配置文件，JDK Logging</p>
+<p><code>server.xml</code>  :  Tomcat Server 配置文件</p>
+<ul>
+<li><code>GlobalNamingResources</code> : 全局 JNDI 资源</li>
+</ul>
+<p><code>context.xml</code> : 全局 Context 配置文件</p>
+<p><code>tomcat-users.xml</code> : Tomcat 角色配置文件，（Realm 文件实现方式）、</p>
+<p><code>web.xml</code> : Servlet 标准的 web.xml 部署文件，Tomcat 默认实现部分配置入内：</p>
+<ul>
+<li><code>org.apache.catalina.servlets.DefaultServlet</code></li>
+<li><code>org.apache.jasper.servlet.JspServlet</code></li>
+</ul>
+<h3 id="lib-目录"><a href="#lib-目录" class="headerlink" title="lib 目录"></a>lib 目录</h3><p>Tomcat 存放公用类库</p>
+<p><code>ecj-*.jar</code>  : Eclipse Java 编译器</p>
+<p><code>jasper.jar</code> : JSP 编译器</p>
+<h3 id="logs-目录"><a href="#logs-目录" class="headerlink" title="logs 目录"></a>logs 目录</h3><p><code>localhost.${date}.log</code> :  当 Tomcat 应用起不来的时候，多看该文件，比如：类冲突</p>
+<ul>
+<li><code>NoClassDefFoundError</code></li>
+<li><code>ClassNotFoundException</code></li>
+</ul>
+<p><code>catalina.${date}.log</code> : 控制台输出，<code>System.out</code> 外置</p>
+<h2 id="webapps-目录"><a href="#webapps-目录" class="headerlink" title="webapps 目录"></a>webapps 目录</h2><p>简化 web 应用部署的方式</p>
+<p>demo 代码 ： <a href="https://github.com/Frankenjoy123/tomcat-deploy-example" target="_blank" rel="external">https://github.com/Frankenjoy123/tomcat-deploy-example</a></p>
+<ul>
+<li><code>mvn clean package</code></li>
+<li><code>cp target xx.war tomcat/webapps/helloworld</code> </li>
+<li><code>unzip xx.war</code></li>
+<li><code>bin/startup.sh</code></li>
+</ul>
+<p>访问 <a href="http://localhost:8080/helloworld/hello?message=abc" target="_blank" rel="external">http://localhost:8080/helloworld/hello?message=abc</a> 即可成功</p>
+<h2 id="部署-Web-应用"><a href="#部署-Web-应用" class="headerlink" title="部署 Web 应用"></a>部署 Web 应用</h2><h3 id="方法一：放置在-webapps目录"><a href="#方法一：放置在-webapps目录" class="headerlink" title="方法一：放置在 webapps目录"></a>方法一：放置在 <code>webapps</code>目录</h3><p>直接拖过去</p>
+<h3 id="方法二：-修改-confi-server-xml"><a href="#方法二：-修改-confi-server-xml" class="headerlink" title="方法二： 修改 confi/server.xml"></a>方法二： 修改 <code>confi/server.xml</code></h3><p>添加<code>Context</code> 元素：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">Context</span> <span class="attr">docBase</span>=<span class="string">"$&#123;webAppAbsolutePath&#125;"</span> <span class="attr">path</span>=<span class="string">"/"</span> <span class="attr">reloadable</span>=<span class="string">"true"</span> /&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">Context</span> <span class="attr">docBase</span>=<span class="string">"$&#123;webAppAbsolutePath&#125;"</span> <span class="attr">path</span>=<span class="string">"/tomcat"</span> <span class="attr">reloadable</span>=<span class="string">"true"</span> /&gt;</span></span><br></pre></td></tr></table></figure>
+<p>熟悉配置元素可以参考<code>org.apache.catalina.core.StandardContext</code> setter 方法</p>
+<p><code>Container</code></p>
+<ul>
+<li><code>Context</code></li>
+</ul>
+<p>该方式不支持动态部署，建议考虑在生产环境使用。</p>
+<h3 id="方法三：独立-context-xml-配置文件"><a href="#方法三：独立-context-xml-配置文件" class="headerlink" title="方法三：独立 context xml 配置文件"></a>方法三：独立 <code>context</code> xml 配置文件</h3><p>首先注意 <code>conf\Catalina\localhost</code></p>
+<p>独立 context XML 配置文件路径：<code>${TOMCAT_HOME}/conf/Catalina/localhost</code> + <code>${ContextPath}</code> .xml</p>
+<p>注意：该方式可以实现热部署，因此建议在开发环境使用。</p>
+<h3 id="I-O-连接器"><a href="#I-O-连接器" class="headerlink" title="I/O 连接器"></a>I/O 连接器</h3><p>参考文件：<a href="https://tomcat.apache.org/tomcat-7.0-doc/config/http.html" target="_blank" rel="external">https://tomcat.apache.org/tomcat-7.0-doc/config/http.html</a></p>
+<p>实现类：<code>org.apache.catalina.connector.Connector</code></p>
+<p>注意实现：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setProtocol</span><span class="params">(String protocol)</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (AprLifecycleListener.isAprAvailable()) &#123;</span><br><span class="line">        <span class="keyword">if</span> (<span class="string">"HTTP/1.1"</span>.equals(protocol)) &#123;</span><br><span class="line">            setProtocolHandlerClassName</span><br><span class="line">                (<span class="string">"org.apache.coyote.http11.Http11AprProtocol"</span>);</span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (<span class="string">"AJP/1.3"</span>.equals(protocol)) &#123;</span><br><span class="line">            setProtocolHandlerClassName</span><br><span class="line">                (<span class="string">"org.apache.coyote.ajp.AjpAprProtocol"</span>);</span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (protocol != <span class="keyword">null</span>) &#123;</span><br><span class="line">            setProtocolHandlerClassName(protocol);</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            setProtocolHandlerClassName</span><br><span class="line">                (<span class="string">"org.apache.coyote.http11.Http11AprProtocol"</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="keyword">if</span> (<span class="string">"HTTP/1.1"</span>.equals(protocol)) &#123;</span><br><span class="line">            setProtocolHandlerClassName</span><br><span class="line">                (<span class="string">"org.apache.coyote.http11.Http11Protocol"</span>);</span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (<span class="string">"AJP/1.3"</span>.equals(protocol)) &#123;</span><br><span class="line">            setProtocolHandlerClassName</span><br><span class="line">                (<span class="string">"org.apache.coyote.ajp.AjpProtocol"</span>);</span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (protocol != <span class="keyword">null</span>) &#123;</span><br><span class="line">            setProtocolHandlerClassName(protocol);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="问答互动"><a href="#问答互动" class="headerlink" title="问答互动"></a>问答互动</h2><h3 id="问题一：如果配置path的话-是以文件名为主-还是-以配置的为主"><a href="#问题一：如果配置path的话-是以文件名为主-还是-以配置的为主" class="headerlink" title="问题一：如果配置path的话 是以文件名为主 还是 以配置的为主"></a>问题一：如果配置path的话 是以文件名为主 还是 以配置的为主</h3><p>独立 context XML 配置文件时，设置 <code>path</code> 属性是无效的。</p>
+<h3 id="问题二：根独立-context-XML-配置文件路径"><a href="#问题二：根独立-context-XML-配置文件路径" class="headerlink" title="问题二：根独立 context XML 配置文件路径"></a>问题二：根独立 context XML 配置文件路径</h3><p><code>${TOMCAT_HOME}/conf/${Engine.name}/${HOST.name}/ROOT.xml</code></p>
+<h3 id="问题三：如果实现热部署"><a href="#问题三：如果实现热部署" class="headerlink" title="问题三：如果实现热部署"></a>问题三：如果实现热部署</h3><p>调整 <code>&lt;context&gt;</code> 元素中的属性<code>reloadable=&quot;true&quot;</code></p>
+<h3 id="问题四：连接器里面的线程池-是用的哪个线程池"><a href="#问题四：连接器里面的线程池-是用的哪个线程池" class="headerlink" title="问题四：连接器里面的线程池 是用的哪个线程池"></a>问题四：连接器里面的线程池 是用的哪个线程池</h3><p>注意<code>conf/server.xml</code> 文件中的一段注释：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">Connector</span> <span class="attr">executor</span>=<span class="string">"tomcatThreadPool"</span></span></span><br><span class="line"><span class="tag">               <span class="attr">port</span>=<span class="string">"8080"</span> <span class="attr">protocol</span>=<span class="string">"HTTP/1.1"</span></span></span><br><span class="line"><span class="tag">               <span class="attr">connectionTimeout</span>=<span class="string">"20000"</span></span></span><br><span class="line"><span class="tag">               <span class="attr">redirectPort</span>=<span class="string">"8443"</span> /&gt;</span></span><br></pre></td></tr></table></figure>
+<p><code>org.apache.catalina.Executor</code>:</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">Executor</span> <span class="keyword">extends</span> <span class="title">java</span>.<span class="title">util</span>.<span class="title">concurrent</span>.<span class="title">Executor</span>, <span class="title">Lifecycle</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">getName</span><span class="params">()</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * Executes the given command at some time in the future.  The command</span></span><br><span class="line"><span class="comment">     * may execute in a new thread, in a pooled thread, or in the calling</span></span><br><span class="line"><span class="comment">     * thread, at the discretion of the &lt;tt&gt;Executor&lt;/tt&gt; implementation.</span></span><br><span class="line"><span class="comment">     * If no threads are available, it will be added to the work queue.</span></span><br><span class="line"><span class="comment">     * If the work queue is full, the system will wait for the specified</span></span><br><span class="line"><span class="comment">     * time until it throws a RejectedExecutionException</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> command the runnable task</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@throws</span> java.util.concurrent.RejectedExecutionException if this task</span></span><br><span class="line"><span class="comment">     * cannot be accepted for execution - the queue is full</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@throws</span> NullPointerException if command or unit is null</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">execute</span><span class="params">(Runnable command, <span class="keyword">long</span> timeout, TimeUnit unit)</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>标准实现：<code>org.apache.catalina.core.StandardThreadExecutor</code> 将连接处理交付给 Java 标准线程池：</p>
+<p><code>org.apache.tomcat.util.threads.ThreadPoolExecutor</code>。</p>
+<h3 id="问题五：JNDI-能不能稍微说下-之前只是在数据源的时候用过，但是不是太理解"><a href="#问题五：JNDI-能不能稍微说下-之前只是在数据源的时候用过，但是不是太理解" class="headerlink" title="问题五：JNDI 能不能稍微说下 之前只是在数据源的时候用过，但是不是太理解"></a>问题五：JNDI 能不能稍微说下 之前只是在数据源的时候用过，但是不是太理解</h3><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">Context</span> <span class="attr">...</span>&gt;</span></span><br><span class="line">  ...</span><br><span class="line">  <span class="tag">&lt;<span class="name">Resource</span> <span class="attr">name</span>=<span class="string">"mail/Session"</span> <span class="attr">auth</span>=<span class="string">"Container"</span></span></span><br><span class="line"><span class="tag">            <span class="attr">type</span>=<span class="string">"javax.mail.Session"</span></span></span><br><span class="line"><span class="tag">            <span class="attr">mail.smtp.host</span>=<span class="string">"localhost"</span>/&gt;</span></span><br><span class="line">  ...</span><br><span class="line"><span class="tag">&lt;/<span class="name">Context</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">Context initCtx = <span class="keyword">new</span> InitialContext();</span><br><span class="line">Context envCtx = (Context) initCtx.lookup(<span class="string">"java:comp/env"</span>);</span><br><span class="line">Session session = (Session) envCtx.lookup(<span class="string">"mail/Session"</span>);</span><br><span class="line"></span><br><span class="line">Message message = <span class="keyword">new</span> MimeMessage(session);</span><br><span class="line">message.setFrom(<span class="keyword">new</span> InternetAddress(request.getParameter(<span class="string">"from"</span>)));</span><br><span class="line">InternetAddress to[] = <span class="keyword">new</span> InternetAddress[<span class="number">1</span>];</span><br><span class="line">to[<span class="number">0</span>] = <span class="keyword">new</span> InternetAddress(request.getParameter(<span class="string">"to"</span>));</span><br><span class="line">message.setRecipients(Message.RecipientType.TO, to);</span><br><span class="line">message.setSubject(request.getParameter(<span class="string">"subject"</span>));</span><br><span class="line">message.setContent(request.getParameter(<span class="string">"content"</span>), <span class="string">"text/plain"</span>);</span><br><span class="line">Transport.send(message);</span><br></pre></td></tr></table></figure>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color2">tomcat</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+      
+
+      <div style="font-size: 12px;">
+        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
+      </div>
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2019/01/17/tomcat架构解析/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
     <article id="post-Expires、Last-Modified、Etag缓存控制" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
@@ -926,204 +1061,6 @@
 
 
   
-    <article id="post-2PC到3PC到Paxos到Raft到ISR" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2018/10/15/2PC到3PC到Paxos到Raft到ISR/">2PC到3PC到Paxos到Raft到ISR</a>
-    </h1>
-  
-
-        
-        <a href="/2018/10/15/2PC到3PC到Paxos到Raft到ISR/" class="archive-article-date">
-  	<time datetime="2018-10-15T13:04:21.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-10-15</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <blockquote>
-<p>分布式理论系列</p>
-</blockquote>
-<ul>
-<li><a href="https://segmentfault.com/a/1190000004468442" target="_blank" rel="external">从ACID到CAP到BASE</a></li>
-<li><a href="https://segmentfault.com/a/1190000004474543" target="_blank" rel="external">2PC到3PC到Paxos到Raft到ISR</a></li>
-<li><a href="https://segmentfault.com/a/1190000004485355" target="_blank" rel="external">复制、分片和路由</a></li>
-<li><a href="https://segmentfault.com/a/1190000004480546" target="_blank" rel="external">副本更新策略</a></li>
-<li><a href="https://segmentfault.com/a/1190000004492447" target="_blank" rel="external">负载均衡算法及手段</a></li>
-<li><a href="https://segmentfault.com/a/1190000004499551" target="_blank" rel="external">RWN及Quorum与强一致性</a></li>
-</ul>
-<h2 id="序"><a href="#序" class="headerlink" title="序"></a>序</h2><p>本文主要讲述2PC及3PC，以及Paxos以及Raft协议。</p>
-<h2 id="两类一致性-操作原子性与副本一致性"><a href="#两类一致性-操作原子性与副本一致性" class="headerlink" title="两类一致性(操作原子性与副本一致性)"></a>两类一致性(<code>操作原子性与副本一致性</code>)</h2><ul>
-<li>2PC协议用于保证属于多个数据分片上的操作的原子性。这些数据分片可能分布在不同的服务器上，2PC协议保证多台服务器上的操作要么全部成功，要么全部失败。</li>
-<li>Paxos协议用于保证同一个数据分片的多个副本之间的数据一致性。当这些副本分布到不同的数据中心时，这个需求尤其强烈。</li>
-</ul>
-<h2 id="一、2PC（阻塞、数据不一致问题、单点问题）"><a href="#一、2PC（阻塞、数据不一致问题、单点问题）" class="headerlink" title="一、2PC（阻塞、数据不一致问题、单点问题）"></a>一、2PC（阻塞、数据不一致问题、单点问题）</h2><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Two-Phase <span class="keyword">Commit</span>，两阶段提交</span><br></pre></td></tr></table></figure>
-<h3 id="1、阶段一：提交事务请求（投票阶段）"><a href="#1、阶段一：提交事务请求（投票阶段）" class="headerlink" title="1、阶段一：提交事务请求（投票阶段）"></a>1、阶段一：提交事务请求（投票阶段）</h3><p>（1）事务询问</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">协调者向所有的参与者发送事务内容，询问是否可以执行事务提交操作，并开始等待各参与者的响应</span><br></pre></td></tr></table></figure>
-<p>（2）执行事务</p>
-<figure class="highlight coq"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">各参与者节点执行事务操作，并将<span class="keyword">Undo</span>和Redo信息计入事务日志中</span><br></pre></td></tr></table></figure>
-<p>（3）各参与者向协调者反馈事务询问的响应</p>
-<figure class="highlight gams"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">如果参与者成功执行了事务操作，那么就反馈给协调者<span class="keyword">Yes</span>响应，表示事务可以执行；如果参与者没有成功执行事务，那么就反馈给协调者<span class="keyword">No</span>响应，表示事务不可以执行。</span><br></pre></td></tr></table></figure>
-<h3 id="2、阶段二：执行事务提交（执行阶段）"><a href="#2、阶段二：执行事务提交（执行阶段）" class="headerlink" title="2、阶段二：执行事务提交（执行阶段）"></a>2、阶段二：执行事务提交（执行阶段）</h3><h4 id="（1）执行事务提交"><a href="#（1）执行事务提交" class="headerlink" title="（1）执行事务提交"></a>（1）执行事务提交</h4><p><img src="http://oz3qait0p.bkt.clouddn.com/2pc%20-1.png" alt="clipboard.png"></p>
-<figure class="highlight gams"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">如果所有参与者的反馈都是<span class="keyword">Yes</span>响应，那么</span><br></pre></td></tr></table></figure>
-<ul>
-<li><p>A、发送提交请求</p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">协调者向所有参与者节点发出<span class="keyword">Commit</span>请求</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>B、事务提交</p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">参与者接收到<span class="keyword">Commit</span>请求后，会正式执行事务提交操作，并在完成提交之后释放在整个事务执行期间占用的事务资源</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>C、反馈事务提交结果</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">参与者在完成事务提交之后，向协调者发送ACK信息</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>D、完成事务</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">协调者接收到所有参与者反馈的ACK消息后，完成事务</span><br></pre></td></tr></table></figure>
-</li>
-</ul>
-<h4 id="（2）中断事务"><a href="#（2）中断事务" class="headerlink" title="（2）中断事务"></a>（2）中断事务</h4><p><img src="http://oz3qait0p.bkt.clouddn.com/2pc-2.png" alt="clipboard.png"></p>
-<figure class="highlight gams"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">任何一个参与者反馈了<span class="keyword">No</span>响应，或者在等待超时之后，协调者尚无法接收到所有参与者的反馈响应，那么就会中断事务。</span><br></pre></td></tr></table></figure>
-<ul>
-<li><p>A、发送回滚请求</p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">协调者向所有参与者节点发出<span class="keyword">Rollback</span>请求</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>B、事务回滚</p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">参与者接收到<span class="keyword">rollback</span>请求后，会利用其在阶段一中记录的<span class="keyword">Undo</span>信息来执行事务回滚操作，并在完成回滚之后释放整个事务执行期间占用的资源</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>C、反馈事务回滚结果</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">参与者在完成事务回滚之后，向协调者发送ACK信息</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>D、中断事务</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">协调者接收到所有参与者反馈的ACK信息后，完成事务中断</span><br></pre></td></tr></table></figure>
-</li>
-</ul>
-<h4 id="优缺点"><a href="#优缺点" class="headerlink" title="优缺点"></a>优缺点</h4><p>优点：原理简单、实现方便<br>缺点：同步阻塞、单点问题、数据不一致、太过保守</p>
-<ul>
-<li>（1）同步阻塞<br>同步阻塞会极大地限制分布式系统的性能。在二阶段提交的执行过程中，所有参与该事务操作的逻辑都处于阻塞状态，各个参与者在等待其他参与者响应的过程中，将无法进行其他任何操作。</li>
-<li>（2）单点问题<br>一旦协调者出现问题，那么整个二阶段提交流程将无法运转，更为严重的是，如果是在阶段二中出现问题，那么其他参与者将会一直处于锁定事务资源的状态中，无法继续完成事务操作。</li>
-<li>（3）数据不一致<br>在阶段二，当协调者向所有参与者发送commit请求之后，发生了局部网络异常或协调者在尚未发完commit请求之前自身发生了崩溃，导致最终只有部分参与者接收到了commit请求，于是这部分参与者执行事务提交，而没收到commit请求的参与者则无法进行事务提交，于是整个分布式系统出现了数据不一致性现象。</li>
-<li>（4）太过保守<br>如果参与者在与协调者通信期间出现故障，协调者只能靠超时机制来判断是否需要中断事务，这个策略比较保守，需要更为完善的容错机制，任意一个节点的失败都会导致整个事务的失败。</li>
-</ul>
-<h2 id="二、3PC（解决2PC的阻塞，但还是可能造成数据不一致）"><a href="#二、3PC（解决2PC的阻塞，但还是可能造成数据不一致）" class="headerlink" title="二、3PC（解决2PC的阻塞，但还是可能造成数据不一致）"></a>二、3PC（解决2PC的阻塞，但还是可能造成数据不一致）</h2><p>Three-Phase Commit，三阶段提交，分为CanCommit、PreCommit、do Commit三个阶段。<br><img src="http://oz3qait0p.bkt.clouddn.com/3pc%20-1.png" alt="clipboard.png"></p>
-<p>为了避免在通知所有参与者提交事务时，其中一个参与者crash不一致时，就出现了三阶段提交的方式。三阶段提交在两阶段提交的基础上增加了一个preCommit的过程，当所有参与者收到preCommit后，并不执行动作，直到收到commit或超过一定时间后才完成操作。</p>
-<h3 id="1、阶段一CanCommit"><a href="#1、阶段一CanCommit" class="headerlink" title="1、阶段一CanCommit"></a>1、阶段一CanCommit</h3><ul>
-<li>（1）事务询问<br>协调者向各参与者发送CanCommit的请求，询问是否可以执行事务提交操作，并开始等待各参与者的响应</li>
-<li>（2）参与者向协调者反馈询问的响应<br>参与者收到CanCommit请求后，正常情况下，如果自身认为可以顺利执行事务，那么会反馈Yes响应，并进入预备状态，否则反馈No。</li>
-</ul>
-<h3 id="2、阶段二PreCommit"><a href="#2、阶段二PreCommit" class="headerlink" title="2、阶段二PreCommit"></a>2、阶段二PreCommit</h3><h4 id="（1）执行事务预提交"><a href="#（1）执行事务预提交" class="headerlink" title="（1）执行事务预提交"></a>（1）执行事务预提交</h4><figure class="highlight gams"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">如果协调者接收到各参与者反馈都是<span class="keyword">Yes</span>，那么执行事务预提交</span><br></pre></td></tr></table></figure>
-<ul>
-<li>A、发送预提交请求<br>协调者向各参与者发送preCommit请求，并进入prepared阶段</li>
-<li>B、事务预提交<br>参与者接收到preCommit请求后，会执行事务操作，并将Undo和Redo信息记录到事务日记中</li>
-<li>C、各参与者向协调者反馈事务执行的响应<br>如果各参与者都成功执行了事务操作，那么反馈给协调者Ack响应，同时等待最终指令，提交commit或者终止abort</li>
-</ul>
-<h4 id="（2）中断事务-1"><a href="#（2）中断事务-1" class="headerlink" title="（2）中断事务"></a>（2）中断事务</h4><p>如果任何一个参与者向协调者反馈了No响应，或者在等待超时后，协调者无法接收到所有参与者的反馈，那么就会中断事务。</p>
-<ul>
-<li><p>A、发送中断请求</p>
-<figure class="highlight ada"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">协调者向所有参与者发送<span class="keyword">abort</span>请求</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>B、中断事务</p>
-<figure class="highlight ada"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">无论是收到来自协调者的<span class="keyword">abort</span>请求，还是等待超时，参与者都中断事务</span><br></pre></td></tr></table></figure>
-</li>
-</ul>
-<h3 id="3、阶段三doCommit"><a href="#3、阶段三doCommit" class="headerlink" title="3、阶段三doCommit"></a>3、阶段三doCommit</h3><h4 id="（1）执行提交"><a href="#（1）执行提交" class="headerlink" title="（1）执行提交"></a>（1）执行提交</h4><ul>
-<li>A、发送提交请求<br>假设协调者正常工作，接收到了所有参与者的ack响应，那么它将从预提交阶段进入提交状态，并向所有参与者发送doCommit请求</li>
-<li>B、事务提交<br>参与者收到doCommit请求后，正式提交事务，并在完成事务提交后释放占用的资源</li>
-<li>C、反馈事务提交结果<br>参与者完成事务提交后，向协调者发送ACK信息</li>
-<li>D、完成事务<br>协调者接收到所有参与者ack信息，完成事务</li>
-</ul>
-<h4 id="（2）中断事务-2"><a href="#（2）中断事务-2" class="headerlink" title="（2）中断事务"></a>（2）中断事务</h4><p>假设协调者正常工作，并且有任一参与者反馈No，或者在等待超时后无法接收所有参与者的反馈，都会中断事务</p>
-<ul>
-<li>A、发送中断请求<br>协调者向所有参与者节点发送abort请求</li>
-<li>B、事务回滚<br>参与者接收到abort请求后，利用undo日志执行事务回滚，并在完成事务回滚后释放占用的资源</li>
-<li>C、反馈事务回滚结果<br>参与者在完成事务回滚之后，向协调者发送ack信息</li>
-<li>D、中断事务<br>协调者接收到所有参与者反馈的ack信息后，中断事务。</li>
-</ul>
-<p>阶段三可能出现的问题：<br>协调者出现问题、协调者与参与者之间网络出现故障。不论出现哪种情况，最终都会导致参与者无法及时接收到来自协调者的doCommit或是abort请求，针对这种情况，参与者都会在等待超时后，继续进行事务提交（timeout后中断事务）。</p>
-<p>优点：降低参与者阻塞范围，并能够在出现单点故障后继续达成一致<br>缺点：引入preCommit阶段，在这个阶段如果出现网络分区，协调者无法与参与者正常通信，参与者依然会进行事务提交，造成数据不一致。</p>
-<h2 id="三、Paxos（解决单点问题）"><a href="#三、Paxos（解决单点问题）" class="headerlink" title="三、Paxos（解决单点问题）"></a>三、Paxos（解决单点问题）</h2><p>基于消息传递且具有高度容错性的一致性算法。Paxos算法要解决的问题就是如何在可能发生几起宕机或网络异常的分布式系统中，快速且正确地在集群内部对某个数据的值达成一致，并且保证不论发生以上任何异常，都不会破坏整个系统的一致性。</p>
-<p>拜占庭问题：消息不完整或者被篡改。Paxos在维持领导者选举或者变量修改一致性上，采取一种类似议会投票的过半同意机制，比如设定一个领导者，需要将此看做一个议案，征求过半同意，每个节点通过一个议案会有编号记录，再次收到此领导者的不同人选，发现已经有编号记录便驳回，最后以多数通过的结果为准。</p>
-<p>我们举个简单的例子，来阐述一下Paxos的基本思想：假设我们有5台计算机A、B、C、D、E，每台计算机保存着公司CEO的信息，现在CEO任期到了，需要进行新一界选举了。</p>
-<p>A计算机发起一个选举议案，提议CEO为“张三”，如果没有其他候选人议案，也没有网络问题，只要其中半数以上计算机收到并通过议案，那么最终“张三”当选CEO。由于是分布式环境，并发请求、机器故障、网络故障等问题是常态，如果A和E同时提交选举议案，A提名“张三”，E提名“李四”，那么肯定会涉及多计算机的一致性问题了：假设A、B、C先收到A的议案，D、E先收到E的议案，那么A继续提交给D时，D告诉它已经先收到E的议案了，因此驳回了A的请求。同样E继续提交给A、B、C时也碰到相同的问题。</p>
-<p>我们可以通过“在每台计算机同时接受议案提交时设置一个编号，编号先的通过，编号后的驳回”的方式来实现。议案提交上去后，发现A、B、C投票“张三”为CEO，D、E投票“李四”为CEO，少数服从多数，因此最后结果为“张三”当选CEO。</p>
-<p><img src="http://oz3qait0p.bkt.clouddn.com/paxos%20-1.png" alt="clipboard.png"></p>
-<p>如果是C计算机发生了网络问题或者故障，双方投票相同，那么选举无法完成。</p>
-<p>如果C计算机发生了网络问题或者故障，A、B、D投票“张三”，E投票“李四”，那么结果为“张三”当选，而C对于这些情况一无所知，但是当C计算机恢复正常时，他会发起一个“询问谁是CEO”的议案获取最新信息。简言之，Paxos对每个节点的并发修改采取编号记录的方式保持一致性，对多个节点的并发修改采取少数服从多数的方式保持一致性。Paxos有点类似分布式二阶段提交方式，但是又不同，二阶段提交不能是多数节点同意，必须是全部同意。为了遵守过半节点同意的约束，Paxos算法往往要求节点总数为奇数。</p>
-<p>Paxos 算法解决的问题是在一个可能发生上述异常的分布式系统中如何就某个值达成一致，保证不论发生以上任何异常，都不会破坏决议的一致性。一个典型的场景是，在一个分布式数据库系统中，如果各节点的初始状态一致，每个节点都执行相同的操作序列，那么他们最后能得到一个一致的状态。为保证每个节点执行相同的命令序列，需要在每一条指令上执行一个「一致性算法」以保证每个节点看到的指令一致。一个通用的一致性算法可以应用在许多场景中，是分布式计算中的重要问题。从20世纪80年代起对于一致性算法的研究就没有停止过。</p>
-<p>简单说来，Paxos的目的是让整个集群的结点对某个值的变更达成一致。Paxos算法基本上来说是个民主选举的算法——大多数的决定会成个整个集群的统一决定。任何一个点都可以提出要修改某个数据的提案，是否通过这个提案取决于这个集群中是否有超过半数的结点同意（所以Paxos算法需要集群中的结点是单数）。</p>
-<p>这个算法有两个阶段（假设这个有三个结点：A，B，C）：</p>
-<h3 id="第一阶段：Prepare阶段"><a href="#第一阶段：Prepare阶段" class="headerlink" title="第一阶段：Prepare阶段"></a>第一阶段：Prepare阶段</h3><p>A把申请修改的请求Prepare Request发给所有的结点A，B，C。注意，Paxos算法会有一个Sequence Number（你可以认为是一个提案号，这个数不断递增，而且是唯一的，也就是说A和B不可能有相同的提案号），这个提案号会和修改请求一同发出，任何结点在“Prepare阶段”时都会拒绝其值小于当前提案号的请求。所以，结点A在向所有结点申请修改请求的时候，需要带一个提案号，越新的提案，这个提案号就越是是最大的。</p>
-<p>如果接收结点收到的提案号n大于其它结点发过来的提案号，这个结点会回应Yes（本结点上最新的被批准提案号），并保证不接收其它&lt;n的提案。这样一来，结点上在Prepare阶段里总是会对最新的提案做承诺。</p>
-<p>优化：在上述 prepare 过程中，如果任何一个结点发现存在一个更高编号的提案，则需要通知 提案人，提醒其中断这次提案。</p>
-<h3 id="第二阶段：Accept阶段"><a href="#第二阶段：Accept阶段" class="headerlink" title="第二阶段：Accept阶段"></a>第二阶段：Accept阶段</h3><p>如果提案者A收到了超过半数的结点返回的Yes，然后他就会向所有的结点发布Accept Request（同样，需要带上提案号n），如果没有超过半数的话，那就返回失败。</p>
-<p>当结点们收到了Accept Request后，如果对于接收的结点来说，n是最大的了，那么，它就会通过request（修改这个值），如果发现自己有一个更大的提案号，那么，结点就会拒绝request（拒绝修改）。</p>
-<p>我们可以看以，这似乎就是一个“两段提交”的优化。其实，2PC/3PC都是分布式一致性算法的残次版本，Google Chubby的作者Mike Burrows说过这个世界上只有一种一致性算法，那就是Paxos，其它的算法都是残次品。</p>
-<p>我们还可以看到：对于同一个值的在不同结点的修改提案就算是在接收方被乱序收到也是没有问题的。</p>
-<h2 id="四、Raft协议-解决paxos的实现难度"><a href="#四、Raft协议-解决paxos的实现难度" class="headerlink" title="四、Raft协议(解决paxos的实现难度)"></a>四、Raft协议(<code>解决paxos的实现难度</code>)</h2><p>Paxos 相比 Raft 比较复杂和难以理解。角色扮演和流程比 Raft 都要啰嗦。比如 Agreement 这个流程，在 Paxos 里边：Client 发起请求举荐 Proposer 成为 Leader，Proposer 然后向全局 Acceptors 寻求确认，Acceptors 全部同意 Proposer 后，Proposer 的 Leader 地位得已承认，Acceptors 还得再向Learners 进行全局广播来同步。而在 Raft 里边，只有 Follower/Candidate/Leader 三种角色，角色本身代表状态，角色之间进行状态转移是一件非常自由民主的事情。Raft虽然有角色之分但是是全民参与进行选举的模式；但是在Paxos里边，感觉更像议员参政模式。</p>
-<h3 id="三个角色"><a href="#三个角色" class="headerlink" title="三个角色"></a>三个角色</h3><p>follower、candidate、leader。<br>最开始大家都是follower，当follower监听不到leader，就可以自己成为candidate，发起投票</p>
-<h3 id="leader选举：timeout限制"><a href="#leader选举：timeout限制" class="headerlink" title="leader选举：timeout限制"></a>leader选举：timeout限制</h3><h4 id="选举的timeout"><a href="#选举的timeout" class="headerlink" title="选举的timeout"></a>选举的timeout</h4><p>follower成为candidate的超时时间，每个follower都在150ms and 300ms之间随机，之后看谁先timeout，谁就先成为candidate，然后它会先投自己一票，再向其他节点发起投票邀请。<br>如果其他节点在这轮选举还没有投过票，那么就给candidate投票，然后重置自己的选举timeout。<br>如果得到大多数的投票就成为leader，之后定期开始向follower发送心跳。</p>
-<p>如果两个follower同时成为candidate的话，如果最后得到的票数相同，则等待其他follower的选择timeout之后成为candidate，继续开始新一轮的选举。</p>
-<h3 id="log复制"><a href="#log复制" class="headerlink" title="log复制"></a>log复制</h3><p>leader把变动的log借助心跳同步给follower，过半回复之后才成功提交，之后再下一次心跳之后，follower也commit变动，在自己的node上生效。</p>
-<p>分裂之后，另一个分区的follower接受不到leader的timeout，然后会有一个先timeout，成为candidate，最后成为leader。<br>于是两个分区就有了两个leader。</p>
-<p>当客户端有变动时，其中的leader由于无法收到过半的提交，则保持未提交状态。有的leader的修改，可以得到过半的提交，则可以修改生效。</p>
-<p>当分裂恢复之后，leader开始对比选举的term，发现有更高的term存在时，他们会撤销未提交的修改，然后以最新的为准。</p>
-<h2 id="五、ISR的机制-解决f容错的2f-1成本问题"><a href="#五、ISR的机制-解决f容错的2f-1成本问题" class="headerlink" title="五、ISR的机制(解决f容错的2f+1成本问题)"></a>五、ISR的机制(<code>解决f容错的2f+1成本问题</code>)</h2><p>Kafka并没有使用Zab或Paxos协议的多数投票机制来保证主备数据的一致性，而是提出了ISR的机制（In-Sync Replicas）的机制来保证数据一致性。</p>
-<p>ISR认为对于2f+1个副本来说，多数投票机制要求最多只能允许f个副本发生故障，如果要支持2个副本的容错，则需要至少维持5个副本，对于消息系统的场景来说，效率太低。</p>
-<p>ISR的运行机制如下：将所有次级副本数据分到两个集合，其中一个被称为ISR集合，这个集合备份数据的特点是即时和主副本数据保持一致，而另外一个集合的备份数据允许其消息队列落后于主副本的数据。在做主备切换时，只允许从ISR集合中选择主副本，只有ISR集合内所有备份都写成功才能认为这次写入操作成功。在具体实现时，kafka利用zookeeper来保持每个ISR集合的信息，当ISR集合内成员变化时，相关构件也便于通知。通过这种方式，如果设定ISR集合大小为f+1，那么可以最多允许f个副本故障，而对于多数投票机制来说，则需要2f+1个副本才能达到相同的容错性。</p>
-<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><ul>
-<li><a href="http://www.jdon.com/artichect/raft.html" target="_blank" rel="external">分布式系统的Raft算法</a></li>
-<li><a href="http://thesecretlivesofdata.com/raft/" target="_blank" rel="external">英文动画演示Raft</a>(<code>推荐</code>)</li>
-<li><a href="https://angus.nyc/2012/paxos-by-example/" target="_blank" rel="external">paxos-by-example</a></li>
-<li><a href="http://chuansong.me/n/1019861" target="_blank" rel="external">为啥CoreOS没用Paxos，重新搞了Raft？</a></li>
-</ul>
-
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-      
-
-      <div style="font-size: 12px;">
-        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
-      </div>
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2018/10/15/2PC到3PC到Paxos到Raft到ISR/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
   
     <nav id="page-nav">
       <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="page-number" href="/page/3/">3</a><span class="space">&hellip;</span><a class="page-number" href="/page/15/">15</a><a class="extend next" rel="next" href="/page/2/">Next &raquo;</a>
@@ -1155,7 +1092,7 @@
 		isArchive: false,
 		isTag: false,
 		isCategory: false,
-		open_in_new: false,
+		open_in_new: true,
 		toc_hide_index: true,
 		root: "/",
 		innerArchive: true,
@@ -1233,11 +1170,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">ops</a>
+                <a href="javascript:void(0)" class="js-tag color4">git</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">git</a>
+                <a href="javascript:void(0)" class="js-tag color4">ops</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1257,11 +1194,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">linux</a>
+                <a href="javascript:void(0)" class="js-tag color1">redis</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">redis</a>
+                <a href="javascript:void(0)" class="js-tag color1">linux</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1273,19 +1210,15 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">MySQL</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">mysql</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">Python</a>
+                <a href="javascript:void(0)" class="js-tag color1">MySQL</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">react</a>
+                <a href="javascript:void(0)" class="js-tag color2">Python</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1297,6 +1230,10 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">react</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">tomcat</a>
               </li>
              
@@ -1305,15 +1242,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">elastic-job</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">guava</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">influxdb</a>
+                <a href="javascript:void(0)" class="js-tag color2">elastic-job</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1325,7 +1258,7 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">python</a>
+                <a href="javascript:void(0)" class="js-tag color4">influxdb</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1334,6 +1267,10 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">maven</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">python</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1353,11 +1290,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">后端</a>
+                <a href="javascript:void(0)" class="js-tag color5">前端指南</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">前端指南</a>
+                <a href="javascript:void(0)" class="js-tag color3">后端</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1385,7 +1322,7 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">HashMap</a>
+                <a href="javascript:void(0)" class="js-tag color5">前端跨域</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1393,7 +1330,7 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">前端跨域</a>
+                <a href="javascript:void(0)" class="js-tag color3">HashMap</a>
               </li>
              
               <li class="article-tag-list-item">
