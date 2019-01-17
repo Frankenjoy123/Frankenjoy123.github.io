@@ -151,19 +151,19 @@
           <div id="js-content" class="content-ll">
             
   
-    <article id="post-anatomy" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+    <article id="post-JDK内置工具补充" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
       <header class="article-header">
         
   
     <h1 itemprop="name">
-      <a class="article-title" href="/2018/05/13/anatomy/">anatomy</a>
+      <a class="article-title" href="/2018/05/13/JDK内置工具补充/">JAVA线上问题之Full GC问题定位</a>
     </h1>
   
 
         
-        <a href="/2018/05/13/anatomy/" class="archive-article-date">
+        <a href="/2018/05/13/JDK内置工具补充/" class="archive-article-date">
   	<time datetime="2018-05-13T06:11:17.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-05-13</time>
 </a>
         
@@ -171,40 +171,10 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        <h4 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h4><p>anatomy 是阿里同学开发的一款用于JVM进程执行过程中的异常诊断工具，可以在不中断程序执行的情况下轻松完成问题排查工作。</p>
-<ul>
-<li>纯Java实现的开源项目</li>
-<li>安装使用便捷</li>
-<li>方法级问题诊断</li>
-<li>Groovy表达式展开变对象，方便你观察入参、出参、异常、当前对象的各种属性细节</li>
-</ul>
-<h4 id="接下来结合线上应用，列举常用的几个排查问题命令如何使用"><a href="#接下来结合线上应用，列举常用的几个排查问题命令如何使用" class="headerlink" title="接下来结合线上应用，列举常用的几个排查问题命令如何使用"></a>接下来结合线上应用，列举常用的几个排查问题命令如何使用</h4><p>1、安装：</p>
-<figure class="highlight vim"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl -sLk http://ompc.oss.aliyuncs.<span class="keyword">com</span>/greys/install.<span class="keyword">sh</span>|<span class="keyword">sh</span></span><br></pre></td></tr></table></figure>
-<p>2、启动</p>
-<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">greys<span class="selector-class">.sh</span>  &lt;PID&gt;</span><br><span class="line"></span><br><span class="line">注：PID：目标Java进程ID</span><br></pre></td></tr></table></figure>
-<p>3、help</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">help</span>  </span><br><span class="line"></span><br><span class="line">注：所有命令</span><br><span class="line"></span><br><span class="line"><span class="built_in">help</span> watch</span><br><span class="line"></span><br><span class="line">注：<span class="built_in">help</span>命令同时也支持对其他命令的一个解释说明，比如我们键入<span class="built_in">help</span> watch，包含（用途说明、参数列表、实际例子）</span><br></pre></td></tr></table></figure>
-<p>4、sc 搜索所有已经加载到JVM中的Class信息。</p>
-<figure class="highlight mipsasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">sc </span>-d *RecommendManagerImpl</span><br></pre></td></tr></table></figure>
-<p><strong>使用场景：</strong></p>
-<p>主要是用于排查一个应用可能存在同一个jar包的多个版本，而不同版本的类的方法可能会有实现上的差异，可以通过这种方式确认JVM中加载的是哪一个jar下的类。</p>
-<p><img src="img/Snip20161002_1.png" alt="image"></p>
-<p>5、monitor 方法层面的性能监控，非实时返回的命令，则是不断的等待目标Java进程返回信息，直到用户输入Ctrl+D为止</p>
-<figure class="highlight llvm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">monitor -<span class="keyword">c</span> <span class="number">5</span>  *TimelineReadServiceImpl getEditorRecPost</span><br><span class="line"></span><br><span class="line">注：-<span class="keyword">c</span> : 统计周期，默认值为<span class="number">120</span>秒</span><br></pre></td></tr></table></figure>
-<p><strong>使用场景：</strong></p>
-<p>线上反馈某个接口突然响应较慢，但又缺乏全链路维度节点的监控，可以通过该命令能定位到具体哪个方法耗时较长，有效缩小排查范围。</p>
-<p><img src="img/Snip20161002_2.png" alt="image"></p>
-<p>6、trace 统计整个调用链路上的所有性能开销和追踪调用链路。</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">trace -n <span class="number">2</span> *TimelineReadServiceImpl <span class="keyword">query</span>RecPageTimeLine</span><br></pre></td></tr></table></figure>
-<p><strong>使用场景：</strong></p>
-<p>定位查找某一接口响应较慢，主要是损耗在哪一个环节。</p>
-<p>另外也可以做为性能优化的参考标准，了解一个接口下面每个环节的消耗时间，从而判断是否合理，有没有优化的空间</p>
-<p>7、watch 观察到指定方法的调用情况</p>
-<p>能观察到的范围：入参、返回值、抛出异常，通过编写groovy表达式进行对应变量的查看。详细使用手册可以通过命令help watch</p>
-<figure class="highlight lsl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">watch -b  *TimelineReadServiceImpl queryRecPageTimeLine  params[<span class="number">0</span>]</span><br><span class="line"></span><br><span class="line">注：打印完整的入参信息</span><br><span class="line"></span><br><span class="line">watch -b  *TimelineReadServiceImpl queryRecPageTimeLine  params[<span class="number">0</span>] 'params[<span class="number">0</span>].uid&gt;<span class="number">2894731</span>' </span><br><span class="line"></span><br><span class="line">注：带上groovy表达式，uid&gt;<span class="number">2894731</span></span><br><span class="line"></span><br><span class="line">watch -s  *TimelineReadServiceImpl queryRecPageTimeLine  params[<span class="number">0</span>]+returnObj 'params[<span class="number">0</span>].uid==<span class="number">3680667</span>'</span><br><span class="line"></span><br><span class="line">注：当请求的uid为<span class="number">3680667</span>时，打印入参和返回结果</span><br></pre></td></tr></table></figure>
-<p>8、 jvm</p>
-<p>查看当前JVM的信息，无参数</p>
-<h3 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h3><p><a href="https://github.com/oldmanpushcart/greys-anatomy/wiki/Commands#help" target="_blank" rel="external">https://github.com/oldmanpushcart/greys-anatomy/wiki/Commands#help</a></p>
+        <p>####1.查看正在运行的JVM的参数</p>
+<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="selector-tag">jcmd</span> 24684 <span class="selector-tag">VM</span><span class="selector-class">.flags</span></span><br></pre></td></tr></table></figure>
+<p>返回结果：</p>
+<figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">-<span class="string">XX:</span>CICompilerCount=<span class="number">3</span> -<span class="string">XX:</span>ErrorFile=<span class="regexp">/data/</span>program<span class="regexp">/java_error.log -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/</span>data<span class="regexp">/program/</span>java.hprof -<span class="string">XX:</span>InitialHeapSize=<span class="number">130023424</span> -<span class="string">XX:</span>+ManagementServer -<span class="string">XX:</span>MaxHeapSize=<span class="number">2063597568</span> -<span class="string">XX:</span>MaxNewSize=<span class="number">687865856</span> -<span class="string">XX:</span>MinHeapDeltaBytes=<span class="number">524288</span> -<span class="string">XX:</span>NewSize=<span class="number">42991616</span> -<span class="string">XX:</span>OldSize=<span class="number">87031808</span> -<span class="string">XX:</span>+PrintGC -<span class="string">XX:</span>+PrintGCDateStamps -<span class="string">XX:</span>+PrintGCDetails -<span class="string">XX:</span>+PrintGCTimeStamps -<span class="string">XX:</span>+UseCompressedClassPointers -<span class="string">XX:</span>+UseCompressedOops -<span class="string">XX:</span>+UseParallelGC</span><br></pre></td></tr></table></figure>
 
       
 
@@ -231,7 +201,7 @@
       </div>
       
         <p class="article-more-link">
-          <a class="article-more-a" href="/2018/05/13/anatomy/">展开全文 >></a>
+          <a class="article-more-a" href="/2018/05/13/JDK内置工具补充/">展开全文 >></a>
         </p>
       
 
@@ -353,19 +323,19 @@
 
 
   
-    <article id="post-linux-commands" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+    <article id="post-anatomy" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
       <header class="article-header">
         
   
     <h1 itemprop="name">
-      <a class="article-title" href="/2018/05/13/linux-commands/">linux常用命令</a>
+      <a class="article-title" href="/2018/05/13/anatomy/">anatomy</a>
     </h1>
   
 
         
-        <a href="/2018/05/13/linux-commands/" class="archive-article-date">
+        <a href="/2018/05/13/anatomy/" class="archive-article-date">
   	<time datetime="2018-05-13T06:11:17.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-05-13</time>
 </a>
         
@@ -373,98 +343,40 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        <h3 id="一、CPU相关、进程"><a href="#一、CPU相关、进程" class="headerlink" title="一、CPU相关、进程"></a>一、CPU相关、进程</h3><h4 id="1、-查看cpu硬件配置"><a href="#1、-查看cpu硬件配置" class="headerlink" title="1、 查看cpu硬件配置"></a>1、 查看cpu硬件配置</h4><figure class="highlight armasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="symbol">less</span> /<span class="meta">proc</span>/cpuinfo</span><br></pre></td></tr></table></figure>
-<figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">uname -a                查看内核<span class="regexp">/操作系统/</span>CPU信息</span><br><span class="line">head -n <span class="number">1</span> <span class="regexp">/etc/i</span>ssue    查看操作系统版本</span><br><span class="line">less <span class="regexp">/proc/</span>cpuinfo      查看CPU信息</span><br><span class="line">hostname                查看计算机名</span><br></pre></td></tr></table></figure>
-<h4 id="2、-top-命令"><a href="#2、-top-命令" class="headerlink" title="2、 top  命令"></a>2、 top  命令</h4><p>实时显示各种系统资源使用情况及进程状态</p>
-<figure class="highlight llvm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">详细命令参数：</span><br><span class="line">h: 显示帮助</span><br><span class="line"><span class="keyword">c</span>：显示详细的命令参数</span><br><span class="line">M：按照占用内存大小（<span class="symbol">%MEM</span> 列）对进程排序；</span><br><span class="line">P：按照 CPU 使用率( <span class="symbol">%CPU</span> 列）对进程排序；</span><br><span class="line">u：显示指定用户的进程。默认显示所有进程；</span><br><span class="line">T：根据累计运行时间排序</span><br></pre></td></tr></table></figure>
-<figure class="highlight lsl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">第一行：当前时间：系统已运行时间：<span class="number">751</span>天，目前<span class="number">4</span>个用户，<span class="number">1</span>、<span class="number">5</span>、<span class="number">15</span>分钟内的load分别是<span class="number">0.07</span>、<span class="number">0.02</span> 、<span class="number">0.00</span></span><br><span class="line">第二行：进程情况：总共<span class="number">148</span>个，正在运行的有<span class="number">2</span>个，休眠有<span class="number">139</span>个，僵尸进程<span class="number">1</span>个</span><br><span class="line">第三行：cpu的使用情况（按数字<span class="number">1</span>显示所有cpu）</span><br><span class="line">第四行：内存情况（buffers表示用作内核缓存的内存量）</span><br><span class="line">第五行：虚拟内存情况（系统的物理内存不够用的时候，把硬盘空间中的一部分空间释放出来，以供当前运行的程序使用）</span><br><span class="line">第六行：进程id，虚拟内存，驻留内存使用，cpu，内存使用百分比，运行时间,命令参数等。</span><br><span class="line">VIRT表示进程可以使用的内存总大小，VIRT=SWAP+RES，包括这个进程真实使用的内存, 映射过的文件, 和别的进程共享的内存等。 </span><br><span class="line">RES表示这个进程真实占用内存的大小，一般这个值和JVM的参数配置有关，如果%MEM使用过高则需要关注</span><br><span class="line">SHR表示可以和别的进程共享的内存和库大小。</span><br></pre></td></tr></table></figure>
+        <h4 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h4><p>anatomy 是阿里同学开发的一款用于JVM进程执行过程中的异常诊断工具，可以在不中断程序执行的情况下轻松完成问题排查工作。</p>
 <ul>
-<li>某一个进程下的线程资源使用情况：</li>
+<li>纯Java实现的开源项目</li>
+<li>安装使用便捷</li>
+<li>方法级问题诊断</li>
+<li>Groovy表达式展开变对象，方便你观察入参、出参、异常、当前对象的各种属性细节</li>
 </ul>
-<figure class="highlight coq"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">top</span> -p &#123;pid&#125; -H</span><br></pre></td></tr></table></figure>
-<ul>
-<li>查看系统load、cpu资源的其它命令</li>
-</ul>
-<figure class="highlight lsl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">mpstat <span class="number">1</span> （汇总的）</span><br><span class="line">mpstat -P ALL <span class="number">1</span>  （汇总的+每个cpu的）</span><br><span class="line">w</span><br><span class="line">uptime</span><br><span class="line">top -H 和 ps -efL/ -Tel  显示 线程</span><br></pre></td></tr></table></figure>
-<h4 id="3、统计一个进程下的线程数"><a href="#3、统计一个进程下的线程数" class="headerlink" title="3、统计一个进程下的线程数"></a>3、统计一个进程下的线程数</h4><figure class="highlight jboss-cli"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">cat <span class="string">/proc/</span>$&#123;pid&#125;<span class="string">/status</span></span><br><span class="line"></span><br><span class="line">返回：</span><br><span class="line"><span class="string">...</span>省略</span><br><span class="line">Threads:	74</span><br><span class="line"><span class="string">....</span>省略</span><br><span class="line"></span><br><span class="line">其它命令：</span><br><span class="line">top -bH -d 3 -p &#123;pid&#125;</span><br></pre></td></tr></table></figure>
-<ul>
-<li>pstree （以树状图的方式展现进程之间的派生关系）<br><a href="http://man.linuxde.net/pstree" target="_blank" rel="external">Linux命令大全</a></li>
-</ul>
-<figure class="highlight 1c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">pstree -p</span><br><span class="line">pstree -p &#123;pid&#125; <span class="string">| wc -l</span></span><br></pre></td></tr></table></figure>
-<ul>
-<li>pstack （显示每个进程的栈跟踪），也可以查看一个进程下的线程总数</li>
-</ul>
-<figure class="highlight dts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="class">pstack </span>&#123;pid&#125; </span><br><span class="line"><span class="comment">// 输出第一行</span></span><br><span class="line"><span class="class">pstack </span>&#123;pid&#125; | head <span class="number">-1</span></span><br></pre></td></tr></table></figure>
-<h4 id="4、查看所有进程"><a href="#4、查看所有进程" class="headerlink" title="4、查看所有进程"></a>4、查看所有进程</h4><figure class="highlight vim"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">ps</span> -ef</span><br><span class="line"><span class="keyword">ps</span> -ef|<span class="keyword">grep</span> java</span><br></pre></td></tr></table></figure>
-<p>5、对于Java应用从操作系统层面观察，就只有进程和线程两个指标，任何东西在操作系统层面都是以文件的形式存储的，进程也不例外。Linux上部署一个Tomcat程序产生一个进程，这个进程所有的东西都在这个目录下</p>
-<p>ll /proc/{pid}/</p>
-<figure class="highlight tcl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">## 可以查看所有的socket连接</span></span><br><span class="line">ll /<span class="keyword">proc</span>/&#123;<span class="keyword">pid</span>&#125;/fd | grep <span class="keyword">socket</span></span><br></pre></td></tr></table></figure>
-<h4 id="5、ulimit-a-（显示当前的各种用户进程限制）"><a href="#5、ulimit-a-（显示当前的各种用户进程限制）" class="headerlink" title="5、ulimit -a （显示当前的各种用户进程限制）"></a>5、ulimit -a （显示当前的各种用户进程限制）</h4><p><a href="http://blog.csdn.net/bbaiggey/article/details/51004817" target="_blank" rel="external">linux修改max user processes limits</a>    </p>
-<figure class="highlight lisp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">ulimit -a</span><br><span class="line"></span><br><span class="line">core file size (<span class="name">blocks</span>, -c) <span class="number">100</span></span><br><span class="line">data seg size (<span class="name">kbytes</span>, -d) unlimited</span><br><span class="line">file size (<span class="name">blocks</span>, -f) unlimited</span><br><span class="line">pending signals (<span class="name">-i</span>) <span class="number">15237</span></span><br><span class="line">max locked memory (<span class="name">kbytes</span>, -l) <span class="number">64</span></span><br><span class="line">max memory size (<span class="name">kbytes</span>, -m) unlimited</span><br><span class="line">open files (<span class="name">-n</span>) <span class="number">1024</span></span><br><span class="line">pipe size (<span class="number">512</span> bytes, -p) <span class="number">8</span></span><br><span class="line">POSIX message queues (<span class="name">bytes</span>, -q) <span class="number">819200</span></span><br><span class="line">stack size (<span class="name">kbytes</span>, -s) <span class="number">8192</span></span><br><span class="line">cpu time (<span class="name">seconds</span>, -t) unlimited</span><br><span class="line">max user processes (<span class="name">-u</span>) <span class="number">15237</span></span><br><span class="line">virtual memory (<span class="name">kbytes</span>, -v) unlimited</span><br><span class="line">file locks (<span class="name">-x</span>) unlimited</span><br></pre></td></tr></table></figure>
-<figure class="highlight mel"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">输出的每一行由资源名字、（单位，ulimit命令的参数）、软限制组成。详细解释：</span><br><span class="line">参数 描述</span><br><span class="line">core <span class="keyword">file</span> <span class="keyword">size</span> core文件的最大值为<span class="number">100</span> blocks，</span><br><span class="line">data seg <span class="keyword">size</span> 进程的数据段可以任意大</span><br><span class="line"><span class="keyword">file</span> <span class="keyword">size</span> 文件可以任意大</span><br><span class="line">pending signals 最多有<span class="number">15237</span>个待处理的信号</span><br><span class="line"><span class="keyword">max</span> locked <span class="keyword">memory</span> 一个任务锁住的物理内存的最大值为<span class="number">64</span>kB</span><br><span class="line"><span class="keyword">max</span> <span class="keyword">memory</span> <span class="keyword">size</span> 一个任务的常驻物理内存的最大值</span><br><span class="line">open files 一个任务最多可以同时打开<span class="number">1024</span>的文件</span><br><span class="line">pipe <span class="keyword">size</span> 管道的最大空间为<span class="number">4096</span>字节</span><br><span class="line">POSIX message queues POSIX的消息队列的最大值为<span class="number">819200</span>字节</span><br><span class="line">stack <span class="keyword">size</span> 进程的栈的最大值为<span class="number">8192</span>字节</span><br><span class="line">cpu time 进程使用的CPU时间</span><br><span class="line"><span class="keyword">max</span> user processes 当前用户同时打开的进程(包括线程)的最大个数为<span class="number">15237</span></span><br><span class="line">virtual <span class="keyword">memory</span> 没有限制进程的最大地址空间</span><br><span class="line"><span class="keyword">file</span> locks 所能锁住的文件的最大个数没有限制</span><br></pre></td></tr></table></figure>
-<h3 id="二、内存相关"><a href="#二、内存相关" class="headerlink" title="二、内存相关"></a>二、内存相关</h3><h4 id="1、vmstat"><a href="#1、vmstat" class="headerlink" title="1、vmstat"></a>1、vmstat</h4><p>Virtual Memory Statistics，统计进程、内存、io、cpu等的活动信息。对于多CPU系统，vmstat打印的是所有CPU的平均输出</p>
-<figure class="highlight avrasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">procs</span><br><span class="line"><span class="symbol">r:</span> 运行队列中进程数量</span><br><span class="line"><span class="symbol">b:</span> 等待IO的进程数量</span><br><span class="line">memory</span><br><span class="line"><span class="symbol">swpd:</span> 使用虚拟内存大小</span><br><span class="line"><span class="symbol">free:</span> 可用内存大小</span><br><span class="line"><span class="symbol">buff:</span> 用作缓冲的内存大小</span><br><span class="line"><span class="symbol">cache:</span> 用作缓存的内存大小</span><br><span class="line"><span class="keyword">swap</span></span><br><span class="line"><span class="symbol">si:</span> 每秒从交换区写到内存的大小</span><br><span class="line"><span class="symbol">so:</span> 每秒从内存写入交换区的大小</span><br><span class="line">io</span><br><span class="line"><span class="symbol">bi:</span> 每秒读取的块数（现在的Linux版本块的大小为<span class="number">1024</span>bytes）</span><br><span class="line"><span class="symbol">bo:</span> 每秒写入的块数</span><br><span class="line">system</span><br><span class="line"><span class="symbol">in:</span> 每秒中断数，包括时钟中断</span><br><span class="line"><span class="symbol">cs:</span> 每秒上下文切换数</span><br><span class="line">cpu（以百分比表示）</span><br><span class="line"><span class="symbol">us:</span> 用户进程执行时间(user time)</span><br><span class="line"><span class="symbol">sy:</span> 系统进程执行时间(system time)</span><br><span class="line"><span class="symbol">id:</span> 空闲时间(包括IO等待时间)</span><br><span class="line"><span class="symbol">wa:</span> 等待IO时间</span><br></pre></td></tr></table></figure>
-<p><strong>注意：排查问题时，要特别关注r的值，如果长时间超过cpu核数2倍，说明系统的负载很重，cpu已经无法及时处理堆积任务。</strong></p>
-<h4 id="2、sar-r"><a href="#2、sar-r" class="headerlink" title="2、sar -r"></a>2、sar -r</h4><h4 id="3、cat-proc-meminfo"><a href="#3、cat-proc-meminfo" class="headerlink" title="3、cat /proc/meminfo"></a>3、cat /proc/meminfo</h4><h4 id="4、free-m"><a href="#4、free-m" class="headerlink" title="4、free -m"></a>4、free -m</h4><figure class="highlight diff"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="deletion">-m ：表示单位是MB</span></span><br></pre></td></tr></table></figure>
-<h3 id="三、IO及网络"><a href="#三、IO及网络" class="headerlink" title="三、IO及网络"></a>三、IO及网络</h3><h4 id="1、-tsar-–traffic：显示网络带宽"><a href="#1、-tsar-–traffic：显示网络带宽" class="headerlink" title="1、 tsar –traffic：显示网络带宽"></a>1、 tsar –traffic：显示网络带宽</h4><h4 id="2、-netstat"><a href="#2、-netstat" class="headerlink" title="2、 netstat"></a>2、 netstat</h4><figure class="highlight 1c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">netstat -tunlp <span class="string">| grep 8088</span></span><br></pre></td></tr></table></figure>
-<figure class="highlight haml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">-<span class="ruby">t tcp</span></span><br><span class="line"><span class="ruby">-u udp</span></span><br><span class="line"><span class="ruby">-n numeric，使用数字显示，不用别名</span></span><br><span class="line"><span class="ruby">-l listening,正在监听</span></span><br><span class="line"><span class="ruby">-p programs,显示pid和名称</span></span><br></pre></td></tr></table></figure>
-<p>一般用于检验本机各端口的网络连接情况。netstat是在内核中访问网络及相关信息的程序，它能提供TCP连接，TCP和UDP监听，进程内存管理的相关报告。</p>
-<p><strong>命令参数：</strong></p>
-<figure class="highlight haml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">-<span class="ruby">a或–all 显示所有连线中的Socket。</span></span><br><span class="line"><span class="ruby">-A&lt;网络类型&gt;或–&lt;网络类型&gt; 列出该网络类型连线中的相关地址。</span></span><br><span class="line"><span class="ruby">-c或–continuous 持续列出网络状态。</span></span><br><span class="line"><span class="ruby">-C或–cache 显示路由器配置的快取信息。</span></span><br><span class="line"><span class="ruby">-e或–extend 显示网络其他相关信息。</span></span><br><span class="line"><span class="ruby">-F或–fib 显示FIB。</span></span><br><span class="line"><span class="ruby">-g或–groups 显示多重广播功能群组组员名单。</span></span><br><span class="line"><span class="ruby">-h或–help 在线帮助。</span></span><br><span class="line"><span class="ruby">-i或–interfaces 显示网络界面信息表单。</span></span><br><span class="line"><span class="ruby">-l或–listening 显示监控中的服务器的Socket。</span></span><br><span class="line"><span class="ruby">-M或–masquerade 显示伪装的网络连线。</span></span><br><span class="line"><span class="ruby">-n或–numeric 直接使用IP地址，而不通过域名服务器。</span></span><br><span class="line"><span class="ruby">-N或–netlink或–symbolic 显示网络硬件外围设备的符号连接名称。</span></span><br><span class="line"><span class="ruby">-o或–timers 显示计时器。</span></span><br><span class="line"><span class="ruby">-p或–programs 显示正在使用Socket的程序识别码和程序名称。</span></span><br><span class="line"><span class="ruby">-r或–route 显示Routing Table。</span></span><br><span class="line"><span class="ruby">-s或–statistice 显示网络工作信息统计表。</span></span><br><span class="line"><span class="ruby">-t或–tcp 显示TCP传输协议的连线状况。</span></span><br><span class="line"><span class="ruby">-u或–udp 显示UDP传输协议的连线状况。</span></span><br><span class="line"><span class="ruby">-v或–verbose 显示指令执行过程。</span></span><br><span class="line"><span class="ruby">-V或–version 显示版本信息。</span></span><br><span class="line"><span class="ruby">-w或–raw 显示RAW传输协议的连线状况。</span></span><br><span class="line"><span class="ruby">-x或–unix 此参数的效果和指定”-A unix”参数相同。</span></span><br><span class="line"><span class="ruby">–ip或–inet 此参数的效果和指定”-A inet”参数相同。</span></span><br></pre></td></tr></table></figure>
-<p><strong>输出结果：</strong></p>
-<figure class="highlight gauss"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">一个是Active Internet connections，称为有源TCP连接，其中<span class="string">"Recv-Q"</span>和<span class="string">"Send-Q"</span>指的是接收队列和发送队列。这些数字一般都应该是<span class="number">0</span>。如果不是则表示软件包正在队列中堆积。这种情况只能在非常少的情况见到。</span><br><span class="line"></span><br><span class="line">另一个是Active UNIX domain sockets，称为有源Unix域套接口(和网络套接字一样，但是只能用于本机通信，性能可以提高一倍)。</span><br><span class="line"></span><br><span class="line">Proto显示连接使用的协议,RefCnt表示连接到本套接口上的进程号,Types显示套接口的类型,State显示套接口当前的状态,Path表示连接到套接口的其它进程使用的路径名。</span><br><span class="line"></span><br><span class="line">状态说明：</span><br><span class="line">LISTEN：侦听来自远方的TCP端口的连接请求</span><br><span class="line">SYN-SENT：再发送连接请求后等待匹配的连接请求（如果有大量这样的状态包，检查是否中招了）</span><br><span class="line">SYN-RECEIVED：再收到和发送一个连接请求后等待对方对连接请求的确认（如有大量此状态，估计被flood攻击了）</span><br><span class="line">ESTABLISHED：代表一个打开的连接</span><br><span class="line">FIN-<span class="built_in">WAIT</span><span class="number">-1</span>：等待远程TCP连接中断请求，或先前的连接中断请求的确认</span><br><span class="line">FIN-<span class="built_in">WAIT</span><span class="number">-2</span>：从远程TCP等待连接中断请求</span><br><span class="line"><span class="built_in">CLOSE</span>-<span class="built_in">WAIT</span>：等待从本地用户发来的连接中断请求</span><br><span class="line">CLOSING：等待远程TCP对连接中断的确认</span><br><span class="line">LAST-ACK：等待原来的发向远程TCP的连接中断请求的确认（不是什么好东西，此项出现，检查是否被攻击）</span><br><span class="line"><span class="built_in">TIME</span>-<span class="built_in">WAIT</span>：等待足够的时间以确保远程TCP接收到连接中断请求的确认</span><br><span class="line">CLOSED：没有任何连接状态</span><br></pre></td></tr></table></figure>
-<ul>
-<li>找出运行在指定端口的进程</li>
-</ul>
-<figure class="highlight gradle"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">netstat -anpt | <span class="keyword">grep</span> <span class="string">':20130'</span></span><br><span class="line">netstat -nat | <span class="keyword">grep</span> <span class="string">"172.16.49.161:20130"</span></span><br></pre></td></tr></table></figure>
-<ul>
-<li>其它使用场景</li>
-</ul>
-<figure class="highlight vim"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">netstat -nat |awk <span class="string">'&#123;print $6&#125;'</span>|<span class="keyword">sort</span>|uniq -<span class="keyword">c</span>    不同网络状态结果统计</span><br><span class="line">netstat -anop | <span class="keyword">grep</span> <span class="number">6379</span>     应用连接Redis情况</span><br><span class="line">netstat -<span class="keyword">pt</span>             输出中显示 PID 和进程名称</span><br><span class="line">netstat -s              查看网络统计信息</span><br><span class="line">netstat -<span class="keyword">nu</span>             显示当前UDP连接状况</span><br><span class="line">netstat -nt             显示当前TCP连接状况</span><br><span class="line">netstat -i              显示网卡列表</span><br></pre></td></tr></table></figure>
-<h4 id="3、-iostat"><a href="#3、-iostat" class="headerlink" title="3、 iostat"></a>3、 iostat</h4><p>iostat是I/O statistics（输入/输出统计）的缩写，主要的功能是对系统的磁盘I/O操作进行监视。它的输出主要显示磁盘读写操作的统计信息，同时也会给出CPU使用情况。同vmstat一样，iostat也不能对某个进程进行深入分析，仅对系统的整体情况进行分析。</p>
-<p><strong>命令参数：</strong></p>
-<figure class="highlight haml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">-<span class="ruby">c 显示CPU使用情况</span></span><br><span class="line"><span class="ruby">-d 显示磁盘使用情况</span></span><br><span class="line"><span class="ruby">-k 以 KB 为单位显示</span></span><br><span class="line"><span class="ruby">-m 以 M 为单位显示</span></span><br><span class="line"><span class="ruby">-N 显示磁盘阵列(LVM) 信息</span></span><br><span class="line"><span class="ruby">-n 显示NFS 使用情况</span></span><br><span class="line"><span class="ruby">-p[磁盘] 显示磁盘和分区的情况</span></span><br><span class="line"><span class="ruby">-t 显示终端和CPU的信息</span></span><br><span class="line"><span class="ruby">-x 显示详细信息</span></span><br><span class="line"><span class="ruby">-V 显示版本信息</span></span><br></pre></td></tr></table></figure>
-<p><strong>输出结果：</strong></p>
-<figure class="highlight mathematica"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line">cpu属性值说明：</span><br><span class="line"></span><br><span class="line">%user：CPU处在用户模式下的时间百分比。</span><br><span class="line">%nice：CPU处在带NICE值的用户模式下的时间百分比。</span><br><span class="line">%system：CPU处在系统模式下的时间百分比。</span><br><span class="line">%iowait：CPU等待输入输出完成时间的百分比。</span><br><span class="line">%steal：管理程序维护另一个虚拟处理器时，虚拟CPU的无意识等待时间百分比。</span><br><span class="line">%idle：CPU空闲时间百分比。</span><br><span class="line"></span><br><span class="line">备注：如果%iowait的值过高，表示硬盘存在<span class="keyword">I</span>/<span class="keyword">O</span>瓶颈，%idle值高，表示CPU较空闲，如果%idle值高但系统响应慢时，有可能是CPU等待分配内存，此时应加大内存容量。%idle值如果持续低于<span class="number">10</span>，那么系统的CPU处理能力相对较低，表明系统中最需要解决的资源是CPU。</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">disk属性值说明：（iostat -x）</span><br><span class="line"></span><br><span class="line">rrqm/s:  每秒进行 merge 的读操作数目。即 rmerge/s</span><br><span class="line">wrqm/s:  每秒进行 merge 的写操作数目。即 wmerge/s</span><br><span class="line">r/s:  每秒完成的读 <span class="keyword">I</span>/<span class="keyword">O</span> 设备次数。即 rio/s</span><br><span class="line">w/s:  每秒完成的写 <span class="keyword">I</span>/<span class="keyword">O</span> 设备次数。即 wio/s</span><br><span class="line">rsec/s:  每秒读扇区数。即 rsect/s</span><br><span class="line">wsec/s:  每秒写扇区数。即 wsect/s</span><br><span class="line">rkB/s:  每秒读<span class="keyword">K</span>字节数。是 rsect/s 的一半，因为每扇区大小为<span class="number">512</span>字节。</span><br><span class="line">wkB/s:  每秒写<span class="keyword">K</span>字节数。是 wsect/s 的一半。</span><br><span class="line">avgrq-sz:  平均每次设备<span class="keyword">I</span>/<span class="keyword">O</span>操作的数据大小 (扇区)。</span><br><span class="line">avgqu-sz:  平均<span class="keyword">I</span>/<span class="keyword">O</span>队列长度。</span><br><span class="line">await:  平均每次设备<span class="keyword">I</span>/<span class="keyword">O</span>操作的等待时间 (毫秒)。</span><br><span class="line">svctm: 平均每次设备<span class="keyword">I</span>/<span class="keyword">O</span>操作的服务时间 (毫秒)。</span><br><span class="line">%util:  一秒中有百分之多少的时间用于 <span class="keyword">I</span>/<span class="keyword">O</span> 操作，即被io消耗的cpu百分比</span><br><span class="line"></span><br><span class="line">备注：如果 %util 接近 <span class="number">100</span>%，说明产生的<span class="keyword">I</span>/<span class="keyword">O</span>请求太多，<span class="keyword">I</span>/<span class="keyword">O</span>系统已经满负荷，该磁盘可能存在瓶颈。如果 svctm 比较接近 await，说明 <span class="keyword">I</span>/<span class="keyword">O</span> 几乎没有等待时间；如果 await 远大于 svctm，说明<span class="keyword">I</span>/<span class="keyword">O</span> 队列太长，io响应太慢，则需要进行必要优化。如果avgqu-sz比较大，也表示有当量io在等待。</span><br></pre></td></tr></table></figure>
-<ul>
-<li>定时显示所有信息（每隔 2秒刷新显示，且显示3次）</li>
-</ul>
-<figure class="highlight lsl"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">iostat <span class="number">2</span> <span class="number">3</span></span><br></pre></td></tr></table></figure>
-<ul>
-<li>以kB为单位显示所有信息</li>
-</ul>
-<figure class="highlight fortran"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">iostat</span> -k <span class="number">3</span></span><br></pre></td></tr></table></figure>
-<h4 id="4、traceroute"><a href="#4、traceroute" class="headerlink" title="4、traceroute"></a>4、traceroute</h4><figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">traceroute www<span class="selector-class">.baidu</span><span class="selector-class">.com</span></span><br></pre></td></tr></table></figure>
-<h3 id="四、文件"><a href="#四、文件" class="headerlink" title="四、文件"></a>四、文件</h3><h4 id="1、-lsof-一切皆文件"><a href="#1、-lsof-一切皆文件" class="headerlink" title="1、 lsof (一切皆文件)"></a>1、 lsof (一切皆文件)</h4><p><a href="http://man.linuxde.net/lsof" target="_blank" rel="external">命令详情</a></p>
-<p>查看你进程开打的文件，打开文件的进程，进程打开的端口(TCP、UDP)</p>
-<figure class="highlight 1c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 查看sys.log文件被哪个进程打开</span></span><br><span class="line">lsof sys.<span class="built_in">log</span></span><br></pre></td></tr></table></figure>
-<figure class="highlight 1c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 查看端口被哪个进程占用</span></span><br><span class="line">lsof  -i：端口号</span><br></pre></td></tr></table></figure>
-<figure class="highlight stata"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 查看各个进程打开的文件数量</span></span><br><span class="line">lsof -<span class="keyword">n</span> |awk '&#123;<span class="keyword">print</span> <span class="variable">$2&#125;</span> <span class="string">" "</span> <span class="variable">$3</span>'|<span class="keyword">sort</span>|uniq -c |<span class="keyword">sort</span> -nr|<span class="keyword">more</span></span><br></pre></td></tr></table></figure>
-<h4 id="2、-df"><a href="#2、-df" class="headerlink" title="2、 df"></a>2、 df</h4><figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">df</span> -hl</span><br><span class="line">df -h  查看磁盘的使用情况</span><br><span class="line">磁盘的使用情况</span><br></pre></td></tr></table></figure>
-<h4 id="3、-du"><a href="#3、-du" class="headerlink" title="3、 du"></a>3、 du</h4><figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">du</span> -hl</span><br><span class="line">当前目录下的最叶子目录的大小</span><br></pre></td></tr></table></figure>
-<figure class="highlight mipsasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">du -<span class="keyword">sch </span>* </span><br><span class="line">当前目录下的各目录的大小</span><br></pre></td></tr></table></figure>
-<h4 id="4、-find"><a href="#4、-find" class="headerlink" title="4、 find"></a>4、 find</h4><p>文件查找</p>
-<figure class="highlight vim"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">find</span> . -name <span class="string">"*蝙蝠侠*"</span></span><br><span class="line"># 找出当前目录以及其所有子目录下所有名字中包含“蝙蝠侠”三字的文件</span><br><span class="line"></span><br><span class="line"><span class="keyword">find</span> . -inmae <span class="string">'*hello*'</span> -maxdepth <span class="number">1</span></span><br><span class="line">不区分大小写，在当前目录查找，不包括子目录</span><br><span class="line"></span><br><span class="line"><span class="keyword">find</span> . -name <span class="string">"*.rmvb"</span> -maxdepth <span class="number">1</span></span><br><span class="line"># 找出当前目录（不包括子目录）下所有名字中后缀为<span class="string">".rmvb"</span>的文件</span><br><span class="line"></span><br><span class="line"><span class="keyword">find</span> . -name sys.<span class="built_in">log</span>  </span><br><span class="line">当前目录下查找sys.<span class="built_in">log</span>文件</span><br><span class="line"></span><br><span class="line"><span class="keyword">find</span> . -name <span class="string">"sy*log"</span></span><br><span class="line">查找文件支持通配符</span><br><span class="line"></span><br><span class="line"><span class="keyword">find</span> . -size +<span class="number">20</span>M</span><br><span class="line">查找当前目录下大小超过<span class="number">20</span>M的文件  </span><br><span class="line"></span><br><span class="line"><span class="keyword">find</span> . -size +<span class="number">20</span>M | xargs <span class="keyword">ls</span> -<span class="keyword">lh</span></span><br><span class="line">查找当前目录下大小超过<span class="number">20</span>M的文件，并计算文件大小</span><br><span class="line"></span><br><span class="line"><span class="keyword">find</span> -<span class="built_in">type</span> <span class="keyword">f</span> -<span class="built_in">printf</span> <span class="string">'%s %p\n'</span> |<span class="keyword">sort</span> -nr | head  </span><br><span class="line">查找占用空间最大的<span class="number">10</span>个文件</span><br></pre></td></tr></table></figure>
-<h4 id="5、-tail"><a href="#5、-tail" class="headerlink" title="5、 tail"></a>5、 tail</h4><p>从指定点开始将文件标准输出</p>
-<ul>
-<li>显示文件最后5行内容</li>
-</ul>
-<figure class="highlight stata"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">tail -<span class="keyword">n</span> 5 <span class="keyword">test</span>.<span class="built_in">log</span></span><br></pre></td></tr></table></figure>
-<ul>
-<li>实时显示文件内容</li>
-</ul>
-<figure class="highlight stata"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">tail -f <span class="keyword">test</span>.<span class="built_in">log</span></span><br></pre></td></tr></table></figure>
-<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">ping baidu<span class="selector-class">.com</span> &gt; <span class="number">1</span><span class="selector-class">.txt</span> &amp;</span><br><span class="line">后台以守护进程的方式，将ping命令的返回结果写入 <span class="number">1</span>.txt</span><br></pre></td></tr></table></figure>
-<h4 id="6、-awk"><a href="#6、-awk" class="headerlink" title="6、 awk"></a>6、 awk</h4><figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 每行按空格或TAB分割，输出文本中的1、4项</span></span><br><span class="line"> <span class="attribute">awk</span> <span class="string">'&#123;print <span class="variable">$1</span>,<span class="variable">$4</span>&#125;'</span> log.txt</span><br></pre></td></tr></table></figure>
-<h3 id="五、用户"><a href="#五、用户" class="headerlink" title="五、用户"></a>五、用户</h3><figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">w                       查看活动用户</span><br><span class="line">id &lt;用户名&gt;              查看指定用户信息</span><br><span class="line">last                    查看用户登录日志</span><br><span class="line">cut -d: -f1 /etc/passwd    查看系统所有用户</span><br><span class="line">cut -d: -f1 /etc<span class="built_in">/group </span>    查看系统所有组</span><br><span class="line">crontab -l              查看当前用户的计划任务</span><br></pre></td></tr></table></figure>
-<h3 id="六、其它"><a href="#六、其它" class="headerlink" title="六、其它"></a>六、其它</h3><p>1、查看所有安装的软件包</p>
-<figure class="highlight ebnf"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">rpm -qa</span></span><br></pre></td></tr></table></figure>
-<p>2、查看环境变量</p>
-<figure class="highlight dockerfile"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">env</span></span><br></pre></td></tr></table></figure>
-<p>3、Mac 删除git文件夹，删除svn文件夹</p>
-<figure class="highlight sqf"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">cd到该文件夹</span><br><span class="line"></span><br><span class="line"><span class="comment">//删除文件夹下的所有 .svn 文件</span></span><br><span class="line"><span class="built_in">find</span> . -<span class="built_in">name</span> <span class="string">".svn"</span> | xargs rm -Rf</span><br><span class="line"></span><br><span class="line"><span class="comment">//删除文件夹下的所有 .git 文件</span></span><br><span class="line"><span class="built_in">find</span> . -<span class="built_in">name</span> <span class="string">".git"</span> | xargs rm -Rf</span><br></pre></td></tr></table></figure>
-<hr>
-<h3 id="更多资料："><a href="#更多资料：" class="headerlink" title="更多资料："></a>更多资料：</h3><p><a href="https://app.yinxiang.com/Home.action#n=b0fcd794-072a-4fab-9ac6-012b7b0ad147&amp;ses=4&amp;sh=2&amp;sds=5&amp;" target="_blank" rel="external">https://app.yinxiang.com/Home.action#n=b0fcd794-072a-4fab-9ac6-012b7b0ad147&amp;ses=4&amp;sh=2&amp;sds=5&amp;</a></p>
+<h4 id="接下来结合线上应用，列举常用的几个排查问题命令如何使用"><a href="#接下来结合线上应用，列举常用的几个排查问题命令如何使用" class="headerlink" title="接下来结合线上应用，列举常用的几个排查问题命令如何使用"></a>接下来结合线上应用，列举常用的几个排查问题命令如何使用</h4><p>1、安装：</p>
+<figure class="highlight vim"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl -sLk http://ompc.oss.aliyuncs.<span class="keyword">com</span>/greys/install.<span class="keyword">sh</span>|<span class="keyword">sh</span></span><br></pre></td></tr></table></figure>
+<p>2、启动</p>
+<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">greys<span class="selector-class">.sh</span>  &lt;PID&gt;</span><br><span class="line"></span><br><span class="line">注：PID：目标Java进程ID</span><br></pre></td></tr></table></figure>
+<p>3、help</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">help</span>  </span><br><span class="line"></span><br><span class="line">注：所有命令</span><br><span class="line"></span><br><span class="line"><span class="built_in">help</span> watch</span><br><span class="line"></span><br><span class="line">注：<span class="built_in">help</span>命令同时也支持对其他命令的一个解释说明，比如我们键入<span class="built_in">help</span> watch，包含（用途说明、参数列表、实际例子）</span><br></pre></td></tr></table></figure>
+<p>4、sc 搜索所有已经加载到JVM中的Class信息。</p>
+<figure class="highlight mipsasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">sc </span>-d *RecommendManagerImpl</span><br></pre></td></tr></table></figure>
+<p><strong>使用场景：</strong></p>
+<p>主要是用于排查一个应用可能存在同一个jar包的多个版本，而不同版本的类的方法可能会有实现上的差异，可以通过这种方式确认JVM中加载的是哪一个jar下的类。</p>
+<p><img src="img/Snip20161002_1.png" alt="image"></p>
+<p>5、monitor 方法层面的性能监控，非实时返回的命令，则是不断的等待目标Java进程返回信息，直到用户输入Ctrl+D为止</p>
+<figure class="highlight llvm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">monitor -<span class="keyword">c</span> <span class="number">5</span>  *TimelineReadServiceImpl getEditorRecPost</span><br><span class="line"></span><br><span class="line">注：-<span class="keyword">c</span> : 统计周期，默认值为<span class="number">120</span>秒</span><br></pre></td></tr></table></figure>
+<p><strong>使用场景：</strong></p>
+<p>线上反馈某个接口突然响应较慢，但又缺乏全链路维度节点的监控，可以通过该命令能定位到具体哪个方法耗时较长，有效缩小排查范围。</p>
+<p><img src="img/Snip20161002_2.png" alt="image"></p>
+<p>6、trace 统计整个调用链路上的所有性能开销和追踪调用链路。</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">trace -n <span class="number">2</span> *TimelineReadServiceImpl <span class="keyword">query</span>RecPageTimeLine</span><br></pre></td></tr></table></figure>
+<p><strong>使用场景：</strong></p>
+<p>定位查找某一接口响应较慢，主要是损耗在哪一个环节。</p>
+<p>另外也可以做为性能优化的参考标准，了解一个接口下面每个环节的消耗时间，从而判断是否合理，有没有优化的空间</p>
+<p>7、watch 观察到指定方法的调用情况</p>
+<p>能观察到的范围：入参、返回值、抛出异常，通过编写groovy表达式进行对应变量的查看。详细使用手册可以通过命令help watch</p>
+<figure class="highlight lsl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">watch -b  *TimelineReadServiceImpl queryRecPageTimeLine  params[<span class="number">0</span>]</span><br><span class="line"></span><br><span class="line">注：打印完整的入参信息</span><br><span class="line"></span><br><span class="line">watch -b  *TimelineReadServiceImpl queryRecPageTimeLine  params[<span class="number">0</span>] 'params[<span class="number">0</span>].uid&gt;<span class="number">2894731</span>' </span><br><span class="line"></span><br><span class="line">注：带上groovy表达式，uid&gt;<span class="number">2894731</span></span><br><span class="line"></span><br><span class="line">watch -s  *TimelineReadServiceImpl queryRecPageTimeLine  params[<span class="number">0</span>]+returnObj 'params[<span class="number">0</span>].uid==<span class="number">3680667</span>'</span><br><span class="line"></span><br><span class="line">注：当请求的uid为<span class="number">3680667</span>时，打印入参和返回结果</span><br></pre></td></tr></table></figure>
+<p>8、 jvm</p>
+<p>查看当前JVM的信息，无参数</p>
+<h3 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h3><p><a href="https://github.com/oldmanpushcart/greys-anatomy/wiki/Commands#help" target="_blank" rel="external">https://github.com/oldmanpushcart/greys-anatomy/wiki/Commands#help</a></p>
 
       
 
@@ -491,98 +403,7 @@
       </div>
       
         <p class="article-more-link">
-          <a class="article-more-a" href="/2018/05/13/linux-commands/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
-    <article id="post-实例详解java.lang.OutOfMemoryError" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2018/05/13/实例详解java.lang.OutOfMemoryError/">OutOfMemoryError 实例详解</a>
-    </h1>
-  
-
-        
-        <a href="/2018/05/13/实例详解java.lang.OutOfMemoryError/" class="archive-article-date">
-  	<time datetime="2018-05-13T06:11:17.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-05-13</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h1 id="java-lang-OutOfMemoryError-实例详解"><a href="#java-lang-OutOfMemoryError-实例详解" class="headerlink" title="java.lang.OutOfMemoryError 实例详解"></a>java.lang.OutOfMemoryError 实例详解</h1><h3 id="The-8-symptoms-that-surface-them"><a href="#The-8-symptoms-that-surface-them" class="headerlink" title="The 8 symptoms that surface them"></a>The 8 symptoms that surface them</h3><h3 id="内存溢出的8种主要类型"><a href="#内存溢出的8种主要类型" class="headerlink" title="内存溢出的8种主要类型"></a>内存溢出的8种主要类型</h3><p>The many thousands of java.lang.OutOfMemoryErrors that I’ve met during my career all bear one of the below eight symptoms. This handbook explains what causes a particular error to be thrown, offers code examples that can cause such errors, and gives you solution guidelines for a fix. The content is all based on my own experience.</p>
-<p>笔者在工作中碰到过成千上万的 <code>java.lang.OutOfMemoryError</code>, 都可以归结为以下八种症状。<br>本手册阐述了各种内存溢出错误的形成原因,并提供了可测试这种错误的示例代码,以及解决方案。 内容都来源于笔者的一线开发和实践经验。</p>
-<p>目录:</p>
-<ol>
-<li><a href="01_java-heap-space.md">OutOfMemoryError系列（1）: <strong>Java heap space</strong></a></li>
-<li><a href="02_gc-overhead-limit-exceeded.md">OutOfMemoryError系列（2）: <strong>GC overhead limit exceeded</strong></a></li>
-<li><a href="03_permgen-space.md">OutOfMemoryError系列（3）: <strong>Permgen space</strong></a></li>
-<li><a href="04_metaspace.md">OutOfMemoryError系列（4）: <strong>Metaspace</strong></a></li>
-<li><a href="05_unable-to-create-new-native-thread.md">OutOfMemoryError系列（5）: <strong>Unable to create new native thread</strong></a></li>
-<li><a href="06_out-of-swap-space.md">OutOfMemoryError系列（6）: <strong>Out of swap space?</strong> </a></li>
-<li><a href="07_requested-array-size-exceeds-vm-limit.md">OutOfMemoryError系列（7）: <strong>Requested array size exceeds VM limit</strong> Details</a></li>
-<li><a href="08_kill-process-or-sacrifice-child.md">OutOfMemoryError系列（8）: <strong>Kill process or sacrifice child</strong></a></li>
-</ol>
-<p>原文作者: <strong>Nikita Salnikov-Tarnovski</strong>  – Plumbr Co-Founder and VP of Engineering</p>
-<p>原文链接： <a href="https://plumbr.eu/outofmemoryerror" target="_blank" rel="external">https://plumbr.eu/outofmemoryerror</a></p>
-
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">ops</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-      
-
-      <div style="font-size: 12px;">
-        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
-      </div>
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2018/05/13/实例详解java.lang.OutOfMemoryError/">展开全文 >></a>
+          <a class="article-more-a" href="/2018/05/13/anatomy/">展开全文 >></a>
         </p>
       
 
@@ -685,6 +506,192 @@
       
         <p class="article-more-link">
           <a class="article-more-a" href="/2018/05/13/常用脚本/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
+    <article id="post-java服务器load飚高排查思路" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2018/05/13/java服务器load飚高排查思路/">java服务器load飙高排查思路</a>
+    </h1>
+  
+
+        
+        <a href="/2018/05/13/java服务器load飚高排查思路/" class="archive-article-date">
+  	<time datetime="2018-05-13T06:11:17.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-05-13</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>Load 是指对计算机干活多少的度量（WikiPedia：the system load is a measure of the amount of work that a computer system is doing），简单的说是进程队列的长度。Load Average 就是一段时间 (1 分钟、5分钟、15分钟) 内平均 Load </p>
+<p><strong>通过uptime命令可以查看当前的load，如果值很高。一般情况是java某些线程长期占用资源、死锁、死循环等导致某个进程占用的CPU资源过高。大致可以从以下几个角度来排查：</strong><br><br><br></p>
+<p>1.首先通过jps命令，查看当前进程id，如id为 28174</p>
+<p>2.查看该进程下的线程资源使用情况</p>
+<figure class="highlight coq"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">top</span> -p <span class="number">28174</span> –H</span><br></pre></td></tr></table></figure>
+<figure class="highlight basic"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="symbol">32694 </span>root      <span class="number">20</span>   <span class="number">0</span> <span class="number">3249</span>m <span class="number">2.0</span>g  <span class="number">11</span>m S    <span class="number">2</span>  <span class="number">6.4</span>   <span class="number">3</span>:<span class="number">31.12</span> java                      </span><br><span class="line"><span class="symbol">28175 </span>root      <span class="number">20</span>   <span class="number">0</span> <span class="number">3249</span>m <span class="number">2.0</span>g  <span class="number">11</span>m S    <span class="number">0</span>  <span class="number">6.4</span>   <span class="number">0</span>:<span class="number">00.06</span> java                   </span><br><span class="line"><span class="symbol">28176 </span>root      <span class="number">20</span>   <span class="number">0</span> <span class="number">3249</span>m <span class="number">2.0</span>g  <span class="number">11</span>m S    <span class="number">0</span>  <span class="number">6.4</span>   <span class="number">1</span>:<span class="number">40.79</span> java                   </span><br><span class="line"><span class="symbol">28177 </span>root      <span class="number">20</span>   <span class="number">0</span> <span class="number">3249</span>m <span class="number">2.0</span>g  <span class="number">11</span>m S    <span class="number">0</span>  <span class="number">6.4</span>   <span class="number">1</span>:<span class="number">41.12</span> java                   </span><br><span class="line"><span class="symbol">28178 </span>root      <span class="number">20</span>   <span class="number">0</span> <span class="number">3249</span>m <span class="number">2.0</span>g  <span class="number">11</span>m S    <span class="number">0</span>  <span class="number">6.4</span>   <span class="number">1</span>:<span class="number">41.11</span> java                   </span><br><span class="line"><span class="symbol">28179 </span>root      <span class="number">20</span>   <span class="number">0</span> <span class="number">3249</span>m <span class="number">2.0</span>g  <span class="number">11</span>m S    <span class="number">0</span>  <span class="number">6.4</span>   <span class="number">1</span>:<span class="number">41.33</span> java                   </span><br><span class="line"><span class="symbol">28180 </span>root      <span class="number">20</span>   <span class="number">0</span> <span class="number">3249</span>m <span class="number">2.0</span>g  <span class="number">11</span>m S    <span class="number">0</span>  <span class="number">6.4</span>   <span class="number">1</span>:<span class="number">41.58</span> java                   </span><br><span class="line"><span class="symbol">28181 </span>root      <span class="number">20</span>   <span class="number">0</span> <span class="number">3249</span>m <span class="number">2.0</span>g  <span class="number">11</span>m S    <span class="number">0</span>  <span class="number">6.4</span>   <span class="number">1</span>:<span class="number">40.36</span> java                   </span><br><span class="line"><span class="symbol">28182 </span>root      <span class="number">20</span>   <span class="number">0</span> <span class="number">3249</span>m <span class="number">2.0</span>g  <span class="number">11</span>m S    <span class="number">0</span>  <span class="number">6.4</span>   <span class="number">1</span>:<span class="number">41.02</span> java                   </span><br><span class="line"><span class="symbol">28183 </span>root      <span class="number">20</span>   <span class="number">0</span> <span class="number">3249</span>m <span class="number">2.0</span>g  <span class="number">11</span>m S    <span class="number">0</span>  <span class="number">6.4</span>   <span class="number">1</span>:<span class="number">40.96</span> java                   </span><br><span class="line"><span class="symbol">28184 </span>root      <span class="number">20</span>   <span class="number">0</span> <span class="number">3249</span>m <span class="number">2.0</span>g  <span class="number">11</span>m S    <span class="number">0</span>  <span class="number">6.4</span>   <span class="number">4</span>:<span class="number">38.30</span> java                   </span><br><span class="line"><span class="symbol">28185 </span>root      <span class="number">20</span>   <span class="number">0</span> <span class="number">3249</span>m <span class="number">2.0</span>g  <span class="number">11</span>m S    <span class="number">0</span>  <span class="number">6.4</span>   <span class="number">0</span>:<span class="number">00.46</span> java                   </span><br><span class="line"><span class="symbol">28186 </span>root      <span class="number">20</span>   <span class="number">0</span> <span class="number">3249</span>m <span class="number">2.0</span>g  <span class="number">11</span>m S    <span class="number">0</span>  <span class="number">6.4</span>   <span class="number">0</span>:<span class="number">01.83</span> java                   </span><br><span class="line"><span class="symbol">28187 </span>root      <span class="number">20</span>   <span class="number">0</span> <span class="number">3249</span>m <span class="number">2.0</span>g  <span class="number">11</span>m S    <span class="number">0</span>  <span class="number">6.4</span>   <span class="number">0</span>:<span class="number">00.00</span> java                   </span><br><span class="line"><span class="symbol">28189 </span>root      <span class="number">20</span>   <span class="number">0</span> <span class="number">3249</span>m <span class="number">2.0</span>g  <span class="number">11</span>m S    <span class="number">0</span>  <span class="number">6.4</span>   <span class="number">0</span>:<span class="number">00.01</span> java                   </span><br><span class="line"><span class="symbol">28190 </span>root      <span class="number">20</span>   <span class="number">0</span> <span class="number">3249</span>m <span class="number">2.0</span>g  <span class="number">11</span>m S    <span class="number">0</span>  <span class="number">6.4</span>   <span class="number">0</span>:<span class="number">49.01</span> java</span><br></pre></td></tr></table></figure>
+<p>3.打印JAVA进程28174的堆栈信息</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">jstack <span class="number">28174</span> &gt;&gt; <span class="built_in">stack</span>.<span class="built_in">log</span></span><br></pre></td></tr></table></figure>
+<p>4.将cpu消耗高的线程的pid换算为16进制</p>
+<figure class="highlight llvm"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">printf <span class="number">0</span><span class="keyword">x</span><span class="symbol">%x</span> <span class="number">32694</span></span><br></pre></td></tr></table></figure>
+<p>转换后的16进制为 0x7fb6</p>
+<p>5.从刚才的栈日志中查找该线程正在运行的方法</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">grep <span class="number">0x7fb6</span>  <span class="built_in">stack</span>.<span class="built_in">log</span> -a3</span><br></pre></td></tr></table></figure>
+<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">"MSXMLProcessorThread"</span> prio=<span class="number">10</span> tid=<span class="number">0</span>x00002b469923a800 [<span class="attribute">color</span>=darkred]nid=<span class="number">0</span>x7fb6[/color] sleeping[<span class="number">0</span>x00002b46b0200000]    </span><br><span class="line">   java<span class="selector-class">.lang</span><span class="selector-class">.Thread</span><span class="selector-class">.State</span>: TIMED_WAITING (sleeping)    </span><br><span class="line">        at java<span class="selector-class">.lang</span><span class="selector-class">.Thread</span><span class="selector-class">.sleep</span>(Native Method)    </span><br><span class="line">        at com<span class="selector-class">.adventnet</span><span class="selector-class">.management</span><span class="selector-class">.xml</span><span class="selector-class">.MSXmlProcessor</span><span class="selector-class">.listen</span>(MSXmlProcessor<span class="selector-class">.java</span>:<span class="number">279</span>)    </span><br><span class="line">        at com<span class="selector-class">.adventnet</span><span class="selector-class">.management</span><span class="selector-class">.xml</span><span class="selector-class">.MSXmlProcessor</span><span class="selector-class">.run</span>(MSXmlProcessor<span class="selector-class">.java</span>:<span class="number">264</span>)    </span><br><span class="line">        at java<span class="selector-class">.lang</span><span class="selector-class">.Thread</span><span class="selector-class">.run</span>(Thread<span class="selector-class">.java</span>:<span class="number">619</span>)</span><br></pre></td></tr></table></figure>
+<p>6.另外也可以查找正在运行的线程，及线程处于运行状态的位置，从这些线程中来查找资源消耗过高的代码。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">grep RUNNABLE <span class="built_in">stack</span>.<span class="built_in">log</span>  -a1</span><br></pre></td></tr></table></figure>
+<p><img src="img/1364394978_1570.jpg" alt="image"></p>
+<figure class="highlight stata"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">less a.<span class="keyword">log</span> |awk '&#123;FS=<span class="string">"java.lang.Thread.State:"</span>;<span class="keyword">print</span> <span class="variable">$2&#125;</span>'|<span class="keyword">sort</span> |uniq -c |<span class="keyword">sort</span> -nr</span><br></pre></td></tr></table></figure>
+<p><img src="img/20130812130234781.jpeg" alt="image"></p>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">ops</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+      
+
+      <div style="font-size: 12px;">
+        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
+      </div>
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2018/05/13/java服务器load飚高排查思路/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
+    <article id="post-实例详解java.lang.OutOfMemoryError" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2018/05/13/实例详解java.lang.OutOfMemoryError/">OutOfMemoryError 实例详解</a>
+    </h1>
+  
+
+        
+        <a href="/2018/05/13/实例详解java.lang.OutOfMemoryError/" class="archive-article-date">
+  	<time datetime="2018-05-13T06:11:17.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-05-13</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="java-lang-OutOfMemoryError-实例详解"><a href="#java-lang-OutOfMemoryError-实例详解" class="headerlink" title="java.lang.OutOfMemoryError 实例详解"></a>java.lang.OutOfMemoryError 实例详解</h1><h3 id="The-8-symptoms-that-surface-them"><a href="#The-8-symptoms-that-surface-them" class="headerlink" title="The 8 symptoms that surface them"></a>The 8 symptoms that surface them</h3><h3 id="内存溢出的8种主要类型"><a href="#内存溢出的8种主要类型" class="headerlink" title="内存溢出的8种主要类型"></a>内存溢出的8种主要类型</h3><p>The many thousands of java.lang.OutOfMemoryErrors that I’ve met during my career all bear one of the below eight symptoms. This handbook explains what causes a particular error to be thrown, offers code examples that can cause such errors, and gives you solution guidelines for a fix. The content is all based on my own experience.</p>
+<p>笔者在工作中碰到过成千上万的 <code>java.lang.OutOfMemoryError</code>, 都可以归结为以下八种症状。<br>本手册阐述了各种内存溢出错误的形成原因,并提供了可测试这种错误的示例代码,以及解决方案。 内容都来源于笔者的一线开发和实践经验。</p>
+<p>目录:</p>
+<ol>
+<li><a href="01_java-heap-space.md">OutOfMemoryError系列（1）: <strong>Java heap space</strong></a></li>
+<li><a href="02_gc-overhead-limit-exceeded.md">OutOfMemoryError系列（2）: <strong>GC overhead limit exceeded</strong></a></li>
+<li><a href="03_permgen-space.md">OutOfMemoryError系列（3）: <strong>Permgen space</strong></a></li>
+<li><a href="04_metaspace.md">OutOfMemoryError系列（4）: <strong>Metaspace</strong></a></li>
+<li><a href="05_unable-to-create-new-native-thread.md">OutOfMemoryError系列（5）: <strong>Unable to create new native thread</strong></a></li>
+<li><a href="06_out-of-swap-space.md">OutOfMemoryError系列（6）: <strong>Out of swap space?</strong> </a></li>
+<li><a href="07_requested-array-size-exceeds-vm-limit.md">OutOfMemoryError系列（7）: <strong>Requested array size exceeds VM limit</strong> Details</a></li>
+<li><a href="08_kill-process-or-sacrifice-child.md">OutOfMemoryError系列（8）: <strong>Kill process or sacrifice child</strong></a></li>
+</ol>
+<p>原文作者: <strong>Nikita Salnikov-Tarnovski</strong>  – Plumbr Co-Founder and VP of Engineering</p>
+<p>原文链接： <a href="https://plumbr.eu/outofmemoryerror" target="_blank" rel="external">https://plumbr.eu/outofmemoryerror</a></p>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">ops</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+      
+
+      <div style="font-size: 12px;">
+        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
+      </div>
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2018/05/13/实例详解java.lang.OutOfMemoryError/">展开全文 >></a>
         </p>
       
 
@@ -3136,112 +3143,6 @@
 
 
   
-    <article id="post-使用zookeeper实现分布式锁(一)" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2018/05/06/使用zookeeper实现分布式锁(一)/">使用zookeeper实现分布式锁一</a>
-    </h1>
-  
-
-        
-        <a href="/2018/05/06/使用zookeeper实现分布式锁(一)/" class="archive-article-date">
-  	<time datetime="2018-05-06T15:13:09.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-05-06</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h1 id="一、分布式锁介绍"><a href="#一、分布式锁介绍" class="headerlink" title="一、分布式锁介绍"></a>一、分布式锁介绍</h1><p>​        分布式锁主要用于在分布式环境中保护跨进程、跨主机、跨网络的共享资源实现互斥访问，以达到保证数据的一致性。</p>
-<h1 id="二、架构介绍"><a href="#二、架构介绍" class="headerlink" title="二、架构介绍"></a>二、架构介绍</h1><p>​        在介绍使用Zookeeper实现分布式锁之前，首先看当前的系统架构图</p>
-<p>​        <img src="https://img-blog.csdn.net/20160716210810741?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQv/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center" alt="img"></p>
-<p>​        <strong>解释：</strong> 左边的整个区域表示一个Zookeeper集群，locker是Zookeeper的一个持久节点，node_1、node_2、node_3是locker这个持久节点下面的临时顺序节点。client_1、client_2、client_n表示多个客户端，Service表示需要互斥访问的共享资源。</p>
-<h1 id="三、分布式锁获取思路"><a href="#三、分布式锁获取思路" class="headerlink" title="三、分布式锁获取思路"></a>三、分布式锁获取思路</h1><p>​        <strong>1．获取分布式锁的总体思路</strong></p>
-<p>​        在获取分布式锁的时候在locker节点下创建临时顺序节点，释放锁的时候删除该临时节点。客户端调用createNode方法在locker下创建临时顺序节点，</p>
-<p>然后调用getChildren(“locker”)来获取locker下面的所有子节点，注意此时不用设置任何Watcher。客户端获取到所有的子节点path之后，如果发现自己在之</p>
-<p>前创建的子节点序号最小，那么就认为该客户端获取到了锁。如果发现自己创建的节点并非locker所有子节点中最小的，说明自己还没有获取到锁，</p>
-<p>此时客户端需要找到比自己小的那个节点，然后对其调用exist()方法，同时对其注册事件监听器。之后，让这个被关注的节点删除，则客户端的Watcher会</p>
-<p>收到相应通知，此时再次判断自己创建的节点是否是locker子节点中序号最小的，如皋是则获取到了锁，如果不是则重复以上步骤继续获取到比自己小的一个</p>
-<p>节点并注册监听。当前这个过程中还需要许多的逻辑判断。</p>
-<p><strong>2．获取分布式锁的核心算法流程</strong></p>
-<p>​        下面同个一个流程图来分析获取分布式锁的完整算法，如下：<br>​        <img src="https://img-blog.csdn.net/20160716210945194?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQv/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center" alt="img"></p>
-<p>​        <a href="https://img-blog.csdn.net/20160716210945194?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQv/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center" target="_blank" rel="external">https://img-blog.csdn.net/20160716210945194?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQv/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center</a></p>
-<p>​        <strong>解释</strong>：客户端A要获取分布式锁的时候首先到locker下创建一个临时顺序节点（node_n），然后立即获取locker下的所有（一级）子节点。</p>
-<p>此时因为会有多个客户端同一时间争取锁，因此locker下的子节点数量就会大于1。对于顺序节点，特点是节点名称后面自动有一个数字编号，</p>
-<p>先创建的节点数字编号小于后创建的，因此可以将子节点按照节点名称后缀的数字顺序从小到大排序，这样排在第一位的就是最先创建的顺序节点，</p>
-<p>此时它就代表了最先争取到锁的客户端！此时判断最小的这个节点是否为客户端A之前创建出来的node_n，如果是则表示客户端A获取到了锁，</p>
-<p>如果不是则表示锁已经被其它客户端获取，因此客户端A要等待它释放锁，也就是等待获取到锁的那个客户端B把自己创建的那个节点删除。</p>
-<p>此时就通过监听比node_n次小的那个顺序节点的删除事件来知道客户端B是否已经释放了锁，如果是，此时客户端A再次获取locker下的所有子节点，</p>
-<p>再次与自己创建的node_n节点对比，直到自己创建的node_n是locker的所有子节点中顺序号最小的，此时表示客户端A获取到了锁！</p>
-<h1 id="四、基于Zookeeper的分布式锁的代码实现"><a href="#四、基于Zookeeper的分布式锁的代码实现" class="headerlink" title="四、基于Zookeeper的分布式锁的代码实现"></a>四、基于Zookeeper的分布式锁的代码实现</h1><h2 id="1．定义分布式锁接口"><a href="#1．定义分布式锁接口" class="headerlink" title="1．定义分布式锁接口"></a>1．定义分布式锁接口</h2><p>​        定义的分布式锁接口如下：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span>  <span class="class"><span class="keyword">interface</span> <span class="title">DistributedLock</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">  </span><br><span class="line"></span><br><span class="line">           <span class="comment">/**获取锁，如果没有得到就等待*/</span></span><br><span class="line"></span><br><span class="line">           <span class="function"><span class="keyword">public</span>  <span class="keyword">void</span> <span class="title">acquire</span><span class="params">()</span>  <span class="keyword">throws</span> Exception</span>;</span><br><span class="line"></span><br><span class="line">   </span><br><span class="line"></span><br><span class="line">           <span class="comment">/**</span></span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment">            * 获取锁，直到超时</span></span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment">            * <span class="doctag">@param</span> time超时时间</span></span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment">            * <span class="doctag">@param</span> unit time参数的单位</span></span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment">            * <span class="doctag">@return</span>是否获取到锁</span></span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment">            * <span class="doctag">@throws</span> Exception</span></span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment">            */</span></span><br><span class="line"></span><br><span class="line">            <span class="function"><span class="keyword">public</span>  <span class="keyword">boolean</span> <span class="title">acquire</span> <span class="params">(<span class="keyword">long</span> time, TimeUnit unit)</span>  <span class="keyword">throws</span> Exception</span>;</span><br><span class="line"></span><br><span class="line">   </span><br><span class="line"></span><br><span class="line">            <span class="comment">/**</span></span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment">             * 释放锁</span></span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment">             * <span class="doctag">@throws</span> Exception</span></span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment">             */</span></span><br><span class="line"></span><br><span class="line">            <span class="function"><span class="keyword">public</span>  <span class="keyword">void</span> <span class="title">release</span><span class="params">()</span>  <span class="keyword">throws</span> Exception</span>;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>​       </p>
-<h2 id="2．定义一个简单的互斥锁"><a href="#2．定义一个简单的互斥锁" class="headerlink" title="2．定义一个简单的互斥锁"></a>2．定义一个简单的互斥锁</h2><p>​        定义一个互斥锁类，实现以上定义的锁接口，同时继承一个基类BaseDistributedLock，该基类主要用于与Zookeeper交互，</p>
-<p>​        包含一个尝试获取锁的方法和一个释放锁。</p>
-<figure class="highlight aspectj"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**锁接口的具体实现，主要借助于继承的父类BaseDistributedLock来实现的接口方法</span></span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment"> * 该父类是基于Zookeeper实现分布式锁的具体细节实现*/</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span>  <span class="class"><span class="keyword">class</span> <span class="title">SimpleDistributedLockMutex</span>  <span class="keyword">extends</span> <span class="title">BaseDistributedLock</span>  <span class="keyword">implements</span>  <span class="title">DistributedLock</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">     <span class="comment">/*用于保存Zookeeper中实现分布式锁的节点，如名称为locker：/locker，</span></span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment">    *该节点应该是持久节点，在该节点下面创建临时顺序节点来实现分布式锁 */</span></span><br><span class="line"></span><br><span class="line">   <span class="keyword">private</span>  <span class="keyword">final</span> String  basePath;</span><br><span class="line"></span><br><span class="line">  </span><br><span class="line"></span><br><span class="line">   <span class="comment">/*锁名称前缀，locker下创建的顺序节点例如都以lock-开头，这样便于过滤无关节点</span></span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment">    *这样创建后的节点类似：lock-00000001，lock-000000002*/</span></span><br><span class="line"></span><br><span class="line">   <span class="keyword">private</span>  staticfinal String  LOCK_NAME =<span class="string">"lock-"</span>;</span><br><span class="line"></span><br><span class="line">  </span><br><span class="line"></span><br><span class="line">   <span class="comment">/*用于保存某个客户端在locker下面创建成功的顺序节点，用于后续相关操作使用（如判断）*/</span></span><br><span class="line"></span><br><span class="line">   <span class="keyword">private</span> String  ourLockPath;</span><br><span class="line"></span><br><span class="line">   </span><br><span class="line"></span><br><span class="line">   <span class="comment">/**</span></span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment">    * 用于获取锁资源，通过父类的获取锁方法来获取锁</span></span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment">    * <span class="doctag">@param</span> time获取锁的超时时间</span></span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment">    * <span class="doctag">@param</span> unit time的时间单位</span></span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment">    * <span class="doctag">@return</span>是否获取到锁</span></span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment">    * <span class="doctag">@throws</span> Exception</span></span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment">    */</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span>  <span class="function"><span class="keyword">boolean</span> <span class="title">internalLock</span> <span class="params">(<span class="keyword">long</span> time, TimeUnit unit)</span>  <span class="keyword">throws</span>  Exception </span>&#123;</span><br><span class="line"></span><br><span class="line">       <span class="comment">//如果ourLockPath不为空则认为获取到了锁，具体实现细节见attemptLock的实现</span></span><br><span class="line"></span><br><span class="line">       ourLockPath = attemptLock(time, unit);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span>  ourLockPath !=<span class="keyword">null</span>;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">   </span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment">     * 传入Zookeeper客户端连接对象，和basePath</span></span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> client Zookeeper客户端连接对象</span></span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> basePath basePath是一个持久节点</span></span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">SimpleDistributedLockMutex</span><span class="params">(ZkClientExt client, String basePath)</span></span>&#123;</span><br><span class="line"></span><br><span class="line">       <span class="comment">/*调用父类的构造方法在Zookeeper中创建basePath节点，并且为basePath节点子节点设置前缀</span></span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment">       *同时保存basePath的引用给当前类属性*/</span></span><br><span class="line"></span><br><span class="line">       <span class="keyword">super</span>(client,basePath,LOCK_NAME);</span><br><span class="line"></span><br><span class="line">       <span class="keyword">this</span>.basePath = basePath;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">   </span><br><span class="line"></span><br><span class="line">    <span class="comment">/**获取锁，直到超时，超时后抛出异常*/</span></span><br><span class="line"></span><br><span class="line">   <span class="keyword">public</span>  <span class="function"><span class="keyword">void</span> <span class="title">acquire</span><span class="params">()</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line"></span><br><span class="line">      <span class="comment">//-1表示不设置超时时间，超时由Zookeeper决定</span></span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (!internalLock(<span class="number">-1</span>,<span class="keyword">null</span>))&#123;</span><br><span class="line"></span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> IOException(<span class="string">"连接丢失!在路径:'"</span>+basePath+<span class="string">"'下不能获取锁!"</span>);</span><br><span class="line"></span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">   &#125;</span><br><span class="line"></span><br><span class="line">  </span><br><span class="line"></span><br><span class="line">   <span class="comment">/**</span></span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment">    * 获取锁，带有超时时间</span></span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment">    */</span></span><br><span class="line"></span><br><span class="line">   <span class="keyword">public</span> <span class="function"><span class="keyword">boolean</span> <span class="title">acquire</span><span class="params">(<span class="keyword">long</span> time, TimeUnit unit)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line"></span><br><span class="line">      <span class="function"><span class="keyword">return</span> <span class="title">internalLock</span><span class="params">(time, unit)</span></span>;</span><br><span class="line"></span><br><span class="line">   &#125;</span><br><span class="line"></span><br><span class="line">  </span><br><span class="line"></span><br><span class="line">   <span class="comment">/**释放锁*/</span></span><br><span class="line"></span><br><span class="line">   <span class="keyword">public</span> <span class="function"><span class="keyword">void</span> <span class="title">release</span><span class="params">()</span><span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line"></span><br><span class="line">      releaseLock(ourLockPath);</span><br><span class="line"></span><br><span class="line">   &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>​       </p>
-<h2 id="3-分布式锁的实现细节"><a href="#3-分布式锁的实现细节" class="headerlink" title="3. 分布式锁的实现细节"></a>3. 分布式锁的实现细节</h2><p>获取分布式锁的重点逻辑在于BaseDistributedLock，实现了基于Zookeeper实现分布式锁的细节。</p>
-<figure class="highlight processing"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br><span class="line">188</span><br><span class="line">189</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> class BaseDistributedLock &#123;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> ZkClientExt client;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">String</span>  path;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">String</span>  basePath;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">String</span>  lockName;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> Integer  MAX_RETRY_COUNT = <span class="number">10</span>;</span><br><span class="line">        </span><br><span class="line">    <span class="keyword">public</span> BaseDistributedLock(ZkClientExt client, <span class="keyword">String</span> path, <span class="keyword">String</span> lockName)&#123;</span><br><span class="line">        <span class="keyword">this</span>.client = client;</span><br><span class="line">        <span class="keyword">this</span>.basePath = path;</span><br><span class="line">        <span class="keyword">this</span>.path = path.<span class="built_in">concat</span>(<span class="string">"/"</span>).<span class="built_in">concat</span>(lockName);        </span><br><span class="line">        <span class="keyword">this</span>.lockName = lockName;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">void</span> deleteOurPath(<span class="keyword">String</span> ourPath) <span class="keyword">throws</span> Exception&#123;</span><br><span class="line">        client.delete(ourPath);</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">String</span> createLockNode(ZkClient client,  <span class="keyword">String</span> path) <span class="keyword">throws</span> Exception&#123;</span><br><span class="line">        <span class="keyword">return</span> client.createEphemeralSequential(path, <span class="keyword">null</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 获取锁的核心方法</span></span><br><span class="line"><span class="comment">     * @param startMillis</span></span><br><span class="line"><span class="comment">     * @param millisToWait</span></span><br><span class="line"><span class="comment">     * @param ourPath</span></span><br><span class="line"><span class="comment">     * @return</span></span><br><span class="line"><span class="comment">     * @throws Exception</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">private</span> <span class="built_in">boolean</span> waitToLock(<span class="keyword">long</span> startMillis, Long millisToWait, <span class="keyword">String</span> ourPath) <span class="keyword">throws</span> Exception&#123;</span><br><span class="line">        </span><br><span class="line">        <span class="built_in">boolean</span>  haveTheLock = <span class="keyword">false</span>;</span><br><span class="line">        <span class="built_in">boolean</span>  doDelete = <span class="keyword">false</span>;</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">try</span>&#123;</span><br><span class="line">            <span class="keyword">while</span> ( !haveTheLock ) &#123;</span><br><span class="line">                <span class="comment">//该方法实现获取locker节点下的所有顺序节点，并且从小到大排序 </span></span><br><span class="line">                List&lt;<span class="keyword">String</span>&gt; children = getSortedChildren();</span><br><span class="line">                <span class="keyword">String</span> sequenceNodeName = ourPath.substring(basePath.length()+<span class="number">1</span>);</span><br><span class="line">                </span><br><span class="line">                <span class="comment">//计算刚才客户端创建的顺序节点在locker的所有子节点中排序位置，如果是排序为0，则表示获取到了锁</span></span><br><span class="line">                <span class="built_in">int</span> ourIndex = children.indexOf(sequenceNodeName);</span><br><span class="line">                </span><br><span class="line">                <span class="comment">/*如果在getSortedChildren中没有找到之前创建的[临时]顺序节点，这表示可能由于网络闪断而导致</span></span><br><span class="line"><span class="comment">                 *Zookeeper认为连接断开而删除了我们创建的节点，此时需要抛出异常，让上一级去处理</span></span><br><span class="line"><span class="comment">                 *上一级的做法是捕获该异常，并且执行重试指定的次数 见后面的 attemptLock方法  */</span></span><br><span class="line">                <span class="keyword">if</span> ( ourIndex&lt;<span class="number">0</span> )&#123;</span><br><span class="line">                    <span class="keyword">throw</span> <span class="keyword">new</span> ZkNoNodeException(<span class="string">"节点没有找到: "</span> + sequenceNodeName);</span><br><span class="line">                &#125;</span><br><span class="line"></span><br><span class="line">                <span class="comment">//如果当前客户端创建的节点在locker子节点列表中位置大于0，表示其它客户端已经获取了锁</span></span><br><span class="line">                <span class="comment">//此时当前客户端需要等待其它客户端释放锁，</span></span><br><span class="line">                <span class="built_in">boolean</span> isGetTheLock = ourIndex == <span class="number">0</span>;</span><br><span class="line">                </span><br><span class="line">                <span class="comment">//如何判断其它客户端是否已经释放了锁？从子节点列表中获取到比自己次小的哪个节点，并对其建立监听</span></span><br><span class="line">                <span class="keyword">String</span>  pathToWatch = isGetTheLock ? <span class="keyword">null</span> : children.<span class="built_in">get</span>(ourIndex - <span class="number">1</span>);</span><br><span class="line"></span><br><span class="line">                <span class="keyword">if</span> ( isGetTheLock )&#123;</span><br><span class="line">                    haveTheLock = <span class="keyword">true</span>;</span><br><span class="line">                &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">                    <span class="comment">//如果次小的节点被删除了，则表示当前客户端的节点应该是最小的了，所以使用CountDownLatch来实现等待</span></span><br><span class="line">                    <span class="keyword">String</span>  previousSequencePath = basePath .<span class="built_in">concat</span>( <span class="string">"/"</span> ) .<span class="built_in">concat</span>( pathToWatch );</span><br><span class="line">                    <span class="keyword">final</span> CountDownLatch    latch = <span class="keyword">new</span> CountDownLatch(<span class="number">1</span>);</span><br><span class="line">                    <span class="keyword">final</span> IZkDataListener previousListener = <span class="keyword">new</span> IZkDataListener() &#123;</span><br><span class="line">                        </span><br><span class="line">                        <span class="comment">//次小节点删除事件发生时，让countDownLatch结束等待</span></span><br><span class="line">                        <span class="comment">//此时还需要重新让程序回到while，重新判断一次！</span></span><br><span class="line">                        <span class="keyword">public</span> <span class="keyword">void</span> handleDataDeleted(<span class="keyword">String</span> dataPath) <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">                            latch.countDown();            </span><br><span class="line">                        &#125;</span><br><span class="line">                        </span><br><span class="line">                        <span class="keyword">public</span> <span class="keyword">void</span> handleDataChange(<span class="keyword">String</span> dataPath, <span class="keyword">Object</span> data) <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">                            <span class="comment">// ignore                                    </span></span><br><span class="line">                        &#125;</span><br><span class="line">                    &#125;;</span><br><span class="line"></span><br><span class="line">                    <span class="keyword">try</span>&#123;                  </span><br><span class="line">                        <span class="comment">//如果节点不存在会出现异常</span></span><br><span class="line">                        client.subscribeDataChanges(previousSequencePath, previousListener);</span><br><span class="line">                        </span><br><span class="line">                        <span class="keyword">if</span> ( millisToWait != <span class="keyword">null</span> )&#123;</span><br><span class="line">                            millisToWait -= (System.currentTimeMillis() - startMillis);</span><br><span class="line">                            startMillis = System.currentTimeMillis();</span><br><span class="line">                            <span class="keyword">if</span> ( millisToWait &lt;= <span class="number">0</span> )&#123;</span><br><span class="line">                                doDelete = <span class="keyword">true</span>;    <span class="comment">// timed out - delete our node</span></span><br><span class="line">                                <span class="keyword">break</span>;</span><br><span class="line">                            &#125;</span><br><span class="line"></span><br><span class="line">                            latch.await(millisToWait, TimeUnit.MICROSECONDS);</span><br><span class="line">                        &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">                            latch.await();</span><br><span class="line">                        &#125;</span><br><span class="line">                        </span><br><span class="line">                    &#125;<span class="keyword">catch</span> ( ZkNoNodeException e )&#123;</span><br><span class="line">                        <span class="comment">//ignore</span></span><br><span class="line">                    &#125;<span class="keyword">finally</span>&#123;</span><br><span class="line">                        client.unsubscribeDataChanges(previousSequencePath, previousListener);</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;<span class="keyword">catch</span> ( Exception e )&#123;</span><br><span class="line">            <span class="comment">//发生异常需要删除节点</span></span><br><span class="line">            doDelete = <span class="keyword">true</span>;</span><br><span class="line">            <span class="keyword">throw</span> e;</span><br><span class="line">            </span><br><span class="line">        &#125;<span class="keyword">finally</span>&#123;</span><br><span class="line">            <span class="comment">//如果需要删除节点</span></span><br><span class="line">            <span class="keyword">if</span> ( doDelete )&#123;</span><br><span class="line">                deleteOurPath(ourPath);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> haveTheLock;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    </span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">String</span> getLockNodeNumber(<span class="keyword">String</span> <span class="built_in">str</span>, <span class="keyword">String</span> lockName) &#123;</span><br><span class="line">        <span class="built_in">int</span> index = <span class="built_in">str</span>.lastIndexOf(lockName);</span><br><span class="line">        <span class="keyword">if</span> ( index &gt;= <span class="number">0</span> )&#123;</span><br><span class="line">            index += lockName.length();</span><br><span class="line">            <span class="keyword">return</span> index &lt;= <span class="built_in">str</span>.length() ? <span class="built_in">str</span>.substring(index) : <span class="string">""</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="built_in">str</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    </span><br><span class="line">    <span class="keyword">private</span> List&lt;<span class="keyword">String</span>&gt; getSortedChildren() <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">        <span class="keyword">try</span>&#123;</span><br><span class="line">            List&lt;<span class="keyword">String</span>&gt; children = client.getChildren(basePath);</span><br><span class="line">            Collections.<span class="built_in">sort</span>(</span><br><span class="line">                children,</span><br><span class="line">                <span class="keyword">new</span> Comparator&lt;<span class="keyword">String</span>&gt;()&#123;</span><br><span class="line">                    <span class="keyword">public</span> <span class="built_in">int</span> compare(<span class="keyword">String</span> lhs, <span class="keyword">String</span> rhs)&#123;</span><br><span class="line">                        <span class="keyword">return</span> getLockNodeNumber(lhs, lockName).compareTo(getLockNodeNumber(rhs, lockName));</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">            );</span><br><span class="line">            <span class="keyword">return</span> children;</span><br><span class="line">            </span><br><span class="line">        &#125;<span class="keyword">catch</span>(ZkNoNodeException e)&#123;</span><br><span class="line">            client.createPersistent(basePath, <span class="keyword">true</span>);</span><br><span class="line">            <span class="keyword">return</span> getSortedChildren();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    </span><br><span class="line">    <span class="keyword">protected</span> <span class="keyword">void</span> releaseLock(<span class="keyword">String</span> lockPath) <span class="keyword">throws</span> Exception&#123;</span><br><span class="line">        deleteOurPath(lockPath);    </span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    </span><br><span class="line">    <span class="keyword">protected</span> <span class="keyword">String</span> attemptLock(<span class="keyword">long</span> time, TimeUnit unit) <span class="keyword">throws</span> Exception&#123;</span><br><span class="line">        <span class="keyword">final</span> <span class="keyword">long</span>      startMillis = System.currentTimeMillis();</span><br><span class="line">        <span class="keyword">final</span> Long      millisToWait = (unit != <span class="keyword">null</span>) ? unit.toMillis(time) : <span class="keyword">null</span>;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">String</span>          ourPath = <span class="keyword">null</span>;</span><br><span class="line">        <span class="built_in">boolean</span>         hasTheLock = <span class="keyword">false</span>;</span><br><span class="line">        <span class="built_in">boolean</span>         isDone = <span class="keyword">false</span>;</span><br><span class="line">        <span class="built_in">int</span>             retryCount = <span class="number">0</span>;</span><br><span class="line">        </span><br><span class="line">        <span class="comment">//网络闪断需要重试一试</span></span><br><span class="line">        <span class="keyword">while</span> ( !isDone )&#123;</span><br><span class="line">            isDone = <span class="keyword">true</span>;</span><br><span class="line"></span><br><span class="line">            <span class="keyword">try</span>&#123;</span><br><span class="line">                <span class="comment">//createLockNode用于在locker（basePath持久节点）下创建客户端要获取锁的[临时]顺序节点</span></span><br><span class="line">                ourPath = createLockNode(client, path);</span><br><span class="line">                <span class="comment">/**</span></span><br><span class="line"><span class="comment">                 * 该方法用于判断自己是否获取到了锁，即自己创建的顺序节点在locker的所有子节点中是否最小</span></span><br><span class="line"><span class="comment">                 * 如果没有获取到锁，则等待其它客户端锁的释放，并且稍后重试直到获取到锁或者超时</span></span><br><span class="line"><span class="comment">                 */</span></span><br><span class="line">                hasTheLock = waitToLock(startMillis, millisToWait, ourPath);</span><br><span class="line">                </span><br><span class="line">            &#125;<span class="keyword">catch</span> ( ZkNoNodeException e )&#123;</span><br><span class="line">                <span class="keyword">if</span> ( retryCount++ &lt; MAX_RETRY_COUNT )&#123;</span><br><span class="line">                    isDone = <span class="keyword">false</span>;</span><br><span class="line">                &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">                    <span class="keyword">throw</span> e;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">if</span> ( hasTheLock )&#123;</span><br><span class="line">            <span class="keyword">return</span> ourPath;</span><br><span class="line">        &#125;</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">null</span>；</span><br><span class="line">｝</span><br></pre></td></tr></table></figure>
-
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">分布式锁</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-      
-
-      <div style="font-size: 12px;">
-        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
-      </div>
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2018/05/06/使用zookeeper实现分布式锁(一)/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
   
     <nav id="page-nav">
       <a class="extend prev" rel="prev" href="/page/6/">&laquo; Prev</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/5/">5</a><a class="page-number" href="/page/6/">6</a><span class="page-number current">7</span><a class="page-number" href="/page/8/">8</a><a class="page-number" href="/page/9/">9</a><span class="space">&hellip;</span><a class="page-number" href="/page/15/">15</a><a class="extend next" rel="next" href="/page/8/">Next &raquo;</a>
@@ -3359,11 +3260,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">java</a>
+                <a href="javascript:void(0)" class="js-tag color4">JVM</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">JVM</a>
+                <a href="javascript:void(0)" class="js-tag color5">java</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -3407,11 +3308,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">spring</a>
+                <a href="javascript:void(0)" class="js-tag color1">react</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">react</a>
+                <a href="javascript:void(0)" class="js-tag color2">spring</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -3431,7 +3332,7 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">debug</a>
+                <a href="javascript:void(0)" class="js-tag color4">influxdb</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -3439,7 +3340,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">influxdb</a>
+                <a href="javascript:void(0)" class="js-tag color1">debug</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">python</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -3448,10 +3353,6 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">maven</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">python</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -3471,19 +3372,19 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">后端</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">前端指南</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">善用佳软</a>
+                <a href="javascript:void(0)" class="js-tag color3">后端</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">jvm</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">善用佳软</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -3503,15 +3404,19 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">Spring</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">前端跨域</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">单例</a>
+                <a href="javascript:void(0)" class="js-tag color3">HashMap</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">HashMap</a>
+                <a href="javascript:void(0)" class="js-tag color3">单例</a>
               </li>
              
               <li class="article-tag-list-item">

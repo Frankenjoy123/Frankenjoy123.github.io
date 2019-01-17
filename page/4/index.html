@@ -151,6 +151,89 @@
           <div id="js-content" class="content-ll">
             
   
+    <article id="post-理解spring中的BeanFactory与FactoryBean区别" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2018/07/19/理解spring中的BeanFactory与FactoryBean区别/">理解spring中的BeanFactory与FactoryBean区别</a>
+    </h1>
+  
+
+        
+        <a href="/2018/07/19/理解spring中的BeanFactory与FactoryBean区别/" class="archive-article-date">
+  	<time datetime="2018-07-18T23:58:05.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-07-19</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>实现 <code>BeanFactory</code> 接口的类表明此类事一个工厂，作用就是配置、新建、管理 各种Bean。<code>DefaultListBeanFacory</code>等都实现这个接口，IOC容器，管理bean。</p>
+<p>而 实现 <code>FactoryBean</code> 的类表明此类也是一个Bean，类型为工厂Bean（Spring中共有两种bean，一种为普通bean，另一种则为工厂bean）。顾名思义，它也是用来管理Bean的，而它本身由spring管理。</p>
+<p>一个Bean想要实现 <code>FactoryBean</code> ，必须实现以下三个接口：</p>
+<figure class="highlight armasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">1</span>. Object getObject():返回由FactoryBean创建的<span class="keyword">Bean的实例</span></span><br><span class="line"><span class="keyword"></span></span><br><span class="line"><span class="keyword">2. </span><span class="keyword">boolean </span>isSingleton():确定由FactoryBean创建的<span class="keyword">Bean的作用域是singleton还是prototype；</span></span><br><span class="line"><span class="keyword"></span></span><br><span class="line"><span class="keyword">3. </span>getObjectType():返回FactoryBean创建的<span class="keyword">Bean的类型。12345</span></span><br></pre></td></tr></table></figure>
+<p>有一点需要注意，如果将一个实现了FactoryBean的类成功配置到了spring上下文中，那么通过该类对象的名称（比如appleFactoryBean）从spring的applicationContext或者beanFactory获取bean时，获取到的是appleFactoryBean创建的apple实例，而不是appleFactoryBean自己，如果想通过spring拿到appleFactoryBean，需要在名称前加 <code>&amp;</code> 符号 ：</p>
+<figure class="highlight ada"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">out</span>.println(applicationContext.getBean(<span class="string">"&amp;appleFactoryBean"</span>))<span class="number">1</span></span><br></pre></td></tr></table></figure>
+<p>这个prefix在BeanFactory接口源码中有提到：</p>
+<figure class="highlight smali"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">/**</span><br><span class="line">* Used to dereference a &#123;@link FactoryBean&#125;<span class="built_in"> instance </span>and distinguish it from</span><br><span class="line">* beans &lt;i&gt;created&lt;/i&gt; by the FactoryBean. For example,<span class="built_in"> if </span>the bean named</span><br><span class="line">* &#123;@code myJndiObject&#125; is a FactoryBean, getting &#123;@code &amp;myJndiObject&#125;</span><br><span class="line">* will<span class="built_in"> return </span>the factory,<span class="built_in"> not </span>the<span class="built_in"> instance </span>returned by the factory.</span><br><span class="line">*/</span><br><span class="line">    String FACTORY_BEAN_PREFIX = <span class="string">"&amp;"</span>;1234567</span><br></pre></td></tr></table></figure>
+<p>还有一点需要注意，FactoryBean管理的bean实际上也是由spring进行配置、实例化、管理，因此由FactoryBean管理的bean不能再次配置到spring配置文件中（xml、java类配置、注解均不可以），否则会报如下异常：</p>
+<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">Exception <span class="keyword">in</span> thread <span class="string">"main"</span> org<span class="selector-class">.springframework</span><span class="selector-class">.beans</span><span class="selector-class">.factory</span><span class="selector-class">.BeanIsNotAFactoryException</span>: Bean named <span class="string">'appleFactoryBean'</span> is expected to be of type <span class="string">'org.springframework.beans.factory.FactoryBean'</span> but was actually of type <span class="string">'java.lang.Object'</span></span><br><span class="line">    at org<span class="selector-class">.springframework</span><span class="selector-class">.beans</span><span class="selector-class">.factory</span><span class="selector-class">.support</span><span class="selector-class">.AbstractBeanFactory</span><span class="selector-class">.getObjectForBeanInstance</span>(AbstractBeanFactory<span class="selector-class">.java</span>:<span class="number">1612</span>)</span><br><span class="line">    at org<span class="selector-class">.springframework</span><span class="selector-class">.beans</span><span class="selector-class">.factory</span><span class="selector-class">.support</span><span class="selector-class">.AbstractBeanFactory</span><span class="selector-class">.doGetBean</span>(AbstractBeanFactory<span class="selector-class">.java</span>:<span class="number">317</span>)</span><br><span class="line">    at org<span class="selector-class">.springframework</span><span class="selector-class">.beans</span><span class="selector-class">.factory</span><span class="selector-class">.support</span><span class="selector-class">.AbstractBeanFactory</span><span class="selector-class">.getBean</span>(AbstractBeanFactory<span class="selector-class">.java</span>:<span class="number">197</span>)</span><br><span class="line">    at org<span class="selector-class">.springframework</span><span class="selector-class">.beans</span><span class="selector-class">.factory</span><span class="selector-class">.support</span><span class="selector-class">.DefaultListableBeanFactory</span><span class="selector-class">.preInstantiateSingletons</span>(DefaultListableBeanFactory<span class="selector-class">.java</span>:<span class="number">742</span>)</span><br><span class="line">    at org<span class="selector-class">.springframework</span><span class="selector-class">.context</span><span class="selector-class">.support</span><span class="selector-class">.AbstractApplicationContext</span><span class="selector-class">.finishBeanFactoryInitialization</span>(AbstractApplicationContext<span class="selector-class">.java</span>:<span class="number">866</span>)</span><br><span class="line">    at org<span class="selector-class">.springframework</span><span class="selector-class">.context</span><span class="selector-class">.support</span><span class="selector-class">.AbstractApplicationContext</span><span class="selector-class">.refresh</span>(AbstractApplicationContext<span class="selector-class">.java</span>:<span class="number">542</span>)</span><br><span class="line">    at org<span class="selector-class">.springframework</span><span class="selector-class">.context</span><span class="selector-class">.annotation</span><span class="selector-class">.AnnotationConfigApplicationContext</span>.&lt;init&gt;(AnnotationConfigApplicationContext<span class="selector-class">.java</span>:<span class="number">84</span>)</span><br><span class="line">    at com<span class="selector-class">.joen</span><span class="selector-class">.testspringcontainer</span><span class="selector-class">.Start</span><span class="selector-class">.main</span>(Start<span class="selector-class">.java</span>:<span class="number">11</span>)</span><br><span class="line">    at sun<span class="selector-class">.reflect</span><span class="selector-class">.NativeMethodAccessorImpl</span><span class="selector-class">.invoke0</span>(Native Method)</span><br><span class="line">    at sun<span class="selector-class">.reflect</span><span class="selector-class">.NativeMethodAccessorImpl</span><span class="selector-class">.invoke</span>(NativeMethodAccessorImpl<span class="selector-class">.java</span>:<span class="number">62</span>)</span><br><span class="line">    at sun<span class="selector-class">.reflect</span><span class="selector-class">.DelegatingMethodAccessorImpl</span><span class="selector-class">.invoke</span>(DelegatingMethodAccessorImpl<span class="selector-class">.java</span>:<span class="number">43</span>)</span><br><span class="line">    at java<span class="selector-class">.lang</span><span class="selector-class">.reflect</span><span class="selector-class">.Method</span><span class="selector-class">.invoke</span>(Method<span class="selector-class">.java</span>:<span class="number">498</span>)</span><br><span class="line">    at com<span class="selector-class">.intellij</span><span class="selector-class">.rt</span><span class="selector-class">.execution</span><span class="selector-class">.application</span><span class="selector-class">.AppMain</span><span class="selector-class">.main</span>(AppMain<span class="selector-class">.java</span>:<span class="number">147</span>)<span class="number">1234567891011121314</span></span><br></pre></td></tr></table></figure>
+<p>附上一个例子：</p>
+<p>spring配置类：</p>
+<figure class="highlight less"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">@Configuration</span></span><br><span class="line"><span class="variable">@ComponentScan</span></span><br><span class="line">public class Configurations &#123;</span><br><span class="line">&#125;<span class="number">1234</span></span><br></pre></td></tr></table></figure>
+<p>AppleBean :</p>
+<figure class="highlight actionscript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//@Component  这里不可以加注解 ！！！！！！</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">AppleBean</span></span>&#123;</span><br><span class="line"></span><br><span class="line">&#125;<span class="number">1234</span></span><br></pre></td></tr></table></figure>
+<p>AppleFactoryBean :</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">AppleFactoryBean</span> <span class="keyword">implements</span> <span class="title">FactoryBean</span></span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Object <span class="title">getObject</span><span class="params">()</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> AppleBean();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> Class&lt;?&gt; getObjectType() &#123;</span><br><span class="line">        <span class="keyword">return</span> AppleBean.class;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">isSingleton</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;<span class="number">123456789101112131415</span></span><br></pre></td></tr></table></figure>
+<p>启动类 :</p>
+<figure class="highlight cs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">Start</span> &#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span>(<span class="params">String[] args</span>)</span>&#123;</span><br><span class="line">        ApplicationContext applicationContext = <span class="keyword">new</span> AnnotationConfigApplicationContext(Configurations.class);</span><br><span class="line">                 <span class="keyword">out</span>.println(applicationContext.getBean(<span class="string">"appleFactoryBean"</span>));<span class="comment">//得到的是apple</span></span><br><span class="line">                 <span class="keyword">out</span>.println(applicationContext.getBean(<span class="string">"&amp;appleFactoryBean"</span>));<span class="comment">//得到的是apple工厂</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+      
+
+      <div style="font-size: 12px;">
+        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
+      </div>
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2018/07/19/理解spring中的BeanFactory与FactoryBean区别/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
     <article id="post-cookie中的path与domain属性详解" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
@@ -1684,158 +1767,6 @@
 
 
   
-    <article id="post-TCP协议详解" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2018/06/21/TCP协议详解/">TCP协议详解</a>
-    </h1>
-  
-
-        
-        <a href="/2018/06/21/TCP协议详解/" class="archive-article-date">
-  	<time datetime="2018-06-21T10:01:10.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-06-21</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h2 id="TCP三次握手"><a href="#TCP三次握手" class="headerlink" title="TCP三次握手"></a>TCP三次握手</h2><table>
-<thead>
-<tr>
-<th>Client A</th>
-<th style="text-align:center">序号</th>
-<th>Server B</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td></td>
-<td style="text-align:center">——1——&gt;</td>
-<td></td>
-</tr>
-<tr>
-<td></td>
-<td style="text-align:center">&lt;——2——</td>
-<td></td>
-</tr>
-<tr>
-<td></td>
-<td style="text-align:center">——3——&gt;</td>
-</tr>
-</tbody>
-</table>
-<ol>
-<li><p>ClientA -&gt; ServerB:  SYN=1, ACK=0 , 序列号seq=x 。 </p>
-<p>此时，TCP客户端ClientA进程进入了 <code>SYN-SENT</code>（同步已发送状态）状态。TCP规定，SYN报文段（SYN=1的报文段）不能携带数据，但需要消耗掉一个序号。</p>
-</li>
-<li><p>ServerB -&gt; ClientA:  SYN=1, ACK=1 , 序列号seq=y , 确认号ack=x+1 。此时，ServerB进入<code>SYN-RCVD</code>同步收到状态。SNC报文段不能携带数据，但是需要消耗一个序列号。</p>
-</li>
-<li><p>ClientA -&gt; ServerB:  ACK=1, seq=x+1 , ack=y+1 。clinetA发送后进入<code>ESTABLISHED</code>（已建立连接）状态，serverB收到后=，也进入<code>ESTABLISHED</code>（已建立连接）状态。</p>
-<p> TCP规定，ACK报文段可以携带数据，但是如果不携带数据则不消耗序号。</p>
-</li>
-</ol>
-<ul>
-<li><strong>ACK</strong>: TCP协议规定，只有ACK=1时有效，也规定<strong>连接建立后</strong>所有发送的报文的ACK必须为1</li>
-<li><strong>SYN</strong>(SYNchronization) ： 在<strong>连接建立时</strong>用来同步序号。</li>
-<li>当<code>SYN=1，ACK=0</code>时，表明这是一个连接请求报文。对方若同意建立连接，则应在响应报文中使<code>SYN=1，ACK=1</code>。 </li>
-<li><strong>FIN</strong>，用来释放连接。当FIN=1，表明此报文的发送方的数据已经发送完毕，并且要求释放。</li>
-</ul>
-<h3 id="为什么需要三次握手，而不是两次"><a href="#为什么需要三次握手，而不是两次" class="headerlink" title="为什么需要三次握手，而不是两次"></a>为什么需要三次握手，而不是两次</h3><p>​    clientA 第一次在步骤1中发送一个请求，由于网络原因，长时间没有收到ServerB确认回复。于是，clientA第二次发送请求，成功建立连接，处理完成后，关闭连接。但是，第一次的请求经过漫长的一段时间后，到达了ServerB，并且给了回复确认。即<strong>已失效的请求连接报文段</strong>。</p>
-<p>​    如果只有两次握手，那么第一次的这个连接就建立了，实际是不应该建立的，导致不要的错误和资源浪费。</p>
-<p>​    采用三次握手，就可以防止上面的问题。clientA对于的ServerB的回复确认不予理睬，ServerB收不到clinetA的第三次回复，这样就不会浪费建立新的连接。</p>
-<h2 id="TCP四次挥手"><a href="#TCP四次挥手" class="headerlink" title="TCP四次挥手"></a>TCP四次挥手</h2><table>
-<thead>
-<tr>
-<th>Client A</th>
-<th style="text-align:center">序号</th>
-<th>Server B</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td></td>
-<td style="text-align:center">——1——&gt;</td>
-<td></td>
-</tr>
-<tr>
-<td></td>
-<td style="text-align:center">&lt;——2——</td>
-<td></td>
-</tr>
-<tr>
-<td></td>
-<td style="text-align:center">&lt;——3——</td>
-<td></td>
-</tr>
-<tr>
-<td></td>
-<td style="text-align:center">——4——&gt;</td>
-</tr>
-</tbody>
-</table>
-<ol>
-<li><p>clientA -&gt; ServerB :  FIN=1 , 序列号seq=u（等于前面已经传送过来的数据的最后一个字节的序号加1） 。</p>
-<p>此时ClientA从<code>ESTABLISHED</code>建立连接状态变为<code>FIN-WAIT-1</code>终止等待1状态。TCP规定，FIN报文段即使不携带数据，也要消耗一个序号。</p>
-</li>
-<li><p>ServerB -&gt; clientA : ACK=1 , seq=v , ack=u+1 。 此时， ServerB从<code>ESTABLISHED</code>建立连接状态变为<code>CLOSE-WAIT</code>关闭等待状态。clientA收到后，变为<code>FIN-WAIT-2</code>终止等待2状态。</p>
-<p>即客户端已经没有数据要发送了，但是服务器若发送数据，客户端依然要接受。</p>
-</li>
-<li><p>ServerB -&gt; clientA : FIN=1 , ACK=1 , seq=w , ack=u+1 。 服务器ServerB就进入了<code>LAST-ACK</code>（最后确认）状态，等待客户端的确认。 </p>
-</li>
-<li><p>clientA -&gt; ServerB : ACK=1 , seq=u+1 , ack=w+1 。 clientA发出后，进入<code>TIME_WAIT</code>状态。</p>
-<p>注意此时TCP连接还没有释放，必须经过2*MSL（最长报文段寿命）的时间后，当客户端撤销相应的TCB后，才进入<code>CLOSED</code>状态。<br>服务器只要收到了客户端发出的确认，立即进入<code>CLOSED</code>状态。同样，撤销TCB后，就结束了这次的TCP连接。可以看到，服务器结束TCP连接的时间要比客户端早一些。</p>
-</li>
-</ol>
-<h3 id="为什么客户端最后需要等待2MSL"><a href="#为什么客户端最后需要等待2MSL" class="headerlink" title="为什么客户端最后需要等待2MSL"></a>为什么客户端最后需要等待2MSL</h3>
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-      
-
-      <div style="font-size: 12px;">
-        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
-      </div>
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2018/06/21/TCP协议详解/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
   
     <nav id="page-nav">
       <a class="extend prev" rel="prev" href="/page/3/">&laquo; Prev</a><a class="page-number" href="/">1</a><a class="page-number" href="/page/2/">2</a><a class="page-number" href="/page/3/">3</a><span class="page-number current">4</span><a class="page-number" href="/page/5/">5</a><a class="page-number" href="/page/6/">6</a><span class="space">&hellip;</span><a class="page-number" href="/page/15/">15</a><a class="extend next" rel="next" href="/page/5/">Next &raquo;</a>
@@ -1953,11 +1884,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">java</a>
+                <a href="javascript:void(0)" class="js-tag color4">JVM</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">JVM</a>
+                <a href="javascript:void(0)" class="js-tag color5">java</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -2001,11 +1932,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">spring</a>
+                <a href="javascript:void(0)" class="js-tag color1">react</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">react</a>
+                <a href="javascript:void(0)" class="js-tag color2">spring</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -2025,7 +1956,7 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">debug</a>
+                <a href="javascript:void(0)" class="js-tag color4">influxdb</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -2033,7 +1964,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">influxdb</a>
+                <a href="javascript:void(0)" class="js-tag color1">debug</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">python</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -2042,10 +1977,6 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">maven</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">python</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -2065,19 +1996,19 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">后端</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">前端指南</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">善用佳软</a>
+                <a href="javascript:void(0)" class="js-tag color3">后端</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">jvm</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">善用佳软</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -2097,15 +2028,19 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">Spring</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">前端跨域</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">单例</a>
+                <a href="javascript:void(0)" class="js-tag color3">HashMap</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">HashMap</a>
+                <a href="javascript:void(0)" class="js-tag color3">单例</a>
               </li>
              
               <li class="article-tag-list-item">
