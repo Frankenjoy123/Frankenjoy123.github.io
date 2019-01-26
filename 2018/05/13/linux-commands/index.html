@@ -17,7 +17,7 @@
 <meta property="og:url" content="http://yoursite.com/2018/05/13/linux-commands/index.html">
 <meta property="og:site_name" content="xiaowu&#39;s blog">
 <meta property="og:description" content="一、CPU相关、进程1、 查看cpu硬件配置1less /proc/cpuinfo 1234uname -a                查看内核/操作系统/CPU信息head -n 1 /etc/issue    查看操作系统版本less /proc/cpuinfo      查看CPU信息hostname                查看计算机名 2、 top  命令实时显示各种系统资源使">
-<meta property="og:updated_time" content="2018-12-29T02:08:24.000Z">
+<meta property="og:updated_time" content="2019-01-25T03:27:26.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="linux常用命令">
 <meta name="twitter:description" content="一、CPU相关、进程1、 查看cpu硬件配置1less /proc/cpuinfo 1234uname -a                查看内核/操作系统/CPU信息head -n 1 /etc/issue    查看操作系统版本less /proc/cpuinfo      查看CPU信息hostname                查看计算机名 2、 top  命令实时显示各种系统资源使">
@@ -236,6 +236,9 @@
 </ul>
 <figure class="highlight fortran"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">iostat</span> -k <span class="number">3</span></span><br></pre></td></tr></table></figure>
 <h4 id="4、traceroute"><a href="#4、traceroute" class="headerlink" title="4、traceroute"></a>4、traceroute</h4><figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">traceroute www<span class="selector-class">.baidu</span><span class="selector-class">.com</span></span><br></pre></td></tr></table></figure>
+<h4 id="5、telnet"><a href="#5、telnet" class="headerlink" title="5、telnet"></a>5、telnet</h4><ul>
+<li>退出，ctrl+]  出现telnet后，再输入quit</li>
+</ul>
 <h3 id="四、文件"><a href="#四、文件" class="headerlink" title="四、文件"></a>四、文件</h3><h4 id="1、-lsof-一切皆文件"><a href="#1、-lsof-一切皆文件" class="headerlink" title="1、 lsof (一切皆文件)"></a>1、 lsof (一切皆文件)</h4><p><a href="http://man.linuxde.net/lsof" target="_blank" rel="external">命令详情</a></p>
 <p>查看你进程开打的文件，打开文件的进程，进程打开的端口(TCP、UDP)</p>
 <figure class="highlight 1c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 查看sys.log文件被哪个进程打开</span></span><br><span class="line">lsof sys.<span class="built_in">log</span></span><br></pre></td></tr></table></figure>
@@ -257,6 +260,16 @@
 <figure class="highlight stata"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">tail -f <span class="keyword">test</span>.<span class="built_in">log</span></span><br></pre></td></tr></table></figure>
 <figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">ping baidu<span class="selector-class">.com</span> &gt; <span class="number">1</span><span class="selector-class">.txt</span> &amp;</span><br><span class="line">后台以守护进程的方式，将ping命令的返回结果写入 <span class="number">1</span>.txt</span><br></pre></td></tr></table></figure>
 <h4 id="6、-awk"><a href="#6、-awk" class="headerlink" title="6、 awk"></a>6、 awk</h4><figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 每行按空格或TAB分割，输出文本中的1、4项</span></span><br><span class="line"> <span class="attribute">awk</span> <span class="string">'&#123;print <span class="variable">$1</span>,<span class="variable">$4</span>&#125;'</span> log.txt</span><br></pre></td></tr></table></figure>
+<h4 id="7、-dirname"><a href="#7、-dirname" class="headerlink" title="7、 dirname"></a>7、 dirname</h4><p>在命令行状态下单纯执行<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> `dirname <span class="variable">$0</span>`</span><br></pre></td></tr></table></figure></p>
+<p>是毫无意义的。</p>
+<p>因为他返回当前路径的”.”。<strong>这个命令写在脚本文件里才有作用，他返回这个脚本文件放置的目录，并可以根据这个目录来定位所要运行程序的相对位置（绝对位置除外）。</strong></p>
+<ul>
+<li>参考<code>/Users/zhouxiaowu/Dropbox/commonShell</code>  运行  <code>dirnameDemo.sh</code></li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">BASE_DIR=`dirname <span class="variable">$0</span>`</span><br><span class="line"><span class="built_in">echo</span> <span class="variable">$BASE_DIR</span></span><br><span class="line"><span class="built_in">cd</span> `dirname <span class="variable">$0</span>`</span><br><span class="line"><span class="built_in">echo</span> `<span class="built_in">pwd</span>`</span><br></pre></td></tr></table></figure>
+<p>运行结果:</p>
+<figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">.</span><br><span class="line"><span class="regexp">/Users/</span>zhouxiaowu<span class="regexp">/Dropbox/</span>commonShell</span><br></pre></td></tr></table></figure>
+<p>这样就可以知道一些和脚本一起部署的文件的位置了，只要知道相对位置就可以根据这个目录来定位，而可以不用关心绝对位置。这样脚本的可移植性就提高了，扔到任何一台服务器，（如果是部署脚本）都可以执行。</p>
 <h3 id="五、用户"><a href="#五、用户" class="headerlink" title="五、用户"></a>五、用户</h3><figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">w                       查看活动用户</span><br><span class="line">id &lt;用户名&gt;              查看指定用户信息</span><br><span class="line">last                    查看用户登录日志</span><br><span class="line">cut -d: -f1 /etc/passwd    查看系统所有用户</span><br><span class="line">cut -d: -f1 /etc<span class="built_in">/group </span>    查看系统所有组</span><br><span class="line">crontab -l              查看当前用户的计划任务</span><br></pre></td></tr></table></figure>
 <h3 id="六、其它"><a href="#六、其它" class="headerlink" title="六、其它"></a>六、其它</h3><p>1、查看所有安装的软件包</p>
 <figure class="highlight ebnf"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">rpm -qa</span></span><br></pre></td></tr></table></figure>
@@ -373,18 +386,18 @@
   
 <nav id="article-nav">
   
-    <a href="/2018/05/13/JAVA线上问题之Full-GC问题定位/" id="article-nav-newer" class="article-nav-link-wrap">
+    <a href="/2018/05/13/jvm堆参数调整/" id="article-nav-newer" class="article-nav-link-wrap">
       <i class="icon-circle-left"></i>
       <div class="article-nav-title">
         
-          JAVA线上问题之Full GC问题定位
+          jvm堆参数调整
         
       </div>
     </a>
   
   
-    <a href="/2018/05/13/排查问题常用命令/" id="article-nav-older" class="article-nav-link-wrap">
-      <div class="article-nav-title">排查线上问题常用命令脚本</div>
+    <a href="/2018/05/13/实例详解java.lang.OutOfMemoryError/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">OutOfMemoryError 实例详解</div>
       <i class="icon-circle-right"></i>
     </a>
   
@@ -530,11 +543,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">JVM</a>
+                <a href="javascript:void(0)" class="js-tag color5">java</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">java</a>
+                <a href="javascript:void(0)" class="js-tag color4">JVM</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -542,11 +555,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">java内存模型</a>
+                <a href="javascript:void(0)" class="js-tag color1">linux</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">linux</a>
+                <a href="javascript:void(0)" class="js-tag color4">java内存模型</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -558,15 +571,15 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">MySQL</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">test</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">mysql</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">MySQL</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -602,15 +615,15 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">debug</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">influxdb</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">rest</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">debug</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -650,11 +663,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">jvm</a>
+                <a href="javascript:void(0)" class="js-tag color5">善用佳软</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">善用佳软</a>
+                <a href="javascript:void(0)" class="js-tag color4">jvm</a>
               </li>
              
               <li class="article-tag-list-item">

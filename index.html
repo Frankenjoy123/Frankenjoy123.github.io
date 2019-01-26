@@ -151,6 +151,139 @@
           <div id="js-content" class="content-ll">
             
   
+    <article id="post-嵌入式Tomcat" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2019/01/26/嵌入式Tomcat/">嵌入式 Tomcat</a>
+    </h1>
+  
+
+        
+        <a href="/2019/01/26/嵌入式Tomcat/" class="archive-article-date">
+  	<time datetime="2019-01-26T02:33:48.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2019-01-26</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="Tomcat-架构"><a href="#Tomcat-架构" class="headerlink" title="Tomcat 架构"></a>Tomcat 架构</h2><p><img src="images/Tomcat_Architecture-680x428.png" alt=""></p>
+<h2 id="Web-技术栈"><a href="#Web-技术栈" class="headerlink" title="Web 技术栈"></a>Web 技术栈</h2><h3 id="Servlet-技术栈"><a href="#Servlet-技术栈" class="headerlink" title="Servlet 技术栈"></a>Servlet 技术栈</h3><h3 id="Web-Flux（Netty）"><a href="#Web-Flux（Netty）" class="headerlink" title="Web Flux（Netty）"></a>Web Flux（Netty）</h3><p>BIO NIO</p>
+<h2 id="Web-自动装配"><a href="#Web-自动装配" class="headerlink" title="Web 自动装配"></a>Web 自动装配</h2><h3 id="API-角度分析"><a href="#API-角度分析" class="headerlink" title="API 角度分析"></a>API 角度分析</h3><p>Servlet 3.0 + API 实现  <code>ServletContainerInitializer</code></p>
+<h3 id="容器角度分析"><a href="#容器角度分析" class="headerlink" title="容器角度分析"></a>容器角度分析</h3><p>传统的 Web 应用，将 webapp 部署到 Servlet 容器中。</p>
+<p>嵌入式 Web 应用，灵活部署，任意指定位置（或者通过复杂的条件判断）</p>
+<p>Tomcat 7 是 Servlet 3.0 的实现，<code>ServletContainerInitializer</code></p>
+<p>Tomcat 8 是 Servlet 3.1 的实现，NIO <code>HttpServletRequest</code>、<code>HttpServletResponse</code></p>
+<blockquote>
+<p>NIO 并非一定能够提高性能，比如请求数据量较大，NIO 性能比 BIO 还要差</p>
+<p>NIO 多工，读、写，同步的</p>
+</blockquote>
+<h3 id="jar-启动"><a href="#jar-启动" class="headerlink" title="jar 启动"></a>jar 启动</h3><p><code>java -jar</code> 或者 <code>jar</code> 读取 .jar  <code>META-INF/MANIFEST.MF</code> ，其中属性 <code>Main-Class</code> 就是引导类所在。</p>
+<blockquote>
+<p>参考 JDK API ： <code>java.util.jar.Manifest</code></p>
+</blockquote>
+<h2 id="Tomcat-Maven-插件"><a href="#Tomcat-Maven-插件" class="headerlink" title="Tomcat Maven 插件"></a>Tomcat Maven 插件</h2><h3 id="Tomcat-7-Maven-插件"><a href="#Tomcat-7-Maven-插件" class="headerlink" title="Tomcat 7 Maven 插件"></a>Tomcat 7 Maven 插件</h3><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.apache.tomcat.maven<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>tomcat7-maven-plugin<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">version</span>&gt;</span>2.1<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Manifest-Version: 1.0</span><br><span class="line">Main-Class: org.apache.tomcat.maven.runner.Tomcat7RunnerCli</span><br></pre></td></tr></table></figure>
+<p>得出 Tomcat 7 可执行 jar 引导类是<code>org.apache.tomcat.maven.runner.Tomcat7RunnerCli</code></p>
+<h2 id="Tomcat-7-API-编程"><a href="#Tomcat-7-API-编程" class="headerlink" title="Tomcat 7 API 编程"></a>Tomcat 7 API 编程</h2><h3 id="确定-Classpath-目录"><a href="#确定-Classpath-目录" class="headerlink" title="确定 Classpath 目录"></a>确定 Classpath 目录</h3><p>classes 绝对路径：<code>E:\Downloads\tomcat\target\classes</code></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">String classesPath = System.getProperty(<span class="string">"user.dir"</span>)</span><br><span class="line">        + File.separator + <span class="string">"target"</span> + File.separator + <span class="string">"classes"</span>;</span><br></pre></td></tr></table></figure>
+<h3 id="创建-Tomcat-实例"><a href="#创建-Tomcat-实例" class="headerlink" title="创建 Tomcat 实例"></a>创建 <code>Tomcat</code> 实例</h3><p><code>org.apache.catalina.startup.Tomcat</code></p>
+<p>Maven 坐标：<code>org.apache.tomcat.embed:tomcat-embed-core:7.0.37</code></p>
+<h3 id="设置-Host对象"><a href="#设置-Host对象" class="headerlink" title="设置 Host对象"></a>设置 <code>Host</code>对象</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 设置 Host</span></span><br><span class="line">Host host = tomcat.getHost();</span><br><span class="line">host.setName(<span class="string">"localhost"</span>);</span><br><span class="line">host.setAppBase(<span class="string">"webapps"</span>);</span><br></pre></td></tr></table></figure>
+<h3 id="设置-Classpath"><a href="#设置-Classpath" class="headerlink" title="设置 Classpath"></a>设置 Classpath</h3><p>Classpath 读取资源：配置、类文件</p>
+<p><code>conf/web.xml</code> 作为配置文件，并且放置 Classpath 目录下（绝对路径）</p>
+<p>设置 <code>DemoServlet</code></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 添加 DemoServlet 到 Tomcat 容器</span></span><br><span class="line">           Wrapper wrapper = tomcat.addServlet(contextPath, <span class="string">"DemoServlet"</span>, <span class="keyword">new</span> DemoServlet());</span><br><span class="line">           wrapper.addMapping(<span class="string">"/demo"</span>);</span><br></pre></td></tr></table></figure>
+<h2 id="Spring-Boot-嵌入式-Tomcat-编程"><a href="#Spring-Boot-嵌入式-Tomcat-编程" class="headerlink" title="Spring Boot 嵌入式 Tomcat 编程"></a>Spring Boot 嵌入式 Tomcat 编程</h2><h3 id="实现-EmbeddedServletContainerCustomer"><a href="#实现-EmbeddedServletContainerCustomer" class="headerlink" title="实现 EmbeddedServletContainerCustomer"></a>实现 <code>EmbeddedServletContainerCustomer</code></h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Configuration</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">TomcatConfiguration</span> <span class="keyword">implements</span> <span class="title">EmbeddedServletContainerCustomizer</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">customize</span><span class="params">(ConfigurableEmbeddedServletContainer container)</span> </span>&#123;</span><br><span class="line">        System.err.println(container.getClass());</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (container <span class="keyword">instanceof</span> TomcatEmbeddedServletContainerFactory) &#123;</span><br><span class="line"></span><br><span class="line">            TomcatEmbeddedServletContainerFactory factory=</span><br><span class="line">                    (TomcatEmbeddedServletContainerFactory) container;</span><br><span class="line"></span><br><span class="line"><span class="comment">//            Connector connector = new Connector();</span></span><br><span class="line"><span class="comment">//            connector.setPort(9090);</span></span><br><span class="line"><span class="comment">//            connector.setURIEncoding("UTF-8");</span></span><br><span class="line"><span class="comment">//            connector.setProtocol("HTTP/1.1");</span></span><br><span class="line"><span class="comment">//            factory.addAdditionalTomcatConnectors(connector);</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="自定义-Context"><a href="#自定义-Context" class="headerlink" title="自定义 Context"></a>自定义 <code>Context</code></h3><p>实现<code>TomcatContextCustomizer</code></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 相当于 new TomcatContextCustomizer()&#123;&#125;</span></span><br><span class="line">factory.addContextCustomizers((context) -&gt; &#123; <span class="comment">// Lambda</span></span><br><span class="line">  <span class="keyword">if</span> (context <span class="keyword">instanceof</span> StandardContext) &#123;</span><br><span class="line">    StandardContext standardContext = (StandardContext) context;</span><br><span class="line">    <span class="comment">// standardContext.setDefaultWebXml(); // 设置</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<h3 id="自定义-Connector"><a href="#自定义-Connector" class="headerlink" title="自定义 Connector"></a>自定义 <code>Connector</code></h3><p>实现 <code>TomcatConnectorCustomizer</code></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 相当于 new TomcatConnectorCustomizer() &#123;&#125;</span></span><br><span class="line">factory.addConnectorCustomizers(connector -&gt; &#123;</span><br><span class="line">  connector.setPort(<span class="number">12345</span>);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<h2 id="问答"><a href="#问答" class="headerlink" title="问答"></a>问答</h2><ol>
+<li><p>内嵌tomcat是不是比单独的tomcat不是在某方面具有一些优势？</p>
+<p>嵌入式 Tomcat 或者嵌入式 Web 容器可以不依赖文件目录，比如在 Docker 场景使用方便。</p>
+</li>
+<li><p>内置的tomcat 和 外部的tomcat 性能有多大差别?生产线上建议用哪个?</p>
+<p>嵌入式 Tomcat 和 传统 Tomcat 性能可以说一样，现在非常多的生产环境 Spring Boot 嵌入式 - 嵌入式 Tomcat</p>
+</li>
+<li><p>Spring中pre实例化和pre初始化区别(刚刚有提到)</p>
+<p>在 Spring 早起版本中，先有初始化生命周期 - <code>org.springframework.beans.factory.config.BeanPostProcessor</code></p>
+<p>后来 Spring 1.2 ，提供新的扩展接口（<code>BeanPostProcessor</code>）：</p>
+<p><code>org.springframework.beans.factory.config.InstantiationAwareBeanPostProcessor</code></p>
+<p>​</p>
+</li>
+<li><p>Tomcat API 主要是讲tomcat运行原理吗？生产环境用哪种比较多？</p>
+<p>传统 Tomcat 和 嵌入式 Tomcat 都有在生产环境使用。</p>
+<p>​</p>
+</li>
+<li><p>Tomcat 热部署原理能给讲下吗？</p>
+<p><code>org.apache.catalina.Lifecycle</code></p>
+</li>
+</ol>
+<p>​    监控资源变化，Class 变化、配置变化了。 Tomcat 决定重启 Context</p>
+<p>​    <code>org.apache.catalina.Context</code> </p>
+<p>​    Tomcat 自动加载</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setReloadable</span><span class="params">(<span class="keyword">boolean</span> reloadable)</span></span></span><br></pre></td></tr></table></figure>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color2">tomcat</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+      
+
+      <div style="font-size: 12px;">
+        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
+      </div>
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2019/01/26/嵌入式Tomcat/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
     <article id="post-策略模式与Spring结合使用" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
@@ -954,79 +1087,6 @@
 
 
   
-    <article id="post-浅谈springMVC中的设计模式——组合模式" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2018/11/09/浅谈springMVC中的设计模式——组合模式/">浅谈springMVC中的设计模式——组合模式</a>
-    </h1>
-  
-
-        
-        <a href="/2018/11/09/浅谈springMVC中的设计模式——组合模式/" class="archive-article-date">
-  	<time datetime="2018-11-09T14:31:35.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-11-09</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h2 id="定义"><a href="#定义" class="headerlink" title="定义"></a>定义</h2><p>惯例我们先来看一看组合模式的定义：组合模式，将对象组合成树形结构以表示“部分-整体”的层次结构，组合模式使得用户对单个对象和组合对象的使用具有一致性。通俗的来说，就是讲一系列的对象组合在一个整体的对象中，用户在对这个组合对象操作使用时就能跟操作一个对象一样。</p>
-<h2 id="WebMvcConfigurerComposite"><a href="#WebMvcConfigurerComposite" class="headerlink" title="WebMvcConfigurerComposite"></a>WebMvcConfigurerComposite</h2><h3 id="1-component-gt-WebMvcConfigurer抽象接口"><a href="#1-component-gt-WebMvcConfigurer抽象接口" class="headerlink" title="1.  component -&gt; WebMvcConfigurer抽象接口"></a>1.  component -&gt; WebMvcConfigurer抽象接口</h3><figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">public<span class="built_in"> interface </span>WebMvcConfigurer &#123;</span><br><span class="line"></span><br><span class="line"><span class="built_in">..</span>.</span><br><span class="line"><span class="built_in">	default </span>void addInterceptors(InterceptorRegistry registry) &#123;</span><br><span class="line">	&#125;</span><br><span class="line"><span class="built_in">..</span>.	</span><br><span class="line">	</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h2 id="2-leaf-具体实现-gt-自定义实现"><a href="#2-leaf-具体实现-gt-自定义实现" class="headerlink" title="2. leaf 具体实现 -&gt; 自定义实现"></a>2. leaf 具体实现 -&gt; 自定义实现</h2><figure class="highlight aspectj"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Bean</span></span><br><span class="line"><span class="keyword">public</span> <span class="function">WebMvcConfigurer <span class="title">webMvcConfigurer</span><span class="params">()</span></span>&#123;</span><br><span class="line">    WebMvcConfigurer configurer = <span class="keyword">new</span> WebMvcConfigurer() &#123;</span><br><span class="line">        <span class="meta">@Override</span></span><br><span class="line">        <span class="keyword">public</span> <span class="function"><span class="keyword">void</span> <span class="title">addInterceptors</span><span class="params">(InterceptorRegistry registry)</span> </span>&#123;</span><br><span class="line">            registry.addInterceptor(<span class="keyword">new</span> HandlerInterceptor() &#123;</span><br><span class="line">                <span class="meta">@Override</span></span><br><span class="line">                <span class="keyword">public</span> <span class="function"><span class="keyword">boolean</span> <span class="title">preHandle</span><span class="params">(HttpServletRequest request, HttpServletResponse response, Object <span class="keyword">handler</span>)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">                    System.out.println(<span class="string">"handler执行前"</span>);</span><br><span class="line">                    <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> configurer;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h3 id="3-composite容器-gt-WebMvcConfigurerComposite"><a href="#3-composite容器-gt-WebMvcConfigurerComposite" class="headerlink" title="3. composite容器 -&gt; WebMvcConfigurerComposite"></a>3. composite容器 -&gt; WebMvcConfigurerComposite</h3><p><code>@EnableWebMvc</code></p>
-<p>​    <code>@Import(DelegatingWebMvcConfiguration.class)</code></p>
-<p>​        <code>WebMvcConfigurerComposite</code></p>
-<p>本身也实现component <code>WebMvcConfigurer</code>接口，并存在<code>List&lt;WebMvcConfigurer&gt; delegates</code>，对所有的leaf进行统一配置</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">WebMvcConfigurerComposite</span> <span class="keyword">implements</span> <span class="title">WebMvcConfigurer</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">private</span> <span class="keyword">final</span> List&lt;WebMvcConfigurer&gt; delegates = <span class="keyword">new</span> ArrayList&lt;&gt;();</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">addWebMvcConfigurers</span><span class="params">(List&lt;WebMvcConfigurer&gt; configurers)</span> </span>&#123;</span><br><span class="line">		<span class="keyword">if</span> (!CollectionUtils.isEmpty(configurers)) &#123;</span><br><span class="line">			<span class="keyword">this</span>.delegates.addAll(configurers);</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="meta">@Override</span></span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">configurePathMatch</span><span class="params">(PathMatchConfigurer configurer)</span> </span>&#123;</span><br><span class="line">		<span class="keyword">for</span> (WebMvcConfigurer delegate : <span class="keyword">this</span>.delegates) &#123;</span><br><span class="line">			delegate.configurePathMatch(configurer);</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	</span><br><span class="line">	...	</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-      
-
-      <div style="font-size: 12px;">
-        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
-      </div>
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2018/11/09/浅谈springMVC中的设计模式——组合模式/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
   
     <nav id="page-nav">
       <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="page-number" href="/page/3/">3</a><span class="space">&hellip;</span><a class="page-number" href="/page/15/">15</a><a class="extend next" rel="next" href="/page/2/">Next &raquo;</a>
@@ -1144,11 +1204,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">JVM</a>
+                <a href="javascript:void(0)" class="js-tag color5">java</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">java</a>
+                <a href="javascript:void(0)" class="js-tag color4">JVM</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1156,11 +1216,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">java内存模型</a>
+                <a href="javascript:void(0)" class="js-tag color1">linux</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">linux</a>
+                <a href="javascript:void(0)" class="js-tag color4">java内存模型</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1172,15 +1232,15 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">MySQL</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">test</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">mysql</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">MySQL</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1216,15 +1276,15 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">debug</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">influxdb</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">rest</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">debug</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1264,11 +1324,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">jvm</a>
+                <a href="javascript:void(0)" class="js-tag color5">善用佳软</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">善用佳软</a>
+                <a href="javascript:void(0)" class="js-tag color4">jvm</a>
               </li>
              
               <li class="article-tag-list-item">

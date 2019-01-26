@@ -151,6 +151,177 @@
           <div id="js-content" class="content-ll">
             
   
+    <article id="post-分布式一致性算法paxos" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2018/04/09/分布式一致性算法paxos/">分布式一致性算法paxos</a>
+    </h1>
+  
+
+        
+        <a href="/2018/04/09/分布式一致性算法paxos/" class="archive-article-date">
+  	<time datetime="2018-04-09T10:14:57.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-04-09</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <blockquote>
+<p>随着大型网站的各种高并发访问、海量数据处理等场景越来越多，如何实现网站的高可用、易伸缩、可扩展、安全等目标就显得越来越重要。为了解决这样一系列问题，大型网站的架构也在不断发展。提高大型网站的高可用架构，不得不提的就是分布式。在关于分布式事务、两阶段提交协议、三阶提交协议一文中主要用于解决分布式一致性问题的集中协议，那么这篇文章主要讲解业内公认的比较难的也是最行之有效的paxos算法。</p>
+</blockquote>
+<p><strong>我认为对paxos算法讲解的最清楚的就是维基百科了。但是要看懂维基百科中的介绍需要很强的数学思维（paxos毕竟是一个算法），而且有很多关于定理的推论、证明等过程。那么本篇文章主要站在程序的角度，通俗的，循序渐进的讲解到底什么是paxos算法。</strong></p>
+<h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p>Google Chubby的作者Mike Burrows说过， <code>there is only one consensus protocol, and that’s Paxos” – all other approaches are just broken versions of Paxos.</code> 意即<strong>世上只有一种一致性算法，那就是Paxos，所有其他一致性算法都是Paxos算法的不完整版。</strong></p>
+<p>Paxos算法是莱斯利·兰伯特（Leslie Lamport，就是 LaTeX 中的”La”，此人现在在微软研究院）于1990年提出的一种基于消息传递的一致性算法。为描述 Paxos 算法，Lamport 讲述了这样一个故事：</p>
+<blockquote>
+<p>在古希腊有一个岛屿叫做Paxos，这个岛屿通过议会的形式修订法律。执法者（legislators，后面称为牧师priest）在议会大厅（chamber）中表决通过法律，并通过服务员传递纸条的方式交流信息，每个执法者会将通过的法律记录在自己的账目（ledger）上。问题在于执法者和服务员都不可靠，他们随时会因为各种事情离开议会大厅、服务员也有可能重复传递消息（或者直接彻底离开），并随时可能有新的执法者（或者是刚暂时离开的）回到议会大厅进行法律表决，因此，议会协议要求保证上述情况下可以能够正确的修订法律并且不会产生冲突。</p>
+</blockquote>
+<h2 id="什么是paxos算法"><a href="#什么是paxos算法" class="headerlink" title="什么是paxos算法"></a>什么是paxos算法</h2><p>Paxos 算法是分布式一致性算法用来解决一个分布式系统如何就某个值(决议)达成一致的问题。</p>
+<p>人们在理解paxos算法是会遇到一些困境，那么接下来，我们带着以下几个问题来学习paxos算法：</p>
+<p>1、paxos到底在解决什么问题？</p>
+<p>2、paxos到底如何在分布式存储系统中应用？</p>
+<p>3、paxos的核心思想是什么？</p>
+<h2 id="paxos解决了什么问题"><a href="#paxos解决了什么问题" class="headerlink" title="paxos解决了什么问题"></a>paxos解决了什么问题</h2><p>在<a href="http://www.hollischuang.com/archives/681" target="_blank" rel="external">关于分布式一致性的探究</a>中我们提到过，分布式的一致性问题其实主要是指分布式系统中的数据一致性问题。所以，为了保证分布式系统的一致性，就要保证分布式系统中的数据是一致的。</p>
+<p>在一个分布式数据库系统中，如果各节点的初始状态一致，每个节点都执行相同的操作序列，那么他们最后能得到一个一致的状态。为保证每个节点执行相同的命令序列，需要在每一条指令上执行一个“一致性算法”以保证每个节点看到的指令一致。</p>
+<p><strong>所以，paxos算法主要解决的问题就是如何保证分布式系统中各个节点都能执行一个相同的操作序列。</strong></p>
+<p><a href="http://www.hollischuang.com/wp-content/uploads/2015/12/Package-Diagram2.png" target="_blank" rel="external"><img src="http://www.hollischuang.com/wp-content/uploads/2015/12/Package-Diagram2.png" alt="Package Diagram(2)"></a></p>
+<p>上图中，C1是一个客户端，N1、N2、N3是分布式部署的三个服务器，初始状态下N1、N2、N3三个服务器中某个数据的状态都是S0。当客户端要向服务器请求处理操作序列：op1op2op3时（op表示operation）（这里把客户端的写操作简化成向所有服务器发送相同的请操作序列，实际上可能通过Master/Slave模式处理）。如果想保证在处理完客户端的请求之后，N1、N2、N3三个服务器中的数据状态都能从S0变成S1并且一致的话（或者没有执行成功，还是S0状态），就要保证N1、N2、N3在接收并处理操作序列op1op2op3时，严格按照规定的顺序<strong>正确</strong>执行opi，要么全部执行成功，要不就全部都不执行。</p>
+<p>所以，针对上面的场景，paxos解决的问题就是如何依次确定不可变操作opi的取值，也就是确定第i个操作什么，在确定了opi的内容之后，就可以让各个副本执行opi操作。</p>
+<h2 id="Paxos算法详解"><a href="#Paxos算法详解" class="headerlink" title="Paxos算法详解"></a>Paxos算法详解</h2><p>Paxos是一个十分巧妙的一致性算法，但是他也十分难以理解，就连他的作者Lamport都被迫对他做过多种讲解。<strong>我认为对paxos算法讲解的最清楚的就是维基百科了。但是要看懂维基百科中的介绍需要很强的数学思维（paxos毕竟是一个算法），而且有很多关于定理的推论、证明等过程。那么本篇文章主要站在程序的角度，通俗的，循序渐进的讲解到底什么是paxos算法。</strong></p>
+<p>我们先把前面的场景简化，把我们现在要解决的问题简化为<strong>如何确定一个不可变变量的取值</strong>（每一个不可变变量可以标识一个操作序列中的某个操作，当确保每个操作都正确之后，就可以按照顺序执行这些操作来保证数据能够准确无误的从一个状态转变成另外一个状态了）。</p>
+<hr>
+<p>接下来，请跟我一步一步的学习paxos算法。</p>
+<p>要学习paxos算法，我们就要从他要解决的问题出发，假如没有paxos算法，当我们面对<strong>如何确定一个不可变变量的取值</strong>这样一个吻问题的时候，我们应该如何解决呢？</p>
+<blockquote>
+<p>这里暂不介绍paxos中的角色的概念，读者可以自行从<a href="https://zh.wikipedia.org/wiki/Paxos%E7%AE%97%E6%B3%95" target="_blank" rel="external">维基百科</a>中了解。不了解的话也可以直接往下看，看着看着就了解了。</p>
+</blockquote>
+<h3 id="问题抽象"><a href="#问题抽象" class="headerlink" title="问题抽象"></a>问题抽象</h3><p>我们把确定一个不可变变量的取值问题定义成：</p>
+<blockquote>
+<p>设计一个系统，来存储名称为var的变量。</p>
+<blockquote>
+<p>var的取值可以是任意二进制数</p>
+<p>系统内部由多个Accepter组成,负责管理和存储var变量。</p>
+<blockquote>
+<p>系统对外提供api,用来设置var变量的值<br><code>propose(var,V) =&gt; &lt;ok,f&gt; or &lt;error&gt;</code></p>
+<blockquote>
+<p>将var的值设置为V，系统会返回ok和系统中已经确定的取值f，或者返回error。</p>
+</blockquote>
+</blockquote>
+<p>外部有多个Proposer机器任意请求系统，调用系统API(<code>propose(var,V) =&gt; &lt;ok,f&gt; or &lt;error&gt;</code>)来设置var变量的值。</p>
+<blockquote>
+<p>如果系统成功的将var设置成了V，那么返回的f应该就是V的值。否则，系统返回的f就是其他的Proposer设置的值。</p>
+</blockquote>
+</blockquote>
+</blockquote>
+<p>></p>
+<blockquote>
+<p>系统需要保证var的取值满足一致性</p>
+<blockquote>
+<p>如果var没有被设置过，那么他的初始值为null</p>
+<p>一旦var的值被设置成功，则不可被更改，并且可以一直都能获取到这个值</p>
+</blockquote>
+<p>系统需要满足容错特性</p>
+<blockquote>
+<p>可以容忍任意proposer出现故障<br>可以容忍少数acceptor故障（半数以下）</p>
+</blockquote>
+<p>暂时忽略网络分化问题和acceptor故障导致var丢失的问题。</p>
+</blockquote>
+<p>到这里，问题已经抽象完成了，读者可以再仔细看看上面的系统描述。如果这样设置一个系统，是不是就可以保证变量var的不可变性了呢？</p>
+<blockquote>
+<p>这里还是再简单讲解一下，上面的系统确实可以保证变量var的不可变性。</p>
+<p>因为var的初始值为null，当有proposer请求接口propose（var，v）设置var的值的时候，系统会将var设置为v，并返回f（f==v）。</p>
+<p>var变量被初始化以后，再有proposer请求propose(var,v)设置var的值的时候，系统会直接返回系统中已有的var的值f，而放弃proposer提供的v。</p>
+</blockquote>
+<h3 id="系统难点"><a href="#系统难点" class="headerlink" title="系统难点"></a>系统难点</h3><p>要设计以上系统存在以下难点：</p>
+<p>1、管理多个proposer并发执行</p>
+<p>2、容忍var变量的不可变性</p>
+<p>3、容忍任意Proposer的故障</p>
+<p>4、容忍半数以下的acceptor的故障</p>
+<h3 id="解决方案一"><a href="#解决方案一" class="headerlink" title="解决方案一"></a>解决方案一</h3><p>先考虑整个系统由单个acceptor组成。通过类似<a href="https://zh.wikipedia.org/wiki/%E4%BA%92%E6%96%A5%E9%94%81" target="_blank" rel="external">互斥锁</a>的方式来管理并发的proposer的请求。</p>
+<p>proposer向acceptor申请acceptor的互斥访问权，当取得互斥访问权之后才能调用api给var变量赋值。<br>accepter向proposer发放互斥访问权，谁取得了互斥访问权，acceptor就接收谁的请求。<br>这样通过互斥访问的机制，proposer就要按照获取互斥访问权的顺序来请求系统。<br>一旦acceptor接收到一个proposer请求，并成功给var变量赋值之后，就不再允许其他的proposer设置var变量的值。每当再有proposer来请求设置var变量的值的时候，acceptor就会将var里面现有的值返回给他。</p>
+<p><strong>基于互斥访问权的acceptor的实现</strong></p>
+<blockquote>
+<p>acceptor会保存变量var的值和一个互斥锁Lock。</p>
+<p>提供接口prepare()</p>
+<blockquote>
+<p>加互斥锁，给予var的互斥访问权，并返回当前var的取值</p>
+</blockquote>
+<p>提供接口release()</p>
+<blockquote>
+<p>用于释放互斥访问权</p>
+</blockquote>
+<p>提供接口accept(var, v)</p>
+<blockquote>
+<p>如果已经加锁，并且当前var没有值，则将var的值设置成v，并释放锁。</p>
+</blockquote>
+</blockquote>
+<p><strong>proposer采用两阶段来实现</strong></p>
+<blockquote>
+<p>Step1、通过调用prepare接口来获取互斥性访问权和当前var的取值</p>
+<blockquote>
+<p>如果无法获取到互斥性访问权，则返回，并不能进入到下一个阶段，因为其他proposer获取到了互斥性访问权。</p>
+</blockquote>
+<p>Step2、根据当前var的取值f选择执行</p>
+<blockquote>
+<p>1、如果f的取值为null，说明没有被设置过值，则调用接口accept(var ,v)来将var的取值设置成v，并释放掉互斥性访问权。<br>2、如果f的取值不为null，说明var已经被其他proposer设置过值，则调用release接口释放掉互斥性访问权。</p>
+</blockquote>
+</blockquote>
+<p>总结：方案一通过互斥访问的方式来保证所有的proposer能够串行的访问acceptor，这样其实并没有解决多个proposer并发执行的问题。只是想办法绕开了并发执行。虽然可以在一定程度上保证var变量的取值是确定的。但是一旦获取到互斥访问权的proposer在执行过程中出现故障，那么就会导致所有其他proposer无法再获取到互斥访问权，就会发生死锁。。所以，方案一不仅效率低、而且还会产生死锁问题，不能容忍任意Proposer出现故障。<br>在之前提到的四个系统难点中，方案一可以解决难点1和难点2，但是无法解决难点3和难点4。</p>
+<h3 id="解决方案二"><a href="#解决方案二" class="headerlink" title="解决方案二"></a>解决方案二</h3><p>通过引入<a href="https://zh.wikipedia.org/wiki/%E6%8A%A2%E5%8D%A0%E5%BC%8F%E5%A4%9A%E4%BB%BB%E5%8A%A1%E5%A4%84%E7%90%86" target="_blank" rel="external">抢占式访问权</a>来取代互斥访问权。acceptor有权让任意proposer的访问权失效，然后将访问权发放给其他的proposer。</p>
+<p>在方案二中，proposer向acceptor发出的每次请求都要带一个编号（epoch），且编号间要存在全序关系。一旦acceptor接收到proposer的请求中包含一个更大的epoch的时候，马上让旧的epoch失效，不再接受他们提交的取值。然后给新的epoch发放访问权，让他可以设置var变量的值。</p>
+<p>为了保证var变量取值的不变性，不同epoch的proposer之前遵守<code>后者认同前者</code>的原则：</p>
+<blockquote>
+<p>在确保旧的epoch已经失效后，并且旧的epoch没有设置var变量的值，新的epoch会提交自己的值。<br>当旧的epoch已经设置过var变量的取值，那么新的epoch应该认同旧的epoch设置过的值，并不在提交新的值。</p>
+</blockquote>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+      
+
+      <div style="font-size: 12px;">
+        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
+      </div>
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2018/04/09/分布式一致性算法paxos/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
     <article id="post-分布式系统的CAP理论" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
@@ -1644,96 +1815,6 @@
 
 
   
-    <article id="post-mac-中文版man安装" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2018/03/05/mac-中文版man安装/">mac 中文版man安装</a>
-    </h1>
-  
-
-        
-        <a href="/2018/03/05/mac-中文版man安装/" class="archive-article-date">
-  	<time datetime="2018-03-05T02:23:19.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-03-05</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h1 id="Mac-10-13-安装中文版-man-命令"><a href="#Mac-10-13-安装中文版-man-命令" class="headerlink" title="Mac 10.13 安装中文版 man 命令"></a>Mac 10.13 安装中文版 man 命令</h1><p>本文参考于 《<a href="http://www.jianshu.com/p/5e35202fc59c" target="_blank" rel="external">Mac 安装man命令中文文档</a>》，但原文提供的链接以及安装的版本比较老旧。因此重新整理新版在这边提供给大家。</p>
-<h2 id="为什么需要-man-以及-man-怎么使用"><a href="#为什么需要-man-以及-man-怎么使用" class="headerlink" title="为什么需要 man 以及 man 怎么使用"></a>为什么需要 man 以及 man 怎么使用</h2><p><code>linux</code> 或者 <code>mac</code> 系统的命令行工具非常多，可是我们不能记住所有的这些命令，通常只能记住一些我们常用的。遇到不常用的我们需要来查询一下这个命令是怎么使用的。这时候我们就需要使用到 <code>man</code> 命令了。</p>
-<p>使用方法也非常简单，例如我们不清楚 <code>ls</code> 这个命令的使用方法，我们就可以在命令行中输入</p>
-<figure class="highlight inform7"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">man</span> ls1</span><br></pre></td></tr></table></figure>
-<p>来查看这个命令的详情。</p>
-<p>但是默认情况下，输出的内容是英文的。可能很多英文不好的朋友希望有中文版本的 <code>man</code> ，这篇博文就是告诉大家，如何在 <code>mac</code>上安装中文版本的的 <code>man</code>。</p>
-<p>至于 <code>linux</code> 系统则非常简单，查看 <a href="https://github.com/man-pages-zh/manpages-zh" target="_blank" rel="external">https://github.com/man-pages-zh/manpages-zh</a> 中对应的版本，即可用简单的命令安装。</p>
-<h2 id="下载-manpages-zh-编辑安装"><a href="#下载-manpages-zh-编辑安装" class="headerlink" title="下载 manpages-zh 编辑安装"></a>下载 manpages-zh 编辑安装</h2><p>首先，我们打开上面的 <code>github</code> 地址，点击 <code>releases</code> 下载最新版本的 <code>tar.gz</code> 源码包。目前我下载到的是 <code>1.6.3.2</code> 版本的。</p>
-<p>因为需要编译安装，所以你电脑上需要有编译工具，运行下面两个命令安装</p>
-<figure class="highlight mipsasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">brew </span><span class="keyword">install </span>automake</span><br><span class="line"><span class="keyword">brew </span><span class="keyword">install </span>opencc12</span><br></pre></td></tr></table></figure>
-<p>我这边是需要安装这两个编译工具，如果你下面编译出错，会提示你需要安装说明编辑工具的。利用 <code>brew</code> 安装即可。</p>
-<p>如果你电脑没有安装 <code>brew</code> 工具，请参考 <a href="http://blog.csdn.net/FungLeo/article/details/57567538" target="_blank" rel="external">http://blog.csdn.net/FungLeo/article/details/57567538</a> 这篇博文安装</p>
-<p>好，准备工作做好，我们接着来。</p>
-<figure class="highlight vala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta"># 进入下载目录</span></span><br><span class="line">cd ~/Downloads/</span><br><span class="line"><span class="meta"># 下载最新版本的源码包</span></span><br><span class="line">wget https:<span class="comment">//github.com/man-pages-zh/manpages-zh/archive/v1.6.3.2.tar.gz</span></span><br><span class="line"><span class="meta"># 解压源码包(atool命令，推荐安装这个工具，统一所有压缩文档的命令）</span></span><br><span class="line">atool -x v1<span class="number">.6</span><span class="number">.3</span><span class="number">.2</span>.tar.gz</span><br><span class="line"><span class="meta"># 或者使用这个命令解压</span></span><br><span class="line">tar zxvf v1<span class="number">.6</span><span class="number">.3</span><span class="number">.2</span>.tar.gz</span><br><span class="line"><span class="meta"># 进入源码包文件夹</span></span><br><span class="line">cd manpages-zh<span class="number">-1.6</span><span class="number">.3</span><span class="number">.2</span>/</span><br><span class="line"><span class="meta"># 编译安装 1</span></span><br><span class="line">autoreconf --install --force</span><br><span class="line"><span class="meta"># 编译安装 2</span></span><br><span class="line">./configure</span><br><span class="line"><span class="meta"># 编译安装 3</span></span><br><span class="line">make</span><br><span class="line"><span class="meta"># 编译安装 4</span></span><br><span class="line">sudo make install</span><br><span class="line"><span class="meta"># 配置别名</span></span><br><span class="line">echo <span class="string">"alias cman='man -M /usr/local/share/man/zh_CN'"</span> &gt;&gt; ~/.bash_profile</span><br><span class="line"><span class="meta"># 使别名生效</span></span><br><span class="line">. ~/.bash_profile12345678910111213141516171819202122</span><br></pre></td></tr></table></figure>
-<p>这样，我们就安装上了中文版本的 <code>man</code> 工具了。我们可以使用</p>
-<figure class="highlight jboss-cli"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cman <span class="keyword">ls</span>1</span><br></pre></td></tr></table></figure>
-<p>来查看中文版本的解释了。但是由于 <code>mac</code> 上的 <code>groff</code> 工具比较老，所以中文会出现乱码。我们来解决一下这个问题。</p>
-<h2 id="安装-groff-新版本解决中文乱码的问题"><a href="#安装-groff-新版本解决中文乱码的问题" class="headerlink" title="安装 groff 新版本解决中文乱码的问题"></a>安装 groff 新版本解决中文乱码的问题</h2><p>首先，我们到 <a href="http://git.savannah.gnu.org/cgit/groff.git" target="_blank" rel="external">http://git.savannah.gnu.org/cgit/groff.git</a> 这个页面下载 <code>1.22</code> 版本的 <code>groff</code> 安装包。我这边用命令行下载，你如果直接复制我的命令，不能下载，请到上面的地址去看看下载地址是否发生变化。</p>
-<figure class="highlight vala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta"># 进入下载目录</span></span><br><span class="line">cd ~/Downloads/</span><br><span class="line"><span class="meta"># 下载1.22版本的源码包</span></span><br><span class="line">wget http:<span class="comment">//git.savannah.gnu.org/cgit/groff.git/snapshot/groff-1.22.tar.gz</span></span><br><span class="line"><span class="meta"># 解压</span></span><br><span class="line">atool -x groff<span class="number">-1.22</span>.tar.gz</span><br><span class="line"><span class="meta"># 进入目录</span></span><br><span class="line">cd groff<span class="number">-1.22</span></span><br><span class="line"><span class="meta"># 编译安装</span></span><br><span class="line">./configure</span><br><span class="line">sudo make</span><br><span class="line">sudo make install</span><br><span class="line"><span class="meta"># 添加配置</span></span><br><span class="line">sudo vim /etc/man.conf1234567891011121314</span><br></pre></td></tr></table></figure>
-<p>进入编辑之后，在文件末尾添加</p>
-<figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">NROFF preconv -e UTF8 | <span class="regexp">/usr/</span>local<span class="regexp">/bin/</span>nroff -Tutf8 -mandoc -c1</span><br></pre></td></tr></table></figure>
-<p>最后 <code>:wq</code> 保存退出</p>
-<p>然后，我们在输入</p>
-<figure class="highlight jboss-cli"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cman <span class="keyword">ls</span>1</span><br></pre></td></tr></table></figure>
-<p>就可以看到中文版本的命令介绍了。</p>
-
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-      
-
-      <div style="font-size: 12px;">
-        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
-      </div>
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2018/03/05/mac-中文版man安装/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
   
     <nav id="page-nav">
       <a class="extend prev" rel="prev" href="/page/8/">&laquo; Prev</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/7/">7</a><a class="page-number" href="/page/8/">8</a><span class="page-number current">9</span><a class="page-number" href="/page/10/">10</a><a class="page-number" href="/page/11/">11</a><span class="space">&hellip;</span><a class="page-number" href="/page/15/">15</a><a class="extend next" rel="next" href="/page/10/">Next &raquo;</a>
@@ -1851,11 +1932,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">JVM</a>
+                <a href="javascript:void(0)" class="js-tag color5">java</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">java</a>
+                <a href="javascript:void(0)" class="js-tag color4">JVM</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1863,11 +1944,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">java内存模型</a>
+                <a href="javascript:void(0)" class="js-tag color1">linux</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">linux</a>
+                <a href="javascript:void(0)" class="js-tag color4">java内存模型</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1879,15 +1960,15 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">MySQL</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">test</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">mysql</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">MySQL</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1923,15 +2004,15 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">debug</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">influxdb</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">rest</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">debug</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1971,11 +2052,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">jvm</a>
+                <a href="javascript:void(0)" class="js-tag color5">善用佳软</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">善用佳软</a>
+                <a href="javascript:void(0)" class="js-tag color4">jvm</a>
               </li>
              
               <li class="article-tag-list-item">

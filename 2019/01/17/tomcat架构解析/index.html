@@ -17,7 +17,7 @@
 <meta property="og:url" content="http://yoursite.com/2019/01/17/tomcat架构解析/index.html">
 <meta property="og:site_name" content="xiaowu&#39;s blog">
 <meta property="og:description" content="目录结构conf 目录catalina.policy :  Tomcat 安全策略文件，控制 JVM 相关权限，具体可以参考java.security.Permission catalina.properties : Tomcat Catalina 行为控制配置文件，比如 Common ClassLoader logging.properties  : Tomcat 日志配置文件，JDK Logg">
-<meta property="og:updated_time" content="2019-01-17T03:04:18.000Z">
+<meta property="og:updated_time" content="2019-01-22T07:29:28.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Tomcat架构解析及部署方式">
 <meta name="twitter:description" content="目录结构conf 目录catalina.policy :  Tomcat 安全策略文件，控制 JVM 相关权限，具体可以参考java.security.Permission catalina.properties : Tomcat Catalina 行为控制配置文件，比如 Common ClassLoader logging.properties  : Tomcat 日志配置文件，JDK Logg">
@@ -199,7 +199,7 @@
 </ul>
 <p><code>catalina.${date}.log</code> : 控制台输出，<code>System.out</code> 外置</p>
 <h2 id="webapps-目录"><a href="#webapps-目录" class="headerlink" title="webapps 目录"></a>webapps 目录</h2><p>简化 web 应用部署的方式</p>
-<p>demo 代码 ： <a href="https://github.com/Frankenjoy123/tomcat-deploy-example" target="_blank" rel="external">https://github.com/Frankenjoy123/tomcat-deploy-example</a></p>
+<h2 id="部署-Web-应用"><a href="#部署-Web-应用" class="headerlink" title="部署 Web 应用"></a>部署 Web 应用</h2><h3 id="方法一：放置在-webapps目录"><a href="#方法一：放置在-webapps目录" class="headerlink" title="方法一：放置在 webapps目录"></a>方法一：放置在 <code>webapps</code>目录</h3><p>demo 代码 ： <a href="https://github.com/Frankenjoy123/tomcat-deploy-example" target="_blank" rel="external">https://github.com/Frankenjoy123/tomcat-deploy-example</a></p>
 <ul>
 <li><code>mvn clean package</code></li>
 <li><code>cp target xx.war tomcat/webapps/helloworld</code> </li>
@@ -207,18 +207,46 @@
 <li><code>bin/startup.sh</code></li>
 </ul>
 <p>访问 <a href="http://localhost:8080/helloworld/hello?message=abc" target="_blank" rel="external">http://localhost:8080/helloworld/hello?message=abc</a> 即可成功</p>
-<h2 id="部署-Web-应用"><a href="#部署-Web-应用" class="headerlink" title="部署 Web 应用"></a>部署 Web 应用</h2><h3 id="方法一：放置在-webapps目录"><a href="#方法一：放置在-webapps目录" class="headerlink" title="方法一：放置在 webapps目录"></a>方法一：放置在 <code>webapps</code>目录</h3><p>直接拖过去</p>
-<h3 id="方法二：-修改-confi-server-xml"><a href="#方法二：-修改-confi-server-xml" class="headerlink" title="方法二： 修改 confi/server.xml"></a>方法二： 修改 <code>confi/server.xml</code></h3><p>添加<code>Context</code> 元素：</p>
+<h3 id="方法二：-修改-confi-server-xml"><a href="#方法二：-修改-confi-server-xml" class="headerlink" title="方法二： 修改 confi/server.xml"></a>方法二： 修改 <code>confi/server.xml</code></h3><ul>
+<li>在<code>Host</code>节点下配置<code>Context</code>元素</li>
+<li><code>docBase</code>配置为项目的解压后的目标地址</li>
+</ul>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">Host</span> <span class="attr">name</span>=<span class="string">"localhost"</span>  <span class="attr">appBase</span>=<span class="string">"webapps"</span></span></span><br><span class="line"><span class="tag">      <span class="attr">unpackWARs</span>=<span class="string">"true"</span> <span class="attr">autoDeploy</span>=<span class="string">"true"</span>&gt;</span></span><br><span class="line"></span><br><span class="line">  <span class="tag">&lt;<span class="name">Context</span> <span class="attr">path</span>=<span class="string">""</span> <span class="attr">docBase</span>=<span class="string">"/Users/zhouxiaowu/install/tomcat/demo-tomcat-8080/webapps/helloworld"</span> <span class="attr">debug</span>=<span class="string">"0"</span> <span class="attr">reloadable</span>=<span class="string">"true"</span> <span class="attr">crossContext</span>=<span class="string">"true"</span>/&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">Host</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<ul>
+<li>访问 <a href="http://localhost:8080/hello?message=abc" target="_blank" rel="external">http://localhost:8080/hello?message=abc</a> 即可成功</li>
+</ul>
+<p>添加<code>Context</code> 元素：</p>
 <figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">Context</span> <span class="attr">docBase</span>=<span class="string">"$&#123;webAppAbsolutePath&#125;"</span> <span class="attr">path</span>=<span class="string">"/"</span> <span class="attr">reloadable</span>=<span class="string">"true"</span> /&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">Context</span> <span class="attr">docBase</span>=<span class="string">"$&#123;webAppAbsolutePath&#125;"</span> <span class="attr">path</span>=<span class="string">"/tomcat"</span> <span class="attr">reloadable</span>=<span class="string">"true"</span> /&gt;</span></span><br></pre></td></tr></table></figure>
 <p>熟悉配置元素可以参考<code>org.apache.catalina.core.StandardContext</code> setter 方法</p>
 <p><code>Container</code></p>
 <ul>
 <li><code>Context</code></li>
 </ul>
-<p>该方式不支持动态部署，建议考虑在生产环境使用。</p>
-<h3 id="方法三：独立-context-xml-配置文件"><a href="#方法三：独立-context-xml-配置文件" class="headerlink" title="方法三：独立 context xml 配置文件"></a>方法三：独立 <code>context</code> xml 配置文件</h3><p>首先注意 <code>conf\Catalina\localhost</code></p>
-<p>独立 context XML 配置文件路径：<code>${TOMCAT_HOME}/conf/Catalina/localhost</code> + <code>${ContextPath}</code> .xml</p>
-<p>注意：该方式可以实现热部署，因此建议在开发环境使用。</p>
+<ul>
+<li>该方式不支持动态部署，建议考虑在<strong>生产环境</strong>使用。</li>
+</ul>
+<h3 id="方法三：独立-conf-Catalina-localhost-配置文件"><a href="#方法三：独立-conf-Catalina-localhost-配置文件" class="headerlink" title="方法三：独立 conf/Catalina/localhost 配置文件"></a>方法三：独立 <code>conf/Catalina/localhost</code> 配置文件</h3><ul>
+<li><code>/Users/zhouxiaowu/install/tomcat/demo-tomcat-8080/conf/Catalina/localhost</code>新建<code>ROOT.xml</code></li>
+</ul>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="php"><span class="meta">&lt;?</span>xml version=<span class="string">'1.0'</span> encoding=<span class="string">'utf-8'</span><span class="meta">?&gt;</span></span></span><br><span class="line"><span class="tag">&lt;<span class="name">Context</span> <span class="attr">crossContext</span>=<span class="string">"true"</span> <span class="attr">docBase</span>=<span class="string">"/Users/zhouxiaowu/IdeaProject-tongdun/Example/target/Example-1.0-SNAPSHOT"</span> <span class="attr">path</span>=<span class="string">"/"</span> <span class="attr">reloadable</span>=<span class="string">"true"</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">Context</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>主目录文件名必须是ROOT.XML(root大写)，而虚拟目录的文件名称和虚拟目录的名称一致并且为小写</p>
+<ul>
+<li><code>conf/Catalina/localhost</code>新建<code>helloworld.xml</code></li>
+</ul>
+<p>conf/Catalina/localhost下建立一个xml文件，用于主目录或者虚拟目录，而不需要去修改server.xml就可以达到配置主目录和虚拟目录的目的</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="php"><span class="meta">&lt;?</span>xml version=<span class="string">'1.0'</span> encoding=<span class="string">'utf-8'</span><span class="meta">?&gt;</span></span></span><br><span class="line"><span class="tag">&lt;<span class="name">Context</span> <span class="attr">crossContext</span>=<span class="string">"true"</span> <span class="attr">docBase</span>=<span class="string">"/Users/zhouxiaowu/IdeaProject-tongdun/Example/target/Example-1.0-SNAPSHOT"</span> <span class="attr">path</span>=<span class="string">"helloworld"</span> <span class="attr">reloadable</span>=<span class="string">"true"</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">Context</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<ul>
+<li>注意：该方式可以实现热部署，因此建议在<strong>开发环境</strong>使用。</li>
+</ul>
+<h3 id="方法四：-多实例tomcat部署"><a href="#方法四：-多实例tomcat部署" class="headerlink" title="方法四： 多实例tomcat部署"></a>方法四： 多实例tomcat部署</h3><ul>
+<li><p>配置<code>CATALINA_BASE</code> 环境变量</p>
+<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="builtin-name">export</span> <span class="attribute">CATALINA_BASE</span>=<span class="variable">$APP_DEPLOY_HOME</span>/tomcat</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>conf目录配置，参考 <a href="https://github.com/Frankenjoy123/tomcat-deploy-example" target="_blank" rel="external">https://github.com/Frankenjoy123/tomcat-deploy-example</a></p>
+</li>
+</ul>
+<h4 id="线上示例"><a href="#线上示例" class="headerlink" title="线上示例"></a>线上示例</h4><figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="regexp">/home/</span>admin<span class="regexp">/asdemo/</span>deploy<span class="regexp">/tomcat/</span>conf<span class="regexp">/Catalina/</span>localhost<span class="regexp">/ROOT.xml</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="php"><span class="meta">&lt;?</span>xml version=<span class="string">"1.0"</span> encoding=<span class="string">"UTF-8"</span><span class="meta">?&gt;</span></span></span><br><span class="line"><span class="tag">&lt;<span class="name">Context</span> <span class="attr">path</span>=<span class="string">""</span></span></span><br><span class="line"><span class="tag">         <span class="attr">docBase</span>=<span class="string">"/home/admin/asdemo/deploy/target/asdemo.war"</span></span></span><br><span class="line"><span class="tag">         <span class="attr">workDir</span>=<span class="string">"/home/admin/asdemo/deploy"</span></span></span><br><span class="line"><span class="tag">         <span class="attr">debug</span>=<span class="string">"0"</span></span></span><br><span class="line"><span class="tag">         <span class="attr">reloadable</span>=<span class="string">"true"</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;/<span class="name">Context</span>&gt;</span></span><br></pre></td></tr></table></figure>
 <h3 id="I-O-连接器"><a href="#I-O-连接器" class="headerlink" title="I/O 连接器"></a>I/O 连接器</h3><p>参考文件：<a href="https://tomcat.apache.org/tomcat-7.0-doc/config/http.html" target="_blank" rel="external">https://tomcat.apache.org/tomcat-7.0-doc/config/http.html</a></p>
 <p>实现类：<code>org.apache.catalina.connector.Connector</code></p>
 <p>注意实现：</p>
@@ -498,11 +526,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">JVM</a>
+                <a href="javascript:void(0)" class="js-tag color5">java</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">java</a>
+                <a href="javascript:void(0)" class="js-tag color4">JVM</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -510,11 +538,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">java内存模型</a>
+                <a href="javascript:void(0)" class="js-tag color1">linux</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">linux</a>
+                <a href="javascript:void(0)" class="js-tag color4">java内存模型</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -526,15 +554,15 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">MySQL</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">test</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">mysql</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">MySQL</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -570,15 +598,15 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">debug</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">influxdb</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">rest</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">debug</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -618,11 +646,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">jvm</a>
+                <a href="javascript:void(0)" class="js-tag color5">善用佳软</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">善用佳软</a>
+                <a href="javascript:void(0)" class="js-tag color4">jvm</a>
               </li>
              
               <li class="article-tag-list-item">
