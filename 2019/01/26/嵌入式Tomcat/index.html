@@ -10,18 +10,18 @@
   <link rel="dns-prefetch" href="http://yoursite.com">
   <title>嵌入式 Tomcat | xiaowu&#39;s blog</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="Tomcat 架构 Web 技术栈Servlet 技术栈Web Flux（Netty）BIO NIO Web 自动装配API 角度分析Servlet 3.0 + API 实现  ServletContainerInitializer 容器角度分析传统的 Web 应用，将 webapp 部署到 Servlet 容器中。 嵌入式 Web 应用，灵活部署，任意指定位置（或者通过复杂的条件判断） Tomc">
+  <meta name="description" content="Tomcat 架构">
 <meta name="keywords" content="tomcat">
 <meta property="og:type" content="article">
 <meta property="og:title" content="嵌入式 Tomcat">
 <meta property="og:url" content="http://yoursite.com/2019/01/26/嵌入式Tomcat/index.html">
 <meta property="og:site_name" content="xiaowu&#39;s blog">
-<meta property="og:description" content="Tomcat 架构 Web 技术栈Servlet 技术栈Web Flux（Netty）BIO NIO Web 自动装配API 角度分析Servlet 3.0 + API 实现  ServletContainerInitializer 容器角度分析传统的 Web 应用，将 webapp 部署到 Servlet 容器中。 嵌入式 Web 应用，灵活部署，任意指定位置（或者通过复杂的条件判断） Tomc">
+<meta property="og:description" content="Tomcat 架构">
 <meta property="og:image" content="http://yoursite.com/2019/01/26/嵌入式Tomcat/images/Tomcat_Architecture-680x428.png">
-<meta property="og:updated_time" content="2019-01-26T05:09:04.000Z">
+<meta property="og:updated_time" content="2019-01-26T05:58:05.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="嵌入式 Tomcat">
-<meta name="twitter:description" content="Tomcat 架构 Web 技术栈Servlet 技术栈Web Flux（Netty）BIO NIO Web 自动装配API 角度分析Servlet 3.0 + API 实现  ServletContainerInitializer 容器角度分析传统的 Web 应用，将 webapp 部署到 Servlet 容器中。 嵌入式 Web 应用，灵活部署，任意指定位置（或者通过复杂的条件判断） Tomc">
+<meta name="twitter:description" content="Tomcat 架构">
 <meta name="twitter:image" content="http://yoursite.com/2019/01/26/嵌入式Tomcat/images/Tomcat_Architecture-680x428.png">
   
     <link rel="alternative" href="/atom.xml" title="xiaowu&#39;s blog" type="application/atom+xml">
@@ -177,6 +177,7 @@
     <div class="article-entry" itemprop="articleBody">
       
         <h2 id="Tomcat-架构"><a href="#Tomcat-架构" class="headerlink" title="Tomcat 架构"></a>Tomcat 架构</h2><p><img src="images/Tomcat_Architecture-680x428.png" alt=""></p>
+<a id="more"></a>
 <h2 id="Web-技术栈"><a href="#Web-技术栈" class="headerlink" title="Web 技术栈"></a>Web 技术栈</h2><h3 id="Servlet-技术栈"><a href="#Servlet-技术栈" class="headerlink" title="Servlet 技术栈"></a>Servlet 技术栈</h3><h3 id="Web-Flux（Netty）"><a href="#Web-Flux（Netty）" class="headerlink" title="Web Flux（Netty）"></a>Web Flux（Netty）</h3><p>BIO NIO</p>
 <h2 id="Web-自动装配"><a href="#Web-自动装配" class="headerlink" title="Web 自动装配"></a>Web 自动装配</h2><h3 id="API-角度分析"><a href="#API-角度分析" class="headerlink" title="API 角度分析"></a>API 角度分析</h3><p>Servlet 3.0 + API 实现  <code>ServletContainerInitializer</code></p>
 <h3 id="容器角度分析"><a href="#容器角度分析" class="headerlink" title="容器角度分析"></a>容器角度分析</h3><p>传统的 Web 应用，将 webapp 部署到 Servlet 容器中。</p>
@@ -194,7 +195,8 @@
 <h2 id="Tomcat-Maven-插件"><a href="#Tomcat-Maven-插件" class="headerlink" title="Tomcat Maven 插件"></a>Tomcat Maven 插件</h2><h3 id="Tomcat-7-Maven-插件"><a href="#Tomcat-7-Maven-插件" class="headerlink" title="Tomcat 7 Maven 插件"></a>Tomcat 7 Maven 插件</h3><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.apache.tomcat.maven<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>tomcat7-maven-plugin<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">version</span>&gt;</span>2.1<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br></pre></td></tr></table></figure>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Manifest-Version: 1.0</span><br><span class="line">Main-Class: org.apache.tomcat.maven.runner.Tomcat7RunnerCli</span><br></pre></td></tr></table></figure>
 <p>得出 Tomcat 7 可执行 jar 引导类是<code>org.apache.tomcat.maven.runner.Tomcat7RunnerCli</code></p>
-<h2 id="Tomcat-7-API-编程"><a href="#Tomcat-7-API-编程" class="headerlink" title="Tomcat 7 API 编程"></a>Tomcat 7 API 编程</h2><h3 id="确定-Classpath-目录"><a href="#确定-Classpath-目录" class="headerlink" title="确定 Classpath 目录"></a>确定 Classpath 目录</h3><p>classes 绝对路径：<code>E:\Downloads\tomcat\target\classes</code></p>
+<h2 id="Tomcat-7-API-编程"><a href="#Tomcat-7-API-编程" class="headerlink" title="Tomcat 7 API 编程"></a>Tomcat 7 API 编程</h2><p>代码参考： <a href="https://github.com/Frankenjoy123/embeded-tomcat" target="_blank" rel="external">https://github.com/Frankenjoy123/embeded-tomcat</a></p>
+<h3 id="确定-Classpath-目录"><a href="#确定-Classpath-目录" class="headerlink" title="确定 Classpath 目录"></a>确定 Classpath 目录</h3><p>classes 绝对路径：<code>E:\Downloads\tomcat\target\classes</code></p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">String classesPath = System.getProperty(<span class="string">"user.dir"</span>)</span><br><span class="line">        + File.separator + <span class="string">"target"</span> + File.separator + <span class="string">"classes"</span>;</span><br></pre></td></tr></table></figure>
 <h3 id="创建-Tomcat-实例"><a href="#创建-Tomcat-实例" class="headerlink" title="创建 Tomcat 实例"></a>创建 <code>Tomcat</code> 实例</h3><p><code>org.apache.catalina.startup.Tomcat</code></p>
 <p>Maven 坐标：<code>org.apache.tomcat.embed:tomcat-embed-core:7.0.37</code></p>
@@ -202,8 +204,8 @@
 <h3 id="设置-Classpath"><a href="#设置-Classpath" class="headerlink" title="设置 Classpath"></a>设置 Classpath</h3><p>Classpath 读取资源：配置、类文件</p>
 <p><code>conf/web.xml</code> 作为配置文件，并且放置 Classpath 目录下（绝对路径）</p>
 <p>设置 <code>DemoServlet</code></p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 添加 DemoServlet 到 Tomcat 容器</span></span><br><span class="line">           Wrapper wrapper = tomcat.addServlet(contextPath, <span class="string">"DemoServlet"</span>, <span class="keyword">new</span> DemoServlet());</span><br><span class="line">           wrapper.addMapping(<span class="string">"/demo"</span>);</span><br></pre></td></tr></table></figure>
-<h2 id="Spring-Boot-嵌入式-Tomcat-编程"><a href="#Spring-Boot-嵌入式-Tomcat-编程" class="headerlink" title="Spring Boot 嵌入式 Tomcat 编程"></a>Spring Boot 嵌入式 Tomcat 编程</h2><h3 id="实现-EmbeddedServletContainerCustomer"><a href="#实现-EmbeddedServletContainerCustomer" class="headerlink" title="实现 EmbeddedServletContainerCustomer"></a>实现 <code>EmbeddedServletContainerCustomer</code></h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Configuration</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">TomcatConfiguration</span> <span class="keyword">implements</span> <span class="title">EmbeddedServletContainerCustomizer</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">customize</span><span class="params">(ConfigurableEmbeddedServletContainer container)</span> </span>&#123;</span><br><span class="line">        System.err.println(container.getClass());</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (container <span class="keyword">instanceof</span> TomcatEmbeddedServletContainerFactory) &#123;</span><br><span class="line"></span><br><span class="line">            TomcatEmbeddedServletContainerFactory factory=</span><br><span class="line">                    (TomcatEmbeddedServletContainerFactory) container;</span><br><span class="line"></span><br><span class="line"><span class="comment">//            Connector connector = new Connector();</span></span><br><span class="line"><span class="comment">//            connector.setPort(9090);</span></span><br><span class="line"><span class="comment">//            connector.setURIEncoding("UTF-8");</span></span><br><span class="line"><span class="comment">//            connector.setProtocol("HTTP/1.1");</span></span><br><span class="line"><span class="comment">//            factory.addAdditionalTomcatConnectors(connector);</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"> <span class="comment">// 添加 DemoServlet 到 Tomcat 容器</span></span><br><span class="line">Wrapper wrapper = tomcat.addServlet(contextPath, <span class="string">"DemoServlet"</span>, <span class="keyword">new</span> DemoServlet());</span><br><span class="line">wrapper.addMapping(<span class="string">"/demo"</span>);</span><br></pre></td></tr></table></figure>
+<h2 id="Spring-Boot-嵌入式-Tomcat-编程"><a href="#Spring-Boot-嵌入式-Tomcat-编程" class="headerlink" title="Spring Boot 嵌入式 Tomcat 编程"></a>Spring Boot 嵌入式 Tomcat 编程</h2><h3 id="实现-EmbeddedServletContainerCustomer"><a href="#实现-EmbeddedServletContainerCustomer" class="headerlink" title="实现 EmbeddedServletContainerCustomer"></a>实现 <code>EmbeddedServletContainerCustomer</code></h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Configuration</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">TomcatConfiguration</span> <span class="keyword">implements</span> <span class="title">EmbeddedServletContainerCustomizer</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">customize</span><span class="params">(ConfigurableEmbeddedServletContainer container)</span> </span>&#123;</span><br><span class="line">        System.err.println(container.getClass());</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (container <span class="keyword">instanceof</span> TomcatEmbeddedServletContainerFactory) &#123;</span><br><span class="line"></span><br><span class="line">            TomcatEmbeddedServletContainerFactory factory =</span><br><span class="line">                    (TomcatEmbeddedServletContainerFactory) container;</span><br><span class="line"></span><br><span class="line">            <span class="comment">// 相当于 new TomcatContextCustomizer()&#123;&#125;</span></span><br><span class="line">            factory.addContextCustomizers((context) -&gt; &#123; <span class="comment">// Lambda</span></span><br><span class="line">                <span class="keyword">if</span> (context <span class="keyword">instanceof</span> StandardContext) &#123;</span><br><span class="line">                    StandardContext standardContext = (StandardContext) context;</span><br><span class="line">                    <span class="comment">// standardContext.setDefaultWebXml(); // 设置</span></span><br><span class="line">                    standardContext.setReloadable(<span class="keyword">true</span>);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;);</span><br><span class="line"></span><br><span class="line">            <span class="comment">// 相当于 new TomcatConnectorCustomizer() &#123;&#125;</span></span><br><span class="line">            factory.addConnectorCustomizers(connector -&gt; &#123;</span><br><span class="line">                connector.setPort(<span class="number">12345</span>);</span><br><span class="line">            &#125;);</span><br><span class="line"></span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <h3 id="自定义-Context"><a href="#自定义-Context" class="headerlink" title="自定义 Context"></a>自定义 <code>Context</code></h3><p>实现<code>TomcatContextCustomizer</code></p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 相当于 new TomcatContextCustomizer()&#123;&#125;</span></span><br><span class="line">factory.addContextCustomizers((context) -&gt; &#123; <span class="comment">// Lambda</span></span><br><span class="line">  <span class="keyword">if</span> (context <span class="keyword">instanceof</span> StandardContext) &#123;</span><br><span class="line">    StandardContext standardContext = (StandardContext) context;</span><br><span class="line">    <span class="comment">// standardContext.setDefaultWebXml(); // 设置</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
 <h3 id="自定义-Connector"><a href="#自定义-Connector" class="headerlink" title="自定义 Connector"></a>自定义 <code>Connector</code></h3><p>实现 <code>TomcatConnectorCustomizer</code></p>
@@ -339,6 +341,15 @@
 
   
 <nav id="article-nav">
+  
+    <a href="/2019/01/28/Tomcat性能优化/" id="article-nav-newer" class="article-nav-link-wrap">
+      <i class="icon-circle-left"></i>
+      <div class="article-nav-title">
+        
+          Tomcat性能优化
+        
+      </div>
+    </a>
   
   
     <a href="/2019/01/17/策略模式与Spring结合使用/" id="article-nav-older" class="article-nav-link-wrap">
@@ -496,11 +507,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">Maven</a>
+                <a href="javascript:void(0)" class="js-tag color1">redis</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">linux</a>
+                <a href="javascript:void(0)" class="js-tag color1">Maven</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -508,7 +519,7 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">redis</a>
+                <a href="javascript:void(0)" class="js-tag color1">linux</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -516,7 +527,7 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">MySQL</a>
+                <a href="javascript:void(0)" class="js-tag color1">mysql</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -524,15 +535,15 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">mysql</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">Python</a>
+                <a href="javascript:void(0)" class="js-tag color1">MySQL</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">限流</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">Python</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -552,19 +563,19 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">elastic-job</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">guava</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">debug</a>
+                <a href="javascript:void(0)" class="js-tag color2">elastic-job</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">influxdb</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">debug</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -576,11 +587,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">Mac</a>
+                <a href="javascript:void(0)" class="js-tag color1">maven</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">maven</a>
+                <a href="javascript:void(0)" class="js-tag color4">Mac</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -600,11 +611,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">前端指南</a>
+                <a href="javascript:void(0)" class="js-tag color3">后端</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">后端</a>
+                <a href="javascript:void(0)" class="js-tag color5">前端指南</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -624,11 +635,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">科学上网</a>
+                <a href="javascript:void(0)" class="js-tag color1">科学上网，hosts</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">科学上网，hosts</a>
+                <a href="javascript:void(0)" class="js-tag color5">科学上网</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -640,11 +651,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">HashMap</a>
+                <a href="javascript:void(0)" class="js-tag color3">单例</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">单例</a>
+                <a href="javascript:void(0)" class="js-tag color3">HashMap</a>
               </li>
              
               <li class="article-tag-list-item">

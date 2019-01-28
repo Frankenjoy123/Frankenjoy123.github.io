@@ -151,6 +151,223 @@
           <div id="js-content" class="content-ll">
             
   
+    <article id="post-Tomcat性能优化" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2019/01/28/Tomcat性能优化/">Tomcat性能优化</a>
+    </h1>
+  
+
+        
+        <a href="/2019/01/28/Tomcat性能优化/" class="archive-article-date">
+  	<time datetime="2019-01-28T02:00:48.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2019-01-28</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="配置优化"><a href="#配置优化" class="headerlink" title="配置优化"></a>配置优化</h2><h3 id="减少配置优化"><a href="#减少配置优化" class="headerlink" title="减少配置优化"></a>减少配置优化</h3><ul>
+<li><p>场景一：假设当前 REST 应用（微服务）</p>
+<p>分析：它不需要静态资源，Tomcat 容器静态和动态</p>
+<ul>
+<li>静态处理：<code>DefaultServlet</code><ul>
+<li>优化方案：通过移除<code>conf/web.xml</code> 中 <code>org.apache.catalina.servlets.DefaultServlet</code>。</li>
+</ul>
+</li>
+<li>动态：<code>JspServlet</code><ul>
+<li>优化方案：通过移除<code>conf/web.xml</code> 中 <code>org.apache.jasper.servlet.JspServlet</code>。</li>
+</ul>
+</li>
+</ul>
+<blockquote>
+<p><code>DispatcherServlet</code>：Spring Web MVC 应用 Servlet </p>
+<p>JspServlet：编译并且执行 Jsp 页面</p>
+<p>DefaultServlet：Tomcat 处理静态资源的 Servlet</p>
+</blockquote>
+<ul>
+<li><p>移除 welcome-file-list</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">welcome-file-list</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">welcome-file</span>&gt;</span>index.html<span class="tag">&lt;/<span class="name">welcome-file</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">welcome-file</span>&gt;</span>index.htm<span class="tag">&lt;/<span class="name">welcome-file</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">welcome-file</span>&gt;</span>index.jsp<span class="tag">&lt;/<span class="name">welcome-file</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">welcome-file-list</span>&gt;</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>如果程序是REST JSON  Content-Type 或者 MIME Type： application/json</p>
+</li>
+<li><p>移除 Session 设置 </p>
+<p>对于微服务/REST 应用，不需要 Session，因为不需要状态。</p>
+<p>Spring Security OAuth 2.0、JWT</p>
+<p>Session 通过 jsessionId 进行用户跟踪，HTTP 无状态，需要一个ID 与当前用户会话联系。Spring Session HttpSession jessionId 作为 Redis，实现多个机器登录，用户会话不丢失。</p>
+<p>存储方法：Cookie、URL 重写、 SSL</p>
+</li>
+<li><p>移除 Valve</p>
+<p><code>Valve</code> 类似于 <code>Filter</code></p>
+<p>移除 <code>AccessLogValve</code>，可以通过 Nginx 的 Access Log 替代，<code>Valve</code> 实现都需要消耗 Java 应用的计算时间。</p>
+</li>
+</ul>
+</li>
+<li><p>场景二：需要 JSP 的情况</p>
+<p>分析：了解 <code>JspServlet</code> 处理原理</p>
+<blockquote>
+<p>Servlet 周期：</p>
+<ul>
+<li>实例化：Servlet 和 Filter 实现类必须包含默认构造器。反射的方式进行实例化。</li>
+<li>初始化：Servlet 容器调用 Servlet 或 Filter init() 方法</li>
+<li>销毁：Servlet 容器关闭时，Servlet 或者 Filter destroy() 方法被调用</li>
+</ul>
+</blockquote>
+</li>
+</ul>
+<p>​    Servlet 或者 Filter 在一个容器中，是一般情况在一个 Web App 中是一个单例，不排除应用定义多个。</p>
+<p> JspServlet 相关的优化 <code>ServletConfig</code> 参数:</p>
+<ul>
+<li>需要编译<ul>
+<li>compiler</li>
+<li>modificationTestInterval</li>
+</ul>
+</li>
+<li>不需要编译<ul>
+<li>development 设置 false</li>
+</ul>
+</li>
+</ul>
+<p><code>development</code> = false ，那么，这些 JSP 要如何编译。优化方法：</p>
+<ul>
+<li><p>Ant Task 执行 JSP 编译</p>
+</li>
+<li><p>Maven 插件：org.codehaus.mojo:jspc-maven-plugin</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.apache.sling<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>jspc-maven-plugin<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">version</span>&gt;</span>2.1.0<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>JSP -&gt; 翻译.jsp 或者.jspx 文件成 .java -&gt; 编译 .class</p>
+</li>
+</ul>
+<p>总结，<code>conf/web.xml</code> 作为 Servlet 应用的默认<code>web.xml</code>,实际上，应用程序存在两份<code>web.xml</code>，其中包括Tomcat <code>conf/web.xml</code> 和 应用的<code>web.xml</code>，最终将两者合并。</p>
+<p>JspServlet 如果 development 参数为 true，它会自定检查文件是否修改，如果修改重新翻译，再编译（加载和执行）。言外之意，JspServlet 开发模式可能会导致内存溢出。卸载 Class不及时会导致 Perm 区域不够。</p>
+<blockquote>
+<p>ParentClassLoader -&gt; 1.class  2.class 3.class</p>
+<p>ChildClassLoader -&gt; 4.class , 5.class</p>
+<p>ChildClassLoader load 1 - 5 .class</p>
+<p>1.class 需要卸载，需要将 ParentClassLoader 设置为 null，当 ClassLoader 被 GC 后，1-3 class 全部会被卸载。</p>
+<p>1.class 它是文件，文件被 JVM 加载，二进制-&gt; Verify -&gt; 解析</p>
+</blockquote>
+<h2 id="配置调整"><a href="#配置调整" class="headerlink" title="配置调整"></a>配置调整</h2><h3 id="关闭自动重载"><a href="#关闭自动重载" class="headerlink" title="关闭自动重载"></a>关闭自动重载</h3><p><code>context.xml</code></p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">Context</span> <span class="attr">docBase</span>=<span class="string">"E:/Downloads/tomcat/target/tomcat-1.0-SNAPSHOT"</span> <span class="attr">reloadable</span>=<span class="string">"false"</span> &gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">Context</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<h3 id="修改连接线程池数量"><a href="#修改连接线程池数量" class="headerlink" title="修改连接线程池数量"></a>修改连接线程池数量</h3><h4 id="通过-server-xml"><a href="#通过-server-xml" class="headerlink" title="通过 server.xml"></a>通过 <code>server.xml</code></h4><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">Executor</span> <span class="attr">name</span>=<span class="string">"tomcatThreadPool"</span> <span class="attr">namePrefix</span>=<span class="string">"catalina-exec-"</span></span></span><br><span class="line"><span class="tag">       <span class="attr">maxThreads</span>=<span class="string">"99"</span> <span class="attr">minSpareThreads</span>=<span class="string">"9"</span>/&gt;</span>	</span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">Connector</span> <span class="attr">executor</span>=<span class="string">"tomcatThreadPool"</span></span></span><br><span class="line"><span class="tag">              <span class="attr">port</span>=<span class="string">"8080"</span> <span class="attr">protocol</span>=<span class="string">"HTTP/1.1"</span></span></span><br><span class="line"><span class="tag">              <span class="attr">connectionTimeout</span>=<span class="string">"20000"</span></span></span><br><span class="line"><span class="tag">              <span class="attr">redirectPort</span>=<span class="string">"8443"</span> /&gt;</span></span><br></pre></td></tr></table></figure>
+<p>通过程序来理解，<code>&lt;Executor&gt;</code> 实际的Tomcat 接口：</p>
+<ul>
+<li><p><code>org.apache.catalina.Executor</code> </p>
+<ul>
+<li><p>扩展： J.U.C 标准接口 <code>java.util.concurrent.Executor</code></p>
+</li>
+<li><p>实现：<code>org.apache.catalina.core.StandardThreadExecutor</code></p>
+<ul>
+<li><p>线程数量</p>
+<ul>
+<li><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">   <span class="comment">/**</span></span><br><span class="line"><span class="comment">    * max number of threads</span></span><br><span class="line"><span class="comment">    */</span></span><br><span class="line">   <span class="keyword">protected</span> <span class="keyword">int</span> maxThreads = <span class="number">200</span>;</span><br><span class="line"></span><br><span class="line">   <span class="comment">/**</span></span><br><span class="line"><span class="comment">    * min number of threads</span></span><br><span class="line"><span class="comment">    */</span></span><br><span class="line">   <span class="keyword">protected</span> <span class="keyword">int</span> minSpareThreads = <span class="number">25</span>;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setMinSpareThreads</span><span class="params">(<span class="keyword">int</span> minSpareThreads)</span> </span>&#123;</span><br><span class="line">       <span class="keyword">this</span>.minSpareThreads = minSpareThreads;</span><br><span class="line">       <span class="keyword">if</span> (executor != <span class="keyword">null</span>) &#123;</span><br><span class="line">           executor.setCorePoolSize(minSpareThreads);</span><br><span class="line">       &#125;</span><br><span class="line">   &#125;</span><br><span class="line"></span><br><span class="line">   <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setMaxThreads</span><span class="params">(<span class="keyword">int</span> maxThreads)</span> </span>&#123;</span><br><span class="line">       <span class="keyword">this</span>.maxThreads = maxThreads;</span><br><span class="line">       <span class="keyword">if</span> (executor != <span class="keyword">null</span>) &#123;</span><br><span class="line">           executor.setMaximumPoolSize(maxThreads);</span><br><span class="line">       &#125;</span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+</li>
+<li><p>线程池：<code>org.apache.tomcat.util.threads.ThreadPoolExecutor</code>(<code>java.util.concurrent.ThreadPoolExecutor</code>)</p>
+</li>
+<li><p>总结：Tomcat IO 连接器使用的线程池实际标准的 Java 线程池的扩展，最大线程数量和最小线程数量实际上分别是 MaximumPoolSize 和 CorePoolSize。</p>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h4 id="通过-JMX"><a href="#通过-JMX" class="headerlink" title="通过 JMX"></a>通过 JMX</h4><ol>
+<li><code>jconsole</code>命令，进入JMX，选择进程</li>
+<li>调整tomat线程池大小</li>
+</ol>
+<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">## 线程池大小</span></span><br><span class="line">server.tomcat.<span class="attribute">maxThreads</span>=99</span><br><span class="line">server.tomcat.<span class="attribute">minSpareThreads</span>=9</span><br></pre></td></tr></table></figure>
+<ol>
+<li>JMX查看线程</li>
+</ol>
+<p>观察<code>StandardThreadExecutor</code>是否存在调整线程池数量的 API</p>
+<p>评估一些参考：</p>
+<ol>
+<li>正确率</li>
+<li>Load（CPU -&gt; JVM GC）</li>
+<li>TPS / QPS (越大越好)</li>
+<li>CPU 密集型（加密/解密、算法）</li>
+<li>I/O 密集型，网络、文件读写等</li>
+</ol>
+<p>问题：到底设置多少的线程数量才是最优？</p>
+<p>首先，评估整体的情况量，假设 100W QPS，有机器数量 100 台，每台支撑 1w QPS。</p>
+<p>第二，进行压力测试，需要一些测试样本，JMeter 来实现，假设一次请求需要RT 10ms，1秒可以同时完成 100个请求。10000 / 100 = 100 线程。  JMeter的线程数。</p>
+<p>确保，Load 不要太高。减少 Full GC，GC 取决于 JVM 堆的大小。 执行一次操作需要 5 MB 内存， 50 GB。</p>
+<p>20 GB 内存，必然执行 GC。要不调优程序，最好对象存储外化，比如 Redis，同时又需要评估 Redis 网络开销。又要评估网卡的接受能力。</p>
+<p>第三，常规性压测，由于业务变更，会导致底层性能变化。</p>
+<h2 id="JVM-优化"><a href="#JVM-优化" class="headerlink" title="JVM 优化"></a>JVM 优化</h2><h3 id="调整-GC-算法"><a href="#调整-GC-算法" class="headerlink" title="调整 GC 算法"></a>调整 GC 算法</h3><p>如果 Java 版本小于 9，默认<code>PS MarkSweep</code>，可选设置 CMS、G1。</p>
+<p>如果 Java 9 的话，默认 <code>G1</code></p>
+<h4 id="默认算法"><a href="#默认算法" class="headerlink" title="默认算法"></a>默认算法</h4><figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">java -jar -server -<span class="string">XX:</span>-PrintGCDetails -<span class="string">Xloggc:</span>.<span class="regexp">/1g/</span>gc.log -<span class="string">XX:</span>+HeapDumpOnOutOfMemoryError -Xms1g -Xmx1g -<span class="string">XX:</span>MaxGCPauseMillis=<span class="number">250</span> -Djava.awt.headless=<span class="literal">true</span> stress-test-demo<span class="number">-0.0</span><span class="number">.1</span>-SNAPSHOT.jar</span><br></pre></td></tr></table></figure>
+<h4 id="G1-算法"><a href="#G1-算法" class="headerlink" title="G1 算法"></a>G1 算法</h4><figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">java -jar -server -<span class="string">XX:</span>-PrintGCDetails -<span class="string">Xloggc:</span>.<span class="regexp">/1g/</span>g1-gc.log -<span class="string">XX:</span>+HeapDumpOnOutOfMemoryError -Xms1g -Xmx1g -<span class="string">XX:</span>+UseG1GC -<span class="string">XX:</span>+UseNUMA -<span class="string">XX:</span>MaxGCPauseMillis=<span class="number">250</span> -Djava.awt.headless=<span class="literal">true</span> stress-test-demo<span class="number">-0.0</span><span class="number">.1</span>-SNAPSHOT.jar</span><br></pre></td></tr></table></figure>
+<p><code>-server</code> 主要提高吞吐量，在有限的资源，实现最大化利用。<code>-client</code> 主要提高响应时间，主要是提高用户体验。</p>
+<h2 id="Spring-Boot-配置调整"><a href="#Spring-Boot-配置调整" class="headerlink" title="Spring Boot 配置调整"></a>Spring Boot 配置调整</h2><p>Maven 依赖</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.apache.tomcat.embed<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>tomcat-embed-jasper<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p><code>application.properties</code></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"># &lt;Executor name=&quot;tomcatThreadPool&quot; namePrefix=&quot;catalina-exec-&quot;</span><br><span class="line"># maxThreads=&quot;9&quot; minSpareThreads=&quot;9&quot;/&gt;</span><br><span class="line">## 线程池大小</span><br><span class="line">server.tomcat.maxThreads = 99</span><br><span class="line">server.tomcat.minSpareThreads = 9</span><br><span class="line"></span><br><span class="line">## 取消 Tomcat AccessLogValve</span><br><span class="line">server.tomcat.accesslog.enabled = false</span><br><span class="line"></span><br><span class="line">## 取消 JspServlet</span><br><span class="line">server.jspServlet.registered=false</span><br></pre></td></tr></table></figure>
+<p> tomcat.getServer().await()和Object.wait()有什么区别</p>
+<p>Tomcat   tomcat.getServer().await() 利用 <code>Thread.sleep(long)</code> 实现：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span>( port==-<span class="number">1</span> ) &#123;</span><br><span class="line">           <span class="keyword">try</span> &#123;</span><br><span class="line">               awaitThread = Thread.currentThread();</span><br><span class="line">               <span class="keyword">while</span>(!stopAwait) &#123;</span><br><span class="line">                   <span class="keyword">try</span> &#123;</span><br><span class="line">                       Thread.sleep( <span class="number">10000</span> );</span><br><span class="line">                   &#125; <span class="keyword">catch</span>( InterruptedException ex ) &#123;</span><br><span class="line">                       <span class="comment">// continue and check the flag</span></span><br><span class="line">                   &#125;</span><br><span class="line">               &#125;</span><br><span class="line">           &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">               awaitThread = <span class="keyword">null</span>;</span><br><span class="line">           &#125;</span><br><span class="line">           <span class="keyword">return</span>;</span><br><span class="line">       &#125;</span><br></pre></td></tr></table></figure>
+<p>Object#wait() 方法也是 Native 方法。</p>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color2">tomcat</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+      
+
+      <div style="font-size: 12px;">
+        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
+      </div>
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2019/01/28/Tomcat性能优化/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
     <article id="post-嵌入式Tomcat" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
@@ -172,63 +389,9 @@
     <div class="article-entry" itemprop="articleBody">
       
         <h2 id="Tomcat-架构"><a href="#Tomcat-架构" class="headerlink" title="Tomcat 架构"></a>Tomcat 架构</h2><p><img src="images/Tomcat_Architecture-680x428.png" alt=""></p>
-<h2 id="Web-技术栈"><a href="#Web-技术栈" class="headerlink" title="Web 技术栈"></a>Web 技术栈</h2><h3 id="Servlet-技术栈"><a href="#Servlet-技术栈" class="headerlink" title="Servlet 技术栈"></a>Servlet 技术栈</h3><h3 id="Web-Flux（Netty）"><a href="#Web-Flux（Netty）" class="headerlink" title="Web Flux（Netty）"></a>Web Flux（Netty）</h3><p>BIO NIO</p>
-<h2 id="Web-自动装配"><a href="#Web-自动装配" class="headerlink" title="Web 自动装配"></a>Web 自动装配</h2><h3 id="API-角度分析"><a href="#API-角度分析" class="headerlink" title="API 角度分析"></a>API 角度分析</h3><p>Servlet 3.0 + API 实现  <code>ServletContainerInitializer</code></p>
-<h3 id="容器角度分析"><a href="#容器角度分析" class="headerlink" title="容器角度分析"></a>容器角度分析</h3><p>传统的 Web 应用，将 webapp 部署到 Servlet 容器中。</p>
-<p>嵌入式 Web 应用，灵活部署，任意指定位置（或者通过复杂的条件判断）</p>
-<p>Tomcat 7 是 Servlet 3.0 的实现，<code>ServletContainerInitializer</code></p>
-<p>Tomcat 8 是 Servlet 3.1 的实现，NIO <code>HttpServletRequest</code>、<code>HttpServletResponse</code></p>
-<blockquote>
-<p>NIO 并非一定能够提高性能，比如请求数据量较大，NIO 性能比 BIO 还要差</p>
-<p>NIO 多工，读、写，同步的</p>
-</blockquote>
-<h3 id="jar-启动"><a href="#jar-启动" class="headerlink" title="jar 启动"></a>jar 启动</h3><p><code>java -jar</code> 或者 <code>jar</code> 读取 .jar  <code>META-INF/MANIFEST.MF</code> ，其中属性 <code>Main-Class</code> 就是引导类所在。</p>
-<blockquote>
-<p>参考 JDK API ： <code>java.util.jar.Manifest</code></p>
-</blockquote>
-<h2 id="Tomcat-Maven-插件"><a href="#Tomcat-Maven-插件" class="headerlink" title="Tomcat Maven 插件"></a>Tomcat Maven 插件</h2><h3 id="Tomcat-7-Maven-插件"><a href="#Tomcat-7-Maven-插件" class="headerlink" title="Tomcat 7 Maven 插件"></a>Tomcat 7 Maven 插件</h3><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.apache.tomcat.maven<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>tomcat7-maven-plugin<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">version</span>&gt;</span>2.1<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br></pre></td></tr></table></figure>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Manifest-Version: 1.0</span><br><span class="line">Main-Class: org.apache.tomcat.maven.runner.Tomcat7RunnerCli</span><br></pre></td></tr></table></figure>
-<p>得出 Tomcat 7 可执行 jar 引导类是<code>org.apache.tomcat.maven.runner.Tomcat7RunnerCli</code></p>
-<h2 id="Tomcat-7-API-编程"><a href="#Tomcat-7-API-编程" class="headerlink" title="Tomcat 7 API 编程"></a>Tomcat 7 API 编程</h2><h3 id="确定-Classpath-目录"><a href="#确定-Classpath-目录" class="headerlink" title="确定 Classpath 目录"></a>确定 Classpath 目录</h3><p>classes 绝对路径：<code>E:\Downloads\tomcat\target\classes</code></p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">String classesPath = System.getProperty(<span class="string">"user.dir"</span>)</span><br><span class="line">        + File.separator + <span class="string">"target"</span> + File.separator + <span class="string">"classes"</span>;</span><br></pre></td></tr></table></figure>
-<h3 id="创建-Tomcat-实例"><a href="#创建-Tomcat-实例" class="headerlink" title="创建 Tomcat 实例"></a>创建 <code>Tomcat</code> 实例</h3><p><code>org.apache.catalina.startup.Tomcat</code></p>
-<p>Maven 坐标：<code>org.apache.tomcat.embed:tomcat-embed-core:7.0.37</code></p>
-<h3 id="设置-Host对象"><a href="#设置-Host对象" class="headerlink" title="设置 Host对象"></a>设置 <code>Host</code>对象</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 设置 Host</span></span><br><span class="line">Host host = tomcat.getHost();</span><br><span class="line">host.setName(<span class="string">"localhost"</span>);</span><br><span class="line">host.setAppBase(<span class="string">"webapps"</span>);</span><br></pre></td></tr></table></figure>
-<h3 id="设置-Classpath"><a href="#设置-Classpath" class="headerlink" title="设置 Classpath"></a>设置 Classpath</h3><p>Classpath 读取资源：配置、类文件</p>
-<p><code>conf/web.xml</code> 作为配置文件，并且放置 Classpath 目录下（绝对路径）</p>
-<p>设置 <code>DemoServlet</code></p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 添加 DemoServlet 到 Tomcat 容器</span></span><br><span class="line">           Wrapper wrapper = tomcat.addServlet(contextPath, <span class="string">"DemoServlet"</span>, <span class="keyword">new</span> DemoServlet());</span><br><span class="line">           wrapper.addMapping(<span class="string">"/demo"</span>);</span><br></pre></td></tr></table></figure>
-<h2 id="Spring-Boot-嵌入式-Tomcat-编程"><a href="#Spring-Boot-嵌入式-Tomcat-编程" class="headerlink" title="Spring Boot 嵌入式 Tomcat 编程"></a>Spring Boot 嵌入式 Tomcat 编程</h2><h3 id="实现-EmbeddedServletContainerCustomer"><a href="#实现-EmbeddedServletContainerCustomer" class="headerlink" title="实现 EmbeddedServletContainerCustomer"></a>实现 <code>EmbeddedServletContainerCustomer</code></h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Configuration</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">TomcatConfiguration</span> <span class="keyword">implements</span> <span class="title">EmbeddedServletContainerCustomizer</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">customize</span><span class="params">(ConfigurableEmbeddedServletContainer container)</span> </span>&#123;</span><br><span class="line">        System.err.println(container.getClass());</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (container <span class="keyword">instanceof</span> TomcatEmbeddedServletContainerFactory) &#123;</span><br><span class="line"></span><br><span class="line">            TomcatEmbeddedServletContainerFactory factory=</span><br><span class="line">                    (TomcatEmbeddedServletContainerFactory) container;</span><br><span class="line"></span><br><span class="line"><span class="comment">//            Connector connector = new Connector();</span></span><br><span class="line"><span class="comment">//            connector.setPort(9090);</span></span><br><span class="line"><span class="comment">//            connector.setURIEncoding("UTF-8");</span></span><br><span class="line"><span class="comment">//            connector.setProtocol("HTTP/1.1");</span></span><br><span class="line"><span class="comment">//            factory.addAdditionalTomcatConnectors(connector);</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h3 id="自定义-Context"><a href="#自定义-Context" class="headerlink" title="自定义 Context"></a>自定义 <code>Context</code></h3><p>实现<code>TomcatContextCustomizer</code></p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 相当于 new TomcatContextCustomizer()&#123;&#125;</span></span><br><span class="line">factory.addContextCustomizers((context) -&gt; &#123; <span class="comment">// Lambda</span></span><br><span class="line">  <span class="keyword">if</span> (context <span class="keyword">instanceof</span> StandardContext) &#123;</span><br><span class="line">    StandardContext standardContext = (StandardContext) context;</span><br><span class="line">    <span class="comment">// standardContext.setDefaultWebXml(); // 设置</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
-<h3 id="自定义-Connector"><a href="#自定义-Connector" class="headerlink" title="自定义 Connector"></a>自定义 <code>Connector</code></h3><p>实现 <code>TomcatConnectorCustomizer</code></p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 相当于 new TomcatConnectorCustomizer() &#123;&#125;</span></span><br><span class="line">factory.addConnectorCustomizers(connector -&gt; &#123;</span><br><span class="line">  connector.setPort(<span class="number">12345</span>);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
-<h2 id="问答"><a href="#问答" class="headerlink" title="问答"></a>问答</h2><ol>
-<li><p>内嵌tomcat是不是比单独的tomcat不是在某方面具有一些优势？</p>
-<p>嵌入式 Tomcat 或者嵌入式 Web 容器可以不依赖文件目录，比如在 Docker 场景使用方便。</p>
-</li>
-<li><p>内置的tomcat 和 外部的tomcat 性能有多大差别?生产线上建议用哪个?</p>
-<p>嵌入式 Tomcat 和 传统 Tomcat 性能可以说一样，现在非常多的生产环境 Spring Boot 嵌入式 - 嵌入式 Tomcat</p>
-</li>
-<li><p>Spring中pre实例化和pre初始化区别(刚刚有提到)</p>
-<p>在 Spring 早起版本中，先有初始化生命周期 - <code>org.springframework.beans.factory.config.BeanPostProcessor</code></p>
-<p>后来 Spring 1.2 ，提供新的扩展接口（<code>BeanPostProcessor</code>）：</p>
-<p><code>org.springframework.beans.factory.config.InstantiationAwareBeanPostProcessor</code></p>
-<p>​</p>
-</li>
-<li><p>Tomcat API 主要是讲tomcat运行原理吗？生产环境用哪种比较多？</p>
-<p>传统 Tomcat 和 嵌入式 Tomcat 都有在生产环境使用。</p>
-<p>​</p>
-</li>
-<li><p>Tomcat 热部署原理能给讲下吗？</p>
-<p><code>org.apache.catalina.Lifecycle</code></p>
-</li>
-</ol>
-<p>​    监控资源变化，Class 变化、配置变化了。 Tomcat 决定重启 Context</p>
-<p>​    <code>org.apache.catalina.Context</code> </p>
-<p>​    Tomcat 自动加载</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setReloadable</span><span class="params">(<span class="keyword">boolean</span> reloadable)</span></span></span><br></pre></td></tr></table></figure>
-
+        
+          <a class="article-more-a" href="/2019/01/26/嵌入式Tomcat/#more">more >></a>
+        
       
 
       
@@ -996,97 +1159,6 @@
 
 
   
-    <article id="post-spring中InitializingBean接口使用理解" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2018/11/12/spring中InitializingBean接口使用理解/">spring中InitializingBean接口使用理解</a>
-    </h1>
-  
-
-        
-        <a href="/2018/11/12/spring中InitializingBean接口使用理解/" class="archive-article-date">
-  	<time datetime="2018-11-12T03:18:38.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-11-12</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>InitializingBean接口为bean提供了初始化方法的方式，它只包括afterPropertiesSet方法，凡是继承该接口的类，在初始化bean的时候会执行该方法。</p>
-<p>测试程序如下：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> org.springframework.beans.factory.InitializingBean;</span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">TestInitializingBean</span> <span class="keyword">implements</span> <span class="title">InitializingBean</span></span>&#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">afterPropertiesSet</span><span class="params">()</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"ceshi InitializingBean"</span>);        </span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">testInit</span><span class="params">()</span></span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"ceshi init-method"</span>);        </span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>配置文件如下：</p>
-<figure class="highlight clean"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">`&lt;``bean` `id``=``<span class="string">"testInitializingBean"</span>` `<span class="keyword">class</span>``=``<span class="string">"com.TestInitializingBean"</span>` `&gt;&lt;/``bean``&gt;`</span><br></pre></td></tr></table></figure>
-<p>Main主程序如下：</p>
-<figure class="highlight clean"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">`public` `<span class="keyword">class</span>` `Main &#123;``    ``public` `static` `void` `main(String[] args)&#123;``        ``ApplicationContext context = ``new` `FileSystemXmlApplicationContext(``<span class="string">"/src/main/java/com/beans.xml"</span>``);``    ``&#125;``&#125;`</span><br></pre></td></tr></table></figure>
-<p>运行Main程序，打印如下结果：</p>
-<figure class="highlight clean"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">`ceshi InitializingBean`</span><br></pre></td></tr></table></figure>
-<p>这说明在spring初始化bean的时候，如果bean实现了InitializingBean接口，会自动调用afterPropertiesSet方法。</p>
-<p><strong>问题</strong></p>
-<p>实现InitializingBean接口与在配置文件中指定init-method有什么不同？</p>
-<p>修改配置文件，加上init-method配置，修改如下：</p>
-<figure class="highlight clean"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">`&lt;``bean` `id``=``<span class="string">"testInitializingBean"</span>` `<span class="keyword">class</span>``=``<span class="string">"com.TestInitializingBean"</span>` `init-method``=``<span class="string">"testInit"</span>``&gt;&lt;/``bean``&gt;`</span><br></pre></td></tr></table></figure>
-<p>在配置文件中加入init-method=”testInit”。</p>
-<p>运行Main程序，打印如下结果：</p>
-<figure class="highlight oxygene"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">`ceshi InitializingBean``ceshi init-<span class="function"><span class="keyword">method</span>`</span></span><br></pre></td></tr></table></figure>
-<p>由结果可看出，在spring初始化bean的时候，如果该bean是实现了InitializingBean接口，并且同时在配置文件中指定了init-method，系统则是先调用afterPropertiesSet方法，然后在调用init-method中指定的方法。</p>
-<p>这方式在spring中是怎么实现的？</p>
-<p>通过查看spring的加载bean的源码类(AbstractAutowireCapableBeanFactory)可看出其中奥妙</p>
-<p>AbstractAutowireCapableBeanFactory类中的invokeInitMethods讲解的非常清楚，源码如下：</p>
-<figure class="highlight coffeescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">`<span class="javascript">protected</span>` `<span class="javascript"><span class="keyword">void</span></span>` `<span class="javascript">invokeInitMethods(<span class="built_in">String</span> beanName, </span>``<span class="javascript">final</span>` `<span class="javascript"><span class="built_in">Object</span> bean, RootBeanDefinition mbd) </span>``<span class="javascript">throws</span>` `<span class="javascript">Throwable &#123;</span>``<span class="javascript">    </span>``<span class="javascript"><span class="comment">//判断该bean是否实现了实现了InitializingBean接口，如果实现了InitializingBean接口，则只掉调用bean的afterPropertiesSet方法</span></span>``<span class="javascript">    </span>``<span class="javascript">boolean</span>` `<span class="javascript">isInitializingBean = (bean </span>``<span class="javascript"><span class="keyword">instanceof</span></span>` `<span class="javascript">InitializingBean);</span>``<span class="javascript">    </span>``<span class="javascript"><span class="keyword">if</span></span>` `<span class="javascript">(isInitializingBean &amp;&amp; (mbd == </span>``<span class="javascript"><span class="literal">null</span></span>` `<span class="javascript">|| !mbd.isExternallyManagedInitMethod(</span>``<span class="javascript"><span class="string">"afterPropertiesSet"</span></span>``<span class="javascript">))) &#123;</span>``<span class="javascript">        </span>``<span class="javascript"><span class="keyword">if</span></span>` `<span class="javascript">(logger.isDebugEnabled()) &#123;</span>``<span class="javascript">            </span>``<span class="javascript">logger.debug(</span>``<span class="javascript"><span class="string">"Invoking afterPropertiesSet() on bean with name '"</span></span>` `<span class="javascript">+ beanName + </span>``<span class="javascript"><span class="string">"'"</span></span>``<span class="javascript">);</span>``<span class="javascript">        </span>``<span class="javascript">&#125;</span>``<span class="javascript">        </span>` `<span class="javascript">        </span>``<span class="javascript"><span class="keyword">if</span></span>` `<span class="javascript">(System.getSecurityManager() != </span>``<span class="javascript"><span class="literal">null</span></span>``<span class="javascript">) &#123;</span>``<span class="javascript">            </span>``<span class="javascript"><span class="keyword">try</span></span>` `<span class="javascript">&#123;</span>``<span class="javascript">                </span>``<span class="javascript">AccessController.doPrivileged(</span>``<span class="javascript"><span class="keyword">new</span></span>` `<span class="javascript">PrivilegedExceptionAction&lt;<span class="built_in">Object</span>&gt;() &#123;</span>``<span class="javascript">                    </span>``<span class="javascript">public</span>` `<span class="javascript"><span class="built_in">Object</span> run() </span>``<span class="javascript">throws</span>` `<span class="javascript">Exception &#123;</span>``<span class="javascript">                        </span>``<span class="javascript"><span class="comment">//直接调用afterPropertiesSet</span></span>``<span class="javascript">                        </span>``<span class="javascript">((InitializingBean) bean).afterPropertiesSet();</span>``<span class="javascript">                        </span>``<span class="javascript"><span class="keyword">return</span></span>` `<span class="javascript"><span class="literal">null</span></span>``<span class="javascript">;</span>``<span class="javascript">                    </span>``<span class="javascript">&#125;</span>``<span class="javascript">                </span>``<span class="javascript">&#125;,getAccessControlContext());</span>``<span class="javascript">            </span>``<span class="javascript">&#125; </span>``<span class="javascript"><span class="keyword">catch</span></span>` `<span class="javascript">(PrivilegedActionException pae) &#123;</span>``<span class="javascript">                </span>``<span class="javascript"><span class="keyword">throw</span></span>` `<span class="javascript">pae.getException();</span>``<span class="javascript">            </span>``<span class="javascript">&#125;</span>``<span class="javascript">        </span>``<span class="javascript">&#125;                </span>``<span class="javascript">        </span>``<span class="javascript"><span class="keyword">else</span></span>` `<span class="javascript">&#123;</span>``<span class="javascript">            </span>``<span class="javascript"><span class="comment">//直接调用afterPropertiesSet</span></span>``<span class="javascript">            </span>``<span class="javascript">((InitializingBean) bean).afterPropertiesSet();</span>``<span class="javascript">        </span>``<span class="javascript">&#125;</span>``<span class="javascript">    </span>``<span class="javascript">&#125;</span>``<span class="javascript">    </span>``<span class="javascript"><span class="keyword">if</span></span>` `<span class="javascript">(mbd != </span>``<span class="javascript"><span class="literal">null</span></span>``<span class="javascript">) &#123;</span>``<span class="javascript">        </span>``<span class="javascript"><span class="built_in">String</span> initMethodName = mbd.getInitMethodName();</span>``<span class="javascript">        </span>``<span class="javascript"><span class="comment">//判断是否指定了init-method方法，如果指定了init-method方法，则再调用制定的init-method</span></span>``<span class="javascript">        </span>``<span class="javascript"><span class="keyword">if</span></span>` `<span class="javascript">(initMethodName != </span>``<span class="javascript"><span class="literal">null</span></span>` `<span class="javascript">&amp;&amp; !(isInitializingBean &amp;&amp; </span>``<span class="javascript"><span class="string">"afterPropertiesSet"</span></span>``<span class="javascript">.equals(initMethodName)) &amp;&amp;</span>``<span class="javascript">                </span>``<span class="javascript">!mbd.isExternallyManagedInitMethod(initMethodName)) &#123;</span>``<span class="javascript">            </span>``<span class="javascript"><span class="comment">//进一步查看该方法的源码，可以发现init-method方法中指定的方法是通过反射实现</span></span>``<span class="javascript">            </span>``<span class="javascript">invokeCustomInitMethod(beanName, bean, mbd);</span>``<span class="javascript">        </span>``<span class="javascript">&#125;</span>``<span class="javascript">    </span>``<span class="javascript">&#125;</span>``<span class="javascript">&#125;</span>`</span><br></pre></td></tr></table></figure>
-<p><strong>总结</strong></p>
-<p>1：spring为bean提供了两种初始化bean的方式，实现InitializingBean接口，实现afterPropertiesSet方法，或者在配置文件中同过init-method指定，两种方式可以同时使用</p>
-<p>2：实现InitializingBean接口是直接调用afterPropertiesSet方法，比通过反射调用init-method指定的方法效率相对来说要高点。但是init-method方式消除了对spring的依赖</p>
-<p>3：如果调用afterPropertiesSet方法时出错，则不调用init-method指定的方法。</p>
-
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-      
-
-      <div style="font-size: 12px;">
-        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
-      </div>
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2018/11/12/spring中InitializingBean接口使用理解/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
   
     <nav id="page-nav">
       <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="page-number" href="/page/3/">3</a><span class="space">&hellip;</span><a class="page-number" href="/page/15/">15</a><a class="extend next" rel="next" href="/page/2/">Next &raquo;</a>
@@ -1212,11 +1284,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">Maven</a>
+                <a href="javascript:void(0)" class="js-tag color1">redis</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">linux</a>
+                <a href="javascript:void(0)" class="js-tag color1">Maven</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1224,7 +1296,7 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">redis</a>
+                <a href="javascript:void(0)" class="js-tag color1">linux</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1232,7 +1304,7 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">MySQL</a>
+                <a href="javascript:void(0)" class="js-tag color1">mysql</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1240,15 +1312,15 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">mysql</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">Python</a>
+                <a href="javascript:void(0)" class="js-tag color1">MySQL</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">限流</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">Python</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1268,19 +1340,19 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">elastic-job</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">guava</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">debug</a>
+                <a href="javascript:void(0)" class="js-tag color2">elastic-job</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">influxdb</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">debug</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1292,11 +1364,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">Mac</a>
+                <a href="javascript:void(0)" class="js-tag color1">maven</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">maven</a>
+                <a href="javascript:void(0)" class="js-tag color4">Mac</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1316,11 +1388,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">前端指南</a>
+                <a href="javascript:void(0)" class="js-tag color3">后端</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">后端</a>
+                <a href="javascript:void(0)" class="js-tag color5">前端指南</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1340,11 +1412,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">科学上网</a>
+                <a href="javascript:void(0)" class="js-tag color1">科学上网，hosts</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">科学上网，hosts</a>
+                <a href="javascript:void(0)" class="js-tag color5">科学上网</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1356,11 +1428,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">HashMap</a>
+                <a href="javascript:void(0)" class="js-tag color3">单例</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">单例</a>
+                <a href="javascript:void(0)" class="js-tag color3">HashMap</a>
               </li>
              
               <li class="article-tag-list-item">
