@@ -151,303 +151,6 @@
           <div id="js-content" class="content-ll">
             
   
-    <article id="post-JAVA线上问题之Full-GC问题定位" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2018/05/13/JAVA线上问题之Full-GC问题定位/">JAVA线上问题之Full GC问题定位</a>
-    </h1>
-  
-
-        
-        <a href="/2018/05/13/JAVA线上问题之Full-GC问题定位/" class="archive-article-date">
-  	<time datetime="2018-05-13T06:11:17.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-05-13</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <ol>
-<li>top</li>
-</ol>
-<p>查看负载，找到CPU过高的程序进程</p>
-<ol>
-<li>top -Hp [进程id]</li>
-</ol>
-<p>查看该进程的所有线程，找到占用cpu较高的线程</p>
-<p><img src="http://p3.pstatp.com/large/pgc-image/152612603574143d21c3715" alt="JAVA线上问题之Full GC问题定位"></p>
-<ol>
-<li>jstack [进程id] &gt; js.txt</li>
-</ol>
-<p>打印当前线程堆栈，根据线程id（转换为16进制 printf %x ）找到CPU较高的线程堆栈</p>
-<p>三部基本可以定位到程序的一些问题。</p>
-<p>当时发现，占用cpu较高的线程，基本都是GC线程</p>
-<p><img src="http://p9.pstatp.com/large/pgc-image/152612606538764cd3e3892" alt="JAVA线上问题之Full GC问题定位"></p>
-<p>4、jstat -gcutil [进程id] 1000</p>
-<p>每隔1000秒打印jvm内存GC信息，</p>
-<p><img src="http://p3.pstatp.com/large/pgc-image/15261261147838154393d49" alt="JAVA线上问题之Full GC问题定位"></p>
-<p>S0 年轻代中第一个survivor（幸存区）已使用的占当前容量百分比</p>
-<p>S1 年轻代中第二个survivor（幸存区）已使用的占当前容量百分比</p>
-<p>E 年轻代中Eden（伊甸园）已使用的占当前容量百分比</p>
-<p>O old代已使用的占当前容量百分比</p>
-<p>P perm代已使用的占当前容量百分比</p>
-<p>YGC 从应用程序启动到采样时年轻代中gc次数</p>
-<p>YGCT 从应用程序启动到采样时年轻代中gc所用时间(s)</p>
-<p>FGC 从应用程序启动到采样时old代(全gc)gc次数</p>
-<p>FGCT 从应用程序启动到采样时old代(全gc)gc所用时间(s)</p>
-<p>GCT 从应用程序启动到采样时gc用的总时间(s)</p>
-<ol>
-<li>jmap -histo [进程id] &gt; jmap.txt</li>
-</ol>
-<p>查看当前jvm内存里对象的实例数和内存数</p>
-<p><img src="http://p1.pstatp.com/large/pgc-image/152612613793539642763b2" alt="JAVA线上问题之Full GC问题定位"></p>
-<p>6、看GC日志</p>
-<p><img src="http://p1.pstatp.com/large/pgc-image/1526126169250debf46265b" alt="JAVA线上问题之Full GC问题定位"></p>
-<p>启动脚本里添加gclog配置 -XX:+PrintGCDetails  -XX:+PrintGCDateStamps  -XX:+PrintHeapAtGC  -Xloggc:gc.log</p>
-<p><img src="http://p3.pstatp.com/large/pgc-image/152612618950506d35201b5" alt="JAVA线上问题之Full GC问题定位"></p>
-<p>筛选Full GC log</p>
-<p><img src="http://p1.pstatp.com/large/pgc-image/15261262185599cc3c4ea45" alt="JAVA线上问题之Full GC问题定位"></p>
-<p>堆内存dump文件分析</p>
-<p>命令：jmap -dump:format=b,file=aa.bin 1232134</p>
-<p>工具：MAT</p>
-<p><img src="http://p1.pstatp.com/large/pgc-image/152612633912428c60eda0f" alt="JAVA线上问题之Full GC问题定位"></p>
-<p><img src="http://p9.pstatp.com/large/pgc-image/15261263392389c6212ec66" alt="JAVA线上问题之Full GC问题定位"></p>
-<p><img src="http://p3.pstatp.com/large/pgc-image/1526126339342d8bf3abf3d" alt="JAVA线上问题之Full GC问题定位"></p>
-<p><img src="http://p3.pstatp.com/large/pgc-image/152612633943779fb54a261" alt="JAVA线上问题之Full GC问题定位"></p>
-<p><img src="http://p1.pstatp.com/large/pgc-image/1526126339495120c75d16c" alt="JAVA线上问题之Full GC问题定位"></p>
-<p><img src="http://p3.pstatp.com/large/pgc-image/15261263395674e4fef7ca8" alt="JAVA线上问题之Full GC问题定位"></p>
-<p><img src="http://p1.pstatp.com/large/pgc-image/1526126339671715eb9134d" alt="JAVA线上问题之Full GC问题定位"></p>
-
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">ops</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-      
-
-      <div style="font-size: 12px;">
-        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
-      </div>
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2018/05/13/JAVA线上问题之Full-GC问题定位/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
-    <article id="post-JDK内置工具补充" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2018/05/13/JDK内置工具补充/">JAVA线上问题之Full GC问题定位</a>
-    </h1>
-  
-
-        
-        <a href="/2018/05/13/JDK内置工具补充/" class="archive-article-date">
-  	<time datetime="2018-05-13T06:11:17.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-05-13</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>####1.查看正在运行的JVM的参数</p>
-<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="selector-tag">jcmd</span> 24684 <span class="selector-tag">VM</span><span class="selector-class">.flags</span></span><br></pre></td></tr></table></figure>
-<p>返回结果：</p>
-<figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">-<span class="string">XX:</span>CICompilerCount=<span class="number">3</span> -<span class="string">XX:</span>ErrorFile=<span class="regexp">/data/</span>program<span class="regexp">/java_error.log -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/</span>data<span class="regexp">/program/</span>java.hprof -<span class="string">XX:</span>InitialHeapSize=<span class="number">130023424</span> -<span class="string">XX:</span>+ManagementServer -<span class="string">XX:</span>MaxHeapSize=<span class="number">2063597568</span> -<span class="string">XX:</span>MaxNewSize=<span class="number">687865856</span> -<span class="string">XX:</span>MinHeapDeltaBytes=<span class="number">524288</span> -<span class="string">XX:</span>NewSize=<span class="number">42991616</span> -<span class="string">XX:</span>OldSize=<span class="number">87031808</span> -<span class="string">XX:</span>+PrintGC -<span class="string">XX:</span>+PrintGCDateStamps -<span class="string">XX:</span>+PrintGCDetails -<span class="string">XX:</span>+PrintGCTimeStamps -<span class="string">XX:</span>+UseCompressedClassPointers -<span class="string">XX:</span>+UseCompressedOops -<span class="string">XX:</span>+UseParallelGC</span><br></pre></td></tr></table></figure>
-
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">ops</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-      
-
-      <div style="font-size: 12px;">
-        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
-      </div>
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2018/05/13/JDK内置工具补充/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
-    <article id="post-实例详解java.lang.OutOfMemoryError" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2018/05/13/实例详解java.lang.OutOfMemoryError/">OutOfMemoryError 实例详解</a>
-    </h1>
-  
-
-        
-        <a href="/2018/05/13/实例详解java.lang.OutOfMemoryError/" class="archive-article-date">
-  	<time datetime="2018-05-13T06:11:17.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-05-13</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h1 id="java-lang-OutOfMemoryError-实例详解"><a href="#java-lang-OutOfMemoryError-实例详解" class="headerlink" title="java.lang.OutOfMemoryError 实例详解"></a>java.lang.OutOfMemoryError 实例详解</h1><h3 id="The-8-symptoms-that-surface-them"><a href="#The-8-symptoms-that-surface-them" class="headerlink" title="The 8 symptoms that surface them"></a>The 8 symptoms that surface them</h3><h3 id="内存溢出的8种主要类型"><a href="#内存溢出的8种主要类型" class="headerlink" title="内存溢出的8种主要类型"></a>内存溢出的8种主要类型</h3><p>The many thousands of java.lang.OutOfMemoryErrors that I’ve met during my career all bear one of the below eight symptoms. This handbook explains what causes a particular error to be thrown, offers code examples that can cause such errors, and gives you solution guidelines for a fix. The content is all based on my own experience.</p>
-<p>笔者在工作中碰到过成千上万的 <code>java.lang.OutOfMemoryError</code>, 都可以归结为以下八种症状。<br>本手册阐述了各种内存溢出错误的形成原因,并提供了可测试这种错误的示例代码,以及解决方案。 内容都来源于笔者的一线开发和实践经验。</p>
-<p>目录:</p>
-<ol>
-<li><a href="01_java-heap-space.md">OutOfMemoryError系列（1）: <strong>Java heap space</strong></a></li>
-<li><a href="02_gc-overhead-limit-exceeded.md">OutOfMemoryError系列（2）: <strong>GC overhead limit exceeded</strong></a></li>
-<li><a href="03_permgen-space.md">OutOfMemoryError系列（3）: <strong>Permgen space</strong></a></li>
-<li><a href="04_metaspace.md">OutOfMemoryError系列（4）: <strong>Metaspace</strong></a></li>
-<li><a href="05_unable-to-create-new-native-thread.md">OutOfMemoryError系列（5）: <strong>Unable to create new native thread</strong></a></li>
-<li><a href="06_out-of-swap-space.md">OutOfMemoryError系列（6）: <strong>Out of swap space?</strong> </a></li>
-<li><a href="07_requested-array-size-exceeds-vm-limit.md">OutOfMemoryError系列（7）: <strong>Requested array size exceeds VM limit</strong> Details</a></li>
-<li><a href="08_kill-process-or-sacrifice-child.md">OutOfMemoryError系列（8）: <strong>Kill process or sacrifice child</strong></a></li>
-</ol>
-<p>原文作者: <strong>Nikita Salnikov-Tarnovski</strong>  – Plumbr Co-Founder and VP of Engineering</p>
-<p>原文链接： <a href="https://plumbr.eu/outofmemoryerror" target="_blank" rel="external">https://plumbr.eu/outofmemoryerror</a></p>
-
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">ops</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-      
-
-      <div style="font-size: 12px;">
-        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
-      </div>
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2018/05/13/实例详解java.lang.OutOfMemoryError/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
     <article id="post-anatomy" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
@@ -670,19 +373,19 @@
 
 
   
-    <article id="post-排查问题常用命令" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+    <article id="post-JAVA线上问题之Full-GC问题定位" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
       <header class="article-header">
         
   
     <h1 itemprop="name">
-      <a class="article-title" href="/2018/05/13/排查问题常用命令/">排查线上问题常用命令脚本</a>
+      <a class="article-title" href="/2018/05/13/JAVA线上问题之Full-GC问题定位/">JAVA线上问题之Full GC问题定位</a>
     </h1>
   
 
         
-        <a href="/2018/05/13/排查问题常用命令/" class="archive-article-date">
+        <a href="/2018/05/13/JAVA线上问题之Full-GC问题定位/" class="archive-article-date">
   	<time datetime="2018-05-13T06:11:17.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-05-13</time>
 </a>
         
@@ -690,20 +393,56 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        <h4 id="1-查看进程pid"><a href="#1-查看进程pid" class="headerlink" title="1. 查看进程pid"></a>1. 查看进程pid</h4><p>ps -ef |grep ‘bbs-service’ | grep -v grep |grep -v ‘python’ | awk ‘{print $2}’</p>
-<h4 id="2-查看线程信息"><a href="#2-查看线程信息" class="headerlink" title="2. 查看线程信息"></a>2. 查看线程信息</h4><p>jstack 27676| grep Druid-ConnectionPool- | wc -l</p>
-<p>jstack 27676| grep Xmemcached-Reactor- </p>
-<p>jstack 27676| grep java.lang.Thread.State </p>
-<p>jstack 27676| grep DubboServerHandler-</p>
-<p>jstack 27676| grep DubboClientHandler-</p>
-<p>top -H -b -n 1  -p 27676 | sed ‘1,/^$/d’ | sed ‘1d;/^$/d’ | grep -v 27676 | sort -nrk9 | head -3</p>
-<p>注：27676 为进程pid</p>
-<h4 id="3-系统"><a href="#3-系统" class="headerlink" title="3. 系统"></a>3. 系统</h4><p>已建立的连接数：</p>
-<p>netstat -ant |grep ESTABLISHED |wc -l</p>
-<p>处于等待状态的连接数：</p>
-<p>netstat -ant |grep TIME_WAIT |wc -l</p>
-<p>各个cpu的资源使用情况：</p>
-<p>mpstat -P ALL</p>
+        <ol>
+<li>top</li>
+</ol>
+<p>查看负载，找到CPU过高的程序进程</p>
+<ol>
+<li>top -Hp [进程id]</li>
+</ol>
+<p>查看该进程的所有线程，找到占用cpu较高的线程</p>
+<p><img src="http://p3.pstatp.com/large/pgc-image/152612603574143d21c3715" alt="JAVA线上问题之Full GC问题定位"></p>
+<ol>
+<li>jstack [进程id] &gt; js.txt</li>
+</ol>
+<p>打印当前线程堆栈，根据线程id（转换为16进制 printf %x ）找到CPU较高的线程堆栈</p>
+<p>三部基本可以定位到程序的一些问题。</p>
+<p>当时发现，占用cpu较高的线程，基本都是GC线程</p>
+<p><img src="http://p9.pstatp.com/large/pgc-image/152612606538764cd3e3892" alt="JAVA线上问题之Full GC问题定位"></p>
+<p>4、jstat -gcutil [进程id] 1000</p>
+<p>每隔1000秒打印jvm内存GC信息，</p>
+<p><img src="http://p3.pstatp.com/large/pgc-image/15261261147838154393d49" alt="JAVA线上问题之Full GC问题定位"></p>
+<p>S0 年轻代中第一个survivor（幸存区）已使用的占当前容量百分比</p>
+<p>S1 年轻代中第二个survivor（幸存区）已使用的占当前容量百分比</p>
+<p>E 年轻代中Eden（伊甸园）已使用的占当前容量百分比</p>
+<p>O old代已使用的占当前容量百分比</p>
+<p>P perm代已使用的占当前容量百分比</p>
+<p>YGC 从应用程序启动到采样时年轻代中gc次数</p>
+<p>YGCT 从应用程序启动到采样时年轻代中gc所用时间(s)</p>
+<p>FGC 从应用程序启动到采样时old代(全gc)gc次数</p>
+<p>FGCT 从应用程序启动到采样时old代(全gc)gc所用时间(s)</p>
+<p>GCT 从应用程序启动到采样时gc用的总时间(s)</p>
+<ol>
+<li>jmap -histo [进程id] &gt; jmap.txt</li>
+</ol>
+<p>查看当前jvm内存里对象的实例数和内存数</p>
+<p><img src="http://p1.pstatp.com/large/pgc-image/152612613793539642763b2" alt="JAVA线上问题之Full GC问题定位"></p>
+<p>6、看GC日志</p>
+<p><img src="http://p1.pstatp.com/large/pgc-image/1526126169250debf46265b" alt="JAVA线上问题之Full GC问题定位"></p>
+<p>启动脚本里添加gclog配置 -XX:+PrintGCDetails  -XX:+PrintGCDateStamps  -XX:+PrintHeapAtGC  -Xloggc:gc.log</p>
+<p><img src="http://p3.pstatp.com/large/pgc-image/152612618950506d35201b5" alt="JAVA线上问题之Full GC问题定位"></p>
+<p>筛选Full GC log</p>
+<p><img src="http://p1.pstatp.com/large/pgc-image/15261262185599cc3c4ea45" alt="JAVA线上问题之Full GC问题定位"></p>
+<p>堆内存dump文件分析</p>
+<p>命令：jmap -dump:format=b,file=aa.bin 1232134</p>
+<p>工具：MAT</p>
+<p><img src="http://p1.pstatp.com/large/pgc-image/152612633912428c60eda0f" alt="JAVA线上问题之Full GC问题定位"></p>
+<p><img src="http://p9.pstatp.com/large/pgc-image/15261263392389c6212ec66" alt="JAVA线上问题之Full GC问题定位"></p>
+<p><img src="http://p3.pstatp.com/large/pgc-image/1526126339342d8bf3abf3d" alt="JAVA线上问题之Full GC问题定位"></p>
+<p><img src="http://p3.pstatp.com/large/pgc-image/152612633943779fb54a261" alt="JAVA线上问题之Full GC问题定位"></p>
+<p><img src="http://p1.pstatp.com/large/pgc-image/1526126339495120c75d16c" alt="JAVA线上问题之Full GC问题定位"></p>
+<p><img src="http://p3.pstatp.com/large/pgc-image/15261263395674e4fef7ca8" alt="JAVA线上问题之Full GC问题定位"></p>
+<p><img src="http://p1.pstatp.com/large/pgc-image/1526126339671715eb9134d" alt="JAVA线上问题之Full GC问题定位"></p>
 
       
 
@@ -730,7 +469,7 @@
       </div>
       
         <p class="article-more-link">
-          <a class="article-more-a" href="/2018/05/13/排查问题常用命令/">展开全文 >></a>
+          <a class="article-more-a" href="/2018/05/13/JAVA线上问题之Full-GC问题定位/">展开全文 >></a>
         </p>
       
 
@@ -826,6 +565,187 @@
       
         <p class="article-more-link">
           <a class="article-more-a" href="/2018/05/13/java服务器load飚高排查思路/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
+    <article id="post-排查问题常用命令" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2018/05/13/排查问题常用命令/">排查线上问题常用命令脚本</a>
+    </h1>
+  
+
+        
+        <a href="/2018/05/13/排查问题常用命令/" class="archive-article-date">
+  	<time datetime="2018-05-13T06:11:17.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-05-13</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h4 id="1-查看进程pid"><a href="#1-查看进程pid" class="headerlink" title="1. 查看进程pid"></a>1. 查看进程pid</h4><p>ps -ef |grep ‘bbs-service’ | grep -v grep |grep -v ‘python’ | awk ‘{print $2}’</p>
+<h4 id="2-查看线程信息"><a href="#2-查看线程信息" class="headerlink" title="2. 查看线程信息"></a>2. 查看线程信息</h4><p>jstack 27676| grep Druid-ConnectionPool- | wc -l</p>
+<p>jstack 27676| grep Xmemcached-Reactor- </p>
+<p>jstack 27676| grep java.lang.Thread.State </p>
+<p>jstack 27676| grep DubboServerHandler-</p>
+<p>jstack 27676| grep DubboClientHandler-</p>
+<p>top -H -b -n 1  -p 27676 | sed ‘1,/^$/d’ | sed ‘1d;/^$/d’ | grep -v 27676 | sort -nrk9 | head -3</p>
+<p>注：27676 为进程pid</p>
+<h4 id="3-系统"><a href="#3-系统" class="headerlink" title="3. 系统"></a>3. 系统</h4><p>已建立的连接数：</p>
+<p>netstat -ant |grep ESTABLISHED |wc -l</p>
+<p>处于等待状态的连接数：</p>
+<p>netstat -ant |grep TIME_WAIT |wc -l</p>
+<p>各个cpu的资源使用情况：</p>
+<p>mpstat -P ALL</p>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">ops</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+      
+
+      <div style="font-size: 12px;">
+        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
+      </div>
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2018/05/13/排查问题常用命令/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
+    <article id="post-实例详解java.lang.OutOfMemoryError" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2018/05/13/实例详解java.lang.OutOfMemoryError/">OutOfMemoryError 实例详解</a>
+    </h1>
+  
+
+        
+        <a href="/2018/05/13/实例详解java.lang.OutOfMemoryError/" class="archive-article-date">
+  	<time datetime="2018-05-13T06:11:17.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-05-13</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="java-lang-OutOfMemoryError-实例详解"><a href="#java-lang-OutOfMemoryError-实例详解" class="headerlink" title="java.lang.OutOfMemoryError 实例详解"></a>java.lang.OutOfMemoryError 实例详解</h1><h3 id="The-8-symptoms-that-surface-them"><a href="#The-8-symptoms-that-surface-them" class="headerlink" title="The 8 symptoms that surface them"></a>The 8 symptoms that surface them</h3><h3 id="内存溢出的8种主要类型"><a href="#内存溢出的8种主要类型" class="headerlink" title="内存溢出的8种主要类型"></a>内存溢出的8种主要类型</h3><p>The many thousands of java.lang.OutOfMemoryErrors that I’ve met during my career all bear one of the below eight symptoms. This handbook explains what causes a particular error to be thrown, offers code examples that can cause such errors, and gives you solution guidelines for a fix. The content is all based on my own experience.</p>
+<p>笔者在工作中碰到过成千上万的 <code>java.lang.OutOfMemoryError</code>, 都可以归结为以下八种症状。<br>本手册阐述了各种内存溢出错误的形成原因,并提供了可测试这种错误的示例代码,以及解决方案。 内容都来源于笔者的一线开发和实践经验。</p>
+<p>目录:</p>
+<ol>
+<li><a href="01_java-heap-space.md">OutOfMemoryError系列（1）: <strong>Java heap space</strong></a></li>
+<li><a href="02_gc-overhead-limit-exceeded.md">OutOfMemoryError系列（2）: <strong>GC overhead limit exceeded</strong></a></li>
+<li><a href="03_permgen-space.md">OutOfMemoryError系列（3）: <strong>Permgen space</strong></a></li>
+<li><a href="04_metaspace.md">OutOfMemoryError系列（4）: <strong>Metaspace</strong></a></li>
+<li><a href="05_unable-to-create-new-native-thread.md">OutOfMemoryError系列（5）: <strong>Unable to create new native thread</strong></a></li>
+<li><a href="06_out-of-swap-space.md">OutOfMemoryError系列（6）: <strong>Out of swap space?</strong> </a></li>
+<li><a href="07_requested-array-size-exceeds-vm-limit.md">OutOfMemoryError系列（7）: <strong>Requested array size exceeds VM limit</strong> Details</a></li>
+<li><a href="08_kill-process-or-sacrifice-child.md">OutOfMemoryError系列（8）: <strong>Kill process or sacrifice child</strong></a></li>
+</ol>
+<p>原文作者: <strong>Nikita Salnikov-Tarnovski</strong>  – Plumbr Co-Founder and VP of Engineering</p>
+<p>原文链接： <a href="https://plumbr.eu/outofmemoryerror" target="_blank" rel="external">https://plumbr.eu/outofmemoryerror</a></p>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">ops</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+      
+
+      <div style="font-size: 12px;">
+        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
+      </div>
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2018/05/13/实例详解java.lang.OutOfMemoryError/">展开全文 >></a>
         </p>
       
 
@@ -1007,6 +927,108 @@
       
         <p class="article-more-link">
           <a class="article-more-a" href="/2018/05/13/linux-commands/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
+    <article id="post-常用脚本" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2018/05/13/常用脚本/">常用脚本</a>
+    </h1>
+  
+
+        
+        <a href="/2018/05/13/常用脚本/" class="archive-article-date">
+  	<time datetime="2018-05-13T06:11:17.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-05-13</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>PS：</p>
+<p>本仓库的脚本（如<code>Java</code>相关脚本）在阿里等公司（如随身云，见<a href="https://github.com/Suishenyun/awesome-scripts" target="_blank" rel="external"><code>awesome-scripts</code>仓库</a>说明）的线上生产环境部署使用。<br>如果你的公司有部署使用，欢迎使用通过<a href="https://github.com/oldratlee/useful-scripts/issues" target="_blank" rel="external">提交Issue</a>告知，方便互相交流反馈～ :cupid:</p>
+<h2 id="beginner-快速下载-amp-使用"><a href="#beginner-快速下载-amp-使用" class="headerlink" title=":beginner: 快速下载&amp;使用"></a>:beginner: 快速下载&amp;使用</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">source</span> &lt;(curl -fsSL https://raw.githubusercontent.com/oldratlee/useful-scripts/master/<span class="built_in">test</span>-cases/self-installer.sh)</span><br></pre></td></tr></table></figure>
+<p>更多下载&amp;使用方式，参见<a href="docs/install.md">下载使用</a>。</p>
+<h2 id="books-使用文档"><a href="#books-使用文档" class="headerlink" title=":books: 使用文档"></a>:books: 使用文档</h2><h3 id="coffee-Java相关脚本"><a href="#coffee-Java相关脚本" class="headerlink" title=":coffee: Java相关脚本"></a>:coffee: <a href="docs/java.md"><code>Java</code>相关脚本</a></h3><ol>
+<li><a href="docs/java.md#beer-show-busy-java-threads">show-busy-java-threads</a><br> 用于快速排查<code>Java</code>的<code>CPU</code>性能问题(<code>top us</code>值过高)，自动查出运行的<code>Java</code>进程中消耗<code>CPU</code>多的线程，并打印出其线程栈，从而确定导致性能问题的方法调用。</li>
+<li><a href="docs/java.md#beer-show-duplicate-java-classes">show-duplicate-java-classes</a><br> 找出<code>jar</code>文件和<code>class</code>目录中的重复类。用于排查<code>Java</code>类冲突问题。</li>
+<li><a href="docs/java.md#beer-find-in-jars">find-in-jars</a><br> 在目录下所有<code>jar</code>文件里，查找类或资源文件。</li>
+</ol>
+<h3 id="shell-Shell相关脚本"><a href="#shell-Shell相关脚本" class="headerlink" title=":shell: Shell相关脚本"></a>:shell: <a href="docs/shell.md"><code>Shell</code>相关脚本</a></h3><p><code>Shell</code>使用加强：</p>
+<ol>
+<li><a href="docs/shell.md#beer-c">c</a><br> 原样命令行输出，并拷贝标准输出到系统剪贴板，省去<code>CTRL+C</code>操作，优化命令行与其它应用之间的操作流。</li>
+<li><a href="docs/shell.md#beer-coat">coat</a><br> 彩色<code>cat</code>出文件行，方便人眼区分不同的行。</li>
+<li><a href="docs/shell.md#beer-a2l">a2l</a><br> 按行彩色输出参数，方便人眼查看。</li>
+<li><a href="docs/shell.md#beer-ap-and-rp">ap and rp</a><br> 批量转换文件路径为绝对路径/相对路径，会自动跟踪链接并规范化路径。</li>
+<li><a href="docs/shell.md#beer-tcp-connection-state-counter">tcp-connection-state-counter</a><br> 统计各个<code>TCP</code>连接状态的个数。用于方便排查系统连接负荷问题。</li>
+<li><a href="docs/shell.md#beer-xpl-and-xpf">xpl and xpf</a><br> 在命令行中快速完成 在文件浏览器中 打开/选中 指定的文件或文件夹的操作，优化命令行与其它应用之间的操作流。</li>
+</ol>
+<p><code>Shell</code>开发/测试加强：</p>
+<ol>
+<li><a href="docs/shell.md#beer-echo-args">echo-args</a><br> 输出脚本收到的参数，在控制台运行时，把参数值括起的括号显示成 <strong>红色</strong>，方便人眼查看。用于调试脚本参数输入。</li>
+<li><a href="docs/shell.md#beer-console-text-color-themessh">console-text-color-themes.sh</a><br> 显示<code>Terminator</code>的全部文字彩色组合的效果及其打印方式，用于开发<code>Shell</code>的彩色输出。</li>
+<li><a href="docs/shell.md#beer-parseoptssh">parseOpts.sh</a><br> 命令行选项解析库，加强支持选项有多个值（即数组）。</li>
+</ol>
+<h3 id="watch-VCS相关脚本"><a href="#watch-VCS相关脚本" class="headerlink" title=":watch: VCS相关脚本"></a>:watch: <a href="docs/vcs.md"><code>VCS</code>相关脚本</a></h3><p>目前<code>VCS</code>的脚本都是<code>svn</code>分支相关的操作。使用更现代的<code>Git</code>吧！ :boom:</p>
+<p>因为不推荐使用<code>svn</code>，这里不再列出有哪些脚本了，如果你有兴趣可以点上面链接去看。</p>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">ops</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+      
+
+      <div style="font-size: 12px;">
+        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
+      </div>
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2018/05/13/常用脚本/">展开全文 >></a>
         </p>
       
 
@@ -3394,11 +3416,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">java并发包</a>
+                <a href="javascript:void(0)" class="js-tag color1">Dubbo</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">Dubbo</a>
+                <a href="javascript:void(0)" class="js-tag color3">java并发包</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -3410,7 +3432,7 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">java</a>
+                <a href="javascript:void(0)" class="js-tag color1">Maven</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -3418,15 +3440,15 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">redis</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">Maven</a>
+                <a href="javascript:void(0)" class="js-tag color5">java</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">java内存模型</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">redis</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -3438,6 +3460,10 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">MySQL</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">mysql</a>
               </li>
              
@@ -3446,15 +3472,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">MySQL</a>
+                <a href="javascript:void(0)" class="js-tag color2">Python</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">限流</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">Python</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -3486,19 +3508,19 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">debug</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">rest</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">python</a>
+                <a href="javascript:void(0)" class="js-tag color1">debug</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">maven</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">python</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -3546,11 +3568,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">科学上网，hosts</a>
+                <a href="javascript:void(0)" class="js-tag color5">科学上网</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">科学上网</a>
+                <a href="javascript:void(0)" class="js-tag color1">科学上网，hosts</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -3558,11 +3580,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">前端跨域</a>
+                <a href="javascript:void(0)" class="js-tag color3">单例</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">单例</a>
+                <a href="javascript:void(0)" class="js-tag color5">前端跨域</a>
               </li>
              
               <li class="article-tag-list-item">
