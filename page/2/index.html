@@ -2,7 +2,6 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
 
   
   <meta name="renderer" content="webkit">
@@ -151,6 +150,97 @@
           <div id="js-content" class="content-ll">
             
   
+    <article id="post-Tomcat性能优化" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2019/01/28/Tomcat性能优化/">Tomcat性能优化</a>
+    </h1>
+  
+
+        
+        <a href="/2019/01/28/Tomcat性能优化/" class="archive-article-date">
+  	<time datetime="2019-01-28T02:00:48.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2019-01-28</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="配置优化"><a href="#配置优化" class="headerlink" title="配置优化"></a>配置优化</h2><h3 id="减少配置优化"><a href="#减少配置优化" class="headerlink" title="减少配置优化"></a>减少配置优化</h3><ul>
+<li><p>场景一：假设当前 REST 应用（微服务）</p>
+<p>分析：它不需要静态资源，Tomcat 容器静态和动态</p>
+<ul>
+<li>静态处理：<code>DefaultServlet</code><ul>
+<li>优化方案：通过移除<code>conf/web.xml</code> 中 <code>org.apache.catalina.servlets.DefaultServlet</code>。</li>
+</ul>
+</li>
+<li>动态：<code>JspServlet</code><ul>
+<li>优化方案：通过移除<code>conf/web.xml</code> 中 <code>org.apache.jasper.servlet.JspServlet</code>。</li>
+</ul>
+</li>
+</ul></li></ul>
+        
+          <a class="article-more-a" href="/2019/01/28/Tomcat性能优化/#more">more >></a>
+        
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color2">tomcat</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+      
+
+      <div style="font-size: 12px;">
+        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
+      </div>
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2019/01/28/Tomcat性能优化/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
     <article id="post-嵌入式Tomcat" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
@@ -171,7 +261,7 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        <h2 id="Tomcat-架构"><a href="#Tomcat-架构" class="headerlink" title="Tomcat 架构"></a>Tomcat 架构</h2><p><img src="images/Tomcat_Architecture-680x428.png" alt=""></p>
+        <h2 id="Tomcat-架构"><a href="#Tomcat-架构" class="headerlink" title="Tomcat 架构"></a>Tomcat 架构</h2><p><img src="/2019/01/26/嵌入式Tomcat/Tomcat_Architecture-680x428.png" alt=""></p>
         
           <a class="article-more-a" href="/2019/01/26/嵌入式Tomcat/#more">more >></a>
         
@@ -444,8 +534,8 @@
         <p>当请求一个页面时，如果浏览器使用本地缓存，因此我们经常会看到一个HTTP请求为304状态。或者显示200状态，在chrome下标注是from cache，在火狐下会标注BFCache；</p>
 <p>我们希望在服务器端更新了静态文件（如css、js、图片），能够在客户端得到及时的更新，但又不想让浏览器每次请求都从服务器端获取静态资源。那么就需要了解一些下面的知识：</p>
 <h3 id="Last-Modified-If-Modified-Since"><a href="#Last-Modified-If-Modified-Since" class="headerlink" title="Last-Modified / If-Modified-Since"></a>Last-Modified / If-Modified-Since</h3><p>当浏览器第一次请求一个url时，服务器端的返回状态码为200，同时HTTP响应头会有一个Last-Modified标记着文件在服务器端最后被修改的时间。</p>
-<p><img src="Expires、Last-Modified、Etag缓存控制/221003436286349.jpg" alt="last-modifed"></p>
-<p><img src="221003436286349.jpg" alt=""></p>
+<p><img src="/2019/01/08/Expires、Last-Modified、Etag缓存控制/221003436286349.jpg" alt="last-modifed"></p>
+<p><img src="/2019/01/08/Expires、Last-Modified、Etag缓存控制/221003436286349.jpg" alt=""></p>
 <p>浏览器第二次请求上次请求过的url时，浏览器会在HTTP请求头添加一个If-Modified-Since的标记，用来询问服务器该时间之后文件是否被修改过。</p>
 <p><img src="https://images0.cnblogs.com/blog/648334/201408/221005550499434.jpg" alt="img"></p>
 <p>如果服务器端的资源没有变化，则自动返回304状态，使用浏览器缓存，从而保证了浏览器不会重复从服务器端获取资源，也保证了服务器有变化是，客户端能够及时得到最新的资源。</p>
@@ -942,97 +1032,6 @@
 
 
   
-    <article id="post-spring中InitializingBean接口使用理解" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2018/11/12/spring中InitializingBean接口使用理解/">spring中InitializingBean接口使用理解</a>
-    </h1>
-  
-
-        
-        <a href="/2018/11/12/spring中InitializingBean接口使用理解/" class="archive-article-date">
-  	<time datetime="2018-11-12T03:18:38.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-11-12</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>InitializingBean接口为bean提供了初始化方法的方式，它只包括afterPropertiesSet方法，凡是继承该接口的类，在初始化bean的时候会执行该方法。</p>
-<p>测试程序如下：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> org.springframework.beans.factory.InitializingBean;</span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">TestInitializingBean</span> <span class="keyword">implements</span> <span class="title">InitializingBean</span></span>&#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">afterPropertiesSet</span><span class="params">()</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"ceshi InitializingBean"</span>);        </span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">testInit</span><span class="params">()</span></span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"ceshi init-method"</span>);        </span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>配置文件如下：</p>
-<figure class="highlight clean"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">`&lt;``bean` `id``=``<span class="string">"testInitializingBean"</span>` `<span class="keyword">class</span>``=``<span class="string">"com.TestInitializingBean"</span>` `&gt;&lt;/``bean``&gt;`</span><br></pre></td></tr></table></figure>
-<p>Main主程序如下：</p>
-<figure class="highlight clean"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">`public` `<span class="keyword">class</span>` `Main &#123;``    ``public` `static` `void` `main(String[] args)&#123;``        ``ApplicationContext context = ``new` `FileSystemXmlApplicationContext(``<span class="string">"/src/main/java/com/beans.xml"</span>``);``    ``&#125;``&#125;`</span><br></pre></td></tr></table></figure>
-<p>运行Main程序，打印如下结果：</p>
-<figure class="highlight clean"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">`ceshi InitializingBean`</span><br></pre></td></tr></table></figure>
-<p>这说明在spring初始化bean的时候，如果bean实现了InitializingBean接口，会自动调用afterPropertiesSet方法。</p>
-<p><strong>问题</strong></p>
-<p>实现InitializingBean接口与在配置文件中指定init-method有什么不同？</p>
-<p>修改配置文件，加上init-method配置，修改如下：</p>
-<figure class="highlight clean"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">`&lt;``bean` `id``=``<span class="string">"testInitializingBean"</span>` `<span class="keyword">class</span>``=``<span class="string">"com.TestInitializingBean"</span>` `init-method``=``<span class="string">"testInit"</span>``&gt;&lt;/``bean``&gt;`</span><br></pre></td></tr></table></figure>
-<p>在配置文件中加入init-method=”testInit”。</p>
-<p>运行Main程序，打印如下结果：</p>
-<figure class="highlight oxygene"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">`ceshi InitializingBean``ceshi init-<span class="function"><span class="keyword">method</span>`</span></span><br></pre></td></tr></table></figure>
-<p>由结果可看出，在spring初始化bean的时候，如果该bean是实现了InitializingBean接口，并且同时在配置文件中指定了init-method，系统则是先调用afterPropertiesSet方法，然后在调用init-method中指定的方法。</p>
-<p>这方式在spring中是怎么实现的？</p>
-<p>通过查看spring的加载bean的源码类(AbstractAutowireCapableBeanFactory)可看出其中奥妙</p>
-<p>AbstractAutowireCapableBeanFactory类中的invokeInitMethods讲解的非常清楚，源码如下：</p>
-<figure class="highlight coffeescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">`<span class="javascript">protected</span>` `<span class="javascript"><span class="keyword">void</span></span>` `<span class="javascript">invokeInitMethods(<span class="built_in">String</span> beanName, </span>``<span class="javascript">final</span>` `<span class="javascript"><span class="built_in">Object</span> bean, RootBeanDefinition mbd) </span>``<span class="javascript">throws</span>` `<span class="javascript">Throwable &#123;</span>``<span class="javascript">    </span>``<span class="javascript"><span class="comment">//判断该bean是否实现了实现了InitializingBean接口，如果实现了InitializingBean接口，则只掉调用bean的afterPropertiesSet方法</span></span>``<span class="javascript">    </span>``<span class="javascript">boolean</span>` `<span class="javascript">isInitializingBean = (bean </span>``<span class="javascript"><span class="keyword">instanceof</span></span>` `<span class="javascript">InitializingBean);</span>``<span class="javascript">    </span>``<span class="javascript"><span class="keyword">if</span></span>` `<span class="javascript">(isInitializingBean &amp;&amp; (mbd == </span>``<span class="javascript"><span class="literal">null</span></span>` `<span class="javascript">|| !mbd.isExternallyManagedInitMethod(</span>``<span class="javascript"><span class="string">"afterPropertiesSet"</span></span>``<span class="javascript">))) &#123;</span>``<span class="javascript">        </span>``<span class="javascript"><span class="keyword">if</span></span>` `<span class="javascript">(logger.isDebugEnabled()) &#123;</span>``<span class="javascript">            </span>``<span class="javascript">logger.debug(</span>``<span class="javascript"><span class="string">"Invoking afterPropertiesSet() on bean with name '"</span></span>` `<span class="javascript">+ beanName + </span>``<span class="javascript"><span class="string">"'"</span></span>``<span class="javascript">);</span>``<span class="javascript">        </span>``<span class="javascript">&#125;</span>``<span class="javascript">        </span>` `<span class="javascript">        </span>``<span class="javascript"><span class="keyword">if</span></span>` `<span class="javascript">(System.getSecurityManager() != </span>``<span class="javascript"><span class="literal">null</span></span>``<span class="javascript">) &#123;</span>``<span class="javascript">            </span>``<span class="javascript"><span class="keyword">try</span></span>` `<span class="javascript">&#123;</span>``<span class="javascript">                </span>``<span class="javascript">AccessController.doPrivileged(</span>``<span class="javascript"><span class="keyword">new</span></span>` `<span class="javascript">PrivilegedExceptionAction&lt;<span class="built_in">Object</span>&gt;() &#123;</span>``<span class="javascript">                    </span>``<span class="javascript">public</span>` `<span class="javascript"><span class="built_in">Object</span> run() </span>``<span class="javascript">throws</span>` `<span class="javascript">Exception &#123;</span>``<span class="javascript">                        </span>``<span class="javascript"><span class="comment">//直接调用afterPropertiesSet</span></span>``<span class="javascript">                        </span>``<span class="javascript">((InitializingBean) bean).afterPropertiesSet();</span>``<span class="javascript">                        </span>``<span class="javascript"><span class="keyword">return</span></span>` `<span class="javascript"><span class="literal">null</span></span>``<span class="javascript">;</span>``<span class="javascript">                    </span>``<span class="javascript">&#125;</span>``<span class="javascript">                </span>``<span class="javascript">&#125;,getAccessControlContext());</span>``<span class="javascript">            </span>``<span class="javascript">&#125; </span>``<span class="javascript"><span class="keyword">catch</span></span>` `<span class="javascript">(PrivilegedActionException pae) &#123;</span>``<span class="javascript">                </span>``<span class="javascript"><span class="keyword">throw</span></span>` `<span class="javascript">pae.getException();</span>``<span class="javascript">            </span>``<span class="javascript">&#125;</span>``<span class="javascript">        </span>``<span class="javascript">&#125;                </span>``<span class="javascript">        </span>``<span class="javascript"><span class="keyword">else</span></span>` `<span class="javascript">&#123;</span>``<span class="javascript">            </span>``<span class="javascript"><span class="comment">//直接调用afterPropertiesSet</span></span>``<span class="javascript">            </span>``<span class="javascript">((InitializingBean) bean).afterPropertiesSet();</span>``<span class="javascript">        </span>``<span class="javascript">&#125;</span>``<span class="javascript">    </span>``<span class="javascript">&#125;</span>``<span class="javascript">    </span>``<span class="javascript"><span class="keyword">if</span></span>` `<span class="javascript">(mbd != </span>``<span class="javascript"><span class="literal">null</span></span>``<span class="javascript">) &#123;</span>``<span class="javascript">        </span>``<span class="javascript"><span class="built_in">String</span> initMethodName = mbd.getInitMethodName();</span>``<span class="javascript">        </span>``<span class="javascript"><span class="comment">//判断是否指定了init-method方法，如果指定了init-method方法，则再调用制定的init-method</span></span>``<span class="javascript">        </span>``<span class="javascript"><span class="keyword">if</span></span>` `<span class="javascript">(initMethodName != </span>``<span class="javascript"><span class="literal">null</span></span>` `<span class="javascript">&amp;&amp; !(isInitializingBean &amp;&amp; </span>``<span class="javascript"><span class="string">"afterPropertiesSet"</span></span>``<span class="javascript">.equals(initMethodName)) &amp;&amp;</span>``<span class="javascript">                </span>``<span class="javascript">!mbd.isExternallyManagedInitMethod(initMethodName)) &#123;</span>``<span class="javascript">            </span>``<span class="javascript"><span class="comment">//进一步查看该方法的源码，可以发现init-method方法中指定的方法是通过反射实现</span></span>``<span class="javascript">            </span>``<span class="javascript">invokeCustomInitMethod(beanName, bean, mbd);</span>``<span class="javascript">        </span>``<span class="javascript">&#125;</span>``<span class="javascript">    </span>``<span class="javascript">&#125;</span>``<span class="javascript">&#125;</span>`</span><br></pre></td></tr></table></figure>
-<p><strong>总结</strong></p>
-<p>1：spring为bean提供了两种初始化bean的方式，实现InitializingBean接口，实现afterPropertiesSet方法，或者在配置文件中同过init-method指定，两种方式可以同时使用</p>
-<p>2：实现InitializingBean接口是直接调用afterPropertiesSet方法，比通过反射调用init-method指定的方法效率相对来说要高点。但是init-method方式消除了对spring的依赖</p>
-<p>3：如果调用afterPropertiesSet方法时出错，则不调用init-method指定的方法。</p>
-
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-      
-
-      <div style="font-size: 12px;">
-        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
-      </div>
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2018/11/12/spring中InitializingBean接口使用理解/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
   
     <nav id="page-nav">
       <a class="extend prev" rel="prev" href="/">&laquo; Prev</a><a class="page-number" href="/">1</a><span class="page-number current">2</span><a class="page-number" href="/page/3/">3</a><a class="page-number" href="/page/4/">4</a><span class="space">&hellip;</span><a class="page-number" href="/page/16/">16</a><a class="extend next" rel="next" href="/page/3/">Next &raquo;</a>
@@ -1166,11 +1165,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">redis</a>
+                <a href="javascript:void(0)" class="js-tag color1">linux</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">linux</a>
+                <a href="javascript:void(0)" class="js-tag color1">redis</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1182,11 +1181,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">mysql</a>
+                <a href="javascript:void(0)" class="js-tag color1">MySQL</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">MySQL</a>
+                <a href="javascript:void(0)" class="js-tag color1">mysql</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1194,19 +1193,19 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">限流</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">react</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">RxJava</a>
+                <a href="javascript:void(0)" class="js-tag color3">限流</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">spring</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">RxJava</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1230,11 +1229,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">influxdb</a>
+                <a href="javascript:void(0)" class="js-tag color1">debug</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">debug</a>
+                <a href="javascript:void(0)" class="js-tag color4">influxdb</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1266,11 +1265,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">分布式锁</a>
+                <a href="javascript:void(0)" class="js-tag color2">Spring</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">Spring</a>
+                <a href="javascript:void(0)" class="js-tag color5">分布式锁</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1298,11 +1297,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">序列化</a>
+                <a href="javascript:void(0)" class="js-tag color5">排序算法</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">排序算法</a>
+                <a href="javascript:void(0)" class="js-tag color4">序列化</a>
               </li>
              
               <li class="article-tag-list-item">

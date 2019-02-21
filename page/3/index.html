@@ -2,7 +2,6 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
 
   
   <meta name="renderer" content="webkit">
@@ -150,6 +149,97 @@
           </div>
           <div id="js-content" class="content-ll">
             
+  
+    <article id="post-spring中InitializingBean接口使用理解" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2018/11/12/spring中InitializingBean接口使用理解/">spring中InitializingBean接口使用理解</a>
+    </h1>
+  
+
+        
+        <a href="/2018/11/12/spring中InitializingBean接口使用理解/" class="archive-article-date">
+  	<time datetime="2018-11-12T03:18:38.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-11-12</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>InitializingBean接口为bean提供了初始化方法的方式，它只包括afterPropertiesSet方法，凡是继承该接口的类，在初始化bean的时候会执行该方法。</p>
+<p>测试程序如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> org.springframework.beans.factory.InitializingBean;</span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">TestInitializingBean</span> <span class="keyword">implements</span> <span class="title">InitializingBean</span></span>&#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">afterPropertiesSet</span><span class="params">()</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"ceshi InitializingBean"</span>);        </span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">testInit</span><span class="params">()</span></span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"ceshi init-method"</span>);        </span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>配置文件如下：</p>
+<figure class="highlight clean"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">`&lt;``bean` `id``=``<span class="string">"testInitializingBean"</span>` `<span class="keyword">class</span>``=``<span class="string">"com.TestInitializingBean"</span>` `&gt;&lt;/``bean``&gt;`</span><br></pre></td></tr></table></figure>
+<p>Main主程序如下：</p>
+<figure class="highlight clean"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">`public` `<span class="keyword">class</span>` `Main &#123;``    ``public` `static` `void` `main(String[] args)&#123;``        ``ApplicationContext context = ``new` `FileSystemXmlApplicationContext(``<span class="string">"/src/main/java/com/beans.xml"</span>``);``    ``&#125;``&#125;`</span><br></pre></td></tr></table></figure>
+<p>运行Main程序，打印如下结果：</p>
+<figure class="highlight clean"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">`ceshi InitializingBean`</span><br></pre></td></tr></table></figure>
+<p>这说明在spring初始化bean的时候，如果bean实现了InitializingBean接口，会自动调用afterPropertiesSet方法。</p>
+<p><strong>问题</strong></p>
+<p>实现InitializingBean接口与在配置文件中指定init-method有什么不同？</p>
+<p>修改配置文件，加上init-method配置，修改如下：</p>
+<figure class="highlight clean"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">`&lt;``bean` `id``=``<span class="string">"testInitializingBean"</span>` `<span class="keyword">class</span>``=``<span class="string">"com.TestInitializingBean"</span>` `init-method``=``<span class="string">"testInit"</span>``&gt;&lt;/``bean``&gt;`</span><br></pre></td></tr></table></figure>
+<p>在配置文件中加入init-method=”testInit”。</p>
+<p>运行Main程序，打印如下结果：</p>
+<figure class="highlight oxygene"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">`ceshi InitializingBean``ceshi init-<span class="function"><span class="keyword">method</span>`</span></span><br></pre></td></tr></table></figure>
+<p>由结果可看出，在spring初始化bean的时候，如果该bean是实现了InitializingBean接口，并且同时在配置文件中指定了init-method，系统则是先调用afterPropertiesSet方法，然后在调用init-method中指定的方法。</p>
+<p>这方式在spring中是怎么实现的？</p>
+<p>通过查看spring的加载bean的源码类(AbstractAutowireCapableBeanFactory)可看出其中奥妙</p>
+<p>AbstractAutowireCapableBeanFactory类中的invokeInitMethods讲解的非常清楚，源码如下：</p>
+<figure class="highlight coffeescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">`<span class="javascript">protected</span>` `<span class="javascript"><span class="keyword">void</span></span>` `<span class="javascript">invokeInitMethods(<span class="built_in">String</span> beanName, </span>``<span class="javascript">final</span>` `<span class="javascript"><span class="built_in">Object</span> bean, RootBeanDefinition mbd) </span>``<span class="javascript">throws</span>` `<span class="javascript">Throwable &#123;</span>``<span class="javascript">    </span>``<span class="javascript"><span class="comment">//判断该bean是否实现了实现了InitializingBean接口，如果实现了InitializingBean接口，则只掉调用bean的afterPropertiesSet方法</span></span>``<span class="javascript">    </span>``<span class="javascript">boolean</span>` `<span class="javascript">isInitializingBean = (bean </span>``<span class="javascript"><span class="keyword">instanceof</span></span>` `<span class="javascript">InitializingBean);</span>``<span class="javascript">    </span>``<span class="javascript"><span class="keyword">if</span></span>` `<span class="javascript">(isInitializingBean &amp;&amp; (mbd == </span>``<span class="javascript"><span class="literal">null</span></span>` `<span class="javascript">|| !mbd.isExternallyManagedInitMethod(</span>``<span class="javascript"><span class="string">"afterPropertiesSet"</span></span>``<span class="javascript">))) &#123;</span>``<span class="javascript">        </span>``<span class="javascript"><span class="keyword">if</span></span>` `<span class="javascript">(logger.isDebugEnabled()) &#123;</span>``<span class="javascript">            </span>``<span class="javascript">logger.debug(</span>``<span class="javascript"><span class="string">"Invoking afterPropertiesSet() on bean with name '"</span></span>` `<span class="javascript">+ beanName + </span>``<span class="javascript"><span class="string">"'"</span></span>``<span class="javascript">);</span>``<span class="javascript">        </span>``<span class="javascript">&#125;</span>``<span class="javascript">        </span>` `<span class="javascript">        </span>``<span class="javascript"><span class="keyword">if</span></span>` `<span class="javascript">(System.getSecurityManager() != </span>``<span class="javascript"><span class="literal">null</span></span>``<span class="javascript">) &#123;</span>``<span class="javascript">            </span>``<span class="javascript"><span class="keyword">try</span></span>` `<span class="javascript">&#123;</span>``<span class="javascript">                </span>``<span class="javascript">AccessController.doPrivileged(</span>``<span class="javascript"><span class="keyword">new</span></span>` `<span class="javascript">PrivilegedExceptionAction&lt;<span class="built_in">Object</span>&gt;() &#123;</span>``<span class="javascript">                    </span>``<span class="javascript">public</span>` `<span class="javascript"><span class="built_in">Object</span> run() </span>``<span class="javascript">throws</span>` `<span class="javascript">Exception &#123;</span>``<span class="javascript">                        </span>``<span class="javascript"><span class="comment">//直接调用afterPropertiesSet</span></span>``<span class="javascript">                        </span>``<span class="javascript">((InitializingBean) bean).afterPropertiesSet();</span>``<span class="javascript">                        </span>``<span class="javascript"><span class="keyword">return</span></span>` `<span class="javascript"><span class="literal">null</span></span>``<span class="javascript">;</span>``<span class="javascript">                    </span>``<span class="javascript">&#125;</span>``<span class="javascript">                </span>``<span class="javascript">&#125;,getAccessControlContext());</span>``<span class="javascript">            </span>``<span class="javascript">&#125; </span>``<span class="javascript"><span class="keyword">catch</span></span>` `<span class="javascript">(PrivilegedActionException pae) &#123;</span>``<span class="javascript">                </span>``<span class="javascript"><span class="keyword">throw</span></span>` `<span class="javascript">pae.getException();</span>``<span class="javascript">            </span>``<span class="javascript">&#125;</span>``<span class="javascript">        </span>``<span class="javascript">&#125;                </span>``<span class="javascript">        </span>``<span class="javascript"><span class="keyword">else</span></span>` `<span class="javascript">&#123;</span>``<span class="javascript">            </span>``<span class="javascript"><span class="comment">//直接调用afterPropertiesSet</span></span>``<span class="javascript">            </span>``<span class="javascript">((InitializingBean) bean).afterPropertiesSet();</span>``<span class="javascript">        </span>``<span class="javascript">&#125;</span>``<span class="javascript">    </span>``<span class="javascript">&#125;</span>``<span class="javascript">    </span>``<span class="javascript"><span class="keyword">if</span></span>` `<span class="javascript">(mbd != </span>``<span class="javascript"><span class="literal">null</span></span>``<span class="javascript">) &#123;</span>``<span class="javascript">        </span>``<span class="javascript"><span class="built_in">String</span> initMethodName = mbd.getInitMethodName();</span>``<span class="javascript">        </span>``<span class="javascript"><span class="comment">//判断是否指定了init-method方法，如果指定了init-method方法，则再调用制定的init-method</span></span>``<span class="javascript">        </span>``<span class="javascript"><span class="keyword">if</span></span>` `<span class="javascript">(initMethodName != </span>``<span class="javascript"><span class="literal">null</span></span>` `<span class="javascript">&amp;&amp; !(isInitializingBean &amp;&amp; </span>``<span class="javascript"><span class="string">"afterPropertiesSet"</span></span>``<span class="javascript">.equals(initMethodName)) &amp;&amp;</span>``<span class="javascript">                </span>``<span class="javascript">!mbd.isExternallyManagedInitMethod(initMethodName)) &#123;</span>``<span class="javascript">            </span>``<span class="javascript"><span class="comment">//进一步查看该方法的源码，可以发现init-method方法中指定的方法是通过反射实现</span></span>``<span class="javascript">            </span>``<span class="javascript">invokeCustomInitMethod(beanName, bean, mbd);</span>``<span class="javascript">        </span>``<span class="javascript">&#125;</span>``<span class="javascript">    </span>``<span class="javascript">&#125;</span>``<span class="javascript">&#125;</span>`</span><br></pre></td></tr></table></figure>
+<p><strong>总结</strong></p>
+<p>1：spring为bean提供了两种初始化bean的方式，实现InitializingBean接口，实现afterPropertiesSet方法，或者在配置文件中同过init-method指定，两种方式可以同时使用</p>
+<p>2：实现InitializingBean接口是直接调用afterPropertiesSet方法，比通过反射调用init-method指定的方法效率相对来说要高点。但是init-method方式消除了对spring的依赖</p>
+<p>3：如果调用afterPropertiesSet方法时出错，则不调用init-method指定的方法。</p>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+      
+
+      <div style="font-size: 12px;">
+        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
+      </div>
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2018/11/12/spring中InitializingBean接口使用理解/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
   
     <article id="post-浅谈springMVC中的设计模式——组合模式" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
@@ -1155,96 +1245,6 @@
 
 
   
-    <article id="post-springboot-stater自定义开发" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2018/09/14/springboot-stater自定义开发/">springboot stater自定义开发</a>
-    </h1>
-  
-
-        
-        <a href="/2018/09/14/springboot-stater自定义开发/" class="archive-article-date">
-  	<time datetime="2018-09-13T16:19:28.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-09-14</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h2 id="一-springboot-starter生成"><a href="#一-springboot-starter生成" class="headerlink" title="一 springboot-starter生成"></a>一 springboot-starter生成</h2><h3 id="1-pom引入"><a href="#1-pom引入" class="headerlink" title="1. pom引入"></a>1. pom引入</h3><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line"><span class="php"><span class="meta">&lt;?</span>xml version=<span class="string">"1.0"</span> encoding=<span class="string">"UTF-8"</span><span class="meta">?&gt;</span></span></span><br><span class="line"><span class="tag">&lt;<span class="name">project</span> <span class="attr">xmlns</span>=<span class="string">"http://maven.apache.org/POM/4.0.0"</span> <span class="attr">xmlns:xsi</span>=<span class="string">"http://www.w3.org/2001/XMLSchema-instance"</span></span></span><br><span class="line"><span class="tag">	<span class="attr">xsi:schemaLocation</span>=<span class="string">"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">modelVersion</span>&gt;</span>4.0.0<span class="tag">&lt;/<span class="name">modelVersion</span>&gt;</span></span><br><span class="line"></span><br><span class="line">	<span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.joey.segmentment<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>lessson-20-starter<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">version</span>&gt;</span>0.0.1-SNAPSHOT<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">packaging</span>&gt;</span>jar<span class="tag">&lt;/<span class="name">packaging</span>&gt;</span></span><br><span class="line"></span><br><span class="line">	<span class="tag">&lt;<span class="name">name</span>&gt;</span>lessson-20-starter<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">description</span>&gt;</span>Demo project for Spring Boot<span class="tag">&lt;/<span class="name">description</span>&gt;</span></span><br><span class="line"></span><br><span class="line">	<span class="tag">&lt;<span class="name">parent</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-starter-parent<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">version</span>&gt;</span>2.0.5.RELEASE<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">relativePath</span>/&gt;</span> <span class="comment">&lt;!-- lookup parent from repository --&gt;</span></span><br><span class="line">	<span class="tag">&lt;/<span class="name">parent</span>&gt;</span></span><br><span class="line"></span><br><span class="line">	<span class="tag">&lt;<span class="name">properties</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">project.build.sourceEncoding</span>&gt;</span>UTF-8<span class="tag">&lt;/<span class="name">project.build.sourceEncoding</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">project.reporting.outputEncoding</span>&gt;</span>UTF-8<span class="tag">&lt;/<span class="name">project.reporting.outputEncoding</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">java.version</span>&gt;</span>1.8<span class="tag">&lt;/<span class="name">java.version</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;/<span class="name">properties</span>&gt;</span></span><br><span class="line"></span><br><span class="line">	<span class="tag">&lt;<span class="name">dependencies</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">			<span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">			<span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-autoconfigure<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"></span><br><span class="line">		<span class="comment">&lt;!--用于生成编辑提示--&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">			<span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">			<span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-configuration-processor<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;/<span class="name">dependencies</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;/<span class="name">project</span>&gt;</span></span><br></pre></td></tr></table></figure>
-<h3 id="2-autoconfigure"><a href="#2-autoconfigure" class="headerlink" title="2. autoconfigure"></a>2. autoconfigure</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Configuration</span></span><br><span class="line"><span class="meta">@ConditionalOnProperty</span>(prefix = <span class="string">"person"</span>,name = <span class="string">"enable"</span>,</span><br><span class="line">        havingValue = <span class="string">"true"</span>,matchIfMissing = <span class="keyword">true</span>)</span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">PersonAutoConfigure</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Bean</span></span><br><span class="line">    <span class="meta">@ConfigurationProperties</span>(prefix = <span class="string">"person"</span>)</span><br><span class="line">    <span class="function"><span class="keyword">public</span> Person <span class="title">person</span><span class="params">()</span></span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> Person();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<figure class="highlight fortran"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> Person &#123;</span><br><span class="line">    <span class="keyword">private</span> Long id;</span><br><span class="line">    <span class="keyword">private</span> String <span class="keyword">name</span>;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">Integer</span> age;</span><br><span class="line"></span><br><span class="line">... getter setter</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<ul>
-<li><p><code>@Configuration</code>,被该注解注释的类会提供一个或则多个<code>@bean</code>修饰的方法并且会被spring容器处理来生成<code>bean definitions</code>。</p>
-</li>
-<li><p><code>@bean</code>注解是必须修饰函数的，该函数可以提供一个<code>bean</code>。而且该函数的函数名必须和bean的名称一致，除了首字母不需要大写。</p>
-</li>
-<li><p><code>@ConditionalOnClass</code>注解是条件判断的注解，表示对应的类在classpath目录下存在时，才会去解析对应的配置文件。</p>
-</li>
-<li><p><code>ConditionalOnProperty</code>注解是条件判断的注解，表示如果配置文件中的响应配置项数值为true,才会对该bean进行初始化。</p>
-</li>
-<li>更多注解参考 <a href="https://docs.spring.io/spring-boot/docs/current/reference/html/boot-features-developing-auto-configuration.html" target="_blank" rel="external">https://docs.spring.io/spring-boot/docs/current/reference/html/boot-features-developing-auto-configuration.html</a></li>
-</ul>
-<h3 id="3-META-INF-spring-factories"><a href="#3-META-INF-spring-factories" class="headerlink" title="3. META-INF/spring.factories"></a>3. META-INF/spring.factories</h3><p>在文件中添加</p>
-<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">org<span class="selector-class">.springframework</span><span class="selector-class">.boot</span><span class="selector-class">.autoconfigure</span><span class="selector-class">.EnableAutoConfiguration</span>=\</span><br><span class="line">  com<span class="selector-class">.joey</span><span class="selector-class">.segmentment</span><span class="selector-class">.starter</span><span class="selector-class">.autoconfigure</span><span class="selector-class">.PersonAutoConfigure</span></span><br></pre></td></tr></table></figure>
-<h3 id="4-mvn-clean-install"><a href="#4-mvn-clean-install" class="headerlink" title="4. mvn clean install"></a>4. mvn clean install</h3><h2 id="二-project引入starterjar包"><a href="#二-project引入starterjar包" class="headerlink" title="二 project引入starterjar包"></a>二 project引入starterjar包</h2><h3 id="1-引入jar包"><a href="#1-引入jar包" class="headerlink" title="1. 引入jar包"></a>1. 引入jar包</h3><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.joey.segmentment<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>lessson-20-starter<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">version</span>&gt;</span>0.0.1-SNAPSHOT<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
-<h3 id="2-application-properties填写配置"><a href="#2-application-properties填写配置" class="headerlink" title="2. application.properties填写配置"></a>2. application.properties填写配置</h3><figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">person.<span class="attribute">enable</span>=<span class="literal">true</span></span><br><span class="line"></span><br><span class="line">person.<span class="attribute">id</span>=1</span><br><span class="line">person.<span class="attribute">name</span>=joey</span><br><span class="line">person.<span class="attribute">age</span>=18</span><br></pre></td></tr></table></figure>
-<h3 id="3-代码使用"><a href="#3-代码使用" class="headerlink" title="3. 代码使用"></a>3. 代码使用</h3><figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@RestController</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">TestController</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="keyword">private</span> Person person;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@GetMapping(value = <span class="meta-string">"/person"</span>)</span></span><br><span class="line">    <span class="keyword">public</span> Person <span class="keyword">get</span>()&#123;</span><br><span class="line">        <span class="keyword">return</span> person;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<ul>
-<li>文献参考</li>
-</ul>
-<blockquote>
-<p><a href="https://docs.spring.io/spring-boot/docs/current/reference/html/boot-features-developing-auto-configuration.html" target="_blank" rel="external">https://docs.spring.io/spring-boot/docs/current/reference/html/boot-features-developing-auto-configuration.html</a></p>
-</blockquote>
-
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-      
-
-      <div style="font-size: 12px;">
-        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
-      </div>
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2018/09/14/springboot-stater自定义开发/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
   
     <nav id="page-nav">
       <a class="extend prev" rel="prev" href="/page/2/">&laquo; Prev</a><a class="page-number" href="/">1</a><a class="page-number" href="/page/2/">2</a><span class="page-number current">3</span><a class="page-number" href="/page/4/">4</a><a class="page-number" href="/page/5/">5</a><span class="space">&hellip;</span><a class="page-number" href="/page/16/">16</a><a class="extend next" rel="next" href="/page/4/">Next &raquo;</a>
@@ -1378,11 +1378,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">redis</a>
+                <a href="javascript:void(0)" class="js-tag color1">linux</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">linux</a>
+                <a href="javascript:void(0)" class="js-tag color1">redis</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1394,11 +1394,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">mysql</a>
+                <a href="javascript:void(0)" class="js-tag color1">MySQL</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">MySQL</a>
+                <a href="javascript:void(0)" class="js-tag color1">mysql</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1406,19 +1406,19 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">限流</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">react</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">RxJava</a>
+                <a href="javascript:void(0)" class="js-tag color3">限流</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">spring</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">RxJava</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1442,11 +1442,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">influxdb</a>
+                <a href="javascript:void(0)" class="js-tag color1">debug</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">debug</a>
+                <a href="javascript:void(0)" class="js-tag color4">influxdb</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1478,11 +1478,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">分布式锁</a>
+                <a href="javascript:void(0)" class="js-tag color2">Spring</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">Spring</a>
+                <a href="javascript:void(0)" class="js-tag color5">分布式锁</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1510,11 +1510,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">序列化</a>
+                <a href="javascript:void(0)" class="js-tag color5">排序算法</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">排序算法</a>
+                <a href="javascript:void(0)" class="js-tag color4">序列化</a>
               </li>
              
               <li class="article-tag-list-item">

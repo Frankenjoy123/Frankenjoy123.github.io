@@ -2,7 +2,6 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
 
   
   <meta name="renderer" content="webkit">
@@ -17,16 +16,17 @@
 <meta property="og:url" content="http://yoursite.com/2019/02/17/分布式事务的解决方案/index.html">
 <meta property="og:site_name" content="xiaowu&#39;s blog">
 <meta property="og:description" content="分布式事务的解决方案数据一致性（zk）  为什么会有分布式事务我们假设有如下一个架构，这是一个简单的电商架构平台，两个应用节点，一个数据库，一个负载均衡器。这个架构下，每天会产生将近100W的订单量。那么一个月的数据量就会超过3000W。而随着数据量的不断扩大，对于订单表的相关查询操作的性能开销就越来越大。并且响应耗时也越来越长。这个时候我们需要考虑到数据库的优化问题。也就是对数据库进行分表分库，">
-<meta property="og:image" content="http://yoursite.com/2019/02/17/分布式事务的解决方案/images/image-20190218182833141.png">
-<meta property="og:image" content="http://yoursite.com/2019/02/17/分布式事务的解决方案/images/image-20190218182658312.png">
-<meta property="og:image" content="http://yoursite.com/2019/02/17/分布式事务的解决方案/images/image-20190219103221951.png">
-<meta property="og:image" content="http://yoursite.com/2019/02/17/分布式事务的解决方案/images/image-20190219103345944.png">
-<meta property="og:image" content="http://yoursite.com/2019/02/17/分布式事务的解决方案/images/image-20190219103526345.png">
-<meta property="og:updated_time" content="2019-02-19T02:42:36.000Z">
+<meta property="og:image" content="http://yoursite.com/2019/02/17/分布式事务的解决方案/image-20190218182833141.png">
+<meta property="og:image" content="http://yoursite.com/2019/02/17/分布式事务的解决方案/image-20190218182658312.png">
+<meta property="og:image" content="http://yoursite.com/2019/02/17/分布式事务的解决方案/image-20190219103221951.png">
+<meta property="og:image" content="http://yoursite.com/2019/02/17/分布式事务的解决方案/image-20190219103345944.png">
+<meta property="og:image" content="http://yoursite.com/2019/02/17/分布式事务的解决方案/image-20190219103526345.png">
+<meta property="og:image" content="http://yoursite.com/2019/02/17/分布式事务的解决方案/5b532465b0154555.jpg">
+<meta property="og:updated_time" content="2019-02-21T02:34:50.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="分布式事务的解决方案">
 <meta name="twitter:description" content="分布式事务的解决方案数据一致性（zk）  为什么会有分布式事务我们假设有如下一个架构，这是一个简单的电商架构平台，两个应用节点，一个数据库，一个负载均衡器。这个架构下，每天会产生将近100W的订单量。那么一个月的数据量就会超过3000W。而随着数据量的不断扩大，对于订单表的相关查询操作的性能开销就越来越大。并且响应耗时也越来越长。这个时候我们需要考虑到数据库的优化问题。也就是对数据库进行分表分库，">
-<meta name="twitter:image" content="http://yoursite.com/2019/02/17/分布式事务的解决方案/images/image-20190218182833141.png">
+<meta name="twitter:image" content="http://yoursite.com/2019/02/17/分布式事务的解决方案/image-20190218182833141.png">
   
     <link rel="alternative" href="/atom.xml" title="xiaowu&#39;s blog" type="application/atom+xml">
   
@@ -186,7 +186,7 @@
 <ul>
 <li>比如有这样一个场景，订单支付成功以后需要扣减库存。在数据库分库分表之前，所有数据都在同一个库里面，可以通过事务操作就很容易达到数据一致性的目的。但是在数据库做了拆分后，订单状态更新是属于订单的数据库，而库存扣减是属于库存的数据库。原本单库的事务操作就变成了多库的事务操作。 </li>
 </ul>
-<p><img src="images/image-20190218182833141.png" alt="image-20190218182833141"></p>
+<p><img src="/2019/02/17/分布式事务的解决方案/image-20190218182833141.png" alt="image-20190218182833141"></p>
 <p>但是每个库的事务只有自己知道，订单库并不知道库存库的事务执行结果，库存库也不知道订单库的修改结果。所以就造成了分布式事务的问题。其实也叫分布式数据一致性。 </p>
 <h2 id="认识分布式事务"><a href="#认识分布式事务" class="headerlink" title="认识分布式事务"></a>认识分布式事务</h2><p>既然存在分布式事务的问题，那就一定有成熟的解决方案，那么接下来我们了解下业内的常用解决方法及原理 </p>
 <p>经典的<strong>X/OpenDTP</strong>事务模型 </p>
@@ -203,7 +203,7 @@
 </li>
 </ul>
 <p>在分布式系统中，每一个机器节点虽然都能够明确知道自己在进行事务操作过程中的结果是成功还是失败，但却无法直接获取到其他分布式节点的操作结果。因此当一个事务操作需要跨越多个分布式节点的时候，为了保持事务处理的ACID特性，就需要引入一个“协调者”（TM）来统一调度所有分布式节点的执行逻辑，这些被调度的分布式节点被称为AP。TM负责调度AP的行为，并最终决定这些AP是否要把事务真正进行提交到（RM） </p>
-<p><img src="images/image-20190218182658312.png" alt="image-20190218182658312"></p>
+<p><img src="/2019/02/17/分布式事务的解决方案/image-20190218182658312.png" alt="image-20190218182658312"></p>
 <ol>
 <li><p>参与分布式事务的应用程序(AP)先到TM上注册全局事务 </p>
 </li>
@@ -357,7 +357,7 @@
 <p>状态机这个概念大家都不陌生，比如TCP协议的状态机。同时我们在编写相关业务逻辑的时候经常也会需要处理各种事件和状态的切换，比如switch、if/else。所以我们其实一直在跟状态机打交道，只是可能没有意识到而已。在处理一些业务逻辑比较复杂的需求时，可以先看看是否适合用一个<strong>有限状态机</strong>来描述，如果可以把业务模型抽象成一个有限状态机，那么代码就会逻辑特别清晰，结构特别规整。 </p>
 <p>比如我们来简单描述一个订单 </p>
 <p>我们以支付为例，一笔订单可能会有<strong>等待支付、支付中、已支付</strong>等状态，那么我们就可以先去把可能出现的状态以及状态的流程画出来。 </p>
-<p><img src="images/image-20190219103221951.png" alt="image-20190219103221951"></p>
+<p><img src="/2019/02/17/分布式事务的解决方案/image-20190219103221951.png" alt="image-20190219103221951"></p>
 <p>状态机的两个作用 </p>
 <ol>
 <li><p>实现幂等 </p>
@@ -366,7 +366,7 @@
 </li>
 <li><p>业务流程以及逻辑更加清晰，特别是应对复杂的业务场景 </p>
 </li>
-<li><img src="images/image-20190219103345944.png" alt="image-20190219103345944"></li>
+<li><img src="/2019/02/17/分布式事务的解决方案/image-20190219103345944.png" alt="image-20190219103345944"></li>
 </ol>
 <h3 id="什么是幂等"><a href="#什么是幂等" class="headerlink" title="什么是幂等"></a>什么是幂等</h3><p>简单来说：重复调用多次产生的业务结果与调用一次产生的业务结果相同； 在分布式架构中，我们调用一个远程服务去完成一个操作，除了成功和失败以外，还有未知状态，那么针对这个未知状态，我们会采取一些重试的行为； 或者在消息中间件的使用场景中，消费者可能会重复收到消息。对于这两种情况，消费端或者服务端需要采取一定的手段，也就是考虑到重发的情况下保证数据的安全性。一般我们常用的手段 </p>
 <ol>
@@ -379,8 +379,9 @@
 </ol>
 <h3 id="基于消息的最终一致性方案实践"><a href="#基于消息的最终一致性方案实践" class="headerlink" title="基于消息的最终一致性方案实践"></a>基于消息的最终一致性方案实践</h3><p>在最终一致性这个方案上，也有两种选择方案，一种是基于可靠消息中间件来实现异步的最终一致性、另一种就是通过MQ来实现最大努力通知型。这两种都比较常见，比如大家如果对接过支付宝支付的api，就应该能知道，当你调用支付支付</p>
 <p>成功以后，支付宝会提供一个异步回调，调用配置好的指定的接口地址。在这个接口中，你可以获得支付宝的支付结果并根据结果做相应的处理。最后必须要返回一个ack给到支付宝的回调api，告诉他这边已经处理成功了。否则，支付宝的异步回调会不断重试，当然有重试次数，以及重试的间隔时间。那接下来，我们通过第一种方案来实现数据的最终一致性 </p>
-<p><img src="images/image-20190219103526345.png" alt="image-20190219103526345"></p>
+<p><img src="/2019/02/17/分布式事务的解决方案/image-20190219103526345.png" alt="image-20190219103526345"></p>
 <p>通过异步消息执行方案的本质是，把两个事物转化成两个本地事务，然后<strong>依靠消息本身的可靠性，以及消息的重试机制达到最终一致性。</strong> </p>
+<p><img src="/2019/02/17/分布式事务的解决方案/5b532465b0154555.jpg" alt=""></p>
 
       
 
@@ -491,6 +492,15 @@
 
   
 <nav id="article-nav">
+  
+    <a href="/2019/02/21/MySQL常用函数/" id="article-nav-newer" class="article-nav-link-wrap">
+      <i class="icon-circle-left"></i>
+      <div class="article-nav-title">
+        
+          MySQL常用函数
+        
+      </div>
+    </a>
   
   
     <a href="/2019/02/17/Spring-session-与JWT、OAtuh2/" id="article-nav-older" class="article-nav-link-wrap">
@@ -656,11 +666,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">redis</a>
+                <a href="javascript:void(0)" class="js-tag color1">linux</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">linux</a>
+                <a href="javascript:void(0)" class="js-tag color1">redis</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -672,11 +682,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">mysql</a>
+                <a href="javascript:void(0)" class="js-tag color1">MySQL</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">MySQL</a>
+                <a href="javascript:void(0)" class="js-tag color1">mysql</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -684,19 +694,19 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">限流</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">react</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">RxJava</a>
+                <a href="javascript:void(0)" class="js-tag color3">限流</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">spring</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">RxJava</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -720,11 +730,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">influxdb</a>
+                <a href="javascript:void(0)" class="js-tag color1">debug</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">debug</a>
+                <a href="javascript:void(0)" class="js-tag color4">influxdb</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -756,11 +766,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">分布式锁</a>
+                <a href="javascript:void(0)" class="js-tag color2">Spring</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">Spring</a>
+                <a href="javascript:void(0)" class="js-tag color5">分布式锁</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -788,11 +798,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">序列化</a>
+                <a href="javascript:void(0)" class="js-tag color5">排序算法</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">排序算法</a>
+                <a href="javascript:void(0)" class="js-tag color4">序列化</a>
               </li>
              
               <li class="article-tag-list-item">

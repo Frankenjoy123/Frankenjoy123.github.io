@@ -2,7 +2,6 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
 
   
   <meta name="renderer" content="webkit">
@@ -150,6 +149,282 @@
           </div>
           <div id="js-content" class="content-ll">
             
+  
+    <article id="post-java服务器load飚高排查思路" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2018/05/13/java服务器load飚高排查思路/">java服务器load飙高排查思路</a>
+    </h1>
+  
+
+        
+        <a href="/2018/05/13/java服务器load飚高排查思路/" class="archive-article-date">
+  	<time datetime="2018-05-13T06:11:17.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-05-13</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>Load 是指对计算机干活多少的度量（WikiPedia：the system load is a measure of the amount of work that a computer system is doing），简单的说是进程队列的长度。Load Average 就是一段时间 (1 分钟、5分钟、15分钟) 内平均 Load </p>
+<p><strong>通过uptime命令可以查看当前的load，如果值很高。一般情况是java某些线程长期占用资源、死锁、死循环等导致某个进程占用的CPU资源过高。大致可以从以下几个角度来排查：</strong><br><br><br></p>
+<p>1.首先通过jps命令，查看当前进程id，如id为 28174</p>
+<p>2.查看该进程下的线程资源使用情况</p>
+<figure class="highlight coq"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">top</span> -p <span class="number">28174</span> –H</span><br></pre></td></tr></table></figure>
+<figure class="highlight basic"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="symbol">32694 </span>root      <span class="number">20</span>   <span class="number">0</span> <span class="number">3249</span>m <span class="number">2.0</span>g  <span class="number">11</span>m S    <span class="number">2</span>  <span class="number">6.4</span>   <span class="number">3</span>:<span class="number">31.12</span> java                      </span><br><span class="line"><span class="symbol">28175 </span>root      <span class="number">20</span>   <span class="number">0</span> <span class="number">3249</span>m <span class="number">2.0</span>g  <span class="number">11</span>m S    <span class="number">0</span>  <span class="number">6.4</span>   <span class="number">0</span>:<span class="number">00.06</span> java                   </span><br><span class="line"><span class="symbol">28176 </span>root      <span class="number">20</span>   <span class="number">0</span> <span class="number">3249</span>m <span class="number">2.0</span>g  <span class="number">11</span>m S    <span class="number">0</span>  <span class="number">6.4</span>   <span class="number">1</span>:<span class="number">40.79</span> java                   </span><br><span class="line"><span class="symbol">28177 </span>root      <span class="number">20</span>   <span class="number">0</span> <span class="number">3249</span>m <span class="number">2.0</span>g  <span class="number">11</span>m S    <span class="number">0</span>  <span class="number">6.4</span>   <span class="number">1</span>:<span class="number">41.12</span> java                   </span><br><span class="line"><span class="symbol">28178 </span>root      <span class="number">20</span>   <span class="number">0</span> <span class="number">3249</span>m <span class="number">2.0</span>g  <span class="number">11</span>m S    <span class="number">0</span>  <span class="number">6.4</span>   <span class="number">1</span>:<span class="number">41.11</span> java                   </span><br><span class="line"><span class="symbol">28179 </span>root      <span class="number">20</span>   <span class="number">0</span> <span class="number">3249</span>m <span class="number">2.0</span>g  <span class="number">11</span>m S    <span class="number">0</span>  <span class="number">6.4</span>   <span class="number">1</span>:<span class="number">41.33</span> java                   </span><br><span class="line"><span class="symbol">28180 </span>root      <span class="number">20</span>   <span class="number">0</span> <span class="number">3249</span>m <span class="number">2.0</span>g  <span class="number">11</span>m S    <span class="number">0</span>  <span class="number">6.4</span>   <span class="number">1</span>:<span class="number">41.58</span> java                   </span><br><span class="line"><span class="symbol">28181 </span>root      <span class="number">20</span>   <span class="number">0</span> <span class="number">3249</span>m <span class="number">2.0</span>g  <span class="number">11</span>m S    <span class="number">0</span>  <span class="number">6.4</span>   <span class="number">1</span>:<span class="number">40.36</span> java                   </span><br><span class="line"><span class="symbol">28182 </span>root      <span class="number">20</span>   <span class="number">0</span> <span class="number">3249</span>m <span class="number">2.0</span>g  <span class="number">11</span>m S    <span class="number">0</span>  <span class="number">6.4</span>   <span class="number">1</span>:<span class="number">41.02</span> java                   </span><br><span class="line"><span class="symbol">28183 </span>root      <span class="number">20</span>   <span class="number">0</span> <span class="number">3249</span>m <span class="number">2.0</span>g  <span class="number">11</span>m S    <span class="number">0</span>  <span class="number">6.4</span>   <span class="number">1</span>:<span class="number">40.96</span> java                   </span><br><span class="line"><span class="symbol">28184 </span>root      <span class="number">20</span>   <span class="number">0</span> <span class="number">3249</span>m <span class="number">2.0</span>g  <span class="number">11</span>m S    <span class="number">0</span>  <span class="number">6.4</span>   <span class="number">4</span>:<span class="number">38.30</span> java                   </span><br><span class="line"><span class="symbol">28185 </span>root      <span class="number">20</span>   <span class="number">0</span> <span class="number">3249</span>m <span class="number">2.0</span>g  <span class="number">11</span>m S    <span class="number">0</span>  <span class="number">6.4</span>   <span class="number">0</span>:<span class="number">00.46</span> java                   </span><br><span class="line"><span class="symbol">28186 </span>root      <span class="number">20</span>   <span class="number">0</span> <span class="number">3249</span>m <span class="number">2.0</span>g  <span class="number">11</span>m S    <span class="number">0</span>  <span class="number">6.4</span>   <span class="number">0</span>:<span class="number">01.83</span> java                   </span><br><span class="line"><span class="symbol">28187 </span>root      <span class="number">20</span>   <span class="number">0</span> <span class="number">3249</span>m <span class="number">2.0</span>g  <span class="number">11</span>m S    <span class="number">0</span>  <span class="number">6.4</span>   <span class="number">0</span>:<span class="number">00.00</span> java                   </span><br><span class="line"><span class="symbol">28189 </span>root      <span class="number">20</span>   <span class="number">0</span> <span class="number">3249</span>m <span class="number">2.0</span>g  <span class="number">11</span>m S    <span class="number">0</span>  <span class="number">6.4</span>   <span class="number">0</span>:<span class="number">00.01</span> java                   </span><br><span class="line"><span class="symbol">28190 </span>root      <span class="number">20</span>   <span class="number">0</span> <span class="number">3249</span>m <span class="number">2.0</span>g  <span class="number">11</span>m S    <span class="number">0</span>  <span class="number">6.4</span>   <span class="number">0</span>:<span class="number">49.01</span> java</span><br></pre></td></tr></table></figure>
+<p>3.打印JAVA进程28174的堆栈信息</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">jstack <span class="number">28174</span> &gt;&gt; <span class="built_in">stack</span>.<span class="built_in">log</span></span><br></pre></td></tr></table></figure>
+<p>4.将cpu消耗高的线程的pid换算为16进制</p>
+<figure class="highlight llvm"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">printf <span class="number">0</span><span class="keyword">x</span><span class="symbol">%x</span> <span class="number">32694</span></span><br></pre></td></tr></table></figure>
+<p>转换后的16进制为 0x7fb6</p>
+<p>5.从刚才的栈日志中查找该线程正在运行的方法</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">grep <span class="number">0x7fb6</span>  <span class="built_in">stack</span>.<span class="built_in">log</span> -a3</span><br></pre></td></tr></table></figure>
+<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">"MSXMLProcessorThread"</span> prio=<span class="number">10</span> tid=<span class="number">0</span>x00002b469923a800 [<span class="attribute">color</span>=darkred]nid=<span class="number">0</span>x7fb6[/color] sleeping[<span class="number">0</span>x00002b46b0200000]    </span><br><span class="line">   java<span class="selector-class">.lang</span><span class="selector-class">.Thread</span><span class="selector-class">.State</span>: TIMED_WAITING (sleeping)    </span><br><span class="line">        at java<span class="selector-class">.lang</span><span class="selector-class">.Thread</span><span class="selector-class">.sleep</span>(Native Method)    </span><br><span class="line">        at com<span class="selector-class">.adventnet</span><span class="selector-class">.management</span><span class="selector-class">.xml</span><span class="selector-class">.MSXmlProcessor</span><span class="selector-class">.listen</span>(MSXmlProcessor<span class="selector-class">.java</span>:<span class="number">279</span>)    </span><br><span class="line">        at com<span class="selector-class">.adventnet</span><span class="selector-class">.management</span><span class="selector-class">.xml</span><span class="selector-class">.MSXmlProcessor</span><span class="selector-class">.run</span>(MSXmlProcessor<span class="selector-class">.java</span>:<span class="number">264</span>)    </span><br><span class="line">        at java<span class="selector-class">.lang</span><span class="selector-class">.Thread</span><span class="selector-class">.run</span>(Thread<span class="selector-class">.java</span>:<span class="number">619</span>)</span><br></pre></td></tr></table></figure>
+<p>6.另外也可以查找正在运行的线程，及线程处于运行状态的位置，从这些线程中来查找资源消耗过高的代码。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">grep RUNNABLE <span class="built_in">stack</span>.<span class="built_in">log</span>  -a1</span><br></pre></td></tr></table></figure>
+<p><img src="/2018/05/13/java服务器load飚高排查思路/1364394978_1570.jpg" alt="image"></p>
+<figure class="highlight stata"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">less a.<span class="keyword">log</span> |awk '&#123;FS=<span class="string">"java.lang.Thread.State:"</span>;<span class="keyword">print</span> <span class="variable">$2&#125;</span>'|<span class="keyword">sort</span> |uniq -c |<span class="keyword">sort</span> -nr</span><br></pre></td></tr></table></figure>
+<p><img src="/2018/05/13/java服务器load飚高排查思路/20130812130234781.jpeg" alt="image"></p>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">ops</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+      
+
+      <div style="font-size: 12px;">
+        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
+      </div>
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2018/05/13/java服务器load飚高排查思路/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
+    <article id="post-排查问题常用命令" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2018/05/13/排查问题常用命令/">排查线上问题常用命令脚本</a>
+    </h1>
+  
+
+        
+        <a href="/2018/05/13/排查问题常用命令/" class="archive-article-date">
+  	<time datetime="2018-05-13T06:11:17.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-05-13</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h4 id="1-查看进程pid"><a href="#1-查看进程pid" class="headerlink" title="1. 查看进程pid"></a>1. 查看进程pid</h4><p>ps -ef |grep ‘bbs-service’ | grep -v grep |grep -v ‘python’ | awk ‘{print $2}’</p>
+<h4 id="2-查看线程信息"><a href="#2-查看线程信息" class="headerlink" title="2. 查看线程信息"></a>2. 查看线程信息</h4><p>jstack 27676| grep Druid-ConnectionPool- | wc -l</p>
+<p>jstack 27676| grep Xmemcached-Reactor- </p>
+<p>jstack 27676| grep java.lang.Thread.State </p>
+<p>jstack 27676| grep DubboServerHandler-</p>
+<p>jstack 27676| grep DubboClientHandler-</p>
+<p>top -H -b -n 1  -p 27676 | sed ‘1,/^$/d’ | sed ‘1d;/^$/d’ | grep -v 27676 | sort -nrk9 | head -3</p>
+<p>注：27676 为进程pid</p>
+<h4 id="3-系统"><a href="#3-系统" class="headerlink" title="3. 系统"></a>3. 系统</h4><p>已建立的连接数：</p>
+<p>netstat -ant |grep ESTABLISHED |wc -l</p>
+<p>处于等待状态的连接数：</p>
+<p>netstat -ant |grep TIME_WAIT |wc -l</p>
+<p>各个cpu的资源使用情况：</p>
+<p>mpstat -P ALL</p>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">ops</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+      
+
+      <div style="font-size: 12px;">
+        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
+      </div>
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2018/05/13/排查问题常用命令/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
+    <article id="post-实例详解java.lang.OutOfMemoryError" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2018/05/13/实例详解java.lang.OutOfMemoryError/">OutOfMemoryError 实例详解</a>
+    </h1>
+  
+
+        
+        <a href="/2018/05/13/实例详解java.lang.OutOfMemoryError/" class="archive-article-date">
+  	<time datetime="2018-05-13T06:11:17.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-05-13</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="java-lang-OutOfMemoryError-实例详解"><a href="#java-lang-OutOfMemoryError-实例详解" class="headerlink" title="java.lang.OutOfMemoryError 实例详解"></a>java.lang.OutOfMemoryError 实例详解</h1><h3 id="The-8-symptoms-that-surface-them"><a href="#The-8-symptoms-that-surface-them" class="headerlink" title="The 8 symptoms that surface them"></a>The 8 symptoms that surface them</h3><h3 id="内存溢出的8种主要类型"><a href="#内存溢出的8种主要类型" class="headerlink" title="内存溢出的8种主要类型"></a>内存溢出的8种主要类型</h3><p>The many thousands of java.lang.OutOfMemoryErrors that I’ve met during my career all bear one of the below eight symptoms. This handbook explains what causes a particular error to be thrown, offers code examples that can cause such errors, and gives you solution guidelines for a fix. The content is all based on my own experience.</p>
+<p>笔者在工作中碰到过成千上万的 <code>java.lang.OutOfMemoryError</code>, 都可以归结为以下八种症状。<br>本手册阐述了各种内存溢出错误的形成原因,并提供了可测试这种错误的示例代码,以及解决方案。 内容都来源于笔者的一线开发和实践经验。</p>
+<p>目录:</p>
+<ol>
+<li><a href="01_java-heap-space.md">OutOfMemoryError系列（1）: <strong>Java heap space</strong></a></li>
+<li><a href="02_gc-overhead-limit-exceeded.md">OutOfMemoryError系列（2）: <strong>GC overhead limit exceeded</strong></a></li>
+<li><a href="03_permgen-space.md">OutOfMemoryError系列（3）: <strong>Permgen space</strong></a></li>
+<li><a href="04_metaspace.md">OutOfMemoryError系列（4）: <strong>Metaspace</strong></a></li>
+<li><a href="05_unable-to-create-new-native-thread.md">OutOfMemoryError系列（5）: <strong>Unable to create new native thread</strong></a></li>
+<li><a href="06_out-of-swap-space.md">OutOfMemoryError系列（6）: <strong>Out of swap space?</strong> </a></li>
+<li><a href="07_requested-array-size-exceeds-vm-limit.md">OutOfMemoryError系列（7）: <strong>Requested array size exceeds VM limit</strong> Details</a></li>
+<li><a href="08_kill-process-or-sacrifice-child.md">OutOfMemoryError系列（8）: <strong>Kill process or sacrifice child</strong></a></li>
+</ol>
+<p>原文作者: <strong>Nikita Salnikov-Tarnovski</strong>  – Plumbr Co-Founder and VP of Engineering</p>
+<p>原文链接： <a href="https://plumbr.eu/outofmemoryerror" target="_blank" rel="external">https://plumbr.eu/outofmemoryerror</a></p>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">ops</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+      
+
+      <div style="font-size: 12px;">
+        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
+      </div>
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2018/05/13/实例详解java.lang.OutOfMemoryError/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
   
     <article id="post-linux-commands" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
@@ -523,19 +798,19 @@
 
 
   
-    <article id="post-实例详解java.lang.OutOfMemoryError" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+    <article id="post-JDK内置工具补充" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
       <header class="article-header">
         
   
     <h1 itemprop="name">
-      <a class="article-title" href="/2018/05/13/实例详解java.lang.OutOfMemoryError/">OutOfMemoryError 实例详解</a>
+      <a class="article-title" href="/2018/05/13/JDK内置工具补充/">JAVA线上问题之Full GC问题定位</a>
     </h1>
   
 
         
-        <a href="/2018/05/13/实例详解java.lang.OutOfMemoryError/" class="archive-article-date">
+        <a href="/2018/05/13/JDK内置工具补充/" class="archive-article-date">
   	<time datetime="2018-05-13T06:11:17.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-05-13</time>
 </a>
         
@@ -543,21 +818,10 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        <h1 id="java-lang-OutOfMemoryError-实例详解"><a href="#java-lang-OutOfMemoryError-实例详解" class="headerlink" title="java.lang.OutOfMemoryError 实例详解"></a>java.lang.OutOfMemoryError 实例详解</h1><h3 id="The-8-symptoms-that-surface-them"><a href="#The-8-symptoms-that-surface-them" class="headerlink" title="The 8 symptoms that surface them"></a>The 8 symptoms that surface them</h3><h3 id="内存溢出的8种主要类型"><a href="#内存溢出的8种主要类型" class="headerlink" title="内存溢出的8种主要类型"></a>内存溢出的8种主要类型</h3><p>The many thousands of java.lang.OutOfMemoryErrors that I’ve met during my career all bear one of the below eight symptoms. This handbook explains what causes a particular error to be thrown, offers code examples that can cause such errors, and gives you solution guidelines for a fix. The content is all based on my own experience.</p>
-<p>笔者在工作中碰到过成千上万的 <code>java.lang.OutOfMemoryError</code>, 都可以归结为以下八种症状。<br>本手册阐述了各种内存溢出错误的形成原因,并提供了可测试这种错误的示例代码,以及解决方案。 内容都来源于笔者的一线开发和实践经验。</p>
-<p>目录:</p>
-<ol>
-<li><a href="01_java-heap-space.md">OutOfMemoryError系列（1）: <strong>Java heap space</strong></a></li>
-<li><a href="02_gc-overhead-limit-exceeded.md">OutOfMemoryError系列（2）: <strong>GC overhead limit exceeded</strong></a></li>
-<li><a href="03_permgen-space.md">OutOfMemoryError系列（3）: <strong>Permgen space</strong></a></li>
-<li><a href="04_metaspace.md">OutOfMemoryError系列（4）: <strong>Metaspace</strong></a></li>
-<li><a href="05_unable-to-create-new-native-thread.md">OutOfMemoryError系列（5）: <strong>Unable to create new native thread</strong></a></li>
-<li><a href="06_out-of-swap-space.md">OutOfMemoryError系列（6）: <strong>Out of swap space?</strong> </a></li>
-<li><a href="07_requested-array-size-exceeds-vm-limit.md">OutOfMemoryError系列（7）: <strong>Requested array size exceeds VM limit</strong> Details</a></li>
-<li><a href="08_kill-process-or-sacrifice-child.md">OutOfMemoryError系列（8）: <strong>Kill process or sacrifice child</strong></a></li>
-</ol>
-<p>原文作者: <strong>Nikita Salnikov-Tarnovski</strong>  – Plumbr Co-Founder and VP of Engineering</p>
-<p>原文链接： <a href="https://plumbr.eu/outofmemoryerror" target="_blank" rel="external">https://plumbr.eu/outofmemoryerror</a></p>
+        <p>####1.查看正在运行的JVM的参数</p>
+<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="selector-tag">jcmd</span> 24684 <span class="selector-tag">VM</span><span class="selector-class">.flags</span></span><br></pre></td></tr></table></figure>
+<p>返回结果：</p>
+<figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">-<span class="string">XX:</span>CICompilerCount=<span class="number">3</span> -<span class="string">XX:</span>ErrorFile=<span class="regexp">/data/</span>program<span class="regexp">/java_error.log -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/</span>data<span class="regexp">/program/</span>java.hprof -<span class="string">XX:</span>InitialHeapSize=<span class="number">130023424</span> -<span class="string">XX:</span>+ManagementServer -<span class="string">XX:</span>MaxHeapSize=<span class="number">2063597568</span> -<span class="string">XX:</span>MaxNewSize=<span class="number">687865856</span> -<span class="string">XX:</span>MinHeapDeltaBytes=<span class="number">524288</span> -<span class="string">XX:</span>NewSize=<span class="number">42991616</span> -<span class="string">XX:</span>OldSize=<span class="number">87031808</span> -<span class="string">XX:</span>+PrintGC -<span class="string">XX:</span>+PrintGCDateStamps -<span class="string">XX:</span>+PrintGCDetails -<span class="string">XX:</span>+PrintGCTimeStamps -<span class="string">XX:</span>+UseCompressedClassPointers -<span class="string">XX:</span>+UseCompressedOops -<span class="string">XX:</span>+UseParallelGC</span><br></pre></td></tr></table></figure>
 
       
 
@@ -584,7 +848,211 @@
       </div>
       
         <p class="article-more-link">
-          <a class="article-more-a" href="/2018/05/13/实例详解java.lang.OutOfMemoryError/">展开全文 >></a>
+          <a class="article-more-a" href="/2018/05/13/JDK内置工具补充/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
+    <article id="post-jvm堆参数调整" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2018/05/13/jvm堆参数调整/">jvm堆参数调整</a>
+    </h1>
+  
+
+        
+        <a href="/2018/05/13/jvm堆参数调整/" class="archive-article-date">
+  	<time datetime="2018-05-13T06:11:17.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-05-13</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>偶然发现线上通过obelisk发布的应用默认没有配置堆大小等jvm参数</p>
+<p>下面是社区的一个线上dubbo应用的jvm参数：</p>
+<figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">-<span class="string">XX:</span>CICompilerCount=<span class="number">3</span> -<span class="string">XX:</span>InitialHeapSize=<span class="number">130023424</span> -<span class="string">XX:</span>+ManagementServer -<span class="string">XX:</span>MaxHeapSize=<span class="number">2063597568</span> -<span class="string">XX:</span>MaxNewSize=<span class="number">687865856</span> -<span class="string">XX:</span>MinHeapDeltaBytes=<span class="number">524288</span> -<span class="string">XX:</span>NewSize=<span class="number">42991616</span> -<span class="string">XX:</span>OldSize=<span class="number">87031808</span> -<span class="string">XX:</span>+PrintGC -<span class="string">XX:</span>+PrintGCDateStamps -<span class="string">XX:</span>+PrintGCDetails -<span class="string">XX:</span>+PrintGCTimeStamps -<span class="string">XX:</span>+UseCompressedClassPointers -<span class="string">XX:</span>+UseCompressedOops -<span class="string">XX:</span>+UseParallelGC </span><br><span class="line"></span><br><span class="line">注：考虑安全性，部分数据删除</span><br></pre></td></tr></table></figure>
+<p>采用默认值，新生代只有600多M，堆区总大小也只有2个G</p>
+<p><strong>社区这边的线上机器基本都是标配4核8G，上面的配置太浪费，如果活动期间有较高并发量，估计新生代会不足，挤压老年代，持续gc，很容易雪崩。</strong></p>
+<p>线上jvm参数调整</p>
+<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">-Xms5020m -Xmx5020m -Xmn2500m -XX:<span class="attribute">PermSize</span>=96m -XX:<span class="attribute">MaxPermSize</span>=256m -XX:<span class="attribute">ParallelGCThreads</span>=4  -XX:+UseConcMarkSweepGC -XX:+UseCMSCompactAtFullCollection -XX:<span class="attribute">CMSMaxAbortablePrecleanTime</span>=5000 -XX:+CMSClassUnloadingEnabled -XX:+UseCMSInitiatingOccupancyOnly -XX:<span class="attribute">CMSInitiatingOccupancyFraction</span>=80</span><br></pre></td></tr></table></figure>
+<p>========================</p>
+<p>用了两台线上机做测试，配置一样</p>
+<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">192<span class="selector-class">.168</span><span class="selector-class">.16</span><span class="selector-class">.116</span>（参数未调整）</span><br><span class="line">192<span class="selector-class">.168</span><span class="selector-class">.18</span><span class="selector-class">.62</span> （参数调整）</span><br></pre></td></tr></table></figure>
+<p>发布上线后，beta了一天，对比结果如下：</p>
+<p><img src="/2018/05/13/jvm堆参数调整/1.png" alt="image"></p>
+<p><img src="/2018/05/13/jvm堆参数调整/2.png" alt="image"></p>
+<p>192.168.16.116（未调整参数），一天发生了YGC4000多次，整个gc时间26s</p>
+<p>192.168.18.62 （参数调整），一天YGC只有300多次，整个gc时间只有5s</p>
+<p>如果并发量大的情况下，估计这个差异会更大，支持的最大QPS应该会有很大提升，如果要准确数据的话可以性能压测对比下</p>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">ops</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+      
+
+      <div style="font-size: 12px;">
+        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
+      </div>
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2018/05/13/jvm堆参数调整/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
+    <article id="post-服务器异常案例" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2018/05/13/服务器异常案例/">服务器异常案例</a>
+    </h1>
+  
+
+        
+        <a href="/2018/05/13/服务器异常案例/" class="archive-article-date">
+  	<time datetime="2018-05-13T06:11:17.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-05-13</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>####1.某应用load&gt;7,ssh感到输入命令后,要等待1、2秒 才开始执行</p>
+<ul>
+<li>top命令查看cpu占用率,约70%,不至于导致ssh中命令响应变慢</li>
+<li>tsar查看最近的网络流量，正常</li>
+<li>iostat 1，发现(虚拟机)磁盘tps达到500+非常高</li>
+<li>jstack观察java中一个线程频繁操作磁盘</li>
+<li>lsof命令观察打开文件，并排查代码发现配置项有误导致磁盘上出现很多小的零碎文件，引发频繁的随机访问，修改配置项后问题解决<br>￼￼</li>
+</ul>
+<p>####2.应用Load&gt;10，GC正常，活跃线程数很多，CPU 100%</p>
+<ul>
+<li>ps -efL， 显示所有活跃线程ID和对应时间</li>
+<li>根据对应线程SPID找出jstack中的执行栈</li>
+<li>定位到问题代码，发现一个没同步保护的HashMap频繁并发put/get导致死循环</li>
+</ul>
+<figure class="highlight erlang-repl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">注意：</span><br><span class="line">通常cpu使用率达到了<span class="number">100</span><span class="comment">%，一般是某些线程在某种条件下进入死循环，退不出来</span></span><br></pre></td></tr></table></figure>
+<p>####3.容灾演习之后服务无法启动</p>
+<ul>
+<li>df –h 命令 /home 100%占用，日志文件巨大</li>
+<li>删掉由于断网引起的大量重连日志，重启</li>
+</ul>
+<p>####4.￼某应用机器load狂飙100+，报警不断</p>
+<ul>
+<li>收集各个系统指标，发现除了load之外没有异常，load&gt;进程数，应用响应正常</li>
+<li>jstack中Runnable状态线程很多“at<br>java.io.UnixFileSystem.getBooleanAttributes0(Native Method)”</li>
+<li>ps –Tel 打印所有线程状态，发现大量怨妇进程（状态D，既无法中断又无法继续）</li>
+<li>根据僵尸进程ID再次查找jstack中对应代码，为blocked的文件访问栈</li>
+<li>df命令hang住</li>
+<li>联系PE同学得知NAS故障,修复后重启OK</li>
+</ul>
+<p>####5.Java进程健在，应用运行一段时间失去响应</p>
+<ul>
+<li>jstat各个区域内存正常，应用服务器系统资源正常</li>
+<li>查看应用默认日志文件发现一行“WARN [common] 服务器 已停止运行:12201”</li>
+<li>jstack发现有线程“JBoss Shutdown Hook”健在，查找代码发现居然有二方包代码在抛出异常后调用system.exit(0)</li>
+</ul>
+<p>￼￼￼</p>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">ops</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+      
+
+      <div style="font-size: 12px;">
+        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
+      </div>
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2018/05/13/服务器异常案例/">展开全文 >></a>
         </p>
       
 
@@ -687,409 +1155,6 @@
       
         <p class="article-more-link">
           <a class="article-more-a" href="/2018/05/13/常用脚本/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
-    <article id="post-jvm堆参数调整" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2018/05/13/jvm堆参数调整/">jvm堆参数调整</a>
-    </h1>
-  
-
-        
-        <a href="/2018/05/13/jvm堆参数调整/" class="archive-article-date">
-  	<time datetime="2018-05-13T06:11:17.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-05-13</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>偶然发现线上通过obelisk发布的应用默认没有配置堆大小等jvm参数</p>
-<p>下面是社区的一个线上dubbo应用的jvm参数：</p>
-<figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">-<span class="string">XX:</span>CICompilerCount=<span class="number">3</span> -<span class="string">XX:</span>InitialHeapSize=<span class="number">130023424</span> -<span class="string">XX:</span>+ManagementServer -<span class="string">XX:</span>MaxHeapSize=<span class="number">2063597568</span> -<span class="string">XX:</span>MaxNewSize=<span class="number">687865856</span> -<span class="string">XX:</span>MinHeapDeltaBytes=<span class="number">524288</span> -<span class="string">XX:</span>NewSize=<span class="number">42991616</span> -<span class="string">XX:</span>OldSize=<span class="number">87031808</span> -<span class="string">XX:</span>+PrintGC -<span class="string">XX:</span>+PrintGCDateStamps -<span class="string">XX:</span>+PrintGCDetails -<span class="string">XX:</span>+PrintGCTimeStamps -<span class="string">XX:</span>+UseCompressedClassPointers -<span class="string">XX:</span>+UseCompressedOops -<span class="string">XX:</span>+UseParallelGC </span><br><span class="line"></span><br><span class="line">注：考虑安全性，部分数据删除</span><br></pre></td></tr></table></figure>
-<p>采用默认值，新生代只有600多M，堆区总大小也只有2个G</p>
-<p><strong>社区这边的线上机器基本都是标配4核8G，上面的配置太浪费，如果活动期间有较高并发量，估计新生代会不足，挤压老年代，持续gc，很容易雪崩。</strong></p>
-<p>线上jvm参数调整</p>
-<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">-Xms5020m -Xmx5020m -Xmn2500m -XX:<span class="attribute">PermSize</span>=96m -XX:<span class="attribute">MaxPermSize</span>=256m -XX:<span class="attribute">ParallelGCThreads</span>=4  -XX:+UseConcMarkSweepGC -XX:+UseCMSCompactAtFullCollection -XX:<span class="attribute">CMSMaxAbortablePrecleanTime</span>=5000 -XX:+CMSClassUnloadingEnabled -XX:+UseCMSInitiatingOccupancyOnly -XX:<span class="attribute">CMSInitiatingOccupancyFraction</span>=80</span><br></pre></td></tr></table></figure>
-<p>========================</p>
-<p>用了两台线上机做测试，配置一样</p>
-<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">192<span class="selector-class">.168</span><span class="selector-class">.16</span><span class="selector-class">.116</span>（参数未调整）</span><br><span class="line">192<span class="selector-class">.168</span><span class="selector-class">.18</span><span class="selector-class">.62</span> （参数调整）</span><br></pre></td></tr></table></figure>
-<p>发布上线后，beta了一天，对比结果如下：</p>
-<p><img src="img/1.png" alt="image"></p>
-<p><img src="img/2.png" alt="image"></p>
-<p>192.168.16.116（未调整参数），一天发生了YGC4000多次，整个gc时间26s</p>
-<p>192.168.18.62 （参数调整），一天YGC只有300多次，整个gc时间只有5s</p>
-<p>如果并发量大的情况下，估计这个差异会更大，支持的最大QPS应该会有很大提升，如果要准确数据的话可以性能压测对比下</p>
-
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">ops</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-      
-
-      <div style="font-size: 12px;">
-        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
-      </div>
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2018/05/13/jvm堆参数调整/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
-    <article id="post-JAVA线上问题之Full-GC问题定位" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2018/05/13/JAVA线上问题之Full-GC问题定位/">JAVA线上问题之Full GC问题定位</a>
-    </h1>
-  
-
-        
-        <a href="/2018/05/13/JAVA线上问题之Full-GC问题定位/" class="archive-article-date">
-  	<time datetime="2018-05-13T06:11:17.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-05-13</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <ol>
-<li>top</li>
-</ol>
-<p>查看负载，找到CPU过高的程序进程</p>
-<ol>
-<li>top -Hp [进程id]</li>
-</ol>
-<p>查看该进程的所有线程，找到占用cpu较高的线程</p>
-<p><img src="http://p3.pstatp.com/large/pgc-image/152612603574143d21c3715" alt="JAVA线上问题之Full GC问题定位"></p>
-<ol>
-<li>jstack [进程id] &gt; js.txt</li>
-</ol>
-<p>打印当前线程堆栈，根据线程id（转换为16进制 printf %x ）找到CPU较高的线程堆栈</p>
-<p>三部基本可以定位到程序的一些问题。</p>
-<p>当时发现，占用cpu较高的线程，基本都是GC线程</p>
-<p><img src="http://p9.pstatp.com/large/pgc-image/152612606538764cd3e3892" alt="JAVA线上问题之Full GC问题定位"></p>
-<p>4、jstat -gcutil [进程id] 1000</p>
-<p>每隔1000秒打印jvm内存GC信息，</p>
-<p><img src="http://p3.pstatp.com/large/pgc-image/15261261147838154393d49" alt="JAVA线上问题之Full GC问题定位"></p>
-<p>S0 年轻代中第一个survivor（幸存区）已使用的占当前容量百分比</p>
-<p>S1 年轻代中第二个survivor（幸存区）已使用的占当前容量百分比</p>
-<p>E 年轻代中Eden（伊甸园）已使用的占当前容量百分比</p>
-<p>O old代已使用的占当前容量百分比</p>
-<p>P perm代已使用的占当前容量百分比</p>
-<p>YGC 从应用程序启动到采样时年轻代中gc次数</p>
-<p>YGCT 从应用程序启动到采样时年轻代中gc所用时间(s)</p>
-<p>FGC 从应用程序启动到采样时old代(全gc)gc次数</p>
-<p>FGCT 从应用程序启动到采样时old代(全gc)gc所用时间(s)</p>
-<p>GCT 从应用程序启动到采样时gc用的总时间(s)</p>
-<ol>
-<li>jmap -histo [进程id] &gt; jmap.txt</li>
-</ol>
-<p>查看当前jvm内存里对象的实例数和内存数</p>
-<p><img src="http://p1.pstatp.com/large/pgc-image/152612613793539642763b2" alt="JAVA线上问题之Full GC问题定位"></p>
-<p>6、看GC日志</p>
-<p><img src="http://p1.pstatp.com/large/pgc-image/1526126169250debf46265b" alt="JAVA线上问题之Full GC问题定位"></p>
-<p>启动脚本里添加gclog配置 -XX:+PrintGCDetails  -XX:+PrintGCDateStamps  -XX:+PrintHeapAtGC  -Xloggc:gc.log</p>
-<p><img src="http://p3.pstatp.com/large/pgc-image/152612618950506d35201b5" alt="JAVA线上问题之Full GC问题定位"></p>
-<p>筛选Full GC log</p>
-<p><img src="http://p1.pstatp.com/large/pgc-image/15261262185599cc3c4ea45" alt="JAVA线上问题之Full GC问题定位"></p>
-<p>堆内存dump文件分析</p>
-<p>命令：jmap -dump:format=b,file=aa.bin 1232134</p>
-<p>工具：MAT</p>
-<p><img src="http://p1.pstatp.com/large/pgc-image/152612633912428c60eda0f" alt="JAVA线上问题之Full GC问题定位"></p>
-<p><img src="http://p9.pstatp.com/large/pgc-image/15261263392389c6212ec66" alt="JAVA线上问题之Full GC问题定位"></p>
-<p><img src="http://p3.pstatp.com/large/pgc-image/1526126339342d8bf3abf3d" alt="JAVA线上问题之Full GC问题定位"></p>
-<p><img src="http://p3.pstatp.com/large/pgc-image/152612633943779fb54a261" alt="JAVA线上问题之Full GC问题定位"></p>
-<p><img src="http://p1.pstatp.com/large/pgc-image/1526126339495120c75d16c" alt="JAVA线上问题之Full GC问题定位"></p>
-<p><img src="http://p3.pstatp.com/large/pgc-image/15261263395674e4fef7ca8" alt="JAVA线上问题之Full GC问题定位"></p>
-<p><img src="http://p1.pstatp.com/large/pgc-image/1526126339671715eb9134d" alt="JAVA线上问题之Full GC问题定位"></p>
-
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">ops</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-      
-
-      <div style="font-size: 12px;">
-        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
-      </div>
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2018/05/13/JAVA线上问题之Full-GC问题定位/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
-    <article id="post-java服务器load飚高排查思路" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2018/05/13/java服务器load飚高排查思路/">java服务器load飙高排查思路</a>
-    </h1>
-  
-
-        
-        <a href="/2018/05/13/java服务器load飚高排查思路/" class="archive-article-date">
-  	<time datetime="2018-05-13T06:11:17.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-05-13</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>Load 是指对计算机干活多少的度量（WikiPedia：the system load is a measure of the amount of work that a computer system is doing），简单的说是进程队列的长度。Load Average 就是一段时间 (1 分钟、5分钟、15分钟) 内平均 Load </p>
-<p><strong>通过uptime命令可以查看当前的load，如果值很高。一般情况是java某些线程长期占用资源、死锁、死循环等导致某个进程占用的CPU资源过高。大致可以从以下几个角度来排查：</strong><br><br><br></p>
-<p>1.首先通过jps命令，查看当前进程id，如id为 28174</p>
-<p>2.查看该进程下的线程资源使用情况</p>
-<figure class="highlight coq"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">top</span> -p <span class="number">28174</span> –H</span><br></pre></td></tr></table></figure>
-<figure class="highlight basic"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="symbol">32694 </span>root      <span class="number">20</span>   <span class="number">0</span> <span class="number">3249</span>m <span class="number">2.0</span>g  <span class="number">11</span>m S    <span class="number">2</span>  <span class="number">6.4</span>   <span class="number">3</span>:<span class="number">31.12</span> java                      </span><br><span class="line"><span class="symbol">28175 </span>root      <span class="number">20</span>   <span class="number">0</span> <span class="number">3249</span>m <span class="number">2.0</span>g  <span class="number">11</span>m S    <span class="number">0</span>  <span class="number">6.4</span>   <span class="number">0</span>:<span class="number">00.06</span> java                   </span><br><span class="line"><span class="symbol">28176 </span>root      <span class="number">20</span>   <span class="number">0</span> <span class="number">3249</span>m <span class="number">2.0</span>g  <span class="number">11</span>m S    <span class="number">0</span>  <span class="number">6.4</span>   <span class="number">1</span>:<span class="number">40.79</span> java                   </span><br><span class="line"><span class="symbol">28177 </span>root      <span class="number">20</span>   <span class="number">0</span> <span class="number">3249</span>m <span class="number">2.0</span>g  <span class="number">11</span>m S    <span class="number">0</span>  <span class="number">6.4</span>   <span class="number">1</span>:<span class="number">41.12</span> java                   </span><br><span class="line"><span class="symbol">28178 </span>root      <span class="number">20</span>   <span class="number">0</span> <span class="number">3249</span>m <span class="number">2.0</span>g  <span class="number">11</span>m S    <span class="number">0</span>  <span class="number">6.4</span>   <span class="number">1</span>:<span class="number">41.11</span> java                   </span><br><span class="line"><span class="symbol">28179 </span>root      <span class="number">20</span>   <span class="number">0</span> <span class="number">3249</span>m <span class="number">2.0</span>g  <span class="number">11</span>m S    <span class="number">0</span>  <span class="number">6.4</span>   <span class="number">1</span>:<span class="number">41.33</span> java                   </span><br><span class="line"><span class="symbol">28180 </span>root      <span class="number">20</span>   <span class="number">0</span> <span class="number">3249</span>m <span class="number">2.0</span>g  <span class="number">11</span>m S    <span class="number">0</span>  <span class="number">6.4</span>   <span class="number">1</span>:<span class="number">41.58</span> java                   </span><br><span class="line"><span class="symbol">28181 </span>root      <span class="number">20</span>   <span class="number">0</span> <span class="number">3249</span>m <span class="number">2.0</span>g  <span class="number">11</span>m S    <span class="number">0</span>  <span class="number">6.4</span>   <span class="number">1</span>:<span class="number">40.36</span> java                   </span><br><span class="line"><span class="symbol">28182 </span>root      <span class="number">20</span>   <span class="number">0</span> <span class="number">3249</span>m <span class="number">2.0</span>g  <span class="number">11</span>m S    <span class="number">0</span>  <span class="number">6.4</span>   <span class="number">1</span>:<span class="number">41.02</span> java                   </span><br><span class="line"><span class="symbol">28183 </span>root      <span class="number">20</span>   <span class="number">0</span> <span class="number">3249</span>m <span class="number">2.0</span>g  <span class="number">11</span>m S    <span class="number">0</span>  <span class="number">6.4</span>   <span class="number">1</span>:<span class="number">40.96</span> java                   </span><br><span class="line"><span class="symbol">28184 </span>root      <span class="number">20</span>   <span class="number">0</span> <span class="number">3249</span>m <span class="number">2.0</span>g  <span class="number">11</span>m S    <span class="number">0</span>  <span class="number">6.4</span>   <span class="number">4</span>:<span class="number">38.30</span> java                   </span><br><span class="line"><span class="symbol">28185 </span>root      <span class="number">20</span>   <span class="number">0</span> <span class="number">3249</span>m <span class="number">2.0</span>g  <span class="number">11</span>m S    <span class="number">0</span>  <span class="number">6.4</span>   <span class="number">0</span>:<span class="number">00.46</span> java                   </span><br><span class="line"><span class="symbol">28186 </span>root      <span class="number">20</span>   <span class="number">0</span> <span class="number">3249</span>m <span class="number">2.0</span>g  <span class="number">11</span>m S    <span class="number">0</span>  <span class="number">6.4</span>   <span class="number">0</span>:<span class="number">01.83</span> java                   </span><br><span class="line"><span class="symbol">28187 </span>root      <span class="number">20</span>   <span class="number">0</span> <span class="number">3249</span>m <span class="number">2.0</span>g  <span class="number">11</span>m S    <span class="number">0</span>  <span class="number">6.4</span>   <span class="number">0</span>:<span class="number">00.00</span> java                   </span><br><span class="line"><span class="symbol">28189 </span>root      <span class="number">20</span>   <span class="number">0</span> <span class="number">3249</span>m <span class="number">2.0</span>g  <span class="number">11</span>m S    <span class="number">0</span>  <span class="number">6.4</span>   <span class="number">0</span>:<span class="number">00.01</span> java                   </span><br><span class="line"><span class="symbol">28190 </span>root      <span class="number">20</span>   <span class="number">0</span> <span class="number">3249</span>m <span class="number">2.0</span>g  <span class="number">11</span>m S    <span class="number">0</span>  <span class="number">6.4</span>   <span class="number">0</span>:<span class="number">49.01</span> java</span><br></pre></td></tr></table></figure>
-<p>3.打印JAVA进程28174的堆栈信息</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">jstack <span class="number">28174</span> &gt;&gt; <span class="built_in">stack</span>.<span class="built_in">log</span></span><br></pre></td></tr></table></figure>
-<p>4.将cpu消耗高的线程的pid换算为16进制</p>
-<figure class="highlight llvm"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">printf <span class="number">0</span><span class="keyword">x</span><span class="symbol">%x</span> <span class="number">32694</span></span><br></pre></td></tr></table></figure>
-<p>转换后的16进制为 0x7fb6</p>
-<p>5.从刚才的栈日志中查找该线程正在运行的方法</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">grep <span class="number">0x7fb6</span>  <span class="built_in">stack</span>.<span class="built_in">log</span> -a3</span><br></pre></td></tr></table></figure>
-<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">"MSXMLProcessorThread"</span> prio=<span class="number">10</span> tid=<span class="number">0</span>x00002b469923a800 [<span class="attribute">color</span>=darkred]nid=<span class="number">0</span>x7fb6[/color] sleeping[<span class="number">0</span>x00002b46b0200000]    </span><br><span class="line">   java<span class="selector-class">.lang</span><span class="selector-class">.Thread</span><span class="selector-class">.State</span>: TIMED_WAITING (sleeping)    </span><br><span class="line">        at java<span class="selector-class">.lang</span><span class="selector-class">.Thread</span><span class="selector-class">.sleep</span>(Native Method)    </span><br><span class="line">        at com<span class="selector-class">.adventnet</span><span class="selector-class">.management</span><span class="selector-class">.xml</span><span class="selector-class">.MSXmlProcessor</span><span class="selector-class">.listen</span>(MSXmlProcessor<span class="selector-class">.java</span>:<span class="number">279</span>)    </span><br><span class="line">        at com<span class="selector-class">.adventnet</span><span class="selector-class">.management</span><span class="selector-class">.xml</span><span class="selector-class">.MSXmlProcessor</span><span class="selector-class">.run</span>(MSXmlProcessor<span class="selector-class">.java</span>:<span class="number">264</span>)    </span><br><span class="line">        at java<span class="selector-class">.lang</span><span class="selector-class">.Thread</span><span class="selector-class">.run</span>(Thread<span class="selector-class">.java</span>:<span class="number">619</span>)</span><br></pre></td></tr></table></figure>
-<p>6.另外也可以查找正在运行的线程，及线程处于运行状态的位置，从这些线程中来查找资源消耗过高的代码。</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">grep RUNNABLE <span class="built_in">stack</span>.<span class="built_in">log</span>  -a1</span><br></pre></td></tr></table></figure>
-<p><img src="img/1364394978_1570.jpg" alt="image"></p>
-<figure class="highlight stata"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">less a.<span class="keyword">log</span> |awk '&#123;FS=<span class="string">"java.lang.Thread.State:"</span>;<span class="keyword">print</span> <span class="variable">$2&#125;</span>'|<span class="keyword">sort</span> |uniq -c |<span class="keyword">sort</span> -nr</span><br></pre></td></tr></table></figure>
-<p><img src="img/20130812130234781.jpeg" alt="image"></p>
-
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">ops</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-      
-
-      <div style="font-size: 12px;">
-        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
-      </div>
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2018/05/13/java服务器load飚高排查思路/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
-    <article id="post-排查问题常用命令" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2018/05/13/排查问题常用命令/">排查线上问题常用命令脚本</a>
-    </h1>
-  
-
-        
-        <a href="/2018/05/13/排查问题常用命令/" class="archive-article-date">
-  	<time datetime="2018-05-13T06:11:17.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-05-13</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h4 id="1-查看进程pid"><a href="#1-查看进程pid" class="headerlink" title="1. 查看进程pid"></a>1. 查看进程pid</h4><p>ps -ef |grep ‘bbs-service’ | grep -v grep |grep -v ‘python’ | awk ‘{print $2}’</p>
-<h4 id="2-查看线程信息"><a href="#2-查看线程信息" class="headerlink" title="2. 查看线程信息"></a>2. 查看线程信息</h4><p>jstack 27676| grep Druid-ConnectionPool- | wc -l</p>
-<p>jstack 27676| grep Xmemcached-Reactor- </p>
-<p>jstack 27676| grep java.lang.Thread.State </p>
-<p>jstack 27676| grep DubboServerHandler-</p>
-<p>jstack 27676| grep DubboClientHandler-</p>
-<p>top -H -b -n 1  -p 27676 | sed ‘1,/^$/d’ | sed ‘1d;/^$/d’ | grep -v 27676 | sort -nrk9 | head -3</p>
-<p>注：27676 为进程pid</p>
-<h4 id="3-系统"><a href="#3-系统" class="headerlink" title="3. 系统"></a>3. 系统</h4><p>已建立的连接数：</p>
-<p>netstat -ant |grep ESTABLISHED |wc -l</p>
-<p>处于等待状态的连接数：</p>
-<p>netstat -ant |grep TIME_WAIT |wc -l</p>
-<p>各个cpu的资源使用情况：</p>
-<p>mpstat -P ALL</p>
-
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">ops</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-      
-
-      <div style="font-size: 12px;">
-        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
-      </div>
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2018/05/13/排查问题常用命令/">展开全文 >></a>
         </p>
       
 
@@ -3376,87 +3441,6 @@
 
 
   
-    <article id="post-java并发包目录" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2018/05/08/java并发包目录/">java并发包目录</a>
-    </h1>
-  
-
-        
-        <a href="/2018/05/08/java并发包目录/" class="archive-article-date">
-  	<time datetime="2018-05-08T02:19:14.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-05-08</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h1 id="atomic"><a href="#atomic" class="headerlink" title="atomic"></a>atomic</h1><h1 id="locks"><a href="#locks" class="headerlink" title="locks"></a>locks</h1><h1 id="并发集合类"><a href="#并发集合类" class="headerlink" title="并发集合类"></a>并发集合类</h1><h2 id="ConcurrentHashMap"><a href="#ConcurrentHashMap" class="headerlink" title="ConcurrentHashMap"></a>ConcurrentHashMap</h2><h2 id="LinkedBlockingQueue"><a href="#LinkedBlockingQueue" class="headerlink" title="LinkedBlockingQueue"></a>LinkedBlockingQueue</h2><p><a href="https://zhouxiaowu.coding.me/2018/05/08/LinkedBlockingQueue/" target="_blank" rel="external">https://zhouxiaowu.coding.me/2018/05/08/LinkedBlockingQueue/</a></p>
-<h1 id="锁优化"><a href="#锁优化" class="headerlink" title="锁优化"></a>锁优化</h1><ul>
-<li>【ok】死锁重现与排查 </li>
-<li>【】 fff</li>
-</ul>
-
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">java并发包</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-      
-
-      <div style="font-size: 12px;">
-        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
-      </div>
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2018/05/08/java并发包目录/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
   
     <nav id="page-nav">
       <a class="extend prev" rel="prev" href="/page/7/">&laquo; Prev</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/6/">6</a><a class="page-number" href="/page/7/">7</a><span class="page-number current">8</span><a class="page-number" href="/page/9/">9</a><a class="page-number" href="/page/10/">10</a><span class="space">&hellip;</span><a class="page-number" href="/page/16/">16</a><a class="extend next" rel="next" href="/page/9/">Next &raquo;</a>
@@ -3590,11 +3574,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">redis</a>
+                <a href="javascript:void(0)" class="js-tag color1">linux</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">linux</a>
+                <a href="javascript:void(0)" class="js-tag color1">redis</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -3606,11 +3590,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">mysql</a>
+                <a href="javascript:void(0)" class="js-tag color1">MySQL</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">MySQL</a>
+                <a href="javascript:void(0)" class="js-tag color1">mysql</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -3618,19 +3602,19 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">限流</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">react</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">RxJava</a>
+                <a href="javascript:void(0)" class="js-tag color3">限流</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">spring</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">RxJava</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -3654,11 +3638,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">influxdb</a>
+                <a href="javascript:void(0)" class="js-tag color1">debug</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">debug</a>
+                <a href="javascript:void(0)" class="js-tag color4">influxdb</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -3690,11 +3674,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">分布式锁</a>
+                <a href="javascript:void(0)" class="js-tag color2">Spring</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">Spring</a>
+                <a href="javascript:void(0)" class="js-tag color5">分布式锁</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -3722,11 +3706,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">序列化</a>
+                <a href="javascript:void(0)" class="js-tag color5">排序算法</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">排序算法</a>
+                <a href="javascript:void(0)" class="js-tag color4">序列化</a>
               </li>
              
               <li class="article-tag-list-item">
