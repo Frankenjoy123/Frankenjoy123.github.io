@@ -150,6 +150,649 @@
           <div id="js-content" class="content-ll">
             
   
+    <article id="post-微服务架构下分布式事务解决方式-GTS" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2018/10/10/微服务架构下分布式事务解决方式-GTS/">微服务架构下分布式事务解决方式-GTS</a>
+    </h1>
+  
+
+        
+        <a href="/2018/10/10/微服务架构下分布式事务解决方式-GTS/" class="archive-article-date">
+  	<time datetime="2018-10-10T02:31:57.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-10-10</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="1-微服务的发展"><a href="#1-微服务的发展" class="headerlink" title="1 微服务的发展"></a>1 微服务的发展</h2><p>微服务倡导将复杂的单体应用拆分为若干个功能简单、松耦合的服务，这样可以降低开发难度、增强扩展性、便于敏捷开发。当前被越来越多的开发者推崇，很多互联网行业巨头、开源社区等都开始了微服务的讨论和实践。Hailo有160个不同服务构成，NetFlix有大约600个服务。国内方面，阿里巴巴、<a href="http://www.sohu.com/a/203351190_468650" target="_blank" rel="external">腾讯</a>、<a href="http://blog.csdn.net/lambert310/article/details/78084859" target="_blank" rel="external">360</a>、京东、58同城等很多互联网公司都进行了微服务化实践。当前微服务的开发框架也非常多，比较著名的有<a href="http://dubbo.io/" target="_blank" rel="external">Dubbo</a>、<a href="https://springcloud.cc/" target="_blank" rel="external">SpringCloud</a>、<a href="http://thrift.apache.org/" target="_blank" rel="external">thrift</a> 、<a href="http://doc.oschina.net/grpc?t=57966" target="_blank" rel="external">grpc</a>等。</p>
+<h2 id="2-微服务落地存在的问题"><a href="#2-微服务落地存在的问题" class="headerlink" title="2 微服务落地存在的问题"></a>2 微服务落地存在的问题</h2><p>虽然微服务现在如火如荼，但对其实践其实仍处于探索阶段。很多中小型互联网公司，鉴于经验、技术实力等问题，微服务落地比较困难。如著名架构师Chris Richardson所言，目前存在的主要困难有如下几方面：</p>
+<p>1）单体应用拆分为分布式系统后，进程间的通讯机制和故障处理措施变的更加复杂。</p>
+<p>2）系统微服务化后，一个看似简单的功能，内部可能需要调用多个服务并操作多个数据库实现，服务调用的分布式事务问题变的非常突出。</p>
+<p>3）微服务数量众多，其测试、部署、监控等都变的更加困难。</p>
+<p>随着RPC框架的成熟，第一个问题已经逐渐得到解决。例如dubbo可以支持多种通讯协议，springcloud可以非常好的支持restful调用。对于第三个问题，随着docker、devops技术的发展以及各公有云paas平台自动化运维工具的推出，微服务的测试、部署与运维会变得越来越容易。</p>
+<p>而对于第二个问题，现在还没有通用方案很好的解决微服务产生的事务问题。分布式事务已经成为微服务落地最大的阻碍，也是最具挑战性的一个<a href="http://tech.huanqiu.com/news/2017-04/10451235.html" target="_blank" rel="external">技术难题</a>。 为此，本文将深入和大家探讨微服务架构下，分布式事务的各种解决方案，并重点为大家解读阿里巴巴提出的分布式事务解决方案—-GTS。<strong>该方案中提到的GTS是全新一代解决微服务问题的分布式事务互联网中间件</strong>。</p>
+<h2 id="3-SOA分布式事务解决方案"><a href="#3-SOA分布式事务解决方案" class="headerlink" title="3 SOA分布式事务解决方案"></a>3 SOA分布式事务解决方案</h2><h3 id="3-1-基于XA协议的两阶段提交方案"><a href="#3-1-基于XA协议的两阶段提交方案" class="headerlink" title="3.1 基于XA协议的两阶段提交方案"></a>3.1 基于XA协议的两阶段提交方案</h3><p>交易中间件与数据库通过 XA 接口规范，使用两阶段提交来完成一个全局事务， XA 规范的基础是两阶段提交协议。<br>第一阶段是表决阶段，所有参与者都将本事务能否成功的信息反馈发给协调者；第二阶段是执行阶段，协调者根据所有参与者的反馈，通知所有参与者，步调一致地在所有分支上提交或者回滚。</p>
+<p><img src="https://images2018.cnblogs.com/blog/1334519/201803/1334519-20180307150636190-1704712093.png" alt="img"></p>
+<p>两阶段提交方案应用非常广泛，几乎所有商业OLTP数据库都支持XA协议。但是两阶段提交方案锁定资源时间长，对性能影响很大，基本不适合解决微服务事务问题。</p>
+<h3 id="3-2-TCC方案"><a href="#3-2-TCC方案" class="headerlink" title="3.2 TCC方案"></a>3.2 TCC方案</h3><p><a href="https://wenku.baidu.com/view/be946bec0975f46527d3e104.html" target="_blank" rel="external">TCC方案</a>在电商、金融领域落地较多。TCC方案其实是两阶段提交的一种改进。其将整个业务逻辑的每个分支显式的分成了Try、Confirm、Cancel三个操作。Try部分完成业务的准备工作，confirm部分完成业务的提交，cancel部分完成事务的回滚。基本原理如下图所示。</p>
+<p><img src="https://images2018.cnblogs.com/blog/1334519/201803/1334519-20180307150648591-1729601878.png" alt="img"></p>
+<p>事务开始时，业务应用会向事务协调器注册启动事务。之后业务应用会调用所有服务的try接口，完成一阶段准备。之后事务协调器会根据try接口返回情况，决定调用confirm接口或者cancel接口。如果接口调用失败，会进行重试。</p>
+<p>TCC方案让应用自己定义数据库操作的粒度，使得降低锁冲突、提高吞吐量成为可能。 当然TCC方案也有不足之处，集中表现在以下两个方面：</p>
+<ul>
+<li><strong>对应用的侵入性强</strong>。业务逻辑的每个分支都需要实现try、confirm、cancel三个操作，应用侵入性较强，改造成本高。</li>
+<li><strong>实现难度较大</strong>。需要按照网络状态、系统故障等不同的失败原因实现不同的回滚策略。为了满足一致性的要求，confirm和cancel接口必须实现幂等。</li>
+</ul>
+<p>上述原因导致TCC方案大多被研发实力较强、有迫切需求的大公司所采用。微服务倡导服务的轻量化、易部署，而TCC方案中很多事务的处理逻辑需要应用自己编码实现，复杂且开发量大。</p>
+<h3 id="3-3-基于消息的最终一致性方案"><a href="#3-3-基于消息的最终一致性方案" class="headerlink" title="3.3 基于消息的最终一致性方案"></a>3.3 基于消息的最终一致性方案</h3><p>消息一致性方案是通过消息中间件保证上、下游应用数据操作的<a href="https://segmentfault.com/a/1190000011479826" target="_blank" rel="external">一致性</a>。基本思路是将本地操作和发送消息放在一个事务中，保证本地操作和消息发送要么两者都成功或者都失败。下游应用向消息系统订阅该消息，收到消息后执行相应操作。</p>
+<p><img src="https://images2018.cnblogs.com/blog/1334519/201803/1334519-20180307150703434-1501056265.png" alt="img"></p>
+<p>消息方案从本质上讲是将分布式事务转换为两个本地事务，然后依靠下游业务的重试机制达到最终一致性。基于消息的最终一致性方案对应用侵入性也很高，应用需要进行大量业务改造，成本较高。</p>
+<h2 id="4-GTS–分布式事务解决方案"><a href="#4-GTS–分布式事务解决方案" class="headerlink" title="4 GTS–分布式事务解决方案"></a>4 GTS–分布式事务解决方案</h2><p><a href="https://www.aliyun.com/aliware/txc?spm=5176.8142029.388261.386.a72376f4lqvQxv" target="_blank" rel="external">GTS是一款分布式事务中间件</a>，由阿里巴巴中间件部门研发，可以为微服务架构中的分布式事务提供一站式解决方案。</p>
+<p>更多GTS资料请访问<a href="https://weibo.com/jiangyu666" target="_blank" rel="external">创始人微博</a>。</p>
+<h3 id="4-1-GTS的核心优势"><a href="#4-1-GTS的核心优势" class="headerlink" title="4.1 GTS的核心优势"></a>4.1 GTS的核心优势</h3><ul>
+<li><p><strong>性能超强</strong></p>
+<p>GTS通过大量创新，解决了事务ACID特性与高性能、高可用、低侵入不可兼得的问题。单事务分支的平均响应时间在2ms左右，3台服务器组成的集群可以支撑3万TPS以上的分布式事务请求。</p>
+</li>
+<li><p><strong>应用侵入性极低</strong></p>
+<p>GTS对业务低侵入，业务代码最少只需要添加一行注解（@TxcTransaction）声明事务即可。业务与事务分离，将微服务从事务中解放出来，微服务关注于业务本身，不再需要考虑反向接口、幂等、回滚策略等复杂问题，极大降低了微服务开发的难度与工作量。</p>
+</li>
+<li><p><strong>完整解决方案</strong></p>
+<p>GTS支持多种主流的服务框架，包括EDAS，Dubbo，Spring Cloud等。<br>有些情况下，应用需要调用第三方系统的接口，而第三方系统没有接入GTS。此时需要用到GTS的MT模式。GTS的MT模式可以等价于TCC模式，用户可以根据自身业务需求自定义每个事务阶段的具体行为。MT模式提供了更多的灵活性，可能性，以达到特殊场景下的自定义优化及特殊功能的实现。</p>
+</li>
+<li><p><strong>容错能力强</strong></p>
+<p>GTS解决了XA事务协调器单点问题，实现真正的高可用，可以保证各种异常情况下的严格数据一致。</p>
+</li>
+</ul>
+<h3 id="4-2-GTS的应用场景"><a href="#4-2-GTS的应用场景" class="headerlink" title="4.2 GTS的应用场景"></a>4.2 GTS的应用场景</h3><p>GTS可应用在涉及服务调用的多个领域，包括但不限于金融支付、电信、电子商务、快递物流、广告营销、社交、即时通信、手游、视频、物联网、车联网等，详细介绍可以阅读 <a href="https://www.jianshu.com/u/c9668ae2b661" target="_blank" rel="external">《GTS–阿里巴巴分布式事务全新解决方案》</a>一文。</p>
+<h3 id="4-3-GTS与微服务的集成"><a href="#4-3-GTS与微服务的集成" class="headerlink" title="4.3 GTS与微服务的集成"></a>4.3 GTS与微服务的集成</h3><p>GTS包括客户端（GTS Client）、资源管理器（GTS RM）和事务协调器（GTS Server）三个部分。GTS Client主要用来界定事务边界，完成事务的发起与结束。GTS RM完成事务分支的创建、提交、回滚等操作。GTS Server主要负责分布式事务的整体推进，事务生命周期的管理。GTS和微服务集成的结构图如下所示，GTS Client需要和业务应用集成部署，RM与微服务集成部署。</p>
+<p><img src="https://images2018.cnblogs.com/blog/1334519/201803/1334519-20180307150720354-1188496664.png" alt="img"></p>
+<h3 id="4-4-GTS的输出形式"><a href="#4-4-GTS的输出形式" class="headerlink" title="4.4 GTS的输出形式"></a>4.4 GTS的输出形式</h3><p>GTS目前有三种输出形式：公有云输出、公网输出、专有云输出。</p>
+<h4 id="4-4-1-公有云输出"><a href="#4-4-1-公有云输出" class="headerlink" title="4.4.1 公有云输出"></a>4.4.1 公有云输出</h4><p>这种输出形式面向阿里云用户。如果用户的业务系统已经部署到阿里云上，可以申请开通公有云GTS。开通后业务应用即可通过GTS保证服务调用的一致性。这种使用场景下，业务系统和GTS间的网络环境比较理想，达到很好性能。</p>
+<p><img src="https://images2018.cnblogs.com/blog/1334519/201803/1334519-20180307150813657-193084867.png" alt="img"></p>
+<h4 id="4-4-2-公网输出"><a href="#4-4-2-公网输出" class="headerlink" title="4.4.2 公网输出"></a>4.4.2 公网输出</h4><p>这种输出形式面向于非阿里云的用户，使用更加方便、灵活，业务系统只要能连接互联网即可享受GTS提供的云服务（与公有云输出的差别在于客户端部署于用户本地，而不在云上）。</p>
+<p>在正常网络环境下，以包含两个本地事务的全局事务为例，事务完成时间在20ms左右，50个并发就可以轻松实现1000TPS以上分布式事务，对绝大多数业务来说性能是足够的。在公网环境，网络闪断很难完全避免，这种情况下GTS仍能保证服务调用的数据一致性。</p>
+<p><img src="https://images2018.cnblogs.com/blog/1334519/201803/1334519-20180307150800978-1059620711.png" alt="img"></p>
+<p>具体使用样例使用参见4.7节GTS的工程样例。</p>
+<h4 id="4-4-3-专有云输出"><a href="#4-4-3-专有云输出" class="headerlink" title="4.4.3 专有云输出"></a>4.4.3 专有云输出</h4><p>这种形式主要面向于已建设了自己专有云平台的大用户，GTS可以直接部署到用户的专有云上，为专有云提供分布式事务服务。目前已经有10多个特大型企业的专有云使用GTS解决分布式事务难题，性能与稳定性经过了用户的严格检测。</p>
+<h3 id="4-5-GTS的使用方式"><a href="#4-5-GTS的使用方式" class="headerlink" title="4.5 GTS的使用方式"></a>4.5 <a href="https://help.aliyun.com/document_detail/53298.html?spm=a2c4g.11186623.6.554.NZEXg9" target="_blank" rel="external">GTS的使用方式</a></h3><p>GTS对应用的侵入性非常低，使用也很简单。下面以订单存储应用为例说明。订单业务应用通过调用订单服务和库存服务完成订单业务，服务开发框架为Dubbo。</p>
+<h4 id="4-5-1-订单业务应用"><a href="#4-5-1-订单业务应用" class="headerlink" title="4.5.1 订单业务应用"></a>4.5.1 订单业务应用</h4><p>在业务函数外围使用@TxcTransaction注解即可开启分布式事务。Dubbo应用通过隐藏参数将GTS的事务xid传播到服务端。</p>
+<figure class="highlight haxe"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"> @TxcTransaction(timeout = <span class="number">1000</span> * <span class="number">10</span>)</span><br><span class="line"><span class="keyword">public</span> void Bussiness(OrderService orderService, StockService stockService, <span class="keyword">String</span> userId) &#123;</span><br><span class="line">    <span class="comment">//获取事务上下文</span></span><br><span class="line">    <span class="keyword">String</span> xid = TxcContext.getCurrentXid();</span><br><span class="line">    <span class="comment">//通过RpcContext将xid传到一个服务端</span></span><br><span class="line">    RpcContext.getContext().setAttachment(<span class="string">"xid"</span>, xid);</span><br><span class="line">    </span><br><span class="line">    <span class="comment">//执行自己的业务逻辑</span></span><br><span class="line">    int productId = <span class="keyword">new</span> <span class="type">Random</span>().nextInt(<span class="number">100</span>);</span><br><span class="line">    int productNum = <span class="keyword">new</span> <span class="type">Random</span>().nextInt(<span class="number">100</span>);</span><br><span class="line">    OrderDO orderDO = <span class="keyword">new</span> <span class="type">OrderDO</span>(userId, productId, productNum, <span class="keyword">new</span> <span class="type">Timestamp</span>(<span class="keyword">new</span> <span class="type">Date</span>().getTime()));</span><br><span class="line">    orderService.createOrder(orderDO);</span><br><span class="line">    </span><br><span class="line">    <span class="comment">//通过RpcContext将xid传到另一个服务端</span></span><br><span class="line">    RpcContext.getContext().setAttachment(<span class="string">"xid"</span>,xid);</span><br><span class="line">    stockService.updateStock(orderDO);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="4-5-2-服务提供者"><a href="#4-5-2-服务提供者" class="headerlink" title="4.5.2 服务提供者"></a>4.5.2 服务提供者</h4><p>更新库存方法</p>
+<figure class="highlight processing"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="built_in">int</span> updateStock(OrderDO orderDO) &#123;</span><br><span class="line"></span><br><span class="line"><span class="comment">//获取全局事务ID，并绑定到上下文</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">String</span> xid = RpcContext.getContext().getAttachment(<span class="string">"xid"</span>);</span><br><span class="line"></span><br><span class="line">TxcContext.bind(xid,<span class="keyword">null</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">//执行自己的业务逻辑</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">int</span> ret = jdbcTemplate.update(<span class="string">"update stock set amount = amount - ? where product_id = ?"</span>,<span class="keyword">new</span> <span class="keyword">Object</span>[]&#123;orderDO.getNumber(), orderDO.getProductId()&#125;);</span><br><span class="line"></span><br><span class="line">TxcContext.unbind();</span><br><span class="line"></span><br><span class="line"><span class="keyword">return</span> ret;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="4-6-GTS的应用情况"><a href="#4-6-GTS的应用情况" class="headerlink" title="4.6 GTS的应用情况"></a>4.6 GTS的应用情况</h3><p>GTS目前已经在淘宝、天猫、阿里影业、淘票票、阿里妈妈、1688等阿里各业务系统广泛使用，经受了16年和17年两年双十一海量请求的考验。某线上业务系统最高流量已达十万TPS（每秒钟10万笔事务）。</p>
+<p>GTS在公有云和专有云输出后，已经有了100多个线上用户，很多用户通过GTS解决SpringCloud、Dubbo、Edas等服务框架的分布式事务问题。业务领域涉及电力、物流、ETC、烟草、金融、零售、电商、共享出行等十几个行业，得到<a href="https://www.aliyun.com/aliware/hotproducts/gtscase1?open_id=42e50fd2-3b02-4d91-9468-4c785adaaff4-53709576&amp;open_cid=17680" target="_blank" rel="external">用户的一致认可</a>。</p>
+<p><img src="https://images2018.cnblogs.com/blog/1334519/201803/1334519-20180307150852411-2089496276.png" alt="img"></p>
+<p>上图是GTS与SpringCloud集成，应用于某共享出行系统。业务共享出行场景下，通过GTS支撑物联网系统、订单系统、支付系统、运维系统、分析系统等系各统应用的数据一致性，保证海量订单和数千万流水的交易。</p>
+<h3 id="4-7-GTS的工程样例"><a href="#4-7-GTS的工程样例" class="headerlink" title="4.7 GTS的工程样例"></a>4.7 GTS的工程样例</h3><p>GTS的公有云样例可参考阿里云网站。在公网环境下提供<a href="http://txc-console.oss-cn-beijing.aliyuncs.com/sample/sample-txc-simple.zip" target="_blank" rel="external">sample-txc-simple</a>和<a href="http://txc-console.oss-cn-beijing.aliyuncs.com/sample/sample-txc-dubbo.zip" target="_blank" rel="external">sample-txc-dubbo</a>两个样例工程。</p>
+<h4 id="4-7-1-sample-txc-simple样例"><a href="#4-7-1-sample-txc-simple样例" class="headerlink" title="4.7.1 sample-txc-simple样例"></a>4.7.1 sample-txc-simple样例</h4><h5 id="4-7-1-1-样例业务逻辑"><a href="#4-7-1-1-样例业务逻辑" class="headerlink" title="4.7.1.1 样例业务逻辑"></a>4.7.1.1 样例业务逻辑</h5><p>该样例是GTS的入门sample，案例的业务逻辑是从A账户转账给B账户，其中A和B分别位于两个MySQL数据库中，使用GTS事务保证A和B账户钱的总数始终不变。</p>
+<h5 id="4-7-1-2-样例搭建方法"><a href="#4-7-1-2-样例搭建方法" class="headerlink" title="4.7.1.2 样例搭建方法"></a>4.7.1.2 样例搭建方法</h5><p>1) 准备数据库环境</p>
+<p>安装MySQL，创建两个数据库db1和db2。在db1和db2中分别创建<strong>txc_undo_log</strong>表（SQL脚本见4.7.3）。在db1库中创建user_money_a表，在db2库中创建user_money_b表。</p>
+<p>2) 下载样例</p>
+<p>将sample-txc-simple文件下载到本地，样例中已经包含了GTS的SDK。</p>
+<p>3) 修改配置</p>
+<p>打开sample-txc-simple/src/main/resources目录下的txc-client-context.xml，将数据源的url、username、password修改为实际值。</p>
+<p>4) 运行样例</p>
+<p>在sample-txc-simple目录下执行build.sh编译本工程。编译完成后执行run.sh。</p>
+<h4 id="4-7-2-sample-txc-dubbo-样例"><a href="#4-7-2-sample-txc-dubbo-样例" class="headerlink" title="4.7.2 sample-txc-dubbo 样例"></a>4.7.2 sample-txc-dubbo 样例</h4><h5 id="4-7-2-1-样例业务逻辑"><a href="#4-7-2-1-样例业务逻辑" class="headerlink" title="4.7.2.1 样例业务逻辑"></a>4.7.2.1 样例业务逻辑</h5><p>本案例模拟了用户下订单、减库存的业务逻辑。客户端（Client）通过调用订单服务（OrderService）创建订单，之后通过调用库存服务（StockService）扣库存。其中订单服务读写订单数据库，库存服务读写库存数据库。由 GTS 保证跨服务事务的一致性。</p>
+<h5 id="4-7-2-2-样例搭建方法"><a href="#4-7-2-2-样例搭建方法" class="headerlink" title="4.7.2.2 样例搭建方法"></a>4.7.2.2 样例搭建方法</h5><p>1) 准备数据库环境</p>
+<p>安装MySQL，创建两个数据库db1和db2。在db1和db2中分别创建txc_undo_log表。在db1库中创建orders表，在db2库中创建stock表。</p>
+<p>2) 下载样例</p>
+<p>将样例文件sample-txc-dubbo下载到本地机器，样例中已经包含了GTS的SDK。</p>
+<p>3) 修改配置</p>
+<p>打开sample-txc-dubbo/src/main/resources目录，将dubbo-order-service.xml、dubbo-stock-service.xml两个文件中数据源的url、username、password修改为实际值。</p>
+<p>4) 运行样例</p>
+<p>a. 编译程序</p>
+<p>在工程根目录执行 build.sh 命令，编译工程。编译后会在 sample-txc-dubbo/client/bin 目录下生成 order_run.sh、stock_run.sh、client_run.sh 三个运行脚本对应订单服务、库存服务以及客户端。</p>
+<p>b. 运行程序</p>
+<p>在根目录执行run.sh，该脚本会依次启动order_run.sh(订单服务)、stock_run.sh(库存服务)和client_run.sh(客户端程序)。</p>
+<h5 id="4-7-2-3-其他说明"><a href="#4-7-2-3-其他说明" class="headerlink" title="4.7.2.3 其他说明"></a>4.7.2.3 其他说明</h5><p>样例使用Multicast注册中心的声明方式。如果本机使用无线网络，dubbo服务在绑定地址时有可能获取ipv6地址，可以通过jvm启动参数禁用。<br>方法是配置jvm启动参数 <strong>-Djava.net.preferIPv4Stack=true</strong>。</p>
+<h4 id="4-7-3-SQL"><a href="#4-7-3-SQL" class="headerlink" title="4.7.3 SQL"></a>4.7.3 SQL</h4><h5 id="4-7-3-1-建表-txc-undo-log"><a href="#4-7-3-1-建表-txc-undo-log" class="headerlink" title="4.7.3.1 建表 txc_undo_log"></a>4.7.3.1 建表 txc_undo_log</h5><p>CREATE TABLE <code>txc_undo_log</code> (</p>
+<p><code>id</code> bigint(20) NOT NULL AUTO_INCREMENT COMMENT ‘主键’,</p>
+<p><code>gmt_create</code> datetime NOT NULL COMMENT ‘创建时间’,</p>
+<p><code>gmt_modified</code> datetime NOT NULL COMMENT ‘修改时间’,</p>
+<p><code>xid</code> varchar(100) NOT NULL COMMENT ‘全局事务ID’,</p>
+<p><code>branch_id</code> bigint(20) NOT NULL COMMENT ‘分支事务ID’,</p>
+<p><code>rollback_info</code> longblob NOT NULL COMMENT ‘LOG’,</p>
+<p><code>status</code> int(11) NOT NULL COMMENT ‘状态’,</p>
+<p><code>server</code> varchar(32) NOT NULL COMMENT ‘分支所在DB IP’,</p>
+<p>PRIMARY KEY (<code>id</code>),</p>
+<p>KEY <code>unionkey</code> (<code>xid</code>,<code>branch_id</code>)</p>
+<p>) ENGINE=InnoDB AUTO_INCREMENT=211225994 DEFAULT CHARSET=utf8 COMMENT=’事务日志表’;</p>
+<h5 id="4-7-3-2-建表-user-money-a"><a href="#4-7-3-2-建表-user-money-a" class="headerlink" title="4.7.3.2 建表 user_money_a"></a>4.7.3.2 建表 user_money_a</h5><p>CREATE TABLE <code>user_money_a</code> (</p>
+<p><code>id</code> int(11) NOT NULL AUTO_INCREMENT,</p>
+<p><code>money</code> int(11) DEFAULT NULL,</p>
+<p>PRIMARY KEY (<code>id</code>)</p>
+<p>) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;</p>
+<h5 id="4-7-3-3-建表-user-money-b"><a href="#4-7-3-3-建表-user-money-b" class="headerlink" title="4.7.3.3 建表 user_money_b"></a>4.7.3.3 建表 user_money_b</h5><p>CREATE TABLE <code>user_money_b</code> (</p>
+<p><code>id</code> int(11) NOT NULL AUTO_INCREMENT,</p>
+<p><code>money</code> int(11) DEFAULT NULL,</p>
+<p>PRIMARY KEY (<code>id</code>)</p>
+<p>) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;</p>
+<h5 id="4-7-3-4-建表-orders"><a href="#4-7-3-4-建表-orders" class="headerlink" title="4.7.3.4 建表 orders"></a>4.7.3.4 建表 orders</h5><p>CREATE TABLE <code>orders</code> (</p>
+<p><code>id</code> bigint(20) NOT NULL AUTO_INCREMENT,</p>
+<p><code>user_id</code> varchar(255) NOT NULL,</p>
+<p><code>product_id</code> int(11) NOT NULL,</p>
+<p><code>number</code> int(11) NOT NULL,</p>
+<p><code>gmt_create</code> timestamp NOT NULL,</p>
+<p>PRIMARY KEY (<code>id</code>)</p>
+<p>) ENGINE=MyISAM AUTO_INCREMENT=351 DEFAULT CHARSET=utf8</p>
+<h5 id="4-7-3-5-建表-stock"><a href="#4-7-3-5-建表-stock" class="headerlink" title="4.7.3.5 建表 stock"></a>4.7.3.5 建表 stock</h5><p>CREATE TABLE <code>stock</code> (</p>
+<p><code>product_id</code> int(11) NOT NULL,</p>
+<p><code>price</code> float NOT NULL,</p>
+<p><code>amount</code> int(11) NOT NULL,</p>
+<p>PRIMARY KEY (<code>product_id</code>)</p>
+<p>) ENGINE=InnoDB DEFAULT CHARSET=utf8</p>
+<blockquote>
+<p><a href="https://www.cnblogs.com/jiangyu666/p/8522547.html" target="_blank" rel="external">https://www.cnblogs.com/jiangyu666/p/8522547.html</a></p>
+</blockquote>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+      
+
+      <div style="font-size: 12px;">
+        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
+      </div>
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2018/10/10/微服务架构下分布式事务解决方式-GTS/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
+    <article id="post-Spring-AutowireCapableBeanFactory-整合-quartz" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2018/09/27/Spring-AutowireCapableBeanFactory-整合-quartz/">Spring AutowireCapableBeanFactory 整合 quartz</a>
+    </h1>
+  
+
+        
+        <a href="/2018/09/27/Spring-AutowireCapableBeanFactory-整合-quartz/" class="archive-article-date">
+  	<time datetime="2018-09-27T09:29:58.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-09-27</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h3 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h3><p>最近做spring与quartz整合。业务实现时，需要在job里引入spring的bean，但是job的初始化时quartz在执行时new出来的。不受spring的管理，无法注入相关的依赖bean。多方查阅资料后，发现AutowireCapableBeanFactory可以实现类似功能。下面就通过走读代码的方式来学习下这个类的用法。</p>
+<h3 id="进入正题"><a href="#进入正题" class="headerlink" title="进入正题"></a>进入正题</h3><p>首先来看下AutowireCapableBeanFactory的定义：</p>
+<figure class="highlight processing"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> interface AutowireCapableBeanFactory extends BeanFactory &#123;</span><br><span class="line">    &lt;T&gt; T createBean(Class&lt;T&gt; beanClass) <span class="keyword">throws</span> BeansException;</span><br><span class="line">    <span class="keyword">void</span> autowireBean(<span class="keyword">Object</span> existingBean) <span class="keyword">throws</span> BeansException;</span><br><span class="line">    <span class="keyword">Object</span> configureBean(<span class="keyword">Object</span> existingBean, <span class="keyword">String</span> beanName) <span class="keyword">throws</span> BeansException;</span><br><span class="line">    <span class="keyword">Object</span> createBean(Class&lt;?&gt; beanClass, <span class="built_in">int</span> autowireMode, <span class="built_in">boolean</span> dependencyCheck) <span class="keyword">throws</span> BeansException;</span><br><span class="line">    <span class="keyword">Object</span> autowire(Class&lt;?&gt; beanClass, <span class="built_in">int</span> autowireMode, <span class="built_in">boolean</span> dependencyCheck) <span class="keyword">throws</span> BeansException;</span><br><span class="line">    <span class="keyword">void</span> autowireBeanProperties(<span class="keyword">Object</span> existingBean, <span class="built_in">int</span> autowireMode, <span class="built_in">boolean</span> dependencyCheck)</span><br><span class="line">            <span class="keyword">throws</span> BeansException;</span><br><span class="line">    <span class="keyword">void</span> applyBeanPropertyValues(<span class="keyword">Object</span> existingBean, <span class="keyword">String</span> beanName) <span class="keyword">throws</span> BeansException;</span><br><span class="line">    <span class="keyword">Object</span> initializeBean(<span class="keyword">Object</span> existingBean, <span class="keyword">String</span> beanName) <span class="keyword">throws</span> BeansException;</span><br><span class="line">    <span class="keyword">Object</span> applyBeanPostProcessorsBeforeInitialization(<span class="keyword">Object</span> existingBean, <span class="keyword">String</span> beanName)</span><br><span class="line">            <span class="keyword">throws</span> BeansException;</span><br><span class="line">    <span class="keyword">Object</span> applyBeanPostProcessorsAfterInitialization(<span class="keyword">Object</span> existingBean, <span class="keyword">String</span> beanName)</span><br><span class="line">            <span class="keyword">throws</span> BeansException;</span><br><span class="line">    <span class="keyword">void</span> destroyBean(<span class="keyword">Object</span> existingBean);</span><br><span class="line">    &lt;T&gt; NamedBeanHolder&lt;T&gt; resolveNamedBean(Class&lt;T&gt; requiredType) <span class="keyword">throws</span> BeansException;</span><br><span class="line">    <span class="keyword">Object</span> resolveDependency(DependencyDescriptor descriptor, <span class="keyword">String</span> requestingBeanName) <span class="keyword">throws</span> BeansException;</span><br><span class="line">    <span class="keyword">Object</span> resolveDependency(DependencyDescriptor descriptor, <span class="keyword">String</span> requestingBeanName,</span><br><span class="line">            Set&lt;<span class="keyword">String</span>&gt; autowiredBeanNames, TypeConverter typeConverter) <span class="keyword">throws</span> BeansException;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>该类的注释中有这么一句话<code>Integration code for other frameworks can leverage this interface to wire and populate existing bean instances that Spring does not control the lifecycle of</code>，意思是说该类可以填充那些不受spring容器控制的bean。<br> spring和quartz在集成的时候用了autowireBean方法。下面走读这个方法的代码来看处理逻辑。<br> autowireBean的实现在类AbstractAutowireCapableBeanFactory中。<br> 代码如下</p>
+<figure class="highlight armasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="symbol">public</span> void autowireBean(Object existingBean) &#123;</span><br><span class="line">        // Use non-singleton <span class="keyword">bean </span>definition, to avoid registering <span class="keyword">bean </span>as dependent <span class="keyword">bean.</span></span><br><span class="line"><span class="keyword"> </span>       RootBeanDefinition <span class="keyword">bd </span>= new RootBeanDefinition(ClassUtils.getUserClass(existingBean))<span class="comment">;</span></span><br><span class="line">        <span class="keyword">bd.setScope(BeanDefinition.SCOPE_PROTOTYPE);</span></span><br><span class="line"><span class="keyword"> </span>       <span class="keyword">bd.allowCaching </span>= ClassUtils.isCacheSafe(<span class="keyword">bd.getBeanClass(), </span>getBeanClassLoader())<span class="comment">;</span></span><br><span class="line">        <span class="keyword">BeanWrapper </span><span class="keyword">bw </span>= new <span class="keyword">BeanWrapperImpl(existingBean);</span></span><br><span class="line"><span class="keyword"> </span>       initBeanWrapper(<span class="keyword">bw);</span></span><br><span class="line"><span class="keyword"> </span>       <span class="keyword">populateBean(bd.getBeanClass().getName(), </span><span class="keyword">bd, </span><span class="keyword">bw);</span></span><br><span class="line"><span class="keyword"> </span>   &#125;</span><br></pre></td></tr></table></figure>
+<p>该方法的逻辑主要在populateBean中。这个方法是spring里很重要的一个方法，用于装配bean。这里逻辑很复杂，主要是通过反射获取我们new出来的对象的属性及注解。若注解是Autowired,Value,Inject时，进行bean的组装。此方法执行完成之后。我们new出来的对象里通过注解注入的bean就可以使用了。<br> 关键代码展示：</p>
+<figure class="highlight armasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line"><span class="symbol">protected</span> void <span class="keyword">populateBean(String </span><span class="keyword">beanName, </span>RootBeanDefinition mbd, <span class="keyword">BeanWrapper </span><span class="keyword">bw) </span>&#123;</span><br><span class="line">    ......</span><br><span class="line">        <span class="meta">if</span> (hasInstAwareBpps <span class="title">||</span> needsDepCheck) &#123;</span><br><span class="line">            PropertyDescriptor[] filteredPds = filterPropertyDescriptorsForDependencyCheck(<span class="keyword">bw, </span>mbd.allowCaching)<span class="comment">;</span></span><br><span class="line">            <span class="meta">if</span> (hasInstAwareBpps) &#123;</span><br><span class="line">                for (<span class="keyword">BeanPostProcessor </span><span class="keyword">bp </span>: getBeanPostProcessors()) &#123;</span><br><span class="line">                    <span class="meta">if</span> (<span class="keyword">bp </span>instanceof InstantiationAwareBeanPostProcessor) &#123;</span><br><span class="line">                        InstantiationAwareBeanPostProcessor ibp = (InstantiationAwareBeanPostProcessor) <span class="keyword">bp;</span></span><br><span class="line"><span class="keyword"> </span>                     //依赖的<span class="keyword">bean注入在这里实现</span></span><br><span class="line"><span class="keyword"> </span>                       pvs = ibp.postProcessPropertyValues(pvs, filteredPds, <span class="keyword">bw.getWrappedInstance(), </span><span class="keyword">beanName);</span></span><br><span class="line"><span class="keyword"> </span>                 //<span class="meta">end</span></span><br><span class="line">                        <span class="meta">if</span> (pvs == null) &#123;</span><br><span class="line">                            return<span class="comment">;</span></span><br><span class="line">                        &#125;</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="meta">if</span> (needsDepCheck) &#123;</span><br><span class="line">                checkDependencies(<span class="keyword">beanName, </span>mbd, filteredPds, pvs)<span class="comment">;</span></span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        applyPropertyValues(<span class="keyword">beanName, </span>mbd, <span class="keyword">bw, </span>pvs)<span class="comment">;</span></span><br><span class="line">    &#125;</span><br><span class="line"><span class="symbol">public</span> PropertyValues postProcessPropertyValues(</span><br><span class="line">            PropertyValues pvs, PropertyDescriptor[] pds, Object <span class="keyword">bean, </span><span class="keyword">String </span><span class="keyword">beanName) </span>throws <span class="keyword">BeanCreationException </span>&#123;</span><br><span class="line"></span><br><span class="line">            //获取注入的属性</span><br><span class="line">        InjectionMetadata metadata = findAutowiringMetadata(<span class="keyword">beanName, </span><span class="keyword">bean.getClass(), </span>pvs)<span class="comment">;</span></span><br><span class="line">        try &#123;</span><br><span class="line">                    //注入</span><br><span class="line">            metadata.inject(<span class="keyword">bean, </span><span class="keyword">beanName, </span>pvs)<span class="comment">;</span></span><br><span class="line">        &#125;</span><br><span class="line">        catch (<span class="keyword">BeanCreationException </span>ex) &#123;</span><br><span class="line">            throw ex<span class="comment">;</span></span><br><span class="line">        &#125;</span><br><span class="line">        catch (Throwable ex) &#123;</span><br><span class="line">            throw new <span class="keyword">BeanCreationException(beanName, </span><span class="string">"Injection of autowired dependencies failed"</span>, ex)<span class="comment">;</span></span><br><span class="line">        &#125;</span><br><span class="line">        return pvs<span class="comment">;</span></span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+<h3 id="例子"><a href="#例子" class="headerlink" title="例子"></a>例子</h3><p>quartz 的job里注入bean：<br> job 工厂：</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">public <span class="class"><span class="keyword">class</span> <span class="title">JobFactory</span> <span class="keyword">extends</span> <span class="title">AdaptableJobFactory</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="keyword">private</span> <span class="type">AutowireCapableBeanFactory</span> capableBeanFactory;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">protected</span> <span class="type">Object</span> createJobInstance(<span class="type">TriggerFiredBundle</span> bundle) <span class="keyword">throws</span> <span class="type">Exception</span> &#123;</span><br><span class="line">        <span class="comment">//调用父类的方法</span></span><br><span class="line">        <span class="type">Object</span> jobInstance = <span class="keyword">super</span>.createJobInstance(bundle);</span><br><span class="line">        <span class="comment">//进行注入</span></span><br><span class="line">        capableBeanFactory.autowireBean(jobInstance);</span><br><span class="line">        <span class="keyword">return</span> jobInstance;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>job的具体处理逻辑</p>
+<figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">final</span> <span class="class"><span class="keyword">class</span> <span class="title">InternalJob</span> <span class="keyword">implements</span> <span class="title">Job</span> &#123;</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> Logger logger = LoggerFactory.getLogger(InternalJob .<span class="keyword">class</span>);</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="keyword">private</span> CuratorFramework client;</span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="keyword">private</span> JobAlarmEventService jobAlarmEventService;</span><br></pre></td></tr></table></figure>
+<p>job的spring配置：</p>
+<figure class="highlight applescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&lt;bean <span class="built_in">id</span>=<span class="string">"jobFactory"</span> <span class="built_in">class</span>=<span class="string">"com.test.scheduler.JobFactory"</span>&gt;&lt;/bean&gt;</span><br><span class="line">    &lt;bean <span class="built_in">id</span>=<span class="string">"schedulerFactoryBean"</span> <span class="built_in">class</span>=<span class="string">"org.springframework.scheduling.quartz.SchedulerFactoryBean"</span>&gt;</span><br><span class="line">        &lt;<span class="keyword">property</span> <span class="built_in">name</span>=<span class="string">"jobFactory"</span> <span class="keyword">ref</span>=<span class="string">"jobFactory"</span>&gt;&lt;/<span class="keyword">property</span>&gt;</span><br><span class="line">        &lt;<span class="keyword">property</span> <span class="built_in">name</span>=<span class="string">"schedulerName"</span> value=<span class="string">"scheduler"</span>&gt;&lt;/<span class="keyword">property</span>&gt;</span><br><span class="line">        &lt;<span class="keyword">property</span> <span class="built_in">name</span>=<span class="string">"configLocation"</span>  value=<span class="string">"classpath:META-INF/spring/quartz.properties"</span>&gt;&lt;/<span class="keyword">property</span>&gt;    </span><br><span class="line">    &lt;/bean&gt;</span><br></pre></td></tr></table></figure>
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+      
+
+      <div style="font-size: 12px;">
+        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
+      </div>
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2018/09/27/Spring-AutowireCapableBeanFactory-整合-quartz/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
+    <article id="post-vmware-网络设置" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2018/09/25/vmware-网络设置/">vmware 网络设置</a>
+    </h1>
+  
+
+        
+        <a href="/2018/09/25/vmware-网络设置/" class="archive-article-date">
+  	<time datetime="2018-09-25T14:29:30.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-09-25</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="NAT设置"><a href="#NAT设置" class="headerlink" title="NAT设置"></a>NAT设置</h2><ul>
+<li>删除原有的NAT</li>
+<li>新建一个新的NAT链接，生成MAC网卡地址</li>
+<li>检查LAN网段</li>
+</ul>
+<h2 id="桥接设置"><a href="#桥接设置" class="headerlink" title="桥接设置"></a>桥接设置</h2><ul>
+<li>删除原有的桥接</li>
+<li>新建一个新的桥接，<strong>生成MAC网卡地址 ， 路由admin绑定静态IP</strong></li>
+<li>检查LAN网段</li>
+<li>ip addr 查看IP和网卡</li>
+</ul>
+<h2 id="路由设置"><a href="#路由设置" class="headerlink" title="路由设置"></a>路由设置</h2><ul>
+<li><ol>
+<li>DHCP服务器 -&gt; 静态地址保留 ， 生效所有</li>
+<li><a href="http://192.168.0.1/userRpm/LanArpBindingRpm.htm" target="_blank" rel="external">IP与MAC绑定</a>  -&gt; <a href="http://192.168.0.1/userRpm/LanArpBindingRpm.htm" target="_blank" rel="external">静态ARP绑定设置</a> ，生效所有</li>
+<li>关闭虚拟机，重启路由器</li>
+</ol>
+</li>
+</ul>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+      
+
+      <div style="font-size: 12px;">
+        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
+      </div>
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2018/09/25/vmware-网络设置/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
+    <article id="post-Mysql多表连接删除" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2018/09/21/Mysql多表连接删除/">Mysql多表连接删除</a>
+    </h1>
+  
+
+        
+        <a href="/2018/09/21/Mysql多表连接删除/" class="archive-article-date">
+  	<time datetime="2018-09-21T02:06:34.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-09-21</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h3 id="联表删除："><a href="#联表删除：" class="headerlink" title="联表删除："></a>联表删除：</h3><p>1、从数据表t1 中把那些id值在数据表t2 里有匹配的记录全删除掉</p>
+<figure class="highlight mipsasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">DELETE <span class="built_in">t1</span> FROM <span class="built_in">t1</span>,<span class="built_in">t2</span> WHERE <span class="built_in">t1</span>.id=<span class="built_in">t2</span>.id    </span><br><span class="line"></span><br><span class="line">或</span><br><span class="line"></span><br><span class="line">DELETE  FROM <span class="built_in">t1</span> USING <span class="built_in">t1</span>,<span class="built_in">t2</span> WHERE <span class="built_in">t1</span>.id=<span class="built_in">t2</span>.id</span><br></pre></td></tr></table></figure>
+<p>2、从数据表t1里在数据表t2里没有匹配的记录查找出来并删除掉</p>
+<figure class="highlight n1ql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">DELETE</span> t1 <span class="keyword">FROM</span> t1 <span class="keyword">LEFT</span> <span class="keyword">JOIN</span> T2 <span class="keyword">ON</span> t1.id=t2.id <span class="keyword">WHERE</span> t2.id <span class="keyword">IS</span> <span class="literal">NULL</span> </span><br><span class="line"></span><br><span class="line">或</span><br><span class="line"></span><br><span class="line"><span class="keyword">DELETE</span>  <span class="keyword">FROM</span> t1,<span class="keyword">USING</span> t1 <span class="keyword">LEFT</span> <span class="keyword">JOIN</span> T2 <span class="keyword">ON</span> t1.id=t2.id <span class="keyword">WHERE</span> t2.id <span class="keyword">IS</span> <span class="literal">NULL</span></span><br></pre></td></tr></table></figure>
+<p>3、从两个表中找出相同记录的数据并把两个表中的数据都删除掉</p>
+<figure class="highlight mipsasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">DELETE <span class="built_in">t1</span>,<span class="built_in">t2</span> from <span class="built_in">t1</span> LEFT <span class="keyword">JOIN </span><span class="built_in">t2</span> ON <span class="built_in">t1</span>.id=<span class="built_in">t2</span>.id WHERE <span class="built_in">t1</span>.id=<span class="number">25</span></span><br></pre></td></tr></table></figure>
+<p>注意此处的delete t1,t2 from 中的t1,t2不能是别名</p>
+<p>如：<br><figure class="highlight applescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">delete t1,t2 <span class="keyword">from</span> table_name <span class="keyword">as</span> t1 left join table2_name <span class="keyword">as</span> t2 <span class="keyword">on</span> t1.<span class="built_in">id</span>=t2.<span class="built_in">id</span> <span class="keyword">where</span> table_name.<span class="built_in">id</span>=<span class="number">25</span></span><br></pre></td></tr></table></figure></p>
+<p><strong>要求：MYSQL 版本不小于5.0</strong></p>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+      
+
+      <div style="font-size: 12px;">
+        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
+      </div>
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2018/09/21/Mysql多表连接删除/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
+    <article id="post-Spring之AOP源码分析" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2018/09/18/Spring之AOP源码分析/">Spring之AOP源码分析</a>
+    </h1>
+  
+
+        
+        <a href="/2018/09/18/Spring之AOP源码分析/" class="archive-article-date">
+  	<time datetime="2018-09-18T12:47:55.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-09-18</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="表达式"><a href="#表达式" class="headerlink" title="表达式"></a>表达式</h2><ul>
+<li>第一个点代表真正的点，也就是包名上的点</li>
+<li>第二个点代表正则表达式，表示任意字符</li>
+</ul>
+<h2 id="AopProxyUtil"><a href="#AopProxyUtil" class="headerlink" title="AopProxyUtil"></a>AopProxyUtil</h2><ul>
+<li>getSingletonTarget</li>
+</ul>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+      
+
+      <div style="font-size: 12px;">
+        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
+      </div>
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2018/09/18/Spring之AOP源码分析/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
+    <article id="post-Redis原理详解" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2018/09/15/Redis原理详解/">Redis原理详解</a>
+    </h1>
+  
+
+        
+        <a href="/2018/09/15/Redis原理详解/" class="archive-article-date">
+  	<time datetime="2018-09-15T13:10:43.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-09-15</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="expire"><a href="#expire" class="headerlink" title="expire"></a>expire</h2><blockquote>
+<p><a href="https://redis.io/commands/expire" target="_blank" rel="external">https://redis.io/commands/expire</a></p>
+</blockquote>
+<ul>
+<li>消极方式，访问Key，已过期删除</li>
+<li>积极方式，1秒10次。1. 选取20个随机的key 2.删除过期key 3.超过20%过期，执行1步骤。</li>
+</ul>
+<blockquote>
+<h2 id="How-Redis-expires-keys"><a href="#How-Redis-expires-keys" class="headerlink" title="How Redis expires keys"></a>How Redis expires keys</h2><p>Redis keys are expired in two ways: a passive way, and an active way.</p>
+<p>A key is passively expired simply when some client tries to access it, and the key is found to be timed out.</p>
+<p>Of course this is not enough as there are expired keys that will never be accessed again. These keys should be expired anyway, so periodically Redis tests a few keys at random among keys with an expire set. All the keys that are already expired are deleted from the keyspace.</p>
+<p>Specifically this is what Redis does 10 times per second:</p>
+<ol>
+<li>Test 20 random keys from the set of keys with an associated expire.</li>
+<li>Delete all the keys found expired.</li>
+<li>If more than 25% of keys were expired, start again from step 1.</li>
+</ol>
+<p>This is a trivial probabilistic algorithm, basically the assumption is that our sample is representative of the whole key space, and we continue to expire until the percentage of keys that are likely to be expired is under 25%</p>
+<p>This means that at any given moment the maximum amount of keys already expired that are using memory is at max equal to max amount of write operations per second divided by 4.</p>
+</blockquote>
+<h2 id="数据持久化"><a href="#数据持久化" class="headerlink" title="数据持久化"></a>数据持久化</h2><h3 id="rdb-（默认）"><a href="#rdb-（默认）" class="headerlink" title="rdb （默认）"></a>rdb （默认）</h3><blockquote>
+<p>  条件满足一个执行，每条规则之间是“或”的关系</p>
+<p>  In the example below the behaviour will be to save:<br>  after 900 sec (15 min) if at least 1 key changed<br>  after 300 sec (5 min) if at least 10 keys changed<br>  after 60 sec if at least 10000 keys changed</p>
+</blockquote>
+<figure class="highlight lsl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">save <span class="number">900</span> <span class="number">1</span> </span><br><span class="line">save <span class="number">300</span> <span class="number">10</span></span><br><span class="line">save <span class="number">60</span> <span class="number">10000</span></span><br></pre></td></tr></table></figure>
+<h3 id="aof"><a href="#aof" class="headerlink" title="aof"></a>aof</h3><ul>
+<li>默认的rdb能够满足持久化的需求，但是存在缺陷就是两次快照之间，可能会丢失数据。</li>
+</ul>
+<blockquote>
+<p>By default Redis asynchronously dumps the dataset on disk. This mode is<br>good enough in many applications, but an issue with the Redis process or<br>a power outage may result into a few minutes of writes lost (depending on<br>the configured save points).</p>
+</blockquote>
+<figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">appendonly</span> <span class="literal">yes</span></span><br><span class="line">appendfilename <span class="string">"appendonly.aof"</span></span><br></pre></td></tr></table></figure>
+<h2 id="lua脚本"><a href="#lua脚本" class="headerlink" title="lua脚本"></a>lua脚本</h2><h3 id="保证原子性"><a href="#保证原子性" class="headerlink" title="保证原子性"></a>保证原子性</h3><ul>
+<li><p>redis-cli –eval example.lua</p>
+</li>
+<li><p>比较暴力</p>
+</li>
+</ul>
+<h3 id="限流demo"><a href="#限流demo" class="headerlink" title="限流demo"></a>限流demo</h3><ul>
+<li>10秒内限流10次demo</li>
+<li>script load 导入脚本，生成sha</li>
+<li>evalsha “{sha}”</li>
+<li>lua执行死环境脚本，会有阻塞问题</li>
+<li>redis-cli –eval example.lua</li>
+</ul>
+<h2 id="单线程如何保证高性能"><a href="#单线程如何保证高性能" class="headerlink" title="单线程如何保证高性能"></a>单线程如何保证高性能</h2><h3 id="同步阻塞"><a href="#同步阻塞" class="headerlink" title="同步阻塞"></a>同步阻塞</h3><h3 id="同步非阻塞"><a href="#同步非阻塞" class="headerlink" title="同步非阻塞"></a>同步非阻塞</h3><h3 id="异步阻塞-redis实现，多路复用"><a href="#异步阻塞-redis实现，多路复用" class="headerlink" title="异步阻塞(redis实现，多路复用)"></a>异步阻塞(redis实现，多路复用)</h3><p>异步不一定是多线程</p>
+<h3 id="异步非阻塞"><a href="#异步非阻塞" class="headerlink" title="异步非阻塞"></a>异步非阻塞</h3><h2 id="分布式"><a href="#分布式" class="headerlink" title="分布式"></a>分布式</h2><h3 id="配置"><a href="#配置" class="headerlink" title="配置"></a>配置</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 无磁盘复制</span></span><br><span class="line">repl-diskless-sync</span><br></pre></td></tr></table></figure>
+<h3 id="命令"><a href="#命令" class="headerlink" title="命令"></a>命令</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash">查看集群信息</span></span><br><span class="line">info replication</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash">告诉master节点 slave的端口</span></span><br><span class="line">replconf listening-port 6379</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash">抓取master的同步信息</span></span><br><span class="line">sync</span><br></pre></td></tr></table></figure>
+<h3 id="主从复制"><a href="#主从复制" class="headerlink" title="主从复制"></a>主从复制</h3><p>全量复制</p>
+<p>增量复制</p>
+<ul>
+<li>链接到集群</li>
+</ul>
+<figure class="highlight llvm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">redis-cli -<span class="keyword">c</span> -p <span class="number">7000</span></span><br><span class="line">会有redirect <span class="keyword">to</span> slot提示</span><br></pre></td></tr></table></figure>
+<ul>
+<li>连接到某台机器</li>
+</ul>
+<figure class="highlight stata"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">redis-<span class="keyword">cli</span> -p 7001</span><br><span class="line">提示MOVED <span class="keyword">error</span></span><br></pre></td></tr></table></figure>
+<ul>
+<li>cluster slots 查看集群信息 槽信息</li>
+</ul>
+<figure class="highlight lsl"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">3</span>主<span class="number">6</span>从</span><br></pre></td></tr></table></figure>
+<ul>
+<li>cluster nodes 查看节点信息</li>
+<li>哨兵模式</li>
+</ul>
+<figure class="highlight crmsh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">连接哨兵节点，然后查询<span class="literal">master</span>的节点</span><br></pre></td></tr></table></figure>
+<h2 id="客户端"><a href="#客户端" class="headerlink" title="客户端"></a>客户端</h2><h3 id="jedis"><a href="#jedis" class="headerlink" title="jedis"></a>jedis</h3><ul>
+<li>sentinel cluster</li>
+<li><p>cluster</p>
+</li>
+<li><p>jedis.watch 标志释放锁不会失败</p>
+</li>
+</ul>
+<h3 id="redission"><a href="#redission" class="headerlink" title="redission"></a>redission</h3><ul>
+<li>single</li>
+<li>sentinel</li>
+</ul>
+<figure class="highlight less"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="selector-tag">redissionClinet</span><span class="selector-class">.getBucket</span>(<span class="string">""</span>) 获取字符串</span><br><span class="line">其他类型相同</span><br></pre></td></tr></table></figure>
+<ul>
+<li>cluster</li>
+</ul>
+<h2 id="分布式锁"><a href="#分布式锁" class="headerlink" title="分布式锁"></a>分布式锁</h2><ul>
+<li>setNX</li>
+<li>redission lock unlock 源码解读</li>
+</ul>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+      
+
+      <div style="font-size: 12px;">
+        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
+      </div>
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2018/09/15/Redis原理详解/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
     <article id="post-springboot-stater自定义开发" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
@@ -480,796 +1123,9 @@
 
 
   
-    <article id="post-MySQL事务隔离级别测试" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2018/08/10/MySQL事务隔离级别测试/">MySQL事务隔离级别测试</a>
-    </h1>
-  
-
-        
-        <a href="/2018/08/10/MySQL事务隔离级别测试/" class="archive-article-date">
-  	<time datetime="2018-08-10T01:26:46.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-08-10</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h2 id="一、事务的基本要素（ACID）"><a href="#一、事务的基本要素（ACID）" class="headerlink" title="一、事务的基本要素（ACID）"></a>一、事务的基本要素（ACID）</h2><p>　1、原子性（Atomicity）：事务开始后所有操作，要么全部做完，要么全部不做，不可能停滞在中间环节。事务执行过程中出错，会回滚到事务开始前的状态，所有的操作就像没有发生一样。也就是说事务是一个不可分割的整体，就像化学中学过的原子，是物质构成的基本单位。</p>
-<p>　2、一致性（Consistency）：事务开始前和结束后，数据库的完整性约束没有被破坏 。比如A向B转账，不可能A扣了钱，B却没收到。</p>
-<p>　3、隔离性（Isolation）：同一时间，只允许一个事务请求同一数据，不同的事务之间彼此没有任何干扰。比如A正在从一张银行卡中取钱，在A取钱的过程结束前，B不能向这张卡转账。</p>
-<p>4、持久性（Durability）：事务完成后，事务对数据库的所有更新将被保存到数据库，不能回滚。</p>
-<h2 id="二、事务的并发问题"><a href="#二、事务的并发问题" class="headerlink" title="二、事务的并发问题"></a>二、事务的并发问题</h2><p>1、<strong>脏读</strong>：事务A读取了事务B更新的数据，然后B回滚操作，那么A读取到的数据是脏数据</p>
-<p>2、<strong>不可重复读</strong>：事务 A 多次读取同一数据，事务 B 在事务A多次读取的过程中，对数据作了更新并提交，导致事务A多次读取同一数据时，结果 不一致。</p>
-<p>3、<strong>幻读</strong>：系统管理员A将数据库中所有学生的成绩从具体分数改为ABCDE等级，但是系统管理员B就在这个时候插入了一条具体分数的记录，当系统管理员A改结束后发现还有一条记录没有改过来，就好像发生了幻觉一样，这就叫幻读。</p>
-<p>小结：不可重复读的和幻读很容易混淆，不可重复读侧重于修改，幻读侧重于新增或删除。解决不可重复读的问题只需锁住满足条件的行，解决幻读需要锁表</p>
-<h2 id="三、MySQL事务隔离级别"><a href="#三、MySQL事务隔离级别" class="headerlink" title="三、MySQL事务隔离级别"></a>三、MySQL事务隔离级别</h2><table>
-<thead>
-<tr>
-<th>事务隔离级别</th>
-<th>脏读</th>
-<th>不可重复读</th>
-<th>幻读</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>读未提交（read-uncommitted）</td>
-<td>是</td>
-<td>是</td>
-<td>是</td>
-</tr>
-<tr>
-<td>不可重复读（read-committed）</td>
-<td>否</td>
-<td>是</td>
-<td>是</td>
-</tr>
-<tr>
-<td>可重复读（repeatable-read）</td>
-<td>否</td>
-<td>否</td>
-<td>是</td>
-</tr>
-<tr>
-<td>串行化（serializable）</td>
-<td>否</td>
-<td>否</td>
-<td>否</td>
-</tr>
-</tbody>
-</table>
-<h2 id="clientA"><a href="#clientA" class="headerlink" title="clientA"></a>clientA</h2><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="keyword">set</span> <span class="keyword">session</span> <span class="keyword">transaction</span> <span class="keyword">isolation</span> <span class="keyword">level</span> <span class="keyword">read</span> COMMITTED ;</span><br><span class="line"></span><br><span class="line"><span class="keyword">SELECT</span> @@tx_isolation;</span><br><span class="line"></span><br><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> person_test(</span><br><span class="line">  <span class="keyword">id</span> <span class="built_in">INT</span> <span class="keyword">UNSIGNED</span> AUTO_INCREMENT <span class="keyword">COMMENT</span> <span class="string">'id'</span> PRIMARY <span class="keyword">KEY</span> ,</span><br><span class="line">  age <span class="built_in">INT</span>  <span class="keyword">DEFAULT</span> <span class="number">0</span> <span class="keyword">COMMENT</span> <span class="string">'组织编号（部门编号）'</span>,</span><br><span class="line">  <span class="keyword">name</span> <span class="built_in">VARCHAR</span>(<span class="number">20</span>)  <span class="keyword">DEFAULT</span> <span class="string">''</span> <span class="keyword">COMMENT</span> <span class="string">'组织名称'</span>,</span><br><span class="line">  gmt_create <span class="keyword">timestamp</span> <span class="keyword">NOT</span> <span class="literal">NULL</span> <span class="keyword">DEFAULT</span> <span class="keyword">CURRENT_TIMESTAMP</span> <span class="keyword">COMMENT</span> <span class="string">'创建时间'</span>,</span><br><span class="line">  gmt_modify <span class="keyword">timestamp</span> <span class="keyword">NOT</span> <span class="literal">NULL</span> <span class="keyword">DEFAULT</span> <span class="keyword">CURRENT_TIMESTAMP</span> <span class="keyword">ON</span> <span class="keyword">UPDATE</span> <span class="keyword">CURRENT_TIMESTAMP</span> <span class="keyword">COMMENT</span> <span class="string">'修改时间'</span></span><br><span class="line">)<span class="keyword">ENGINE</span>=<span class="keyword">InnoDB</span> <span class="keyword">DEFAULT</span> <span class="keyword">CHARSET</span>=utf8</span><br><span class="line">  <span class="keyword">COMMENT</span> <span class="string">'person test'</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">BEGIN</span> ;</span><br><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> person_test(age, <span class="keyword">name</span>) <span class="keyword">VALUE</span> (<span class="number">18</span>,<span class="string">'xiaoming'</span>);</span><br><span class="line"><span class="keyword">SELECT</span> * <span class="keyword">FROM</span> person_test;</span><br><span class="line"><span class="keyword">COMMIT</span> ;</span><br><span class="line"></span><br><span class="line"><span class="keyword">BEGIN</span> ;</span><br><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> person_test(age,<span class="keyword">name</span>) <span class="keyword">VALUE</span> (<span class="number">18</span>,<span class="string">'jim'</span>);</span><br><span class="line"><span class="keyword">SELECT</span> * <span class="keyword">FROM</span> person_test;</span><br><span class="line"><span class="keyword">ROLLBACK</span> ;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">SELECT</span> * <span class="keyword">FROM</span> person_test <span class="keyword">WHERE</span> <span class="keyword">id</span>=<span class="number">10</span>;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">-- 隔离级别（read COMMITTED） set session transaction isolation level read COMMITTED ;</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">SELECT</span> @@tx_isolation;</span><br><span class="line"></span><br><span class="line"><span class="keyword">BEGIN</span> ;</span><br><span class="line"></span><br><span class="line"><span class="keyword">SELECT</span> * <span class="keyword">FROM</span> person_test;</span><br><span class="line"></span><br><span class="line"><span class="keyword">SELECT</span> * <span class="keyword">FROM</span> person_test;</span><br><span class="line"></span><br><span class="line"><span class="keyword">COMMIT</span> ;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">-- 隔离级别（REPEATABLE READ）</span></span><br><span class="line"><span class="keyword">set</span> <span class="keyword">session</span> <span class="keyword">transaction</span> <span class="keyword">isolation</span> <span class="keyword">level</span> REPEATABLE <span class="keyword">READ</span> ;</span><br><span class="line"></span><br><span class="line"><span class="keyword">SELECT</span> @@tx_isolation;</span><br><span class="line"></span><br><span class="line"><span class="keyword">BEGIN</span> ;</span><br><span class="line"></span><br><span class="line"><span class="keyword">SELECT</span> * <span class="keyword">FROM</span> person_test;</span><br><span class="line"></span><br><span class="line"><span class="keyword">SELECT</span> * <span class="keyword">FROM</span> person_test;</span><br><span class="line"></span><br><span class="line"><span class="keyword">COMMIT</span> ;</span><br><span class="line"></span><br><span class="line"><span class="keyword">SELECT</span> * <span class="keyword">FROM</span> person_test;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">BEGIN</span> ;</span><br><span class="line"></span><br><span class="line"><span class="keyword">SELECT</span> * <span class="keyword">FROM</span> person_test <span class="keyword">WHERE</span> age=<span class="number">18</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 这里测试并没有出现幻读情况</span></span><br><span class="line"><span class="keyword">SELECT</span> * <span class="keyword">FROM</span> person_test <span class="keyword">WHERE</span> age=<span class="number">18</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">COMMIT</span> ;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">-- 隔离级别（SERIALIZABLE）</span></span><br><span class="line"><span class="keyword">set</span> <span class="keyword">session</span> <span class="keyword">transaction</span> <span class="keyword">isolation</span> <span class="keyword">level</span> <span class="keyword">SERIALIZABLE</span> ;</span><br><span class="line"></span><br><span class="line"><span class="keyword">SELECT</span> @@tx_isolation;</span><br><span class="line"></span><br><span class="line"><span class="keyword">BEGIN</span> ;</span><br><span class="line"></span><br><span class="line"><span class="keyword">SELECT</span> * <span class="keyword">FROM</span> person_test;</span><br><span class="line"></span><br><span class="line"><span class="keyword">SELECT</span> * <span class="keyword">FROM</span> person_test;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 这里插入会dead lock</span></span><br><span class="line"><span class="comment">-- INSERT INTO person_test (age, name) VALUE (18,'he');</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">COMMIT</span> ;</span><br><span class="line"></span><br><span class="line"><span class="keyword">SELECT</span> * <span class="keyword">FROM</span> person_test;</span><br></pre></td></tr></table></figure>
-<h2 id="clientB"><a href="#clientB" class="headerlink" title="clientB"></a>clientB</h2><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="keyword">set</span> <span class="keyword">session</span> <span class="keyword">transaction</span> <span class="keyword">isolation</span> <span class="keyword">level</span> <span class="keyword">read</span> COMMITTED ;</span><br><span class="line"></span><br><span class="line"><span class="keyword">SELECT</span> @@tx_isolation;</span><br><span class="line"></span><br><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> person_test(</span><br><span class="line">  <span class="keyword">id</span> <span class="built_in">INT</span> <span class="keyword">UNSIGNED</span> AUTO_INCREMENT <span class="keyword">COMMENT</span> <span class="string">'id'</span> PRIMARY <span class="keyword">KEY</span> ,</span><br><span class="line">  age <span class="built_in">INT</span>  <span class="keyword">DEFAULT</span> <span class="number">0</span> <span class="keyword">COMMENT</span> <span class="string">'组织编号（部门编号）'</span>,</span><br><span class="line">  <span class="keyword">name</span> <span class="built_in">VARCHAR</span>(<span class="number">20</span>)  <span class="keyword">DEFAULT</span> <span class="string">''</span> <span class="keyword">COMMENT</span> <span class="string">'组织名称'</span>,</span><br><span class="line">  gmt_create <span class="keyword">timestamp</span> <span class="keyword">NOT</span> <span class="literal">NULL</span> <span class="keyword">DEFAULT</span> <span class="keyword">CURRENT_TIMESTAMP</span> <span class="keyword">COMMENT</span> <span class="string">'创建时间'</span>,</span><br><span class="line">  gmt_modify <span class="keyword">timestamp</span> <span class="keyword">NOT</span> <span class="literal">NULL</span> <span class="keyword">DEFAULT</span> <span class="keyword">CURRENT_TIMESTAMP</span> <span class="keyword">ON</span> <span class="keyword">UPDATE</span> <span class="keyword">CURRENT_TIMESTAMP</span> <span class="keyword">COMMENT</span> <span class="string">'修改时间'</span></span><br><span class="line">)<span class="keyword">ENGINE</span>=<span class="keyword">InnoDB</span> <span class="keyword">DEFAULT</span> <span class="keyword">CHARSET</span>=utf8</span><br><span class="line">  <span class="keyword">COMMENT</span> <span class="string">'person test'</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">BEGIN</span> ;</span><br><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> person_test(age, <span class="keyword">name</span>) <span class="keyword">VALUE</span> (<span class="number">18</span>,<span class="string">'lily'</span>);</span><br><span class="line"><span class="keyword">SELECT</span> * <span class="keyword">FROM</span> person_test;</span><br><span class="line"><span class="keyword">COMMIT</span> ;</span><br><span class="line"></span><br><span class="line"><span class="keyword">BEGIN</span> ;</span><br><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> person_test(age,<span class="keyword">name</span>) <span class="keyword">VALUE</span> (<span class="number">18</span>,<span class="string">'jim'</span>);</span><br><span class="line"><span class="keyword">SELECT</span> * <span class="keyword">FROM</span> person_test;</span><br><span class="line"><span class="keyword">ROLLBACK</span> ;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">BEGIN</span> ;</span><br><span class="line"><span class="keyword">UPDATE</span> person_test <span class="keyword">SET</span> <span class="keyword">name</span>= <span class="string">'zhangsan'</span> <span class="keyword">WHERE</span> <span class="keyword">id</span>=<span class="number">10</span>;</span><br><span class="line"><span class="keyword">SELECT</span> * <span class="keyword">FROM</span> person_test;</span><br><span class="line"><span class="keyword">ROLLBACK</span> ;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">-- 隔离级别（read COMMITTED） set session transaction isolation level read COMMITTED ;</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">SELECT</span> @@tx_isolation;</span><br><span class="line"></span><br><span class="line"><span class="keyword">BEGIN</span> ;</span><br><span class="line"><span class="keyword">UPDATE</span> person_test <span class="keyword">SET</span>  <span class="keyword">name</span> = <span class="string">'zhangsan'</span> <span class="keyword">WHERE</span> <span class="keyword">id</span>=<span class="number">10</span>;</span><br><span class="line"><span class="keyword">SELECT</span> * <span class="keyword">FROM</span> person_test;</span><br><span class="line"></span><br><span class="line"><span class="keyword">DELETE</span> <span class="keyword">FROM</span> person_test <span class="keyword">WHERE</span> <span class="keyword">id</span>=<span class="number">2</span>;</span><br><span class="line"><span class="keyword">SELECT</span> * <span class="keyword">FROM</span> person_test;</span><br><span class="line"><span class="keyword">COMMIT</span> ;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">-- 隔离级别（REPEATABLE READ）</span></span><br><span class="line"><span class="keyword">set</span> <span class="keyword">session</span> <span class="keyword">transaction</span> <span class="keyword">isolation</span> <span class="keyword">level</span> REPEATABLE <span class="keyword">READ</span> ;</span><br><span class="line"></span><br><span class="line"><span class="keyword">SELECT</span> @@tx_isolation;</span><br><span class="line"></span><br><span class="line"><span class="keyword">BEGIN</span> ;</span><br><span class="line"><span class="keyword">SELECT</span> * <span class="keyword">FROM</span> person_test;</span><br><span class="line"></span><br><span class="line"><span class="keyword">UPDATE</span> person_test <span class="keyword">SET</span>  <span class="keyword">name</span> = <span class="string">'zhangsanfeng'</span> <span class="keyword">WHERE</span> <span class="keyword">id</span>=<span class="number">10</span>;</span><br><span class="line"><span class="keyword">SELECT</span> * <span class="keyword">FROM</span> person_test;</span><br><span class="line"></span><br><span class="line"><span class="keyword">COMMIT</span> ;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">BEGIN</span> ;</span><br><span class="line"><span class="keyword">SELECT</span> * <span class="keyword">FROM</span> person_test <span class="keyword">WHERE</span> age=<span class="number">18</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> person_test (age,<span class="keyword">name</span>) <span class="keyword">VALUE</span> (<span class="number">18</span>,<span class="string">'qiang'</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">SELECT</span> * <span class="keyword">FROM</span> person_test <span class="keyword">WHERE</span> age=<span class="number">18</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">COMMIT</span> ;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">-- 隔离级别（SERIALIZABLE）</span></span><br><span class="line"><span class="keyword">set</span> <span class="keyword">session</span> <span class="keyword">transaction</span> <span class="keyword">isolation</span> <span class="keyword">level</span> <span class="keyword">SERIALIZABLE</span> ;</span><br><span class="line"></span><br><span class="line"><span class="keyword">SELECT</span> @@tx_isolation;</span><br><span class="line"></span><br><span class="line"><span class="keyword">BEGIN</span> ;</span><br><span class="line"></span><br><span class="line"><span class="keyword">SELECT</span> * <span class="keyword">FROM</span> person_test;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- SERIALIZABLE情况，不能增加，等待A客户端commit后 会帮助这边commit</span></span><br><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> person_test (age,<span class="keyword">name</span>) <span class="keyword">VALUE</span> (<span class="number">18</span>,<span class="string">'fen'</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> person_test (age , <span class="keyword">name</span>) <span class="keyword">VALUE</span> (<span class="number">18</span>,<span class="string">'fang'</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">SELECT</span> * <span class="keyword">FROM</span> person_test;</span><br><span class="line"></span><br><span class="line"><span class="keyword">COMMIT</span> ;</span><br></pre></td></tr></table></figure>
-
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-      
-
-      <div style="font-size: 12px;">
-        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
-      </div>
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2018/08/10/MySQL事务隔离级别测试/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
-    <article id="post-Spring-cloud-负载均衡" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2018/08/05/Spring-cloud-负载均衡/">Spring cloud 负载均衡</a>
-    </h1>
-  
-
-        
-        <a href="/2018/08/05/Spring-cloud-负载均衡/" class="archive-article-date">
-  	<time datetime="2018-08-05T12:59:01.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-08-05</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <blockquote>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;</span><span class="bash"> JSR 305 meta-annotations</span></span><br><span class="line"><span class="meta">&gt;</span><span class="bash"> 注解做编译约束</span></span><br><span class="line"><span class="meta">&gt;</span><span class="bash"></span></span><br></pre></td></tr></table></figure>
-</blockquote>
-<h2 id="主要内容"><a href="#主要内容" class="headerlink" title="主要内容"></a>主要内容</h2><h3 id="RestTemplate-原理与扩展"><a href="#RestTemplate-原理与扩展" class="headerlink" title="RestTemplate 原理与扩展"></a>RestTemplate 原理与扩展</h3><p>Spring 核心 HTTP 消息转换器 <code>HttpMessageConverter</code></p>
-<p>REST 自描述消息：媒体类型（<code>MediaType</code>）， text/html;text/xml;application/json</p>
-<p>HTTP 协议特点：纯文本协议，自我描述</p>
-<ul>
-<li><p>REST 服务端</p>
-</li>
-<li><p>REST 客户端</p>
-<p>反序列化：文本（通讯） -&gt; 对象（程序使用）</p>
-<p>序列化：对象 -&gt; 文本</p>
-</li>
-</ul>
-<h4 id="HttpMessageConverter-分析"><a href="#HttpMessageConverter-分析" class="headerlink" title="HttpMessageConverter 分析"></a><code>HttpMessageConverter</code> 分析</h4><h5 id="判断是否可读可写"><a href="#判断是否可读可写" class="headerlink" title="判断是否可读可写"></a>判断是否可读可写</h5><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">HttpMessageConverter</span>&lt;<span class="title">T</span>&gt; </span>&#123;</span><br><span class="line"></span><br><span class="line">	<span class="function"><span class="keyword">boolean</span> <span class="title">canRead</span><span class="params">(Class&lt;?&gt; clazz, @Nullable MediaType mediaType)</span></span>;</span><br><span class="line"></span><br><span class="line">	</span><br><span class="line">	<span class="function"><span class="keyword">boolean</span> <span class="title">canWrite</span><span class="params">(Class&lt;?&gt; clazz, @Nullable MediaType mediaType)</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>clazz = Person.class</p>
-<h5 id="当前支持的媒体类型"><a href="#当前支持的媒体类型" class="headerlink" title="当前支持的媒体类型"></a>当前支持的媒体类型</h5><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">HttpMessageConverter</span>&lt;<span class="title">T</span>&gt; </span>&#123;	</span><br><span class="line">	<span class="function">List&lt;MediaType&gt; <span class="title">getSupportedMediaTypes</span><span class="params">()</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p><code>MappingJackson2HttpMessageConverter</code></p>
-<h5 id="反序列化"><a href="#反序列化" class="headerlink" title="反序列化"></a>反序列化</h5><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">HttpMessageConverter</span>&lt;<span class="title">T</span>&gt; </span>&#123;	</span><br><span class="line">	<span class="function">T <span class="title">read</span><span class="params">(Class&lt;? extends T&gt; clazz, HttpInputMessage inputMessage)</span></span></span><br><span class="line"><span class="function">			<span class="keyword">throws</span> IOException, HttpMessageNotReadableException</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>特别提醒：Spring Web MVC  依赖 Servlet，Spring 在早期设计时，它就考虑到了去 Servlet 化。</p>
-<p>HttpInputMessage 类似于 HttpServletRequest</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">HttpInputMessage</span> <span class="keyword">extends</span> <span class="title">HttpMessage</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">	<span class="function">InputStream <span class="title">getBody</span><span class="params">()</span> <span class="keyword">throws</span> IOException</span>;</span><br><span class="line">    </span><br><span class="line">	<span class="comment">// 来自于 HttpMessage</span></span><br><span class="line">	<span class="function">HttpHeaders <span class="title">getHeaders</span><span class="params">()</span></span>;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>类比 <code>HttpServletRequest</code></p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">HttpServletRequest</span> </span>&#123;    </span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 来自于 ServletRequest</span></span><br><span class="line">	<span class="function"><span class="keyword">public</span> ServletInputStream <span class="title">getInputStream</span><span class="params">()</span> <span class="keyword">throws</span> IOException</span>;</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">public</span> Enumeration&lt;String&gt; <span class="title">getHeaders</span><span class="params">(String name)</span></span>;</span><br><span class="line"> </span><br><span class="line">    <span class="function"><span class="keyword">public</span> Enumeration&lt;String&gt; <span class="title">getHeaderNames</span><span class="params">()</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p><code>RestTemplate</code>利用 <code>HttpMessageConverter</code> 对一定媒体类型序列化和反序列化</p>
-<p>JSON</p>
-<p>XML</p>
-<p>TEXT</p>
-<p>它不依赖于 Servlet API，它自定义实现</p>
-<p>对于服务端而言，将 Servlet API 适配成 <code>HttpInputMessage</code> 以及 <code>HttpOutputMessage</code></p>
-<p><code>RestTemplate</code> 对应多个 <code>HttpMessageConverter</code>，那么如何决策正确媒体类型。</p>
-<h4 id="RestTemplate-在-HttpMessageConverter-设计"><a href="#RestTemplate-在-HttpMessageConverter-设计" class="headerlink" title="RestTemplate 在 HttpMessageConverter 设计"></a>RestTemplate 在 <code>HttpMessageConverter</code> 设计</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">RestTemplate</span> <span class="keyword">extends</span> <span class="title">InterceptingHttpAccessor</span> <span class="keyword">implements</span> <span class="title">RestOperations</span> </span>&#123;</span><br><span class="line">    ...</span><br><span class="line">    <span class="comment">// List 形式</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> List&lt;HttpMessageConverter&lt;?&gt;&gt; messageConverters = <span class="keyword">new</span> ArrayList&lt;&gt;();</span><br><span class="line">    ...</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">RestTemplate</span><span class="params">()</span> </span>&#123;</span><br><span class="line">		<span class="keyword">this</span>.messageConverters.add(<span class="keyword">new</span> ByteArrayHttpMessageConverter());</span><br><span class="line">		<span class="keyword">this</span>.messageConverters.add(<span class="keyword">new</span> StringHttpMessageConverter());</span><br><span class="line">		<span class="keyword">this</span>.messageConverters.add(<span class="keyword">new</span> ResourceHttpMessageConverter(<span class="keyword">false</span>));</span><br><span class="line">		<span class="keyword">this</span>.messageConverters.add(<span class="keyword">new</span> SourceHttpMessageConverter&lt;&gt;());</span><br><span class="line">		<span class="keyword">this</span>.messageConverters.add(<span class="keyword">new</span> AllEncompassingFormHttpMessageConverter());</span><br><span class="line"></span><br><span class="line">		<span class="keyword">if</span> (romePresent) &#123;</span><br><span class="line">			<span class="keyword">this</span>.messageConverters.add(<span class="keyword">new</span> AtomFeedHttpMessageConverter());</span><br><span class="line">			<span class="keyword">this</span>.messageConverters.add(<span class="keyword">new</span> RssChannelHttpMessageConverter());</span><br><span class="line">		&#125;</span><br><span class="line"></span><br><span class="line">		<span class="keyword">if</span> (jackson2XmlPresent) &#123;</span><br><span class="line">			<span class="keyword">this</span>.messageConverters.add(<span class="keyword">new</span> MappingJackson2XmlHttpMessageConverter());</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">else</span> <span class="keyword">if</span> (jaxb2Present) &#123;</span><br><span class="line">			<span class="keyword">this</span>.messageConverters.add(<span class="keyword">new</span> Jaxb2RootElementHttpMessageConverter());</span><br><span class="line">		&#125;</span><br><span class="line"></span><br><span class="line">		<span class="keyword">if</span> (jackson2Present) &#123;</span><br><span class="line">			<span class="keyword">this</span>.messageConverters.add(<span class="keyword">new</span> MappingJackson2HttpMessageConverter());</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">else</span> <span class="keyword">if</span> (gsonPresent) &#123;</span><br><span class="line">			<span class="keyword">this</span>.messageConverters.add(<span class="keyword">new</span> GsonHttpMessageConverter());</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">else</span> <span class="keyword">if</span> (jsonbPresent) &#123;</span><br><span class="line">			<span class="keyword">this</span>.messageConverters.add(<span class="keyword">new</span> JsonbHttpMessageConverter());</span><br><span class="line">		&#125;</span><br><span class="line"></span><br><span class="line">		<span class="keyword">if</span> (jackson2SmilePresent) &#123;</span><br><span class="line">			<span class="keyword">this</span>.messageConverters.add(<span class="keyword">new</span> MappingJackson2SmileHttpMessageConverter());</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">if</span> (jackson2CborPresent) &#123;</span><br><span class="line">			<span class="keyword">this</span>.messageConverters.add(<span class="keyword">new</span> MappingJackson2CborHttpMessageConverter());</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<ul>
-<li>添加内建 <code>HttpMessageConvertor</code> 实现</li>
-<li>有条件地添加第三方库<code>HttpMessageConvertor</code> 整合实现</li>
-</ul>
-<blockquote>
-<p>问题场景一： <a href="http://localhost:8080/person" target="_blank" rel="external">http://localhost:8080/person</a> -&gt; XML 而不是 Jackson</p>
-<p>Postman 、<code>curl</code> 场景最为明显</p>
-<p>没有传递请求头，无从选择媒体类型</p>
-<p>假设 Person 既能被 XML 读取，有能被 JSON 读取</p>
-<p>Content-Type: text/html; charset=utf-8</p>
-</blockquote>
-<h4 id="RestTemplate-扩展"><a href="#RestTemplate-扩展" class="headerlink" title="RestTemplate 扩展"></a>RestTemplate 扩展</h4><h5 id="扩展-HTTP-客户端"><a href="#扩展-HTTP-客户端" class="headerlink" title="扩展 HTTP 客户端"></a>扩展 HTTP 客户端</h5><ul>
-<li>ClientHttpRequestFactory<ul>
-<li>Spring 实现<ul>
-<li>SimpleClientHttpRequestFactory</li>
-</ul>
-</li>
-<li>HttpClient<ul>
-<li>HttpComponentsClientHttpRequestFactory</li>
-</ul>
-</li>
-<li>OkHttp<ul>
-<li>OkHttp3ClientHttpRequestFactory</li>
-<li>OkHttpClientHttpRequestFactory</li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-<p>微服务要使用轻量级的协议，比如 REST</p>
-<p>Spring Cloud <code>RestTemplate</code> 核心的调用器</p>
-<h4 id="RestTemplate-整合-Zookeeper"><a href="#RestTemplate-整合-Zookeeper" class="headerlink" title="RestTemplate 整合 Zookeeper"></a><code>RestTemplate</code> 整合 Zookeeper</h4><h3 id="Netflix-Ribbon"><a href="#Netflix-Ribbon" class="headerlink" title="Netflix Ribbon"></a>Netflix Ribbon</h3><p><code>@LoadBalanced</code> 利用注解来过滤，注入方和声明方同时使用</p>
-<h4 id="负载均衡客户端"><a href="#负载均衡客户端" class="headerlink" title="负载均衡客户端"></a>负载均衡客户端</h4><p><code>ServiceInstanceChooser</code></p>
-<p><code>LoadBalancerClient</code></p>
-<h4 id="负载均衡上下文"><a href="#负载均衡上下文" class="headerlink" title="负载均衡上下文"></a>负载均衡上下文</h4><p><code>LoadBalancerContext</code></p>
-<h4 id="负载均衡规则"><a href="#负载均衡规则" class="headerlink" title="负载均衡规则"></a>负载均衡规则</h4><p><code>ILoadBalancer</code></p>
-<p><code>@Qualifier</code> “父”注解，<code>@Qualifier</code> , <code>@LoadBalanced</code></p>
-
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-      
-
-      <div style="font-size: 12px;">
-        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
-      </div>
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2018/08/05/Spring-cloud-负载均衡/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
-    <article id="post-Spring-cloud服务发现" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2018/08/05/Spring-cloud服务发现/">Spring cloud服务发现</a>
-    </h1>
-  
-
-        
-        <a href="/2018/08/05/Spring-cloud服务发现/" class="archive-article-date">
-  	<time datetime="2018-08-05T08:39:02.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-08-05</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h2 id="简单对比-Eureka"><a href="#简单对比-Eureka" class="headerlink" title="简单对比 Eureka"></a>简单对比 Eureka</h2><table>
-<thead>
-<tr>
-<th>比较点</th>
-<th>Eureka</th>
-<th>Zookeeper</th>
-<th>Consul</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>运维熟悉度</td>
-<td>相对陌生</td>
-<td>熟悉</td>
-<td>更陌生</td>
-</tr>
-<tr>
-<td>一致性（CAP）</td>
-<td>AP（最终一致性）</td>
-<td>CP（一致性强）</td>
-<td>AP（最终一致性）</td>
-</tr>
-<tr>
-<td>一致性协议</td>
-<td>HTTP 定时轮训</td>
-<td>ZAB</td>
-<td>RAFT</td>
-</tr>
-<tr>
-<td>通讯方式</td>
-<td>HTTP REST</td>
-<td>自定义协议</td>
-<td>HTTP REST</td>
-</tr>
-<tr>
-<td>更新机制</td>
-<td>Peer 2 Peer（服务器之间） + Scheduler（服务器和客户端）</td>
-<td>ZK Watch</td>
-<td>Agent 监听的方式</td>
-</tr>
-<tr>
-<td>适用规模</td>
-<td>20 K ~ 30 K 实例（节点）</td>
-<td>10K ~ 20K 实例（节点）</td>
-<td>&lt; 3K 实例（节点）</td>
-</tr>
-<tr>
-<td>性能问题</td>
-<td>简单的更新机制、复杂设计、规模较大时 GC 频繁</td>
-<td>扩容麻烦、规模较大时 GC 频繁</td>
-<td>3K 节点以上，更新列表缓慢</td>
-</tr>
-</tbody>
-</table>
-<h2 id="为什么推荐使用-ZK-作为-Spring-Cloud-的基础设施"><a href="#为什么推荐使用-ZK-作为-Spring-Cloud-的基础设施" class="headerlink" title="为什么推荐使用 ZK 作为 Spring Cloud 的基础设施"></a>为什么推荐使用 ZK 作为 Spring Cloud 的基础设施</h2><h3 id="一致性模型"><a href="#一致性模型" class="headerlink" title="一致性模型"></a>一致性模型</h3><h3 id="维护相对熟悉"><a href="#维护相对熟悉" class="headerlink" title="维护相对熟悉"></a>维护相对熟悉</h3><h3 id="配置中心和服务注册中心单一化"><a href="#配置中心和服务注册中心单一化" class="headerlink" title="配置中心和服务注册中心单一化"></a>配置中心和服务注册中心单一化</h3><h5 id="传统的问题"><a href="#传统的问题" class="headerlink" title="传统的问题"></a>传统的问题</h5><p>Spring Cloud 默认配置</p>
-<p>Eureka 做注册中心</p>
-<p>Git/JDBC 做配置中心</p>
-<h2 id="主要内容"><a href="#主要内容" class="headerlink" title="主要内容"></a>主要内容</h2><h3 id="Spring-Cloud-Discovery-客户端"><a href="#Spring-Cloud-Discovery-客户端" class="headerlink" title="Spring Cloud Discovery 客户端"></a>Spring Cloud Discovery 客户端</h3><h3 id="Spring-Cloud-Discovery-ZK-服务器"><a href="#Spring-Cloud-Discovery-ZK-服务器" class="headerlink" title="Spring Cloud Discovery ZK 服务器"></a>Spring Cloud Discovery ZK 服务器</h3><h4 id="Spring-Cloud-增加-ZK-依赖"><a href="#Spring-Cloud-增加-ZK-依赖" class="headerlink" title="Spring Cloud 增加 ZK 依赖"></a>Spring Cloud 增加 ZK 依赖</h4><ul>
-<li>错误配置（高 ZK Client 版本 3.5，低服务器版本 3.4）</li>
-</ul>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependencies</span>&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-starter-web<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.cloud<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-cloud-starter-zookeeper-discovery<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependencies</span>&gt;</span></span><br></pre></td></tr></table></figure>
-<ul>
-<li>正确配置</li>
-</ul>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.cloud<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-cloud-starter-zookeeper-all<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">exclusions</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">exclusion</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.apache.zookeeper<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>zookeeper<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">exclusion</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">exclusions</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.apache.zookeeper<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>zookeeper<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>3.4.12<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">exclusions</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">exclusion</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.slf4j<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>slf4j-log4j12<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">exclusion</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">exclusions</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
-<ul>
-<li>注册发现</li>
-<li>配置管理</li>
-</ul>
-<h4 id="启动-ZK（3-4-11）"><a href="#启动-ZK（3-4-11）" class="headerlink" title="启动 ZK（3.4.11）"></a>启动 ZK（3.4.11）</h4><h4 id="编写引导类"><a href="#编写引导类" class="headerlink" title="编写引导类"></a>编写引导类</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@SpringBootApplication</span></span><br><span class="line"><span class="meta">@EnableDiscoveryClient</span> <span class="comment">// 尽可能使用 @EnableDiscoveryClient</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ZkDSClientApplication</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        SpringApplication.run(ZkDSClientApplication.class, args);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>实例一：端口 56517</p>
-<p>ZK ID : fff20552-b4a0-43d8-a9ce-c82096f2005e</p>
-<p>实例二：端口 56577</p>
-<p>ZK ID : 9f4e2c91-4765-4f39-9d4b-2036e8e6c4d4</p>
-<p>ZK 节点路径（/services/spring-cloud-service-discovery-client）</p>
-<p>ZK 服务发现节点规则（/services/{spring.application.name}/{serviceId_UUID}/)</p>
-<p>注册增加 service Id 计算</p>
-<p>获取应该去重</p>
-<ul>
-<li>Eureka 2.0 不开源，Eureka 1.x 还可以用的</li>
-</ul>
-<h2 id="代码demo"><a href="#代码demo" class="headerlink" title="代码demo"></a>代码demo</h2><p><code>https://github.com/Frankenjoy123/microservices-joey-project</code></p>
-<p>找到<code>spring-cloud-service-discovery</code>入口启动</p>
-
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-      
-
-      <div style="font-size: 12px;">
-        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
-      </div>
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2018/08/05/Spring-cloud服务发现/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
-    <article id="post-Spring-cloud-配置管理" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2018/08/01/Spring-cloud-配置管理/">Spring cloud 配置管理</a>
-    </h1>
-  
-
-        
-        <a href="/2018/08/01/Spring-cloud-配置管理/" class="archive-article-date">
-  	<time datetime="2018-08-01T12:43:03.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-08-01</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h1 id="Spring-cloud配置管理"><a href="#Spring-cloud配置管理" class="headerlink" title="Spring cloud配置管理"></a>Spring cloud配置管理</h1><h2 id="客户端"><a href="#客户端" class="headerlink" title="客户端"></a>客户端</h2><h3 id="第三方配置commons包"><a href="#第三方配置commons包" class="headerlink" title="第三方配置commons包"></a>第三方配置commons包</h3><h5 id="commons-configuration"><a href="#commons-configuration" class="headerlink" title="commons-configuration"></a><code>commons-configuration</code></h5><ul>
-<li><code>Configuration</code> : 提供大多数常见类型的 Value 转换<ul>
-<li><code>PropertiesConfiguration</code>: 将 Properties 作为 <code>Configuration</code> 配置</li>
-<li><code>MapConfiguration</code><ul>
-<li><code>EnvironmentConfiguration</code> ： OS 环境变量</li>
-<li><code>SystemConfiguration</code> : Java 系统属性</li>
-</ul>
-</li>
-<li>`CompositeConfiguration</li>
-</ul>
-</li>
-</ul>
-<h3 id="ApplicationContext-与-Environment关系"><a href="#ApplicationContext-与-Environment关系" class="headerlink" title="ApplicationContext 与 Environment关系"></a>ApplicationContext 与 Environment关系</h3><figure class="highlight actionscript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ConfigurableEnvironment <span class="keyword">extends</span> Environment</span><br></pre></td></tr></table></figure>
-<ul>
-<li>ApplicationContext 与Environment 一一对应，但是会merge Parent的Environment。</li>
-<li>ConfigurableEnvironment —&gt; MutablePropertySources，一个Environment对应一个PropertySources</li>
-<li>MutablePropertySources -&gt; List PropertySource : 包含多个</li>
-</ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Environment -&gt; ConfigurableEnvironment: 父子层次</span><br><span class="line">ConfigurableEnvironment -&gt; MutablePropertySources: 获取可变多个配置源</span><br><span class="line">MutablePropertySources -&gt; List PropertySource : 包含多个 PropertySource</span><br></pre></td></tr></table></figure>
-<p><code>PropertySource</code> : 配置源</p>
-<ul>
-<li><code>MapPropertySource</code><ul>
-<li><code>PropertiesPropertySource</code></li>
-</ul>
-</li>
-<li><code>CompositePropertySource</code> : 组合</li>
-<li><code>SystemEnvironmentPropertySource</code> 环境变量</li>
-</ul>
-<p>Spring Cloud 客户端配置定位扩展 : <code>PropertySourceLocator</code></p>
-<h3 id="org-springframework-core-env包"><a href="#org-springframework-core-env包" class="headerlink" title="org.springframework.core.env包"></a>org.springframework.core.env包</h3><ul>
-<li><p>PropertySource</p>
-<ul>
-<li>SystemEnvironmentPropertySource</li>
-</ul>
-</li>
-</ul>
-<figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">http:<span class="regexp">//</span>localhost:<span class="number">9095</span><span class="regexp">/config/</span>dev</span><br><span class="line">http:<span class="regexp">//</span>localhost:<span class="number">9095</span><span class="regexp">/config/</span>default</span><br></pre></td></tr></table></figure>
-<h2 id="服务端"><a href="#服务端" class="headerlink" title="服务端"></a>服务端</h2><h3 id="基于-Git-实现"><a href="#基于-Git-实现" class="headerlink" title="基于 Git 实现"></a>基于 Git 实现</h3><ul>
-<li>版本化配置</li>
-</ul>
-<p>/应用名/profile/${label}</p>
-<p>/应用名/profile/ = /应用名/profile/master</p>
-<p>/应用名/ = /应用名.properties</p>
-<p>${label} : 分支</p>
-<ul>
-<li>Spring Cloud Config 实现一套完整的配置管理 API 设计</li>
-</ul>
-<p>Git 实现缺陷：</p>
-<ul>
-<li><p>复杂的版本更新机制（ Git 仓库）</p>
-<ul>
-<li>版本</li>
-<li>分支</li>
-<li>提交</li>
-<li>配置</li>
-</ul>
-</li>
-<li><p>憋足的内容更新（实时性不高）</p>
-<ul>
-<li><p>客户端第一次启动拉取</p>
-</li>
-<li><p>需要整合 BUS 做更新通知</p>
-</li>
-</ul>
-</li>
-</ul>
-<h3 id="设计原理"><a href="#设计原理" class="headerlink" title="设计原理"></a>设计原理</h3><h4 id="分析-EnableConfigServer"><a href="#分析-EnableConfigServer" class="headerlink" title="分析@EnableConfigServer"></a>分析<code>@EnableConfigServer</code></h4><figure class="highlight less"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">@Target</span>(&#123;ElementType.TYPE&#125;)</span><br><span class="line"><span class="variable">@Retention</span>(RetentionPolicy.RUNTIME)</span><br><span class="line"><span class="variable">@Documented</span></span><br><span class="line"><span class="variable">@Import</span>(&#123;ConfigServerConfiguration.class&#125;)</span><br><span class="line">public <span class="variable">@interface</span> EnableConfigServer &#123;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p><code>org.springframework.cloud.config.server.config.ConfigServerAutoConfiguration</code></p>
-<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">JdbcRepositoryConfiguration<span class="selector-class">.class</span>, </span><br><span class="line">VaultRepositoryConfiguration<span class="selector-class">.class</span>,		</span><br><span class="line">SvnRepositoryConfiguration<span class="selector-class">.class</span>, </span><br><span class="line">NativeRepositoryConfiguration<span class="selector-class">.class</span>, </span><br><span class="line">GitRepositoryConfiguration<span class="selector-class">.class</span>,  git的实现</span><br><span class="line">DefaultRepositoryConfiguration.class</span><br><span class="line">从代码中看，才是最真实的。</span><br></pre></td></tr></table></figure>
-<figure class="highlight less"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">@Configuration</span></span><br><span class="line"><span class="variable">@ConditionalOnBean</span>(ConfigServerConfiguration.Marker.class)</span><br><span class="line"><span class="variable">@EnableConfigurationProperties</span>(ConfigServerProperties.class)</span><br><span class="line"><span class="variable">@Import</span>(&#123; EnvironmentRepositoryConfiguration.class, CompositeConfiguration.class, ResourceRepositoryConfiguration.class,</span><br><span class="line">		ConfigServerEncryptionConfiguration.class, ConfigServerMvcConfiguration.class &#125;)</span><br><span class="line">public class ConfigServerAutoConfiguration &#123;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>当应用配置类标注了</p>
-<ul>
-<li><p><code>@EnableConfigSever</code> </p>
-<ul>
-<li><p>导入 <code>ConfigServerConfiguration</code></p>
-<ul>
-<li><p>注册 <code>Marker</code> Bean</p>
-<ul>
-<li>作为 <code>ConfigServerAutoConfiguration</code> 条件之一</li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-<h4 id="jdbc实现"><a href="#jdbc实现" class="headerlink" title="jdbc实现"></a>jdbc实现</h4><ul>
-<li>核心接口 EnvironmentRepository</li>
-</ul>
-<figure class="highlight delphi"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Environment findOne(<span class="keyword">String</span> application, <span class="keyword">String</span> profile, <span class="keyword">String</span> <span class="keyword">label</span>)</span><br></pre></td></tr></table></figure>
-<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">jdbc.query(this<span class="selector-class">.sql</span>,</span><br><span class="line">      new Object[] &#123; app, env, <span class="selector-tag">label</span> &#125;</span><br></pre></td></tr></table></figure>
-<ul>
-<li><p>JdbcTemplate Bean 来源</p>
-<ul>
-<li><code>JdbcTemplateAutoConfiguration</code></li>
-</ul>
-</li>
-<li><p>SQL 来源</p>
-<ul>
-<li><p><code>JdbcEnvironmentProperties</code></p>
-<ul>
-<li><p><code>spring.cloud.config.server.jdbc.sql</code> </p>
-<ul>
-<li><p>不配置，默认：<code>DEFAULT_SQL</code></p>
-<ul>
-<li><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> <span class="keyword">KEY</span>, <span class="keyword">VALUE</span> <span class="keyword">from</span> PROPERTIES <span class="keyword">where</span> APPLICATION=? <span class="keyword">and</span> PROFILE=? <span class="keyword">and</span> LABEL=?</span><br></pre></td></tr></table></figure>
-</li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-<table>
-<thead>
-<tr>
-<th>KEY</th>
-<th>VALUE</th>
-<th>APPLICATION</th>
-<th>PROFILE</th>
-<th>LABEL</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>name</td>
-<td>mercyblitz</td>
-<td>config</td>
-<td>default</td>
-<td>master</td>
-</tr>
-<tr>
-<td>name</td>
-<td>xiaomage</td>
-<td>config</td>
-<td>test</td>
-<td>master</td>
-</tr>
-<tr>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-</tbody>
-</table>
-<p>本质说明：</p>
-<p>JDBC 连接技术</p>
-<p>DB 存储介质</p>
-<p><code>EnvironmentRepository</code> 核心接口</p>
-<ul>
-<li>ConfigServerAutoConfiguration<ul>
-<li>EnvironmentRepositoryConfiguration</li>
-</ul>
-</li>
-</ul>
-<h4 id="默认是-Git-作为配置仓库的原因"><a href="#默认是-Git-作为配置仓库的原因" class="headerlink" title="默认是 Git 作为配置仓库的原因"></a>默认是 Git 作为配置仓库的原因</h4><ul>
-<li>找到了为什么默认是 Git 作为配置仓库的原因：</li>
-</ul>
-<figure class="highlight less"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">@Configuration</span></span><br><span class="line"><span class="variable">@ConditionalOnMissingBean</span>(value = EnvironmentRepository.class, search = SearchStrategy.CURRENT)</span><br><span class="line">class DefaultRepositoryConfiguration</span><br></pre></td></tr></table></figure>
-<p>git 是默认实现，条件是在EnvironmentRepository的bean没有加载。</p>
-<p>所以自己实现自定义的配置，只需要加载一个EnvironmentRepository的bean即可。</p>
-<h4 id="HTTP-请求模式"><a href="#HTTP-请求模式" class="headerlink" title="HTTP 请求模式"></a>HTTP 请求模式</h4><p>/${application}/$${profile}/$${label}</p>
-<p><code>@Controller</code> 或者 <code>@RestController</code></p>
-<p>@RequestMapping(“/{application}/{profile}/{label}”)</p>
-<p>/config/test/master</p>
-<p>config : application</p>
-<p>test : profile</p>
-<p>master : label</p>
-<h2 id="客户端实现Spring-Cloud-Config-Client"><a href="#客户端实现Spring-Cloud-Config-Client" class="headerlink" title="客户端实现Spring Cloud Config Client"></a>客户端实现Spring Cloud Config Client</h2><p>通过<code>spring.cloud.config.uri</code>搜索，找到<code>spring-configuration-metadata.json</code></p>
-<p>找到class<code>ConfigClientProperties</code>，发现<code>private String[] uri = { &quot;http://localhost:8888&quot; }</code>，发现url默认端口8888。</p>
-<h2 id="代码demo"><a href="#代码demo" class="headerlink" title="代码demo"></a>代码demo</h2><p><code>https://github.com/Frankenjoy123/microservices-joey-project</code></p>
-<p>启动spring-cloud-config-server中的main入口，访问如下地址：</p>
-<p><code>http://localhost:9095/config/dev</code></p>
-<h2 id="Jconsole"><a href="#Jconsole" class="headerlink" title="Jconsole"></a>Jconsole</h2><h2 id="RefreshScope"><a href="#RefreshScope" class="headerlink" title="@RefreshScope"></a>@RefreshScope</h2><h2 id="actuator-loggers"><a href="#actuator-loggers" class="headerlink" title="actuator/loggers"></a>actuator/loggers</h2><h2 id="actuator-env"><a href="#actuator-env" class="headerlink" title="actuator/env"></a>actuator/env</h2><h2 id="EnvironmentRepository-接口"><a href="#EnvironmentRepository-接口" class="headerlink" title="EnvironmentRepository  接口"></a>EnvironmentRepository  接口</h2><p>Properties 实现HashTable hashmap</p>
-
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-      
-
-      <div style="font-size: 12px;">
-        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
-      </div>
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2018/08/01/Spring-cloud-配置管理/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
-    <article id="post-Spring应用上下文及事件监听源码分析" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2018/08/01/Spring应用上下文及事件监听源码分析/">Spring应用上下文及事件监听源码分析</a>
-    </h1>
-  
-
-        
-        <a href="/2018/08/01/Spring应用上下文及事件监听源码分析/" class="archive-article-date">
-  	<time datetime="2018-07-31T23:30:54.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-08-01</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>##关闭spring-cloud bootstrap应用上下文</p>
-<p>应用启动参数添加</p>
-<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">--spring<span class="selector-class">.cloud</span><span class="selector-class">.bootstrap</span><span class="selector-class">.enabled</span>=false</span><br></pre></td></tr></table></figure>
-<p><a href="http://localhost:9091/actuator/beans" target="_blank" rel="external">http://localhost:9091/actuator/beans</a></p>
-<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line"><span class="attr">"contexts"</span>: &#123;</span><br><span class="line"><span class="attr">"Joey"</span>: &#123;&#125;,</span><br><span class="line"><span class="attr">"first-boot-app"</span>: &#123;&#125;</span><br><span class="line">&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">BootstrapApplicationListener</span><br><span class="line">onApplicationEvent</span><br></pre></td></tr></table></figure>
-<h2 id="环境变量"><a href="#环境变量" class="headerlink" title="环境变量"></a>环境变量</h2><p><a href="http://localhost:9091/actuator/env" target="_blank" rel="external">http://localhost:9091/actuator/env</a></p>
-<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line"><span class="attr">"activeProfiles"</span>: [],</span><br><span class="line"><span class="attr">"propertySources"</span>: [</span><br><span class="line">&#123;</span><br><span class="line"><span class="attr">"name"</span>: <span class="string">"server.ports"</span>,</span><br><span class="line"><span class="attr">"properties"</span>: &#123;&#125;</span><br><span class="line">&#125;,</span><br><span class="line">&#123;</span><br><span class="line"><span class="attr">"name"</span>: <span class="string">"commandLineArgs"</span>,</span><br><span class="line"><span class="attr">"properties"</span>: &#123;&#125;</span><br><span class="line">&#125;,</span><br><span class="line">&#123;</span><br><span class="line"><span class="attr">"name"</span>: <span class="string">"servletContextInitParams"</span>,</span><br><span class="line"><span class="attr">"properties"</span>: &#123;&#125;</span><br><span class="line">&#125;,</span><br><span class="line">&#123;</span><br><span class="line"><span class="attr">"name"</span>: <span class="string">"systemProperties"</span>,</span><br><span class="line"><span class="attr">"properties"</span>: &#123;&#125;</span><br><span class="line">&#125;,</span><br><span class="line">&#123;</span><br><span class="line"><span class="attr">"name"</span>: <span class="string">"systemEnvironment"</span>,</span><br><span class="line"><span class="attr">"properties"</span>: &#123;&#125;</span><br><span class="line">&#125;,</span><br><span class="line">&#123;</span><br><span class="line"><span class="attr">"name"</span>: <span class="string">"springCloudClientHostInfo"</span>,</span><br><span class="line"><span class="attr">"properties"</span>: &#123;&#125;</span><br><span class="line">&#125;,</span><br><span class="line">&#123;</span><br><span class="line"><span class="attr">"name"</span>: <span class="string">"applicationConfig: [classpath:/application.properties]"</span>,</span><br><span class="line"><span class="attr">"properties"</span>: &#123;&#125;</span><br><span class="line">&#125;</span><br><span class="line">]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h3 id="透过现象找源码"><a href="#透过现象找源码" class="headerlink" title="透过现象找源码"></a>透过现象找源码</h3><ol>
-<li><code>commandLineArgs</code> -&gt; findInPath -&gt; scope : project and library</li>
-<li><code>CommandLinePropertySource.COMMAND_LINE_PROPERTY_SOURCE_NAME</code></li>
-<li>find usage spring boot的引用-&gt; <code>org.springframework.boot.SpringApplication#configurePropertySources</code></li>
-<li>这样就可以继续分析源码 <code>sources.addFirst(new SimpleCommandLinePropertySource(args))</code></li>
-</ol>
-<figure class="highlight haxe"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">protected void configurePropertySources(ConfigurableEnvironment environment,</span><br><span class="line">		<span class="keyword">String</span>[] args) &#123;</span><br><span class="line">	MutablePropertySources sources = environment.getPropertySources();</span><br><span class="line">	<span class="keyword">if</span> (<span class="built_in">this</span>.defaultProperties != <span class="literal">null</span> &amp;&amp; !<span class="built_in">this</span>.defaultProperties.isEmpty()) &#123;</span><br><span class="line">		sources.addLast(</span><br><span class="line">				<span class="keyword">new</span> <span class="type">MapPropertySource</span>(<span class="string">"defaultProperties"</span>, <span class="built_in">this</span>.defaultProperties));</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">if</span> (<span class="built_in">this</span>.addCommandLineProperties &amp;&amp; args.length &gt; <span class="number">0</span>) &#123;</span><br><span class="line">		<span class="keyword">String</span> name = CommandLinePropertySource.COMMAND_LINE_PROPERTY_SOURCE_NAME;</span><br><span class="line">		<span class="keyword">if</span> (sources.contains(name)) &#123;</span><br><span class="line">			PropertySource&lt;?&gt; source = sources.<span class="keyword">get</span>(name);</span><br><span class="line">			CompositePropertySource composite = <span class="keyword">new</span> <span class="type">CompositePropertySource</span>(name);</span><br><span class="line">			composite.addPropertySource(<span class="keyword">new</span> <span class="type">SimpleCommandLinePropertySource</span>(</span><br><span class="line">					<span class="string">"springApplicationCommandLineArgs"</span>, args));</span><br><span class="line">			composite.addPropertySource(source);</span><br><span class="line">			sources.replace(name, composite);</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">else</span> &#123;</span><br><span class="line">			sources.addFirst(<span class="keyword">new</span> <span class="type">SimpleCommandLinePropertySource</span>(args));</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>从这段代码，可以看出，<code>defaultProperties</code>优先级最低，放在最后。<code>commandLine</code>优先级很高，放在最前面，addFirst。</p>
-<h2 id="代码demo"><a href="#代码demo" class="headerlink" title="代码demo"></a>代码demo</h2><p><code>https://github.com/Frankenjoy123/microservices-joey-project</code></p>
-<p>找到<code>spring-cloud-native-application</code>项目入口启动</p>
-
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-      
-
-      <div style="font-size: 12px;">
-        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
-      </div>
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2018/08/01/Spring应用上下文及事件监听源码分析/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
-    <article id="post-node及npm安装-版本升级" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2018/07/26/node及npm安装-版本升级/">node及npm安装 版本升级</a>
-    </h1>
-  
-
-        
-        <a href="/2018/07/26/node及npm安装-版本升级/" class="archive-article-date">
-  	<time datetime="2018-07-26T06:50:39.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-07-26</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>#1.官网下载node</p>
-<p><a href="https://nodejs.org/en/download/" target="_blank" rel="external">https://nodejs.org/en/download/</a></p>
-<h1 id="2-升级npm"><a href="#2-升级npm" class="headerlink" title="2.升级npm"></a>2.升级npm</h1><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 先安装模块n</span></span><br><span class="line">npm install n -g</span><br><span class="line"><span class="meta">#</span><span class="bash"> 将 node 升级到最新稳定版</span></span><br><span class="line">n stable</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 将 npm 升级到最新版</span></span><br><span class="line">npm install npm -g</span><br><span class="line"><span class="meta">#</span><span class="bash"> 如果要指定版本，可以通过@指定版本</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> npm install npm@3.10.10 -g</span></span><br></pre></td></tr></table></figure>
-
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-      
-
-      <div style="font-size: 12px;">
-        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
-      </div>
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2018/07/26/node及npm安装-版本升级/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
   
     <nav id="page-nav">
-      <a class="extend prev" rel="prev" href="/page/3/">&laquo; Prev</a><a class="page-number" href="/">1</a><a class="page-number" href="/page/2/">2</a><a class="page-number" href="/page/3/">3</a><span class="page-number current">4</span><a class="page-number" href="/page/5/">5</a><a class="page-number" href="/page/6/">6</a><span class="space">&hellip;</span><a class="page-number" href="/page/16/">16</a><a class="extend next" rel="next" href="/page/5/">Next &raquo;</a>
+      <a class="extend prev" rel="prev" href="/page/3/">&laquo; Prev</a><a class="page-number" href="/">1</a><a class="page-number" href="/page/2/">2</a><a class="page-number" href="/page/3/">3</a><span class="page-number current">4</span><a class="page-number" href="/page/5/">5</a><a class="page-number" href="/page/6/">6</a><span class="space">&hellip;</span><a class="page-number" href="/page/17/">17</a><a class="extend next" rel="next" href="/page/5/">Next &raquo;</a>
     </nav>
   
 
@@ -1368,11 +1224,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">Dubbo</a>
+                <a href="javascript:void(0)" class="js-tag color3">java并发包</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">java并发包</a>
+                <a href="javascript:void(0)" class="js-tag color1">Dubbo</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1384,6 +1240,10 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">Maven</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">java</a>
               </li>
              
@@ -1392,11 +1252,7 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">Maven</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">redis</a>
+                <a href="javascript:void(0)" class="js-tag color4">java内存模型</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1408,7 +1264,7 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">java内存模型</a>
+                <a href="javascript:void(0)" class="js-tag color1">redis</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1421,6 +1277,10 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">test</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">Netty</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1460,6 +1320,10 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">大数据</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">guava</a>
               </li>
              
@@ -1473,6 +1337,10 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">rest</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">nio</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1496,11 +1364,19 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">Spring</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">zookeeper</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">分布式锁</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">SSE</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1512,19 +1388,15 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">Spring</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">后端</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">前端指南</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">善用佳软</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">后端</a>
               </li>
              
               <li class="article-tag-list-item">
