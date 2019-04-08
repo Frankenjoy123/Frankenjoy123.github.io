@@ -253,20 +253,11 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        <h2 id="伪集群安装方式"><a href="#伪集群安装方式" class="headerlink" title="伪集群安装方式"></a>伪集群安装方式</h2><ol>
-<li><code>JAVA_HOME</code>配置</li>
-</ol>
-<p>编辑<code>/etc/profile</code>，配置如下</p>
+        <h2 id="伪集群安装方式"><a href="#伪集群安装方式" class="headerlink" title="伪集群安装方式"></a>伪集群安装方式</h2><h3 id="1-JAVA-HOME配置"><a href="#1-JAVA-HOME配置" class="headerlink" title="1.JAVA_HOME配置"></a>1.<code>JAVA_HOME</code>配置</h3><p>编辑<code>/etc/profile</code>，配置如下</p>
 <figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="builtin-name">export</span> <span class="attribute">JAVA_HOME</span>=/usr/install/jdk/jdk1.8.0_171</span><br><span class="line"><span class="builtin-name">export</span> <span class="attribute">PATH</span>=<span class="variable">$PATH</span>:$&#123;JAVA_HOME&#125;/bin</span><br></pre></td></tr></table></figure>
-<ol>
-<li><code>HADOOP_HOME</code>配置</li>
-</ol>
-<p>编辑<code>/etc/profile</code>，配置如下</p>
+<h3 id="2-HADOOP-HOME配置"><a href="#2-HADOOP-HOME配置" class="headerlink" title="2.HADOOP_HOME配置"></a>2.<code>HADOOP_HOME</code>配置</h3><p>编辑<code>/etc/profile</code>，配置如下</p>
 <figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="builtin-name">export</span> <span class="attribute">HADOOP_HOME</span>=/opt/sxt/hadoop-2.6.5</span><br><span class="line"><span class="builtin-name">export</span> <span class="attribute">PATH</span>=<span class="variable">$PATH</span>:$HADOOP_HOME/bin:$HADOOP_HOME/sbin</span><br></pre></td></tr></table></figure>
-<ol>
-<li>配置<code>hostname</code></li>
-</ol>
-<p>编辑<code>/etc/hostname</code></p>
+<h3 id="3-配置hostname"><a href="#3-配置hostname" class="headerlink" title="3.配置hostname"></a>3.配置<code>hostname</code></h3><p>编辑<code>/etc/hostname</code></p>
 <figure class="highlight gcode"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="symbol">node01</span></span><br></pre></td></tr></table></figure>
 <p>编辑<code>/etc/sysconfig\network</code>，配置如下</p>
 <figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">NETWORKING</span>=<span class="literal">yes</span></span><br><span class="line"><span class="attr">HOSTNAME</span>=node01</span><br><span class="line"><span class="attr">GATEWAY</span>=<span class="number">192.168</span>.<span class="number">0.255</span></span><br></pre></td></tr></table></figure>
@@ -275,38 +266,23 @@
 <figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">192<span class="selector-class">.168</span><span class="selector-class">.0</span><span class="selector-class">.151</span> <span class="selector-tag">node01</span></span><br><span class="line">192<span class="selector-class">.168</span><span class="selector-class">.0</span><span class="selector-class">.152</span> <span class="selector-tag">node02</span></span><br><span class="line">192<span class="selector-class">.168</span><span class="selector-class">.0</span><span class="selector-class">.153</span> <span class="selector-tag">node03</span></span><br><span class="line">192<span class="selector-class">.168</span><span class="selector-class">.0</span><span class="selector-class">.154</span> <span class="selector-tag">node04</span></span><br></pre></td></tr></table></figure>
 <p>执行<code>hostname node01</code></p>
 <p>执行<code>uname -n</code>，查看hostname ，为node1配置正常。</p>
-<ol>
-<li>配置<code>ssh</code></li>
-</ol>
-<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">ssh-keygen -t dsa -P <span class="string">''</span> -f ~<span class="regexp">/.ssh/id</span>_dsa</span><br><span class="line">cat ~<span class="regexp">/.ssh/id</span>_dsa.pub <span class="meta">&gt;&gt; </span>~<span class="regexp">/.ssh/authorized</span>_keys</span><br></pre></td></tr></table></figure>
+<h3 id="4-配置ssh"><a href="#4-配置ssh" class="headerlink" title="4.配置ssh"></a>4.配置<code>ssh</code></h3><figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">ssh-keygen -t dsa -P <span class="string">''</span> -f ~<span class="regexp">/.ssh/id</span>_dsa</span><br><span class="line">cat ~<span class="regexp">/.ssh/id</span>_dsa.pub <span class="meta">&gt;&gt; </span>~<span class="regexp">/.ssh/authorized</span>_keys</span><br></pre></td></tr></table></figure>
 <p>执行<code>ssh node01</code>，正常连接。</p>
-<ol>
-<li>配置<code>core-site.xml</code></li>
-</ol>
-<p>编辑<code>/opt/sxt/hadoop-2.6.5/etc/hadoop/core-site.xml</code></p>
+<h3 id="5-配置core-site-xml"><a href="#5-配置core-site-xml" class="headerlink" title="5.配置core-site.xml"></a>5.配置<code>core-site.xml</code></h3><p>编辑<code>/opt/sxt/hadoop-2.6.5/etc/hadoop/core-site.xml</code></p>
 <p>配置<code>namenode</code>的内存持久化存储地址，hdfs是其中一种。</p>
 <figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">name</span>&gt;</span>fs.defaultFS<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">value</span>&gt;</span>hdfs://node01:9000<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br></pre></td></tr></table></figure>
 <p>vi命令,<code>4yy</code>复制4行，<code>np</code>再进行粘贴</p>
 <p>配置<code>hadoop.tmp.dir</code>，根据<a href="https://hadoop.apache.org/docs/r2.6.5/hadoop-project-dist/hadoop-common/core-default.xml" target="_blank" rel="external">core-default.xml</a>的配置，默认配置是临时tmp目录<code>/tmp/hadoop-${user.name}</code>，会有被删除的风险。根据<a href="https://hadoop.apache.org/docs/r2.6.5/hadoop-project-dist/hadoop-hdfs/hdfs-default.xml" target="_blank" rel="external">hdfs-default.xml</a>的配置，<code>dfs.namenode.name.dir</code>的默认配置为<code>file://${hadoop.tmp.dir}/dfs/name</code>，<code>dfs.datanode.data.dir</code>的默认配置为<code>file://${hadoop.tmp.dir}/dfs/data</code>。</p>
 <figure class="highlight dts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="params">&lt;property&gt;</span></span><br><span class="line">    <span class="params">&lt;name&gt;</span>hadoop.tmp.dir<span class="params">&lt;/name&gt;</span></span><br><span class="line">    <span class="params">&lt;value&gt;</span><span class="meta-keyword">/var/</span>sxt<span class="meta-keyword">/hadoop/</span>local<span class="params">&lt;/value&gt;</span></span><br><span class="line"><span class="params">&lt;/property&gt;</span></span><br></pre></td></tr></table></figure>
-<ol>
-<li>配置<code>hdfs-site.xml</code></li>
-</ol>
-<p>编辑<code>/opt/sxt/hadoop-2.6.5/etc/hadoop/hdfs-site.xml</code></p>
+<h3 id="6-配置hdfs-site-xml"><a href="#6-配置hdfs-site-xml" class="headerlink" title="6.配置hdfs-site.xml"></a>6.配置<code>hdfs-site.xml</code></h3><p>编辑<code>/opt/sxt/hadoop-2.6.5/etc/hadoop/hdfs-site.xml</code></p>
 <p>配置<code>dfs.replication</code> block的副本为1，因为伪集群只有一个节点。</p>
 <figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">name</span>&gt;</span>dfs.replication<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">value</span>&gt;</span>1<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br></pre></td></tr></table></figure>
 <p>vi 4yy，再np粘贴</p>
 <p>配置<code>secondary</code>的地址</p>
 <figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">name</span>&gt;</span>dfs.namenode.secondary.http-address<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">value</span>&gt;</span>node01:50090<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br></pre></td></tr></table></figure>
-<ol>
-<li>配置<code>hadoop-env.sh</code></li>
-</ol>
-<p>编辑<code>/opt/sxt/hadoop-2.6.5/etc/hadoop/hadoop-env.xml</code>，因为ssh免登会读不到<code>JAVA_HOME</code>的环境变量。</p>
+<h3 id="7-配置hadoop-env-sh"><a href="#7-配置hadoop-env-sh" class="headerlink" title="7.配置hadoop-env.sh"></a>7.配置<code>hadoop-env.sh</code></h3><p>编辑<code>/opt/sxt/hadoop-2.6.5/etc/hadoop/hadoop-env.xml</code>，因为ssh免登会读不到<code>JAVA_HOME</code>的环境变量。</p>
 <figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># The java implementation to use.</span></span><br><span class="line"><span class="builtin-name">export</span> <span class="attribute">JAVA_HOME</span>=/usr/install/jdk/jdk1.8.0_171</span><br></pre></td></tr></table></figure>
-<ol>
-<li>hdfs格式化</li>
-</ol>
-<p>格式化<code>namenode</code>，<code>/var/sxt/hadoop/local</code>目录下会出现。生产环境，谨慎操作 </p>
+<h3 id="8-hdfs格式化"><a href="#8-hdfs格式化" class="headerlink" title="8.hdfs格式化"></a>8.hdfs格式化</h3><p>格式化<code>namenode</code>，<code>/var/sxt/hadoop/local</code>目录下会出现。生产环境，谨慎操作 </p>
 <ul>
 <li>data</li>
 <li>name</li>
@@ -317,15 +293,9 @@
 <p>此时jps查看启动<code>NameNode</code> <code>DataNode</code> <code>SecondaryNameNode</code> 三个进程</p>
 <p><code>cat /var/sxt/hadoop/local/dfs/data/current/VERSION</code>，<code>clusterID</code>为集群id，一个集群的相同。</p>
 <figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#Fri Mar 29 23:44:23 CST 2019</span></span><br><span class="line"><span class="attr">storageID</span>=DS-ecfbb1c3-<span class="number">3054</span>-<span class="number">432</span>b-adc1-<span class="number">3</span>d0420278192</span><br><span class="line"><span class="attr">clusterID</span>=CID-<span class="number">56727752</span>-<span class="number">38</span>bd-<span class="number">4609</span>-<span class="number">8</span>a00-e3166867c072</span><br><span class="line"><span class="attr">cTime</span>=<span class="number">0</span></span><br><span class="line"><span class="attr">datanodeUuid</span>=<span class="number">43</span>d62867-<span class="number">0669</span>-<span class="number">4277</span>-b37f-<span class="number">859</span>f7194bc51</span><br><span class="line"><span class="attr">storageType</span>=DATA_NODE</span><br><span class="line"><span class="attr">layoutVersion</span>=-<span class="number">56</span></span><br></pre></td></tr></table></figure>
-<ol>
-<li>为root用户创建用户目录</li>
-</ol>
-<p><code>hdfs dfs -mkdir /user/root</code></p>
+<h3 id="9-为root用户创建用户目录"><a href="#9-为root用户创建用户目录" class="headerlink" title="9.为root用户创建用户目录"></a>9.为root用户创建用户目录</h3><p><code>hdfs dfs -mkdir /user/root</code></p>
 <p>浏览器查看<code>[http://192.168.0.117:50070](http://192.168.0.117:50070/)</code></p>
-<ol>
-<li>上传文件到用户目录</li>
-</ol>
-<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hdfs dfs -put hadoop-<span class="number">2.6</span>.<span class="number">5</span><span class="selector-class">.tar</span><span class="selector-class">.gz</span> /user/root</span><br></pre></td></tr></table></figure>
+<h3 id="10-上传文件到用户目录"><a href="#10-上传文件到用户目录" class="headerlink" title="10. 上传文件到用户目录"></a>10. 上传文件到用户目录</h3><figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hdfs dfs -put hadoop-<span class="number">2.6</span>.<span class="number">5</span><span class="selector-class">.tar</span><span class="selector-class">.gz</span> /user/root</span><br></pre></td></tr></table></figure>
 <p>查看上传的<a href="http://192.168.0.117:50070/explorer.html#/user/root" target="_blank" rel="external">文件</a></p>
 <p>生成文件</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> ` seq 100000 `; <span class="keyword">do</span> <span class="built_in">echo</span> <span class="string">"hello sxt <span class="variable">$i</span>"</span> &gt;&gt; test.txt;<span class="keyword">done</span></span><br></pre></td></tr></table></figure>
@@ -369,50 +339,29 @@
 </tr>
 </tbody>
 </table>
-<ol>
-<li>ssh配置node01到node02 node03 node04 </li>
-</ol>
-<p>切换到node01</p>
+<h3 id="1-ssh配置node01到node02-node03-node04"><a href="#1-ssh配置node01到node02-node03-node04" class="headerlink" title="1. ssh配置node01到node02 node03 node04"></a>1. ssh配置node01到node02 node03 node04</h3><p>切换到node01</p>
 <figure class="highlight elixir"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">cd .ssh</span><br><span class="line">scp id_dsa.pub root<span class="variable">@192</span>.<span class="number">168.0</span>.<span class="number">152</span><span class="symbol">:`pwd`/node01</span>.pub</span><br></pre></td></tr></table></figure>
 <p>切换到node02</p>
 <figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">cd .ssh</span><br><span class="line">cat node01<span class="selector-class">.pub</span> &gt;&gt; authorized_keys</span><br></pre></td></tr></table></figure>
 <p>如此配置node03  node04</p>
-<ol>
-<li>hosts配置4台机器</li>
-</ol>
-<figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vi <span class="regexp">/etc/</span>hosts</span><br></pre></td></tr></table></figure>
+<h3 id="2-hosts配置4台机器"><a href="#2-hosts配置4台机器" class="headerlink" title="2.hosts配置4台机器"></a>2.hosts配置4台机器</h3><figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vi <span class="regexp">/etc/</span>hosts</span><br></pre></td></tr></table></figure>
 <p>配置如下</p>
 <figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">192<span class="selector-class">.168</span><span class="selector-class">.0</span><span class="selector-class">.151</span> <span class="selector-tag">node01</span></span><br><span class="line">192<span class="selector-class">.168</span><span class="selector-class">.0</span><span class="selector-class">.152</span> <span class="selector-tag">node02</span></span><br><span class="line">192<span class="selector-class">.168</span><span class="selector-class">.0</span><span class="selector-class">.153</span> <span class="selector-tag">node03</span></span><br><span class="line">192<span class="selector-class">.168</span><span class="selector-class">.0</span><span class="selector-class">.154</span> <span class="selector-tag">node04</span></span><br></pre></td></tr></table></figure>
-<ol>
-<li>配置<code>core-site.xml</code></li>
-</ol>
-<figure class="highlight vim"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">cd</span> /<span class="keyword">opt</span>/sxt/hadoop-<span class="number">2.6</span>.<span class="number">5</span>/etc/hadoop</span><br><span class="line"><span class="keyword">vi</span> core-site.xml</span><br></pre></td></tr></table></figure>
+<h3 id="3-配置core-site-xml"><a href="#3-配置core-site-xml" class="headerlink" title="3. 配置core-site.xml"></a>3. 配置<code>core-site.xml</code></h3><figure class="highlight vim"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">cd</span> /<span class="keyword">opt</span>/sxt/hadoop-<span class="number">2.6</span>.<span class="number">5</span>/etc/hadoop</span><br><span class="line"><span class="keyword">vi</span> core-site.xml</span><br></pre></td></tr></table></figure>
 <p>配置如下</p>
 <figure class="highlight dts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="params">&lt;configuration&gt;</span></span><br><span class="line">    <span class="params">&lt;property&gt;</span></span><br><span class="line">        <span class="params">&lt;name&gt;</span>fs.defaultFS<span class="params">&lt;/name&gt;</span></span><br><span class="line">        <span class="meta"># namenode启动节点及端口</span></span><br><span class="line">        <span class="params">&lt;value&gt;</span>hdfs:<span class="comment">//node01:9000&lt;/value&gt;</span></span><br><span class="line">    <span class="params">&lt;/property&gt;</span></span><br><span class="line">    <span class="params">&lt;property&gt;</span></span><br><span class="line">        <span class="params">&lt;name&gt;</span>hadoop.tmp.dir<span class="params">&lt;/name&gt;</span></span><br><span class="line">        <span class="params">&lt;value&gt;</span><span class="meta-keyword">/var/</span>sxt<span class="meta-keyword">/hadoop/</span>full<span class="params">&lt;/value&gt;</span></span><br><span class="line">    <span class="params">&lt;/property&gt;</span></span><br><span class="line"><span class="params">&lt;/configuration&gt;</span></span><br></pre></td></tr></table></figure>
-<ol>
-<li>配置datanode的slave节点</li>
-</ol>
-<figure class="highlight vim"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">cd</span> /<span class="keyword">opt</span>/sxt/hadoop-<span class="number">2.6</span>.<span class="number">5</span>/etc/hadoop</span><br><span class="line"><span class="keyword">vi</span> slaves</span><br></pre></td></tr></table></figure>
+<h3 id="4-配置datanode的slave节点"><a href="#4-配置datanode的slave节点" class="headerlink" title="4.配置datanode的slave节点"></a>4.配置datanode的slave节点</h3><figure class="highlight vim"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">cd</span> /<span class="keyword">opt</span>/sxt/hadoop-<span class="number">2.6</span>.<span class="number">5</span>/etc/hadoop</span><br><span class="line"><span class="keyword">vi</span> slaves</span><br></pre></td></tr></table></figure>
 <p>配置如下</p>
 <figure class="highlight gcode"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="symbol">node02</span></span><br><span class="line"><span class="symbol">node03</span></span><br><span class="line"><span class="symbol">node04</span></span><br></pre></td></tr></table></figure>
-<ol>
-<li>配置<code>hdfs-site.xml</code>，datanode数据数量，secondarynode的启动节点</li>
-</ol>
-<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="selector-tag">vi</span> <span class="selector-tag">hdfs-site</span><span class="selector-class">.xml</span></span><br></pre></td></tr></table></figure>
+<h3 id="5-配置hdfs-site-xml，datanode数据数量，secondarynode的启动节点"><a href="#5-配置hdfs-site-xml，datanode数据数量，secondarynode的启动节点" class="headerlink" title="5.配置hdfs-site.xml，datanode数据数量，secondarynode的启动节点"></a>5.配置<code>hdfs-site.xml</code>，datanode数据数量，secondarynode的启动节点</h3><figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="selector-tag">vi</span> <span class="selector-tag">hdfs-site</span><span class="selector-class">.xml</span></span><br></pre></td></tr></table></figure>
 <figure class="highlight dts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="params">&lt;configuration&gt;</span></span><br><span class="line">    <span class="params">&lt;property&gt;</span></span><br><span class="line">        <span class="params">&lt;name&gt;</span>dfs.replication<span class="params">&lt;/name&gt;</span></span><br><span class="line">        <span class="meta"># datanode副本数量</span></span><br><span class="line">        <span class="params">&lt;value&gt;</span><span class="number">2</span><span class="params">&lt;/value&gt;</span></span><br><span class="line">    <span class="params">&lt;/property&gt;</span></span><br><span class="line">    <span class="params">&lt;property&gt;</span></span><br><span class="line">    	<span class="meta">#secondarynode的启动节点</span></span><br><span class="line">        <span class="params">&lt;name&gt;</span>dfs.namenode.secondary.http-address<span class="params">&lt;/name&gt;</span></span><br><span class="line">        <span class="params">&lt;value&gt;</span>node02:<span class="number">50090</span><span class="params">&lt;/value&gt;</span></span><br><span class="line">    <span class="params">&lt;/property&gt;</span></span><br><span class="line"><span class="params">&lt;/configuration&gt;</span></span><br></pre></td></tr></table></figure>
-<ol>
-<li>scp配置好的安装目录到其他3台</li>
-</ol>
-<figure class="highlight elixir"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">cd /opt</span><br><span class="line">scp -r sxt root<span class="variable">@192</span>.<span class="number">168.0</span>.<span class="number">152</span><span class="symbol">:/opt/</span></span><br></pre></td></tr></table></figure>
-<ol>
-<li>format和启动</li>
-</ol>
-<p>在node01format和启动</p>
+<h3 id="6-scp配置好的安装目录到其他3台"><a href="#6-scp配置好的安装目录到其他3台" class="headerlink" title="6.scp配置好的安装目录到其他3台"></a>6.scp配置好的安装目录到其他3台</h3><figure class="highlight elixir"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">cd /opt</span><br><span class="line">scp -r sxt root<span class="variable">@192</span>.<span class="number">168.0</span>.<span class="number">152</span><span class="symbol">:/opt/</span></span><br></pre></td></tr></table></figure>
+<h3 id="7-format和启动"><a href="#7-format和启动" class="headerlink" title="7.format和启动"></a>7.format和启动</h3><p>在node01format和启动</p>
 <p><a href="http://192.168.0.151:50070/dfshealth.html#tab-datanode" target="_blank" rel="external">http://192.168.0.151:50070/dfshealth.html#tab-datanode</a>  可以查看datanode节点</p>
 <figure class="highlight dos"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">hdfs namenode -<span class="built_in">format</span></span><br><span class="line"><span class="built_in">start</span>-dfs.sh</span><br></pre></td></tr></table></figure>
-<h2 id="ha高可用集群部署方式"><a href="#ha高可用集群部署方式" class="headerlink" title="ha高可用集群部署方式"></a>ha高可用集群部署方式</h2><p><img src="/Users/zhouxiaowu/IdeaProject-gupao/blog/source/_posts/hadoop集群安装部署文档/图片1.png" alt=""></p>
+<h2 id="ha高可用集群部署方式"><a href="#ha高可用集群部署方式" class="headerlink" title="ha高可用集群部署方式"></a>ha高可用集群部署方式</h2><p><img src="/2019/03/28/hadoop集群安装部署文档/图片1.png" alt=""></p>
 <ul>
-<li>namenode 主备</li>
+<li>namenode 主备，fsimage + editLog</li>
 <li>JournalNode 更新日志</li>
 <li>ZKFC争抢锁，为namenode判断主节点</li>
 </ul>
@@ -464,85 +413,47 @@
 <ul>
 <li>需要配置node01 和 node02之间的相互免密</li>
 <li>需要配置node01 到 node02 node03 node04的免密</li>
-<li>需要配置node02 到 node02 node03 node04的免密</li>
+<li>需要配置node02 到 node01 node03 node04的免密</li>
 </ul>
-<ol>
-<li>zookeeper安装(node02 node03 node04)</li>
-</ol>
-<p>编辑启用node02(192.168.0.152)</p>
+<h3 id="1-zookeeper安装-node02-node03-node04"><a href="#1-zookeeper安装-node02-node03-node04" class="headerlink" title="1.zookeeper安装(node02 node03 node04)"></a>1.zookeeper安装(node02 node03 node04)</h3><p>编辑启用node02(192.168.0.152)</p>
 <figure class="highlight x86asm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">dataDir=/var/sxt/zk</span><br><span class="line"></span><br><span class="line">server<span class="meta">.1</span>=<span class="number">192.168</span><span class="meta">.0</span><span class="meta">.152</span>:<span class="number">2888</span>:<span class="number">3888</span></span><br><span class="line">server<span class="meta">.2</span>=<span class="number">192.168</span><span class="meta">.0</span><span class="meta">.153</span>:<span class="number">2888</span>:<span class="number">3888</span></span><br><span class="line">server<span class="meta">.3</span>=<span class="number">192.168</span><span class="meta">.0</span><span class="meta">.154</span>:<span class="number">2888</span>:<span class="number">3888</span></span><br></pre></td></tr></table></figure>
 <figure class="highlight dts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">mkdir -p <span class="meta-keyword">/var/</span>sxt/zk</span><br><span class="line">echo <span class="string">"1"</span> &gt; <span class="meta-keyword">/var/</span>sxt<span class="meta-keyword">/zk/</span>myid</span><br></pre></td></tr></table></figure>
 <p>依次启动node03 node04</p>
 <p>会发现node03作为leader节点，比较版本最新，版本一次比较myid的大小。</p>
 <p><strong>启动完node02，node03的myid比较大，作为leader。</strong>启动node04的时候，leader节点已存在。</p>
 <figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">zkServer<span class="selector-class">.sh</span> start</span><br><span class="line">zkServer<span class="selector-class">.sh</span> status</span><br></pre></td></tr></table></figure>
-<ol>
-<li>配置<code>hdfs-site.xml</code></li>
-</ol>
-<p>配置逻辑和物理的关系</p>
+<h3 id="2-配置hdfs-site-xml"><a href="#2-配置hdfs-site-xml" class="headerlink" title="2.配置hdfs-site.xml"></a>2.配置<code>hdfs-site.xml</code></h3><p>配置逻辑和物理的关系</p>
 <figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">name</span>&gt;</span>dfs.nameservices<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">value</span>&gt;</span>mycluster<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">name</span>&gt;</span>dfs.ha.namenodes.mycluster<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">value</span>&gt;</span>nn1,nn2<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">name</span>&gt;</span>dfs.namenode.rpc-address.mycluster.nn1<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">value</span>&gt;</span>node01:8020<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">name</span>&gt;</span>dfs.namenode.rpc-address.mycluster.nn2<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">value</span>&gt;</span>node02:8020<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">name</span>&gt;</span>dfs.namenode.http-address.mycluster.nn1<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">value</span>&gt;</span>node01:50070<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">name</span>&gt;</span>dfs.namenode.http-address.mycluster.nn2<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">value</span>&gt;</span>node02:50070<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br></pre></td></tr></table></figure>
 <p>配置<code>journalnode</code>  和 <code>ssh</code></p>
 <figure class="highlight dts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="params">&lt;property&gt;</span></span><br><span class="line">  <span class="params">&lt;name&gt;</span>dfs.namenode.shared.edits.dir<span class="params">&lt;/name&gt;</span></span><br><span class="line">  <span class="params">&lt;value&gt;</span>qjournal:<span class="comment">//node01:8485;node02:8485;node03:8485/mycluster&lt;/value&gt;</span></span><br><span class="line"><span class="params">&lt;/property&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="params">&lt;property&gt;</span></span><br><span class="line">  <span class="params">&lt;name&gt;</span>dfs.journalnode.edits.dir<span class="params">&lt;/name&gt;</span></span><br><span class="line">  <span class="params">&lt;value&gt;</span><span class="meta-keyword">/var/</span>sxt<span class="meta-keyword">/hadoop/</span>ha/jn<span class="params">&lt;/value&gt;</span></span><br><span class="line"><span class="params">&lt;/property&gt;</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="params">&lt;property&gt;</span></span><br><span class="line">  <span class="params">&lt;name&gt;</span>dfs.client.failover.proxy.provider.mycluster<span class="params">&lt;/name&gt;</span></span><br><span class="line">  <span class="params">&lt;value&gt;</span>org.apache.hadoop.hdfs.server.namenode.ha.ConfiguredFailoverProxyProvider<span class="params">&lt;/value&gt;</span></span><br><span class="line"><span class="params">&lt;/property&gt;</span></span><br><span class="line"><span class="params">&lt;property&gt;</span></span><br><span class="line">  <span class="params">&lt;name&gt;</span>dfs.ha.fencing.methods<span class="params">&lt;/name&gt;</span></span><br><span class="line">  <span class="params">&lt;value&gt;</span>sshfence<span class="params">&lt;/value&gt;</span></span><br><span class="line"><span class="params">&lt;/property&gt;</span></span><br><span class="line"><span class="params">&lt;property&gt;</span></span><br><span class="line">  <span class="params">&lt;name&gt;</span>dfs.ha.fencing.ssh.private-key-files<span class="params">&lt;/name&gt;</span></span><br><span class="line">  <span class="params">&lt;value&gt;</span><span class="meta-keyword">/root/</span>.ssh/id_dsa<span class="params">&lt;/value&gt;</span></span><br><span class="line"><span class="params">&lt;/property&gt;</span></span><br></pre></td></tr></table></figure>
 <p>启用<code>zkfc</code>配置</p>
 <figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">   <span class="tag">&lt;<span class="name">name</span>&gt;</span>dfs.ha.automatic-failover.enabled<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">   <span class="tag">&lt;<span class="name">value</span>&gt;</span>true<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line"> <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br></pre></td></tr></table></figure>
-<ol>
-<li>配置<code>core-site.xml</code></li>
-</ol>
-<p>配置namenode的存储配置，以及<code>zookeeper</code>的配置</p>
+<h3 id="3-配置core-site-xml-1"><a href="#3-配置core-site-xml-1" class="headerlink" title="3.配置core-site.xml"></a>3.配置<code>core-site.xml</code></h3><p>配置namenode的存储配置，以及<code>zookeeper</code>的配置</p>
 <figure class="highlight dts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="params">&lt;property&gt;</span></span><br><span class="line">    <span class="params">&lt;name&gt;</span>fs.defaultFS<span class="params">&lt;/name&gt;</span></span><br><span class="line">    <span class="params">&lt;value&gt;</span>hdfs:<span class="comment">//mycluster&lt;/value&gt;</span></span><br><span class="line"><span class="params">&lt;/property&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="params">&lt;property&gt;</span></span><br><span class="line">    <span class="params">&lt;name&gt;</span>hadoop.tmp.dir<span class="params">&lt;/name&gt;</span></span><br><span class="line">    <span class="params">&lt;value&gt;</span><span class="meta-keyword">/var/</span>sxt<span class="meta-keyword">/hadoop/</span>ha<span class="params">&lt;/value&gt;</span></span><br><span class="line"><span class="params">&lt;/property&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="params">&lt;property&gt;</span></span><br><span class="line">   <span class="params">&lt;name&gt;</span>ha.zookeeper.quorum<span class="params">&lt;/name&gt;</span></span><br><span class="line">   <span class="params">&lt;value&gt;</span>node02:<span class="number">2181</span>,node03:<span class="number">2181</span>,node04:<span class="number">2181</span><span class="params">&lt;/value&gt;</span></span><br><span class="line"> <span class="params">&lt;/property&gt;</span></span><br></pre></td></tr></table></figure>
 <p>复制配置文件到node02 node03 node04</p>
 <figure class="highlight crmsh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">scp hdfs-site.<span class="keyword">xml</span> <span class="title">core-site</span>.<span class="keyword">xml</span> <span class="title">node02</span>:`pwd`</span><br></pre></td></tr></table></figure>
-<ol>
-<li>启动<code>journalnode</code>，node01 node02 node03</li>
-</ol>
-<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hadoop-daemon<span class="selector-class">.sh</span> start journalnode</span><br></pre></td></tr></table></figure>
-<ol>
-<li>格式化<code>namenode</code>  格式化zkfc<code>zookeeper</code>  启动namenode</li>
-</ol>
-<figure class="highlight dos"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">hdfs namenode -<span class="built_in">format</span></span><br><span class="line">hdfs zkfc -formtZK</span><br><span class="line">hadoop-daemon.sh <span class="built_in">start</span> namenode</span><br></pre></td></tr></table></figure>
+<h3 id="4-启动journalnode，node01-node02-node03"><a href="#4-启动journalnode，node01-node02-node03" class="headerlink" title="4.启动journalnode，node01 node02 node03"></a>4.启动<code>journalnode</code>，node01 node02 node03</h3><figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hadoop-daemon<span class="selector-class">.sh</span> start journalnode</span><br></pre></td></tr></table></figure>
+<h3 id="5-格式化namenode-格式化zkfczookeeper-启动namenode"><a href="#5-格式化namenode-格式化zkfczookeeper-启动namenode" class="headerlink" title="5.格式化namenode  格式化zkfczookeeper  启动namenode"></a>5.格式化<code>namenode</code>  格式化zkfc<code>zookeeper</code>  启动namenode</h3><figure class="highlight dos"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">hdfs namenode -<span class="built_in">format</span></span><br><span class="line">hdfs zkfc -formtZK</span><br><span class="line">hadoop-daemon.sh <span class="built_in">start</span> namenode</span><br></pre></td></tr></table></figure>
 <p>查看<code>zkCli.sh</code></p>
 <figure class="highlight jboss-cli"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">ls</span> <span class="string">/hadoop-ha/mycluster</span></span><br></pre></td></tr></table></figure>
-<ol>
-<li>node02 复制配置，以standby方式启动</li>
-</ol>
-<figure class="highlight ebnf"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">hdfs namenode -bootstrapStandby</span></span><br></pre></td></tr></table></figure>
-<ol>
-<li>最后启动    <code>hdfs</code></li>
-</ol>
-<figure class="highlight crmsh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="literal">start</span>-dfs.sh</span><br></pre></td></tr></table></figure>
-<ol>
-<li>重启只需要启动zk，<code>start-dfs.sh</code></li>
-</ol>
-<ul>
-<li>验证ha</li>
-</ul>
-<p><a href="http://node01:50070/dfshealth.html#tab-overview" target="_blank" rel="external">http://node01:50070/dfshealth.html#tab-overview</a>  查看node01为active状态</p>
+<h3 id="6-node02-复制配置，以standby方式启动"><a href="#6-node02-复制配置，以standby方式启动" class="headerlink" title="6.node02 复制配置，以standby方式启动"></a>6.node02 复制配置，以standby方式启动</h3><figure class="highlight ebnf"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">hdfs namenode -bootstrapStandby</span></span><br></pre></td></tr></table></figure>
+<h3 id="7-最后启动-hdfs"><a href="#7-最后启动-hdfs" class="headerlink" title="7.最后启动    hdfs"></a>7.最后启动    <code>hdfs</code></h3><figure class="highlight crmsh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="literal">start</span>-dfs.sh</span><br></pre></td></tr></table></figure>
+<h3 id="8-重启只需要启动zk，启动start-dfs-sh"><a href="#8-重启只需要启动zk，启动start-dfs-sh" class="headerlink" title="8.重启只需要启动zk，启动start-dfs.sh"></a>8.重启只需要启动zk，启动<code>start-dfs.sh</code></h3><h3 id="9-验证ha"><a href="#9-验证ha" class="headerlink" title="9.验证ha"></a>9.验证ha</h3><p><a href="http://node01:50070/dfshealth.html#tab-overview" target="_blank" rel="external">http://node01:50070/dfshealth.html#tab-overview</a>  查看node01为active状态</p>
 <p>杀掉node01<code>kill -9 namenode</code> <a href="http://node02:50070/dfshealth.html#tab-overview" target="_blank" rel="external">http://node02:50070/dfshealth.html#tab-overview</a>  node02变为active状态</p>
 <p>从zk节点查看争抢锁状态</p>
 <figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="builtin-name">get</span> /hadoop-ha/mycluster/ActiveStandbyElectorLock</span><br></pre></td></tr></table></figure>
-<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">	myclusternn2node02 �&gt;(�&gt;</span><br><span class="line">cZxid = 0x100000175</span><br><span class="line">ctime = Sat Apr 06 23:58:59 EDT 2019</span><br><span class="line">mZxid = 0x100000175</span><br><span class="line">mtime = Sat Apr 06 23:58:59 EDT 2019</span><br><span class="line">pZxid = 0x100000175</span><br><span class="line">cversion = 0</span><br><span class="line">dataVersion = 0</span><br><span class="line">aclVersion = 0</span><br><span class="line">ephemeralOwner = 0x269f5aa4c8b003a</span><br><span class="line">dataLength = 30</span><br><span class="line">numChildren = 0</span><br></pre></td></tr></table></figure>
+<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">	myclusternn2node02</span><br><span class="line">cZxid = 0x100000175</span><br><span class="line">ctime = Sat Apr 06 23:58:59 EDT 2019</span><br><span class="line">mZxid = 0x100000175</span><br><span class="line">mtime = Sat Apr 06 23:58:59 EDT 2019</span><br><span class="line">pZxid = 0x100000175</span><br><span class="line">cversion = 0</span><br><span class="line">dataVersion = 0</span><br><span class="line">aclVersion = 0</span><br><span class="line">ephemeralOwner = 0x269f5aa4c8b003a</span><br><span class="line">dataLength = 30</span><br><span class="line">numChildren = 0</span><br></pre></td></tr></table></figure>
 <p>重新启用node01</p>
 <figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hadoop-daemon<span class="selector-class">.sh</span> start namenode</span><br></pre></td></tr></table></figure>
 <p>zkFC down之后，应该是zk争抢锁节点，失去心跳链接</p>
 <p>服务器down之后的后果，也可正常切换</p>
-<h2 id="开发分布式存储"><a href="#开发分布式存储" class="headerlink" title="开发分布式存储"></a>开发分布式存储</h2><p>common 121个包</p>
-<p>环境变量</p>
-<p>HADOOP_USER_NAME root</p>
-<p>eclipse插件  DFS locations</p>
-<p>use 去掉勾</p>
-<p>@before 链接</p>
-<p>core-site.xml</p>
-<p>fsDefault</p>
-<p>@test</p>
-<p>fs.createPath  给个outputstrem</p>
-<p>getBlockSize</p>
-<p>getFileBolckLocations(file , start len)</p>
-<p>getFilestatus</p>
-<p>listStatus   ls</p>
-<p>mkdirts</p>
-<p>open  FSDataInputStream  读dfs中的内容到内存</p>
-<p>fs.mkdirs();</p>
-<figure class="highlight pony"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">new</span> <span class="title">BufferedInoutStream</span>(new <span class="type">FileInputStream</span>())</span></span><br><span class="line"><span class="function"></span></span><br><span class="line"><span class="function"><span class="title">Path</span> <span class="title">outFile</span> = <span class="title">new</span> <span class="title">Path</span>(/data/oox.txt")</span></span><br><span class="line"><span class="function"><span class="title">FS</span> = <span class="title">dafs</span>.<span class="title">create</span>(outFile);</span></span><br><span class="line"><span class="function"></span></span><br><span class="line"><span class="function"><span class="title">IOUTils</span>.<span class="title">copyBytes</span>(inpt,output,conf,true);</span></span><br></pre></td></tr></table></figure>
+<h2 id="开发分布式存储"><a href="#开发分布式存储" class="headerlink" title="开发分布式存储"></a>开发分布式存储</h2><h3 id="windows-eclipse开发配置"><a href="#windows-eclipse开发配置" class="headerlink" title="windows eclipse开发配置"></a>windows eclipse开发配置</h3><p>1.使用eclipse mars解压，解压<code>hadoop-2.6.5</code>，</p>
+<p>2.复制<code>hadoop-2.6.5\sharre\hadoop</code>中comon、hdfs、mapreduce、tools、yarn中的根目录的jar包，以及lib目录下的jar包，统一复制到目录，共121个，配置成user-library</p>
+<p>3.配置<code>HADOOP_HOME</code>环境变量，<code>HADOOP_USER_NAME</code>环境变量为<code>root</code>，配置path</p>
+<p>4.<code>hadoop.dll</code>  放到 <code>c:/windows/system32</code>下</p>
+<p>5.复制服务机器配置中的<code>core-site.xml</code> <code>hdfs-site.xml</code> 到conf目录下，并将文件夹设置为resource</p>
+<p>测试用例</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.sxt.hadoop.hdfs;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.io.BufferedInputStream;</span><br><span class="line"><span class="keyword">import</span> java.io.File;</span><br><span class="line"><span class="keyword">import</span> java.io.FileInputStream;</span><br><span class="line"><span class="keyword">import</span> java.io.FileNotFoundException;</span><br><span class="line"><span class="keyword">import</span> java.io.IOException;</span><br><span class="line"><span class="keyword">import</span> java.io.InputStream;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> org.apache.hadoop.conf.Configuration;</span><br><span class="line"><span class="keyword">import</span> org.apache.hadoop.fs.BlockLocation;</span><br><span class="line"><span class="keyword">import</span> org.apache.hadoop.fs.FSDataOutputStream;</span><br><span class="line"><span class="keyword">import</span> org.apache.hadoop.fs.FileStatus;</span><br><span class="line"><span class="keyword">import</span> org.apache.hadoop.fs.FileSystem;</span><br><span class="line"><span class="keyword">import</span> org.apache.hadoop.fs.Path;</span><br><span class="line"><span class="keyword">import</span> org.apache.hadoop.io.IOUtils;</span><br><span class="line"><span class="keyword">import</span> org.junit.After;</span><br><span class="line"><span class="keyword">import</span> org.junit.Before;</span><br><span class="line"><span class="keyword">import</span> org.junit.Test;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">TetsHDFS</span> </span>&#123;</span><br><span class="line">	</span><br><span class="line">	Configuration conf = <span class="keyword">null</span>;</span><br><span class="line">	FileSystem fs = <span class="keyword">null</span>;</span><br><span class="line">	</span><br><span class="line">	<span class="meta">@Before</span></span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">connect</span><span class="params">()</span> <span class="keyword">throws</span> IOException</span>&#123;</span><br><span class="line">		conf = <span class="keyword">new</span> Configuration(<span class="keyword">true</span>);</span><br><span class="line">		fs = FileSystem.get(conf);</span><br><span class="line">		</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="meta">@After</span></span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">close</span><span class="params">()</span> <span class="keyword">throws</span> IOException</span>&#123;</span><br><span class="line">		fs.close();</span><br><span class="line">		</span><br><span class="line">	&#125;</span><br><span class="line">	</span><br><span class="line">	<span class="meta">@Test</span></span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">mkdir</span><span class="params">()</span> <span class="keyword">throws</span> IOException</span>&#123;</span><br><span class="line">		Path dirs = <span class="keyword">new</span> Path(<span class="string">"/data"</span>);</span><br><span class="line">		<span class="keyword">if</span>(fs.exists(dirs))&#123;</span><br><span class="line">			fs.delete(dirs,<span class="keyword">true</span>);</span><br><span class="line">		&#125;</span><br><span class="line">		</span><br><span class="line">		fs.mkdirs(dirs);</span><br><span class="line">		</span><br><span class="line">	&#125;</span><br><span class="line">	</span><br><span class="line">	<span class="meta">@Test</span></span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">upload</span><span class="params">()</span> <span class="keyword">throws</span> IOException</span>&#123;</span><br><span class="line">		InputStream input = <span class="keyword">new</span> BufferedInputStream(<span class="keyword">new</span> FileInputStream(</span><br><span class="line">				<span class="keyword">new</span> File(<span class="string">"D:\\uninstall\\redis\\redis\\redis.windows.conf"</span>)));</span><br><span class="line">		Path f = <span class="keyword">new</span> Path(<span class="string">"/data/ooxx.txt"</span>);</span><br><span class="line">		FSDataOutputStream out = fs.create(f);</span><br><span class="line">		</span><br><span class="line">		IOUtils.copyBytes(input, out, conf , <span class="keyword">true</span>);</span><br><span class="line">		</span><br><span class="line">	&#125;</span><br><span class="line">	</span><br><span class="line">	<span class="meta">@Test</span></span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">blocksize</span><span class="params">()</span> <span class="keyword">throws</span> IOException</span>&#123;</span><br><span class="line">		</span><br><span class="line">		Path path = <span class="keyword">new</span> Path(<span class="string">"/user/root/test.txt"</span>);</span><br><span class="line">	</span><br><span class="line">		FileStatus fileStatus = fs.getFileStatus(path);</span><br><span class="line">		</span><br><span class="line">		BlockLocation[] lcts = fs.getFileBlockLocations(fileStatus, <span class="number">0</span>, fileStatus.getLen());</span><br><span class="line">		</span><br><span class="line">		<span class="keyword">for</span>(BlockLocation lct : lcts)&#123;</span><br><span class="line">			System.out.println(lct);</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <figure class="highlight stata"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> `seq 100` ;<span class="keyword">do</span> echo <span class="string">""</span> &gt;&gt; <span class="keyword">test</span>.txt;done</span><br><span class="line"></span><br><span class="line">fs.getFileStatus(f);</span><br><span class="line">Boclocatin[] fs.getFileBOckeLocations(<span class="keyword">file</span>,0.<span class="keyword">file</span>.getLen);</span><br><span class="line">sout(locaiton);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">FSInput fs.<span class="keyword">open</span>(f);</span><br><span class="line"></span><br><span class="line">sout((cahr)<span class="keyword">in</span>.redfByte());</span><br><span class="line"></span><br><span class="line">第二个块<span class="built_in">index</span></span><br><span class="line"><span class="keyword">in</span>.seek(1048576);</span><br><span class="line">跳过</span><br></pre></td></tr></table></figure>
 
       
@@ -1829,15 +1740,15 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">Maven</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">java</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">JVM</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">Maven</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1849,11 +1760,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">快捷键</a>
+                <a href="javascript:void(0)" class="js-tag color1">redis</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">redis</a>
+                <a href="javascript:void(0)" class="js-tag color4">快捷键</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1861,11 +1772,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">MySQL</a>
+                <a href="javascript:void(0)" class="js-tag color5">test</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">test</a>
+                <a href="javascript:void(0)" class="js-tag color1">MySQL</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1873,7 +1784,15 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">限流</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Python</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">spring</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1881,15 +1800,7 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">限流</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">RxJava</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">spring</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1925,11 +1836,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">rest</a>
+                <a href="javascript:void(0)" class="js-tag color4">nio</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">nio</a>
+                <a href="javascript:void(0)" class="js-tag color5">rest</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1937,11 +1848,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">Mac</a>
+                <a href="javascript:void(0)" class="js-tag color1">maven</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">maven</a>
+                <a href="javascript:void(0)" class="js-tag color4">Mac</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1953,11 +1864,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">Spring</a>
+                <a href="javascript:void(0)" class="js-tag color5">zookeeper</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">zookeeper</a>
+                <a href="javascript:void(0)" class="js-tag color4">SSE</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1965,7 +1876,7 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">SSE</a>
+                <a href="javascript:void(0)" class="js-tag color2">Spring</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1981,11 +1892,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">善用佳软</a>
+                <a href="javascript:void(0)" class="js-tag color3">后端</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">后端</a>
+                <a href="javascript:void(0)" class="js-tag color5">善用佳软</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -2009,15 +1920,15 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">前端跨域</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">单例</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">HashMap</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">前端跨域</a>
               </li>
              
               <li class="article-tag-list-item">
