@@ -150,6 +150,290 @@
           <div id="js-content" class="content-ll">
             
   
+    <article id="post-MySQL-select子查询引用变量" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2017/12/28/MySQL-select子查询引用变量/">MySQL select子查询引用变量</a>
+    </h1>
+  
+
+        
+        <a href="/2017/12/28/MySQL-select子查询引用变量/" class="archive-article-date">
+  	<time datetime="2017-12-28T06:25:39.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2017-12-28</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="示例一"><a href="#示例一" class="headerlink" title="示例一"></a>示例一</h1><p>前几天看别人的代码中看到在字段中使用select子查询的方法，第一次见这种写法，然后研究了一下，记录下来</p>
+<p>大概的形式是这样的:</p>
+<figure class="highlight n1ql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> a .*,(<span class="keyword">select</span> b.another_field <span class="keyword">from</span> b <span class="keyword">where</span> a.id=b.aid) another_field <span class="keyword">from</span> a <span class="keyword">where</span> <span class="number">1</span> <span class="keyword">limit</span> <span class="number">10</span>;</span><br></pre></td></tr></table></figure>
+<p>下面还是以实例来说明，要不然不好理解，新建两张表，一张是商品表，另外一张是商品的评论表</p>
+<p>商品表：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> <span class="string">`product`</span> (  </span><br><span class="line"> <span class="string">`id`</span> <span class="built_in">int</span>(<span class="number">11</span>) <span class="keyword">NOT</span> <span class="literal">NULL</span> AUTO_INCREMENT,  </span><br><span class="line"> <span class="string">`product_name`</span> <span class="built_in">varchar</span>(<span class="number">30</span>) <span class="built_in">CHARACTER</span> <span class="keyword">SET</span> utf8 <span class="keyword">NOT</span> <span class="literal">NULL</span>,  </span><br><span class="line"> <span class="string">`price`</span> <span class="built_in">float</span> <span class="keyword">NOT</span> <span class="literal">NULL</span>,  </span><br><span class="line"> PRIMARY <span class="keyword">KEY</span> (<span class="string">`id`</span>)  </span><br><span class="line">) <span class="keyword">ENGINE</span>=<span class="keyword">InnoDB</span>;</span><br></pre></td></tr></table></figure>
+<p>评论表：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> <span class="string">`comment`</span> (  </span><br><span class="line"> <span class="string">`id`</span> <span class="built_in">int</span>(<span class="number">11</span>) <span class="keyword">NOT</span> <span class="literal">NULL</span> AUTO_INCREMENT,  </span><br><span class="line"> <span class="string">`entity_id`</span> <span class="built_in">int</span>(<span class="number">11</span>) <span class="keyword">NOT</span> <span class="literal">NULL</span>,  </span><br><span class="line"> <span class="string">`content`</span> <span class="built_in">varchar</span>(<span class="number">100</span>) <span class="built_in">CHARACTER</span> <span class="keyword">SET</span> utf8 <span class="keyword">NOT</span> <span class="literal">NULL</span>,  </span><br><span class="line"> PRIMARY <span class="keyword">KEY</span> (<span class="string">`id`</span>)  </span><br><span class="line">) <span class="keyword">ENGINE</span>=<span class="keyword">InnoDB</span>;</span><br></pre></td></tr></table></figure>
+<p>然后插入一些数据：</p>
+<figure class="highlight n1ql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> <span class="symbol">`product`</span> (<span class="symbol">`id`</span>, <span class="symbol">`product_name`</span>, <span class="symbol">`price`</span>) <span class="keyword">VALUES</span>  </span><br><span class="line">(<span class="number">1</span>, <span class="string">'肉松饼'</span>, <span class="number">5</span>),  </span><br><span class="line">(<span class="number">2</span>, <span class="string">'可乐'</span>, <span class="number">5</span>),  </span><br><span class="line">(<span class="number">3</span>, <span class="string">'鸡翅'</span>, <span class="number">12</span>),  </span><br><span class="line">(<span class="number">4</span>, <span class="string">'杯子'</span>, <span class="number">42</span>);  </span><br><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> <span class="symbol">`comment`</span> (<span class="symbol">`id`</span>, <span class="symbol">`entity_id`</span>, <span class="symbol">`content`</span>) <span class="keyword">VALUES</span>  </span><br><span class="line">(<span class="number">1</span>, <span class="number">1</span>, <span class="string">'味道还不错'</span>),  </span><br><span class="line">(<span class="number">2</span>, <span class="number">1</span>, <span class="string">'还行啊'</span>),  </span><br><span class="line">(<span class="number">3</span>, <span class="number">3</span>, <span class="string">'很实用哦'</span>);</span><br></pre></td></tr></table></figure>
+<p>下面我们用子查询的方式来查出商品的信息以及每个商品的评论数量</p>
+<figure class="highlight n1ql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> product.*,(<span class="keyword">select</span> <span class="built_in">count</span>(comment.id) <span class="keyword">from</span> comment <span class="keyword">where</span> product.id=comment.entity_id) comment_count <span class="keyword">FROM</span> <span class="symbol">`product`</span> <span class="keyword">limit</span> <span class="number">5</span>;</span><br></pre></td></tr></table></figure>
+<p>查询结果如下：</p>
+<p><a href="http://www.zjj.com/phpmyadmin/sql.php?db=test&amp;table=product&amp;sql_query=SELECT+product.%2A%2C%28select+count%28comment.id%29+from+comment+where+product.id%3Dcomment.entity_id%29+comment_count+FROM+%60product%60+ORDER+BY+%60product%60.%60id%60+ASC+limit+5&amp;session_max_rows=30&amp;token=c43efc1718c35c767060bafb6158d147" target="_blank" rel="external">id</a> <a href="http://www.zjj.com/phpmyadmin/sql.php?db=test&amp;table=product&amp;sql_query=SELECT+product.%2A%2C%28select+count%28comment.id%29+from+comment+where+product.id%3Dcomment.entity_id%29+comment_count+FROM+%60product%60+ORDER+BY+%60product%60.%60product_name%60+ASC+limit+5&amp;session_max_rows=30&amp;token=c43efc1718c35c767060bafb6158d147" target="_blank" rel="external">product_name</a> <a href="http://www.zjj.com/phpmyadmin/sql.php?db=test&amp;table=product&amp;sql_query=SELECT+product.%2A%2C%28select+count%28comment.id%29+from+comment+where+product.id%3Dcomment.entity_id%29+comment_count+FROM+%60product%60+ORDER+BY+%60product%60.%60price%60+ASC+limit+5&amp;session_max_rows=30&amp;token=c43efc1718c35c767060bafb6158d147" target="_blank" rel="external">price</a> <a href="http://www.zjj.com/phpmyadmin/sql.php?db=test&amp;table=product&amp;sql_query=SELECT+product.%2A%2C%28select+count%28comment.id%29+from+comment+where+product.id%3Dcomment.entity_id%29+comment_count+FROM+%60product%60+ORDER+BY+%60comment_count%60+ASC+limit+5&amp;session_max_rows=30&amp;token=c43efc1718c35c767060bafb6158d147" target="_blank" rel="external">comment_count</a></p>
+<p>1 肉松饼 5  2</p>
+<p>2 可乐 5  0</p>
+<p>3 鸡翅 12  1</p>
+<p>4 杯子 42  0</p>
+<p><strong>对于这种查询，可以分成两部来理解，首先忽略整个select子查询，查出商品表中的数据，然后根据商品的id执行子查询，对于一个商品id,子查询只能返回一条数据，如果子查询返回多条数据则会出错，另外，每一条select子查询只能查询一个字段。</strong></p>
+<p>另外的列子，查出每个商品信息以及商品的最新评论内容：</p>
+<figure class="highlight n1ql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> product.*,(<span class="keyword">select</span> comment.content <span class="keyword">from</span> comment <span class="keyword">where</span> product.id=comment.entity_id <span class="keyword">order</span> <span class="keyword">by</span> comment.id <span class="keyword">desc</span> <span class="keyword">limit</span> <span class="number">1</span>) comment_count <span class="keyword">FROM</span> <span class="symbol">`product`</span> <span class="keyword">limit</span> <span class="number">5</span>;</span><br></pre></td></tr></table></figure>
+<p>查询结果如下：</p>
+<p><a href="http://www.zjj.com/phpmyadmin/sql.php?db=test&amp;table=product&amp;sql_query=SELECT+product.%2A%2C%28select+comment.content+from+comment+where+product.id%3Dcomment.entity_id+limit+1+%29last_comment+FROM+%60product%60+ORDER+BY+%60product%60.%60id%60+ASC+limit+5&amp;session_max_rows=30&amp;token=c43efc1718c35c767060bafb6158d147" target="_blank" rel="external">id</a> <a href="http://www.zjj.com/phpmyadmin/sql.php?db=test&amp;table=product&amp;sql_query=SELECT+product.%2A%2C%28select+comment.content+from+comment+where+product.id%3Dcomment.entity_id+limit+1+%29last_comment+FROM+%60product%60+ORDER+BY+%60product%60.%60product_name%60+ASC+limit+5&amp;session_max_rows=30&amp;token=c43efc1718c35c767060bafb6158d147" target="_blank" rel="external">product_name</a> <a href="http://www.zjj.com/phpmyadmin/sql.php?db=test&amp;table=product&amp;sql_query=SELECT+product.%2A%2C%28select+comment.content+from+comment+where+product.id%3Dcomment.entity_id+limit+1+%29last_comment+FROM+%60product%60+ORDER+BY+%60product%60.%60price%60+ASC+limit+5&amp;session_max_rows=30&amp;token=c43efc1718c35c767060bafb6158d147" target="_blank" rel="external">price</a> <a href="http://www.zjj.com/phpmyadmin/sql.php?db=test&amp;table=product&amp;sql_query=SELECT+product.%2A%2C%28select+comment.content+from+comment+where+product.id%3Dcomment.entity_id+limit+1+%29last_comment+FROM+%60product%60+ORDER+BY+%60last_comment%60+ASC+limit+5&amp;session_max_rows=30&amp;token=c43efc1718c35c767060bafb6158d147" target="_blank" rel="external">last_comment</a></p>
+<p>1 肉松饼 5  还行啊</p>
+<p>2 可乐 5  <em>NULL</em></p>
+<p>3 鸡翅 12  很实用哦</p>
+<p>4 杯子 42  <em>NULL</em></p>
+<h1 id="示例二-billing"><a href="#示例二-billing" class="headerlink" title="示例二 billing"></a>示例二 billing</h1><p>分两步看，</p>
+<ol>
+<li>不看字查询bi.id not in () , 相当于查询出所有的status为1的id，和记录</li>
+</ol>
+<ol>
+<li>SELECT substring_index(group_concat(id ORDER BY product_start_time desc) , ‘,’ , 1)<br>​                                    FROM cash_billing_item<br>​                                    WHERE status = 1<br>​                                    GROUP BY product_no, customer_no</li>
+</ol>
+<p>SELECT SUBSTRING_INDEX(‘15,151,152,16’,’,’,1); ==&gt;得到结果为： 15</p>
+<p>然后每一条记录的bi.product_no 和bi.customer_no，分别和select的结果比较</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> bi.id</span><br><span class="line"><span class="keyword">FROM</span> cash_billing_item bi</span><br><span class="line"><span class="keyword">WHERE</span> bi.id <span class="keyword">and</span> bi.status = <span class="number">1</span> <span class="keyword">and</span> bi.id</span><br><span class="line">                                  <span class="keyword">not</span> <span class="keyword">in</span></span><br><span class="line">                                  (</span><br><span class="line">                                    <span class="keyword">SELECT</span> substring_index(<span class="keyword">group_concat</span>(<span class="keyword">id</span> <span class="keyword">ORDER</span> <span class="keyword">BY</span> product_start_time <span class="keyword">desc</span>) , <span class="string">','</span> , <span class="number">1</span>)</span><br><span class="line">                                    <span class="keyword">FROM</span> cash_billing_item</span><br><span class="line">                                    <span class="keyword">WHERE</span> product_no = bi.product_no <span class="keyword">AND</span> customer_no = bi.customer_no <span class="keyword">and</span> <span class="keyword">status</span> = <span class="number">1</span></span><br><span class="line">                                    <span class="keyword">GROUP</span> <span class="keyword">BY</span> product_no, customer_no</span><br><span class="line">                                  );</span><br><span class="line">                                  </span><br><span class="line">        <span class="keyword">UPDATE</span> cash_billing_item bi,</span><br><span class="line">          (</span><br><span class="line">            <span class="keyword">SELECT</span> bi.id</span><br><span class="line">            <span class="keyword">FROM</span> cash_billing_item bi</span><br><span class="line">            <span class="keyword">WHERE</span> bi.id <span class="keyword">and</span> bi.status = <span class="number">1</span> <span class="keyword">and</span> bi.id</span><br><span class="line">                            <span class="keyword">not</span> <span class="keyword">in</span></span><br><span class="line">                            (</span><br><span class="line">                              <span class="keyword">SELECT</span> <span class="keyword">group_concat</span>(<span class="keyword">id</span> <span class="keyword">ORDER</span> <span class="keyword">BY</span> product_start_time <span class="keyword">desc</span>)</span><br><span class="line">                              <span class="keyword">FROM</span> cash_billing_item</span><br><span class="line">                              <span class="keyword">WHERE</span> product_no = bi.product_no <span class="keyword">AND</span> customer_no = bi.customer_no</span><br><span class="line">                                <span class="keyword">and</span> <span class="keyword">status</span> = <span class="number">1</span></span><br><span class="line">                              <span class="keyword">GROUP</span> <span class="keyword">BY</span> product_no, customer_no</span><br><span class="line">                            )</span><br><span class="line">          ) temp</span><br><span class="line">        <span class="keyword">SET</span> bi.status = <span class="number">2</span></span><br><span class="line">        <span class="keyword">WHERE</span> bi.id = temp.id;</span><br></pre></td></tr></table></figure>
+<p><strong>cash_billing_item_copy</strong></p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">create</span> <span class="keyword">table</span> cash_billing_item_copy</span><br><span class="line">(</span><br><span class="line">  <span class="keyword">id</span> <span class="built_in">bigint</span>(<span class="number">11</span>) <span class="keyword">unsigned</span> auto_increment <span class="keyword">comment</span> <span class="string">'自增id'</span></span><br><span class="line">    primary <span class="keyword">key</span>,</span><br><span class="line">  customer_no <span class="built_in">varchar</span>(<span class="number">64</span>) <span class="literal">null</span> <span class="keyword">comment</span> <span class="string">'客户编号'</span>,</span><br><span class="line">  product_id <span class="built_in">int</span> <span class="keyword">not</span> <span class="literal">null</span> <span class="keyword">comment</span> <span class="string">'产品表pk'</span>,</span><br><span class="line">  product_start_time <span class="keyword">timestamp</span> <span class="literal">null</span> <span class="keyword">comment</span> <span class="string">'产品生效时间'</span>,</span><br><span class="line">  gmt_create <span class="keyword">timestamp</span> <span class="keyword">default</span> <span class="keyword">CURRENT_TIMESTAMP</span> <span class="keyword">not</span> <span class="literal">null</span> <span class="keyword">comment</span> <span class="string">'创建时间'</span>,</span><br><span class="line">  gmt_modify <span class="keyword">timestamp</span> <span class="keyword">default</span> <span class="keyword">CURRENT_TIMESTAMP</span> <span class="keyword">not</span> <span class="literal">null</span> <span class="keyword">comment</span> <span class="string">'修改时间'</span></span><br><span class="line">)</span><br><span class="line">  <span class="keyword">comment</span> <span class="string">'从账务系统推来的计费项'</span></span><br><span class="line">;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> cash_billing_item_copy (customer_no, product_id, product_start_time) <span class="keyword">VALUES</span></span><br><span class="line">  (<span class="string">'ct2'</span>,<span class="number">1</span>,<span class="string">'2017-12-27 00:00:00'</span>);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">SELECT</span> * <span class="keyword">FROM</span> cash_billing_item_copy;</span><br><span class="line"></span><br><span class="line"><span class="keyword">SELECT</span>  <span class="keyword">group_concat</span>(<span class="keyword">id</span> <span class="keyword">ORDER</span> <span class="keyword">BY</span> product_start_time <span class="keyword">DESC</span>), customer_no , product_id</span><br><span class="line"><span class="keyword">FROM</span> cash_billing_item_copy</span><br><span class="line"><span class="keyword">GROUP</span> <span class="keyword">BY</span> customer_no  , product_id;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">SELECT</span> c.id</span><br><span class="line"></span><br><span class="line">  <span class="keyword">FROM</span> cash_billing_item_copy c</span><br><span class="line"><span class="keyword">WHERE</span> c.id <span class="keyword">AND</span> c.id <span class="keyword">NOT</span> <span class="keyword">IN</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">               (</span><br><span class="line">                 <span class="keyword">SELECT</span></span><br><span class="line">                   substring_index(<span class="keyword">group_concat</span>(<span class="keyword">id</span> <span class="keyword">ORDER</span> <span class="keyword">BY</span> product_start_time <span class="keyword">DESC</span>), <span class="string">','</span>, <span class="number">1</span>)</span><br><span class="line">                 <span class="keyword">FROM</span> cash_billing_item_copy</span><br><span class="line">                 <span class="keyword">GROUP</span> <span class="keyword">BY</span> customer_no, product_id</span><br><span class="line">               );</span><br><span class="line"></span><br><span class="line"><span class="keyword">SELECT</span> SUBSTRING_INDEX(<span class="string">'15,151,152,16'</span>,<span class="string">','</span>,<span class="number">1</span>);</span><br></pre></td></tr></table></figure>
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">mysql</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+      
+
+      <div style="font-size: 12px;">
+        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
+      </div>
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2017/12/28/MySQL-select子查询引用变量/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
+    <article id="post-React生命周期" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2017/12/27/React生命周期/">React生命周期</a>
+    </h1>
+  
+
+        
+        <a href="/2017/12/27/React生命周期/" class="archive-article-date">
+  	<time datetime="2017-12-27T10:13:26.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2017-12-27</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>学习React，生命周期很重要，我们了解完生命周期的各个组件，对写高性能组件会有很大的帮助.</p>
+<h3 id="Ract生命周期"><a href="#Ract生命周期" class="headerlink" title="Ract生命周期"></a>Ract生命周期</h3><p>React 生命周期分为三种状态 1. 初始化 2.更新 3.销毁</p>
+<p><img src="http://images2015.cnblogs.com/blog/588767/201612/588767-20161205190022429-1074951616.jpg" alt="img"></p>
+<ul>
+<li><strong>初始化</strong></li>
+</ul>
+<p><em>1、getDefaultProps()</em></p>
+<blockquote>
+<p>设置默认的props，也可以用dufaultProps设置组件的默认属性.</p>
+</blockquote>
+<p><em>2、getInitialState()</em></p>
+<blockquote>
+<p>在使用es6的class语法时是没有这个钩子函数的，可以直接在constructor中定义this.state。此时可以访问this.props</p>
+</blockquote>
+<p><em>3、componentWillMount()</em></p>
+<blockquote>
+<p>组件初始化时只调用，以后组件更新不调用，整个生命周期只调用一次，此时可以修改state。</p>
+</blockquote>
+<p><em>4、 render()</em></p>
+<blockquote>
+<p>react最重要的步骤，创建虚拟dom，进行diff算法，更新dom树都在此进行。此时就不能更改state了。</p>
+</blockquote>
+<p><em>5、componentDidMount()</em></p>
+<blockquote>
+<p>组件渲染之后调用，只调用一次。</p>
+</blockquote>
+<ul>
+<li><strong>更新</strong></li>
+</ul>
+<p><em>6、componentWillReceiveProps(nextProps)</em></p>
+<blockquote>
+<p>组件初始化时不调用，组件接受新的props时调用。</p>
+</blockquote>
+<p><em>7、shouldComponentUpdate(nextProps, nextState)</em></p>
+<blockquote>
+<p>react性能优化非常重要的一环。组件接受新的state或者props时调用，我们可以设置在此对比前后两个props和state是否相同，如果相同则返回false阻止更新，因为相同的属性状态一定会生成相同的dom树，这样就不需要创造新的dom树和旧的dom树进行diff算法对比，节省大量性能，尤其是在dom结构复杂的时候</p>
+</blockquote>
+<p><em>8、componentWillUpdata(nextProps, nextState)</em></p>
+<blockquote>
+<p>组件初始化时不调用，只有在组件将要更新时才调用，此时可以修改state</p>
+</blockquote>
+<p><em>9、render()</em></p>
+<blockquote>
+<p>组件渲染</p>
+</blockquote>
+<p><em>10、componentDidUpdate()</em></p>
+<blockquote>
+<p>组件初始化时不调用，组件更新完成后调用，此时可以获取dom节点。</p>
+</blockquote>
+<ul>
+<li><strong>卸载</strong></li>
+</ul>
+<p><em>11、componentWillUnmount()</em></p>
+<blockquote>
+<p>组件将要卸载时调用，一些事件监听和定时器需要在此时清除。</p>
+</blockquote>
+<h3 id="结束语"><a href="#结束语" class="headerlink" title="结束语"></a>结束语</h3><p>以上就是React 的生命周期，大家可以自行写下code测试一下，在这里我就不贴code 了。</p>
+<p><strong>下面所写的，只适合前端的React。（React也支持后端渲染，而且和前端有点小区别，不过我没用过。）</strong></p>
+<h1 id="相关函数"><a href="#相关函数" class="headerlink" title="相关函数"></a>相关函数</h1><p>简单地说，React Component通过其定义的几个函数来控制组件在生命周期的各个阶段的动作。</p>
+<p>在ES6中，一个React组件是用一个class来表示的（具体可以参考<a href="https://link.jianshu.com?t=http://facebook.github.io/react/docs/reusable-components.html#es6-classes" target="_blank" rel="external">官方文档</a>），如下：</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 定义一个TodoList的React组件，通过继承React.Component来实现</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">TodoList</span> <span class="keyword">extends</span> <span class="title">React</span>.<span class="title">Component</span> </span>&#123;</span><br><span class="line">  ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这几个生命周期相关的函数有：</p>
+<figure class="highlight delphi"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">constructor</span><span class="params">(props, context)</span></span></span><br></pre></td></tr></table></figure>
+<p>构造函数，在创建组件的时候调用一次。</p>
+<figure class="highlight actionscript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">void</span> componentWillMount()</span><br></pre></td></tr></table></figure>
+<p>在组件挂载之前调用一次。如果在这个函数里面调用setState，本次的render函数可以看到更新后的state，并且只渲染一次。</p>
+<figure class="highlight actionscript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">void</span> componentDidMount()</span><br></pre></td></tr></table></figure>
+<p>在组件挂载之后调用一次。这个时候，子主键也都挂载好了，可以在这里使用refs。</p>
+<figure class="highlight lisp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">void componentWillReceiveProps(<span class="name">nextProps</span>)</span><br></pre></td></tr></table></figure>
+<p>props是父组件传递给子组件的。父组件发生render的时候子组件就会调用componentWillReceiveProps（不管props有没有更新，也不管父子组件之间有没有数据交换）。</p>
+<figure class="highlight lisp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">bool shouldComponentUpdate(<span class="name">nextProps</span>, nextState)</span><br></pre></td></tr></table></figure>
+<p>组件挂载之后，每次调用setState后都会调用shouldComponentUpdate判断是否需要重新渲染组件。默认返回true，需要重新render。在比较复杂的应用里，有一些数据的改变并不影响界面展示，可以在这里做判断，优化渲染效率。</p>
+<figure class="highlight lisp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">void componentWillUpdate(<span class="name">nextProps</span>, nextState)</span><br></pre></td></tr></table></figure>
+<p>shouldComponentUpdate返回true或者调用forceUpdate之后，componentWillUpdate会被调用。</p>
+<figure class="highlight actionscript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">void</span> componentDidUpdate()</span><br></pre></td></tr></table></figure>
+<p>除了首次render之后调用componentDidMount，其它render结束之后都是调用componentDidUpdate。</p>
+<p>componentWillMount、componentDidMount和componentWillUpdate、componentDidUpdate可以对应起来。区别在于，前者只有在挂载的时候会被调用；而后者在以后的每次更新渲染之后都会被调用。</p>
+<figure class="highlight less"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="selector-tag">ReactElement</span> <span class="selector-tag">render</span>()</span><br></pre></td></tr></table></figure>
+<p>render是一个React组件所必不可少的核心函数（上面的其它函数都不是必须的）。记住，不要在render里面修改state。</p>
+<figure class="highlight actionscript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">void</span> componentWillUnmount()</span><br></pre></td></tr></table></figure>
+<p>组件被卸载的时候调用。一般在componentDidMount里面注册的事件需要在这里删除。</p>
+<h1 id="更新方式"><a href="#更新方式" class="headerlink" title="更新方式"></a>更新方式</h1><p>在react中，触发render的有4条路径。</p>
+<p><strong>以下假设shouldComponentUpdate都是按照默认返回true的方式。</strong></p>
+<ol>
+<li>首次渲染Initial Render</li>
+<li>调用this.setState （并不是一次setState会触发一次render，React可能会合并操作，再一次性进行render）</li>
+<li>父组件发生更新（一般就是props发生改变，但是就算props没有改变或者父子组件之间没有数据交换也会触发render）</li>
+<li>调用this.forceUpdate</li>
+</ol>
+<p>下面是我对React组件四条更新路径地总结：</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/1814354-4bf62e54553a32b7.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/700" alt="img"></p>
+<p>React组件更新路径.png</p>
+<p>注意，如果在shouldComponentUpdate里面返回false可以提前退出更新路径。</p>
+<h1 id="一个React组件生命周期的测试例子"><a href="#一个React组件生命周期的测试例子" class="headerlink" title="一个React组件生命周期的测试例子"></a>一个React组件生命周期的测试例子</h1><p>代码比较简单，没有逻辑，只是在每个相关函数里面alert一下。</p><h1><a href="https://link.jianshu.com?t=http://wximg.gtimg.com/shake_tv/test/lifeCycle2113.html" target="_blank" rel="external">点击链接</a>来试试这个例子。</h1><br>源码：<p></p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">LifeCycle</span> <span class="keyword">extends</span> <span class="title">React</span>.<span class="title">Component</span> </span>&#123;</span><br><span class="line">    <span class="keyword">constructor</span>(props) &#123;</span><br><span class="line">        <span class="keyword">super</span>(props);</span><br><span class="line">        alert(<span class="string">"Initial render"</span>);</span><br><span class="line">        alert(<span class="string">"constructor"</span>);</span><br><span class="line">        <span class="keyword">this</span>.state = &#123;<span class="attr">str</span>: <span class="string">"hello"</span>&#125;;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    componentWillMount() &#123;</span><br><span class="line">        alert(<span class="string">"componentWillMount"</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    componentDidMount() &#123;</span><br><span class="line">        alert(<span class="string">"componentDidMount"</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    componentWillReceiveProps(nextProps) &#123;</span><br><span class="line">        alert(<span class="string">"componentWillReceiveProps"</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    shouldComponentUpdate() &#123;</span><br><span class="line">        alert(<span class="string">"shouldComponentUpdate"</span>);</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">true</span>;        <span class="comment">// 记得要返回true</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    componentWillUpdate() &#123;</span><br><span class="line">        alert(<span class="string">"componentWillUpdate"</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    componentDidUpdate() &#123;</span><br><span class="line">        alert(<span class="string">"componentDidUpdate"</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    componentWillUnmount() &#123;</span><br><span class="line">        alert(<span class="string">"componentWillUnmount"</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    setTheState() &#123;</span><br><span class="line">        <span class="keyword">let</span> s = <span class="string">"hello"</span>;</span><br><span class="line">        <span class="keyword">if</span> (<span class="keyword">this</span>.state.str === s) &#123;</span><br><span class="line">            s = <span class="string">"HELLO"</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">this</span>.setState(&#123;</span><br><span class="line">            str: s</span><br><span class="line">        &#125;);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    forceItUpdate() &#123;</span><br><span class="line">        <span class="keyword">this</span>.forceUpdate();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    render() &#123;</span><br><span class="line">        alert(<span class="string">"render"</span>);</span><br><span class="line">        <span class="keyword">return</span>(</span><br><span class="line">            &lt;div&gt;</span><br><span class="line">                &lt;span&gt;&#123;<span class="string">"Props:"</span>&#125;&lt;h2&gt;&#123;<span class="built_in">parseInt</span>(<span class="keyword">this</span>.props.num)&#125;&lt;<span class="regexp">/h2&gt;&lt;/</span>span&gt;</span><br><span class="line">                &lt;br /&gt;</span><br><span class="line">                &lt;span&gt;&#123;<span class="string">"State:"</span>&#125;&lt;h2&gt;&#123;<span class="keyword">this</span>.state.str&#125;&lt;<span class="regexp">/h2&gt;&lt;/</span>span&gt;</span><br><span class="line">            &lt;<span class="regexp">/div&gt;</span></span><br><span class="line"><span class="regexp">        );</span></span><br><span class="line"><span class="regexp">    &#125;</span></span><br><span class="line"><span class="regexp">&#125;</span></span><br><span class="line"><span class="regexp"></span></span><br><span class="line"><span class="regexp">class Container  extends React.Component &#123;</span></span><br><span class="line"><span class="regexp">    constructor(props) &#123;</span></span><br><span class="line"><span class="regexp">        super(props);</span></span><br><span class="line"><span class="regexp">        this.state = &#123;</span></span><br><span class="line"><span class="regexp">            num: Math.random() * 100</span></span><br><span class="line"><span class="regexp">        &#125;;</span></span><br><span class="line"><span class="regexp">    &#125;</span></span><br><span class="line"><span class="regexp"></span></span><br><span class="line"><span class="regexp">    propsChange() &#123;</span></span><br><span class="line"><span class="regexp">        this.setState(&#123;</span></span><br><span class="line"><span class="regexp">            num: Math.random() * 100</span></span><br><span class="line"><span class="regexp">        &#125;);</span></span><br><span class="line"><span class="regexp">    &#125;</span></span><br><span class="line"><span class="regexp"></span></span><br><span class="line"><span class="regexp">    setLifeCycleState() &#123;</span></span><br><span class="line"><span class="regexp">        this.refs.rLifeCycle.setTheState();</span></span><br><span class="line"><span class="regexp">    &#125;</span></span><br><span class="line"><span class="regexp"></span></span><br><span class="line"><span class="regexp">    forceLifeCycleUpdate() &#123;</span></span><br><span class="line"><span class="regexp">        this.refs.rLifeCycle.forceItUpdate();</span></span><br><span class="line"><span class="regexp">    &#125;</span></span><br><span class="line"><span class="regexp"></span></span><br><span class="line"><span class="regexp">    unmountLifeCycle() &#123;</span></span><br><span class="line"><span class="regexp">        /</span><span class="regexp">/ 这里卸载父组件也会导致卸载子组件</span></span><br><span class="line"><span class="regexp">        React.unmountComponentAtNode(document.getElementById("container"));</span></span><br><span class="line"><span class="regexp">    &#125;</span></span><br><span class="line"><span class="regexp"></span></span><br><span class="line"><span class="regexp">    parentForceUpdate() &#123;</span></span><br><span class="line"><span class="regexp">        this.forceUpdate();</span></span><br><span class="line"><span class="regexp">    &#125;</span></span><br><span class="line"><span class="regexp"></span></span><br><span class="line"><span class="regexp">    render() &#123;</span></span><br><span class="line"><span class="regexp">        return (</span></span><br><span class="line"><span class="regexp">            &lt;div&gt;</span></span><br><span class="line"><span class="regexp">                &lt;a href="javascript:;" className="weui_btn weui_btn_primary" onClick=&#123;this.propsChange.bind(this)&#125;&gt;propsChange&lt;/</span>a&gt;</span><br><span class="line">                &lt;a href=<span class="string">"javascript:;"</span> className=<span class="string">"weui_btn weui_btn_primary"</span> onClick=&#123;<span class="keyword">this</span>.setLifeCycleState.bind(<span class="keyword">this</span>)&#125;&gt;setState&lt;<span class="regexp">/a&gt;</span></span><br><span class="line"><span class="regexp">                &lt;a href="javascript:;" className="weui_btn weui_btn_primary" onClick=&#123;this.forceLifeCycleUpdate.bind(this)&#125;&gt;forceUpdate&lt;/</span>a&gt;</span><br><span class="line">                &lt;a href=<span class="string">"javascript:;"</span> className=<span class="string">"weui_btn weui_btn_primary"</span> onClick=&#123;<span class="keyword">this</span>.unmountLifeCycle.bind(<span class="keyword">this</span>)&#125;&gt;unmount&lt;<span class="regexp">/a&gt;</span></span><br><span class="line"><span class="regexp">                &lt;a href="javascript:;" className="weui_btn weui_btn_primary" onClick=&#123;this.parentForceUpdate.bind(this)&#125;&gt;parentForceUpdateWithoutChange&lt;/</span>a&gt;</span><br><span class="line">                &lt;LifeCycle ref=<span class="string">"rLifeCycle"</span> num=&#123;<span class="keyword">this</span>.state.num&#125;&gt;<span class="xml"><span class="tag">&lt;/<span class="name">LifeCycle</span>&gt;</span></span></span><br><span class="line">            &lt;<span class="regexp">/div&gt;</span></span><br><span class="line"><span class="regexp">        );</span></span><br><span class="line"><span class="regexp">    &#125;</span></span><br><span class="line"><span class="regexp">&#125;</span></span><br><span class="line"><span class="regexp"></span></span><br><span class="line"><span class="regexp">ReactDom.render(</span></span><br><span class="line"><span class="regexp">    &lt;Container&gt;&lt;/</span>Container&gt;,</span><br><span class="line">    <span class="built_in">document</span>.getElementById(<span class="string">'container'</span>)</span><br><span class="line">);</span><br></pre></td></tr></table></figure>
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">react</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+      
+
+      <div style="font-size: 12px;">
+        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
+      </div>
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2017/12/27/React生命周期/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
     <article id="post-前端指南-react快速开发" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
@@ -1124,197 +1408,6 @@
 
 
   
-    <article id="post-maven-deploy" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2017/11/29/maven-deploy/">maven deploy</a>
-    </h1>
-  
-
-        
-        <a href="/2017/11/29/maven-deploy/" class="archive-article-date">
-  	<time datetime="2017-11-29T05:11:38.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2017-11-29</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>指定文件deploy</p>
-<figure class="highlight armasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">mvn </span>clean deploy -f pom-deploy.xml</span><br></pre></td></tr></table></figure>
-
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">maven</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-      
-
-      <div style="font-size: 12px;">
-        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
-      </div>
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2017/11/29/maven-deploy/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
-    <article id="post-zookeeper详解" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2017/11/26/zookeeper详解/">zookeeper详解</a>
-    </h1>
-  
-
-        
-        <a href="/2017/11/26/zookeeper详解/" class="archive-article-date">
-  	<time datetime="2017-11-26T13:47:28.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2017-11-26</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h1 id="start"><a href="#start" class="headerlink" title="start"></a>start</h1><figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">bin/zkServer<span class="selector-class">.sh</span> start</span><br><span class="line"></span><br><span class="line">$ bin/zkCli<span class="selector-class">.sh</span> -server <span class="number">127.0</span>.<span class="number">0.1</span>:<span class="number">2181</span></span><br></pre></td></tr></table></figure>
-<h1 id="zk-client-操作"><a href="#zk-client-操作" class="headerlink" title="zk client 操作"></a>zk client 操作</h1><pre><code>stat path [watch]
-set path data [version]
-ls path [watch]
-delquota [-n|-b] path
-ls2 path [watch]
-setAcl path acl
-setquota -n|-b val path
-history
-redo cmdno
-printwatches on|off
-delete path [version]
-sync path
-listquota path
-rmr path
-get path [watch]
-create [-s] [-e] path data acl
-addauth scheme auth
-quit
-getAcl path
-close
-connect host:port
-</code></pre><h1 id="伪集群搭建"><a href="#伪集群搭建" class="headerlink" title="伪集群搭建"></a>伪集群搭建</h1><p>参考：<a href="http://zookeeper.apache.org/doc/trunk/zookeeperStarted.html" target="_blank" rel="external">http://zookeeper.apache.org/doc/trunk/zookeeperStarted.html</a></p>
-<p><strong>集群配置：</strong></p>
-<p>1、配置文件conf/zoo.cfg，除了单机模式的配置之外，还需要新加server.x信息，如下所示。</p>
-<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">tickTime</span>=2000</span><br><span class="line"><span class="attribute">dataDir</span>=D:\09tmp\zookeeper\data</span><br><span class="line"><span class="attribute">clientPort</span>=2181</span><br><span class="line"><span class="attribute">initLimit</span>=5</span><br><span class="line"><span class="attribute">syncLimit</span>=2</span><br><span class="line">server.<span class="attribute">1</span>=zoo1:2888:3888</span><br><span class="line">server.<span class="attribute">2</span>=zoo2:2888:3888</span><br><span class="line">server.<span class="attribute">3</span>=zoo3:2888:3888</span><br></pre></td></tr></table></figure>
-<p>​    zoox表示的是zookeeper服务器的IP地址，第一个端口2888：在zookeeper服务器之间及和leader连接时使用，第二个端口号：3888是在进行leader选举时使用。</p>
-<p>2、同时需要在配置项dataDir所指示目录下创建文件myid文件，其内容为该1中server.x中的x，表示该zookeeper服务器的编号。 </p>
-<p>3、为了降低更新的延迟，需要为事物日志的存放专门指定存储路径，该配置项为：dataLogDir    </p>
-<figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># The number of milliseconds of each tick</span></span><br><span class="line"><span class="attr">tickTime</span>=<span class="number">2000</span></span><br><span class="line"><span class="comment"># The number of ticks that the initial </span></span><br><span class="line"><span class="comment"># synchronization phase can take</span></span><br><span class="line"><span class="attr">initLimit</span>=<span class="number">10</span></span><br><span class="line"><span class="comment"># The number of ticks that can pass between </span></span><br><span class="line"><span class="comment"># sending a request and getting an acknowledgement</span></span><br><span class="line"><span class="attr">syncLimit</span>=<span class="number">5</span></span><br><span class="line"><span class="comment"># the directory where the snapshot is stored.</span></span><br><span class="line"><span class="comment"># do not use /tmp for storage, /tmp here is just </span></span><br><span class="line"><span class="comment"># example sakes.</span></span><br><span class="line"><span class="attr">dataDir</span>=D:\\<span class="number">09</span>tmp\\zookeeper\\data</span><br><span class="line"><span class="attr">dataLogDir</span>=D:\\<span class="number">09</span>tmp\\zookeeper\\log</span><br></pre></td></tr></table></figure>
-<p><strong>伪集群配置：</strong></p>
-<p>1、由于所有zookeeper服务器都在一台物理机器上，因此zoo1.cfg中配置项server.x的端口信息，不能相同。且配置项dataDir和dataLogDir也需要为伪服务器单独指定。配置项clientPort在三个服务器中也要配置不同的值，示例如下：</p>
-<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">tickTime</span>=2000</span><br><span class="line"><span class="attribute">dataDir</span>=D:\09tmp\zookeeper\data\\1</span><br><span class="line"><span class="attribute">dataLogDir</span>=D:\09tmp\zookeeper\log\\1</span><br><span class="line"><span class="attribute">clientPort</span>=2181</span><br><span class="line"><span class="attribute">initLimit</span>=5</span><br><span class="line"><span class="attribute">syncLimit</span>=2</span><br><span class="line">server.<span class="attribute">1</span>=localhost:2888:3888</span><br><span class="line">server.<span class="attribute">2</span>=localhost:2889:3889</span><br><span class="line">server.<span class="attribute">3</span>=localhost:2890:3890</span><br></pre></td></tr></table></figure>
-<p>2、同时需要准备zoo2.cfg和zoo3.cfg配置文件，参考1进行配置</p>
-<p>3、在D:\09tmp\zookeeper\data\1、D:\09tmp\zookeeper\data\2和D:\09tmp\zookeeper\data\3中分别创建文件myid，里面填写对应的zookeeper服务器编号。</p>
-<p>4、创建三个文件：zkEnv1.cmd、zkEnv2.cmd和zkEnv3.cmd分别用来指定使用不同的zoo.cfg。</p>
-<p>5、创建三个文件：zkServer1.cmd、zkServer2.cmd和zkServer3.cmd分别用来指定不同的文件zkEnv.cmd。</p>
-
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">zookeeper</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-      
-
-      <div style="font-size: 12px;">
-        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
-      </div>
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2017/11/26/zookeeper详解/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
   
     <nav id="page-nav">
       <a class="extend prev" rel="prev" href="/page/12/">&laquo; Prev</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/11/">11</a><a class="page-number" href="/page/12/">12</a><span class="page-number current">13</span><a class="page-number" href="/page/14/">14</a><a class="page-number" href="/page/15/">15</a><span class="space">&hellip;</span><a class="page-number" href="/page/17/">17</a><a class="extend next" rel="next" href="/page/14/">Next &raquo;</a>
@@ -1416,11 +1509,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">Dubbo</a>
+                <a href="javascript:void(0)" class="js-tag color3">java并发包</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">java并发包</a>
+                <a href="javascript:void(0)" class="js-tag color1">Dubbo</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1440,15 +1533,7 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">java内存模型</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">Maven</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">redis</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1456,7 +1541,15 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">java内存模型</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">快捷键</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">redis</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1464,19 +1557,15 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">mysql</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">MySQL</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">Netty</a>
+                <a href="javascript:void(0)" class="js-tag color1">mysql</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">Python</a>
+                <a href="javascript:void(0)" class="js-tag color1">Netty</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1488,11 +1577,15 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">RxJava</a>
+                <a href="javascript:void(0)" class="js-tag color2">Python</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">spring</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">RxJava</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1520,11 +1613,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">influxdb</a>
+                <a href="javascript:void(0)" class="js-tag color1">debug</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">debug</a>
+                <a href="javascript:void(0)" class="js-tag color4">influxdb</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1536,11 +1629,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">python</a>
+                <a href="javascript:void(0)" class="js-tag color4">Mac</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">Mac</a>
+                <a href="javascript:void(0)" class="js-tag color2">python</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1564,11 +1657,15 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">SSE</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">分布式锁</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">SSE</a>
+                <a href="javascript:void(0)" class="js-tag color5">前端指南</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1581,10 +1678,6 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">后端</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">前端指南</a>
               </li>
              
               <li class="article-tag-list-item">

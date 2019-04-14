@@ -150,6 +150,175 @@
           <div id="js-content" class="content-ll">
             
   
+    <article id="post-Spring-session-与JWT、OAtuh2" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2019/02/17/Spring-session-与JWT、OAtuh2/">Spring session 与JWT、OAuth2</a>
+    </h1>
+  
+
+        
+        <a href="/2019/02/17/Spring-session-与JWT、OAtuh2/" class="archive-article-date">
+  	<time datetime="2019-02-17T08:04:14.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2019-02-17</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="spring-session-data-redis"><a href="#spring-session-data-redis" class="headerlink" title="spring-session-data-redis"></a>spring-session-data-redis</h2><h3 id="sesssion存的值及属性"><a href="#sesssion存的值及属性" class="headerlink" title="sesssion存的值及属性"></a>sesssion存的值及属性</h3><p><code>get spring:session:sessions:expires:381be901-f399-443d-baf7-a274a98ac019</code></p>
+<p>得到<br><code>maxInactiveInterval</code><br><code>lastAccessedTime</code><br><code>creationTime</code><br><code>sessionAttr:Mic</code></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">request.getSession().setAttribute(<span class="string">"Mic"</span>,<span class="string">"value"</span>);</span><br></pre></td></tr></table></figure>
+<figure class="highlight taggerscript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">127.0.0.1:6379&gt; hgetall spring:session:sessions:e8b7c9a1-8c4a-4f03-996f-619cfba91ea1</span><br><span class="line">1) "maxInactiveInterval"</span><br><span class="line">2) "<span class="symbol">\x</span>ac<span class="symbol">\x</span>ed<span class="symbol">\x</span>00<span class="symbol">\x</span>05sr<span class="symbol">\x</span>00<span class="symbol">\x</span>11java.lang.Integer<span class="symbol">\x</span>12<span class="symbol">\x</span>e2<span class="symbol">\x</span>a0<span class="symbol">\x</span>a4<span class="symbol">\x</span>f7<span class="symbol">\x</span>81<span class="symbol">\x</span>878<span class="symbol">\x</span>02<span class="symbol">\x</span>00<span class="symbol">\x</span>01I<span class="symbol">\x</span>00<span class="symbol">\x</span>05valuexr<span class="symbol">\x</span>00<span class="symbol">\x</span>10java.lang.Number<span class="symbol">\x</span>86<span class="symbol">\x</span>ac<span class="symbol">\x</span>95<span class="symbol">\x</span>1d<span class="symbol">\x</span>0b<span class="symbol">\x</span>94<span class="symbol">\x</span>e0<span class="symbol">\x</span>8b<span class="symbol">\x</span>02<span class="symbol">\x</span>00<span class="symbol">\x</span>00xp<span class="symbol">\x</span>00<span class="symbol">\x</span>00<span class="symbol">\x</span>02X"</span><br><span class="line">3) "lastAccessedTime"</span><br><span class="line">4) "<span class="symbol">\x</span>ac<span class="symbol">\x</span>ed<span class="symbol">\x</span>00<span class="symbol">\x</span>05sr<span class="symbol">\x</span>00<span class="symbol">\x</span>0ejava.lang.Long;<span class="symbol">\x</span>8b<span class="symbol">\x</span>e4<span class="symbol">\x</span>90<span class="symbol">\x</span>cc<span class="symbol">\x</span>8f#<span class="symbol">\x</span>df<span class="symbol">\x</span>02<span class="symbol">\x</span>00<span class="symbol">\x</span>01J<span class="symbol">\x</span>00<span class="symbol">\x</span>05valuexr<span class="symbol">\x</span>00<span class="symbol">\x</span>10java.lang.Number<span class="symbol">\x</span>86<span class="symbol">\x</span>ac<span class="symbol">\x</span>95<span class="symbol">\x</span>1d<span class="symbol">\x</span>0b<span class="symbol">\x</span>94<span class="symbol">\x</span>e0<span class="symbol">\x</span>8b<span class="symbol">\x</span>02<span class="symbol">\x</span>00<span class="symbol">\x</span>00xp<span class="symbol">\x</span>00<span class="symbol">\x</span>00<span class="symbol">\x</span>01h<span class="symbol">\x</span>f9<span class="symbol">\x</span>bb<span class="symbol">\x</span>cc<span class="symbol">\x</span>ff"</span><br><span class="line">5) "sessionAttr:Mic"</span><br><span class="line">6) "<span class="symbol">\x</span>ac<span class="symbol">\x</span>ed<span class="symbol">\x</span>00<span class="symbol">\x</span>05t<span class="symbol">\x</span>00<span class="symbol">\x</span>05value"</span><br><span class="line">7) "creationTime"</span><br><span class="line">8) "<span class="symbol">\x</span>ac<span class="symbol">\x</span>ed<span class="symbol">\x</span>00<span class="symbol">\x</span>05sr<span class="symbol">\x</span>00<span class="symbol">\x</span>0ejava.lang.Long;<span class="symbol">\x</span>8b<span class="symbol">\x</span>e4<span class="symbol">\x</span>90<span class="symbol">\x</span>cc<span class="symbol">\x</span>8f#<span class="symbol">\x</span>df<span class="symbol">\x</span>02<span class="symbol">\x</span>00<span class="symbol">\x</span>01J<span class="symbol">\x</span>00<span class="symbol">\x</span>05valuexr<span class="symbol">\x</span>00<span class="symbol">\x</span>10java.lang.Number<span class="symbol">\x</span>86<span class="symbol">\x</span>ac<span class="symbol">\x</span>95<span class="symbol">\x</span>1d<span class="symbol">\x</span>0b<span class="symbol">\x</span>94<span class="symbol">\x</span>e0<span class="symbol">\x</span>8b<span class="symbol">\x</span>02<span class="symbol">\x</span>00<span class="symbol">\x</span>00xp<span class="symbol">\x</span>00<span class="symbol">\x</span>00<span class="symbol">\x</span>01h<span class="symbol">\x</span>f9<span class="symbol">\x</span>b6<span class="symbol">\x</span>d0<span class="symbol">\x</span>f5"</span><br></pre></td></tr></table></figure>
+<h3 id="过期时间"><a href="#过期时间" class="headerlink" title="过期时间"></a>过期时间</h3><p><code>get spring:session:sessions:expires:e8b7c9a1-8c4a-4f03-996f-619cfba91ea1</code></p>
+<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">127<span class="selector-class">.0</span><span class="selector-class">.0</span><span class="selector-class">.1</span><span class="selector-pseudo">:6379</span>&gt; <span class="selector-tag">get</span> <span class="selector-tag">spring</span><span class="selector-pseudo">:session</span><span class="selector-pseudo">:sessions</span><span class="selector-pseudo">:expires</span><span class="selector-pseudo">:e8b7c9a1-8c4a-4f03-996f-619cfba91ea1</span></span><br></pre></td></tr></table></figure>
+<h2 id="JWT"><a href="#JWT" class="headerlink" title="JWT"></a>JWT</h2><blockquote>
+<p><a href="https://jwt.io" target="_blank" rel="external">https://jwt.io</a></p>
+</blockquote>
+<ul>
+<li>验证签名规范</li>
+</ul>
+<h3 id="header"><a href="#header" class="headerlink" title="header"></a>header</h3><figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">"alg"</span>: <span class="string">"HS256"</span>,</span><br><span class="line">  <span class="attr">"typ"</span>: <span class="string">"JWT"</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="payload"><a href="#payload" class="headerlink" title="payload"></a>payload</h3><figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">"sub"</span>: <span class="string">"1234567890"</span>,</span><br><span class="line">  <span class="attr">"name"</span>: <span class="string">"John Doe"</span>,</span><br><span class="line">  <span class="attr">"iat"</span>: <span class="number">1516239022</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="签名算法-verify-signature"><a href="#签名算法-verify-signature" class="headerlink" title="签名算法 verify signature"></a>签名算法 verify signature</h3><figure class="highlight lisp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">HMACSHA256(</span><br><span class="line">  base64UrlEncode(<span class="name">header</span>) + <span class="string">"."</span> +</span><br><span class="line">  base64UrlEncode(<span class="name">payload</span>),</span><br><span class="line"><span class="string">"your-256-bit-secret"</span></span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+<ul>
+<li>your-256-bit-secret 类似秘钥</li>
+</ul>
+<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">HMACSHA256(</span><br><span class="line">  base64UrlEncode(header) + <span class="string">"."</span> +</span><br><span class="line">  base64UrlEncode(payload),</span><br><span class="line">  secret</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+<h3 id="代码参考"><a href="#代码参考" class="headerlink" title="代码参考"></a>代码参考</h3><blockquote>
+<p><a href="https://gitee.com/Joey_z/vip-project-space/blob/master/user-service/user-provider/src/main/java/com/gupaoedu/user/utils/JwtTokenUtils.java" target="_blank" rel="external">https://gitee.com/Joey_z/vip-project-space/blob/master/user-service/user-provider/src/main/java/com/gupaoedu/user/utils/JwtTokenUtils.java</a></p>
+</blockquote>
+<figure class="highlight processing"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> class JwtTokenUtils &#123;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> main(<span class="keyword">String</span>[] args) &#123;</span><br><span class="line">        System.out.<span class="built_in">println</span>(UUID.randomUUID().</span><br><span class="line">                toString().replace(<span class="string">"-"</span>,<span class="string">""</span>));</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//定义your-256-bit-secret</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> Key generatorKey()&#123;</span><br><span class="line">        SignatureAlgorithm saa=SignatureAlgorithm.HS256;</span><br><span class="line">        <span class="built_in">byte</span>[] bin=DatatypeConverter.parseBase64Binary</span><br><span class="line">                (<span class="string">"f3973b64918e4324ad85acea1b6cbec5"</span>);</span><br><span class="line">        Key <span class="built_in">key</span>=<span class="keyword">new</span> SecretKeySpec(bin,saa.getJcaName());</span><br><span class="line">        <span class="keyword">return</span> <span class="built_in">key</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">String</span> generatorToken(Map&lt;<span class="keyword">String</span>,<span class="keyword">Object</span>&gt; payLoad)&#123;</span><br><span class="line">        ObjectMapper objectMapper=<span class="keyword">new</span> ObjectMapper();</span><br><span class="line"></span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line"></span><br><span class="line">      <span class="comment">//定义payload</span></span><br><span class="line">            <span class="keyword">return</span> Jwts.builder().setPayload(objectMapper.writeValueAsString(payLoad))</span><br><span class="line">            <span class="comment">//Jwt  SignatureAlgorithm.HS256定义了header</span></span><br><span class="line">            .signWith(SignatureAlgorithm.HS256,generatorKey()).compact();</span><br><span class="line"></span><br><span class="line">        &#125; <span class="keyword">catch</span> (JsonProcessingException e) &#123;</span><br><span class="line"></span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> Claims phaseToken(<span class="keyword">String</span> token)&#123;</span><br><span class="line">        Jws&lt;Claims&gt; claimsJwt=Jwts.parser().setSigningKey(generatorKey()).parseClaimsJws(token);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> claimsJwt.getBody();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="OAuth2"><a href="#OAuth2" class="headerlink" title="OAuth2"></a>OAuth2</h2>
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+      
+
+      <div style="font-size: 12px;">
+        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
+      </div>
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2019/02/17/Spring-session-与JWT、OAtuh2/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
+    <article id="post-Spring-MVC-DispatchServlet-HanderInteceptor分析" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2019/02/17/Spring-MVC-DispatchServlet-HanderInteceptor分析/">Spring-MVC DispatchServlet HanderInteceptor分析</a>
+    </h1>
+  
+
+        
+        <a href="/2019/02/17/Spring-MVC-DispatchServlet-HanderInteceptor分析/" class="archive-article-date">
+  	<time datetime="2019-02-17T07:46:39.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2019-02-17</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="DispatchServlet-doDispatch方法"><a href="#DispatchServlet-doDispatch方法" class="headerlink" title="DispatchServlet #doDispatch方法"></a>DispatchServlet #doDispatch方法</h2><figure class="highlight smali"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">if (!mappedHandler.applyPreHandle(processedRequest, response)) &#123;</span><br><span class="line">   return;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">// Actually<span class="built_in"> invoke </span>the handler.</span><br><span class="line">mv = ha.handle(processedRequest, response, mappedHandler.getHandler());</span><br><span class="line"></span><br><span class="line">if (asyncManager.isConcurrentHandlingStarted()) &#123;</span><br><span class="line">   return;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">applyDefaultViewName(processedRequest, mv);</span><br><span class="line">mappedHandler.applyPostHandle(processedRequest, response, mv);</span><br></pre></td></tr></table></figure>
+<h2 id="HandlerExecutionChain-applyPreHandle"><a href="#HandlerExecutionChain-applyPreHandle" class="headerlink" title="HandlerExecutionChain#applyPreHandle"></a>HandlerExecutionChain#applyPreHandle</h2><p>实际上责任链模式，分别执行每个<code>HandlerInterceptor</code>的<code>preHandle</code>方法</p>
+<figure class="highlight abnf"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">private HandlerInterceptor[] interceptors<span class="comment">;</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight aspectj"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">boolean</span> <span class="title">applyPreHandle</span><span class="params">(HttpServletRequest request, HttpServletResponse response)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">	HandlerInterceptor[] interceptors = getInterceptors();</span><br><span class="line">	<span class="keyword">if</span> (!ObjectUtils.isEmpty(interceptors)) &#123;</span><br><span class="line">		<span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; interceptors.length; i++) &#123;</span><br><span class="line">			HandlerInterceptor interceptor = interceptors[i];</span><br><span class="line">			<span class="keyword">if</span> (!interceptor.preHandle(request, response, <span class="keyword">this</span>.<span class="keyword">handler</span>)) &#123;</span><br><span class="line">				triggerAfterCompletion(request, response, <span class="keyword">null</span>);</span><br><span class="line">				<span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">			&#125;</span><br><span class="line">			<span class="keyword">this</span>.interceptorIndex = i;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="HandlerExecutionChain-applyPostHandle"><a href="#HandlerExecutionChain-applyPostHandle" class="headerlink" title="HandlerExecutionChain#applyPostHandle"></a>HandlerExecutionChain#applyPostHandle</h2><figure class="highlight aspectj"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">applyPostHandle</span><span class="params">(HttpServletRequest request, HttpServletResponse response, ModelAndView mv)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">	HandlerInterceptor[] interceptors = getInterceptors();</span><br><span class="line">	<span class="keyword">if</span> (!ObjectUtils.isEmpty(interceptors)) &#123;</span><br><span class="line">		<span class="keyword">for</span> (<span class="keyword">int</span> i = interceptors.length - <span class="number">1</span>; i &gt;= <span class="number">0</span>; i--) &#123;</span><br><span class="line">			HandlerInterceptor interceptor = interceptors[i];</span><br><span class="line">			interceptor.postHandle(request, response, <span class="keyword">this</span>.<span class="keyword">handler</span>, mv);</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">Spring-MVC</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+      
+
+      <div style="font-size: 12px;">
+        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
+      </div>
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2019/02/17/Spring-MVC-DispatchServlet-HanderInteceptor分析/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
     <article id="post-精尽-Dubbo-源码分析-——-01API-配置（一）之应用" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
@@ -2330,197 +2499,6 @@
 
 
   
-    <article id="post-策略模式与Spring结合使用" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2019/01/17/策略模式与Spring结合使用/">策略模式与Spring结合使用</a>
-    </h1>
-  
-
-        
-        <a href="/2019/01/17/策略模式与Spring结合使用/" class="archive-article-date">
-  	<time datetime="2019-01-17T08:12:28.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2019-01-17</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <blockquote>
-<p>IOC是Spring的核心之一，利用Spring使用设计模式中的策略模式，可以把具体策略的创建交给Spring容器来管理。</p>
-</blockquote>
-<h2 id="策略模式接口的定义"><a href="#策略模式接口的定义" class="headerlink" title="策略模式接口的定义"></a>策略模式接口的定义</h2><blockquote>
-<p>需求：设计一个统计报表接口，暂定有两种统计方式：统计订单总数,统计新增用户数。</p>
-</blockquote>
-<p>首先定义统计接口。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment">- 策略模式的使用:选择统计算法,分离实现</span></span><br><span class="line"><span class="comment">- 统计策略接口:定义统一的调用方法</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">StatStrategy</span> </span>&#123;</span><br><span class="line">	<span class="function"><span class="keyword">void</span> <span class="title">getStatData</span><span class="params">()</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>具体的统计算法：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">OrderStrategyImpl</span> <span class="keyword">implements</span> <span class="title">StatStrategy</span> </span>&#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">getStatData</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"统计订单总数"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">UserStrategyImpl</span> <span class="keyword">implements</span> <span class="title">StatStrategy</span> </span>&#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">getStatData</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"统计新增用户数"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>利用@Component 注解将算法的实现交由Spring容器管理。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 统计策略的上下文</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">StatContext</span> </span>&#123;</span><br><span class="line">    <span class="comment">//装载策略对象的集合,其中key:Statistics类型为自定义的枚举类型</span></span><br><span class="line">    <span class="keyword">private</span> Map&lt;Statistics, StatStrategy&gt; statStrategy = <span class="keyword">new</span> HashMap&lt;&gt;();</span><br><span class="line"></span><br><span class="line">    <span class="comment">//提供给客户端使用的方法</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">loadDetailData</span><span class="params">(Integer strategyId)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">for</span> (Map.Entry&lt;Statistics,StatStrategy&gt; entry : statStrategy.entrySet()) &#123;</span><br><span class="line">            <span class="keyword">if</span> (entry.getKey().getId()==strategyId.intValue()) &#123;</span><br><span class="line">                statStrategy.get(entry.getKey()).getStatData();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Map&lt;Statistics, StatStrategy&gt; <span class="title">getStatStrategy</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> statStrategy;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setStatStrategy</span><span class="params">(Map&lt;Statistics, StatStrategy&gt; statStrategy)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.statStrategy = statStrategy;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>自定义的枚举类型Statistics ：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">enum</span>  Statistics &#123;</span><br><span class="line"></span><br><span class="line">    订单_总数统计(<span class="number">101</span>, <span class="string">"【订单】总数统计"</span>),</span><br><span class="line">    用户_新增用户数统计(<span class="number">201</span>, <span class="string">"【用户】新增用户数统计"</span>);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> id;</span><br><span class="line">    <span class="keyword">private</span> String name;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">getId</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> id;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">getName</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> name;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    Statistics(<span class="keyword">int</span> id, String name) &#123;</span><br><span class="line">        <span class="keyword">this</span>.id = id;</span><br><span class="line">        <span class="keyword">this</span>.name = name;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>策略模式结合Spring来使用<br>接下来，就是把交由Spring管理的具体算法注入到StatContext 中，用xml文件的形式来实现，Bean的定义写在<code>applicationContext.xml</code>中：</p>
-<p>策略放到map中</p>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">"statContext"</span> <span class="attr">class</span>=<span class="string">"StatContext"</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"statStrategy"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">map</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">entry</span> <span class="attr">key-ref</span>=<span class="string">"statOrder"</span> <span class="attr">value-ref</span>=<span class="string">"orderStrategyImpl "</span>&gt;</span><span class="tag">&lt;/<span class="name">entry</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">entry</span> <span class="attr">key-ref</span>=<span class="string">"statUser"</span> <span class="attr">value-ref</span>=<span class="string">"userStrategyImpl "</span>&gt;</span><span class="tag">&lt;/<span class="name">entry</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">map</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">bean</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">&lt;!--枚举类型要想注入到类中，一定要先使用org.springframework.beans.factory.config.FieldRetrievingFactoryBean类将枚举类型进行转换--&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">"statOrder"</span> <span class="attr">class</span>=<span class="string">"org.springframework.beans.factory.config.FieldRetrievingFactoryBean"</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"staticField"</span> <span class="attr">value</span>=<span class="string">"Statistics.订单_总数统计"</span> /&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">bean</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">"statUser"</span> <span class="attr">class</span>=<span class="string">"org.springframework.beans.factory.config.FieldRetrievingFactoryBean"</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"staticField"</span> <span class="attr">value</span>=<span class="string">"Statistics.用户_新增用户数统计"</span> /&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">bean</span>&gt;</span></span><br></pre></td></tr></table></figure>
-<p>策略模式的相关定义已经写好，接下来使用就很简单了，按照MVC的架构，我们是在Service层来调用相关的策略算法，首先定义Service接口。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">StatService</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">loadDetailData</span><span class="params">(Integer strategyId)</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>接口实现。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Service</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">StatServiceImpl</span> <span class="keyword">implements</span> <span class="title">StatService</span> </span>&#123;</span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="keyword">private</span> StatContext statContext;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">loadDetailData</span><span class="params">(Integer strategyId)</span> </span>&#123;</span><br><span class="line">        <span class="comment">//策略模式结合Spring使用,使代码结构更清晰,避免多重if-else判断</span></span><br><span class="line">        statContext.loadDetailData(strategyId);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>策略模式结合Spring使用就是这么简单，具体细节再结合项目的使用来修改，完毕。</p>
-
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color2">Spring</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-      
-
-      <div style="font-size: 12px;">
-        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
-      </div>
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2019/01/17/策略模式与Spring结合使用/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
-    <article id="post-tomcat架构解析" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2019/01/17/tomcat架构解析/">Tomcat架构解析及部署方式</a>
-    </h1>
-  
-
-        
-        <a href="/2019/01/17/tomcat架构解析/" class="archive-article-date">
-  	<time datetime="2019-01-17T02:33:48.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2019-01-17</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h2 id="目录结构"><a href="#目录结构" class="headerlink" title="目录结构"></a>目录结构</h2><h3 id="conf-目录"><a href="#conf-目录" class="headerlink" title="conf 目录"></a>conf 目录</h3><p><code>catalina.policy</code> :  Tomcat 安全策略文件，控制 JVM 相关权限，具体可以参考<code>java.security.Permission</code></p>
-<p><code>catalina.properties</code> : Tomcat Catalina 行为控制配置文件，比如 Common ClassLoader</p>
-<p><code>logging.properties</code>  : Tomcat 日志配置文件，JDK Logging</p>
-<p><code>server.xml</code>  :  Tomcat Server 配置文件</p>
-<ul>
-<li><code>GlobalNamingResources</code> : 全局 JNDI 资源</li>
-</ul>
-<p><code>context.xml</code> : 全局 Context 配置文件</p>
-<p><code>tomcat-users.xml</code> : Tomcat 角色配置文件，（Realm 文件实现方式）、</p>
-<p><code>web.xml</code> : Servlet 标准的 web.xml 部署文件，Tomcat 默认实现部分配置入内：</p>
-<ul>
-<li><code>org.apache.catalina.servlets.DefaultServlet</code></li>
-<li><code>org.apache.jasper.servlet.JspServlet</code></li>
-</ul>
-        
-          <a class="article-more-a" href="/2019/01/17/tomcat架构解析/#more">more >></a>
-        
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color2">tomcat</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-      
-
-      <div style="font-size: 12px;">
-        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
-      </div>
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2019/01/17/tomcat架构解析/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
   
     <nav id="page-nav">
       <a class="extend prev" rel="prev" href="/">&laquo; Prev</a><a class="page-number" href="/">1</a><span class="page-number current">2</span><a class="page-number" href="/page/3/">3</a><a class="page-number" href="/page/4/">4</a><span class="space">&hellip;</span><a class="page-number" href="/page/17/">17</a><a class="extend next" rel="next" href="/page/3/">Next &raquo;</a>
@@ -2622,11 +2600,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">Dubbo</a>
+                <a href="javascript:void(0)" class="js-tag color3">java并发包</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">java并发包</a>
+                <a href="javascript:void(0)" class="js-tag color1">Dubbo</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -2646,15 +2624,7 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">java内存模型</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">Maven</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">redis</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -2662,7 +2632,15 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">java内存模型</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">快捷键</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">redis</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -2670,19 +2648,15 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">mysql</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">MySQL</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">Netty</a>
+                <a href="javascript:void(0)" class="js-tag color1">mysql</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">Python</a>
+                <a href="javascript:void(0)" class="js-tag color1">Netty</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -2694,11 +2668,15 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">RxJava</a>
+                <a href="javascript:void(0)" class="js-tag color2">Python</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">spring</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">RxJava</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -2726,11 +2704,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">influxdb</a>
+                <a href="javascript:void(0)" class="js-tag color1">debug</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">debug</a>
+                <a href="javascript:void(0)" class="js-tag color4">influxdb</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -2742,11 +2720,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">python</a>
+                <a href="javascript:void(0)" class="js-tag color4">Mac</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">Mac</a>
+                <a href="javascript:void(0)" class="js-tag color2">python</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -2770,11 +2748,15 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">SSE</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">分布式锁</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">SSE</a>
+                <a href="javascript:void(0)" class="js-tag color5">前端指南</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -2787,10 +2769,6 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">后端</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">前端指南</a>
               </li>
              
               <li class="article-tag-list-item">
