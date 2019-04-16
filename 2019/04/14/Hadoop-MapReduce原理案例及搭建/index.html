@@ -9,18 +9,21 @@
   <link rel="dns-prefetch" href="http://yoursite.com">
   <title>Hadoop MapReduce原理案例及搭建 | xiaowu&#39;s blog</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="map   数据多个切片，多个map，一个map有多个key  reduce  一个key下的数据不能分隔 最终数量由人，默认一个reduce 2中key  内部有序，外部无序，归并算法  block 和切片 map 和 reduce 不违背原义 ， 一个key不能分割 分区数就是reduce task数，默认1个  Shuffler洗牌  map kv -&amp;gt; kvp 分区号 多个map">
+  <meta name="description" content="MapReduce语义  MapTask(左边)  a. block和切片：block是物理的存储，偏移量和位置信息；切片是逻辑概念。1:1 1:N N:1关系 b. 切片和map：1：1关系 。 数据多个切片，多个map。一个map有多个key。 c. 同一个map，根据partion的分区信息排序，再根据key，进行一次快排。  ReduceTask(右边)  a. reduce最终数量由人，">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Hadoop MapReduce原理案例及搭建">
 <meta property="og:url" content="http://yoursite.com/2019/04/14/Hadoop-MapReduce原理案例及搭建/index.html">
 <meta property="og:site_name" content="xiaowu&#39;s blog">
-<meta property="og:description" content="map   数据多个切片，多个map，一个map有多个key  reduce  一个key下的数据不能分隔 最终数量由人，默认一个reduce 2中key  内部有序，外部无序，归并算法  block 和切片 map 和 reduce 不违背原义 ， 一个key不能分割 分区数就是reduce task数，默认1个  Shuffler洗牌  map kv -&amp;gt; kvp 分区号 多个map">
+<meta property="og:description" content="MapReduce语义  MapTask(左边)  a. block和切片：block是物理的存储，偏移量和位置信息；切片是逻辑概念。1:1 1:N N:1关系 b. 切片和map：1：1关系 。 数据多个切片，多个map。一个map有多个key。 c. 同一个map，根据partion的分区信息排序，再根据key，进行一次快排。  ReduceTask(右边)  a. reduce最终数量由人，">
+<meta property="og:image" content="http://yoursite.com/2019/04/14/Hadoop-MapReduce原理案例及搭建/图片%202.png">
+<meta property="og:image" content="http://yoursite.com/2019/04/14/Hadoop-MapReduce原理案例及搭建/图片%203.png">
+<meta property="og:image" content="http://yoursite.com/Users/zhouxiaowu/IdeaProject-gupao/blog/source/_posts/Hadoop-MapReduce原理案例及搭建/图片%204.png">
 <meta property="og:image" content="http://yoursite.com/2019/04/14/Hadoop-MapReduce原理案例及搭建/图片%201.png">
-<meta property="og:updated_time" content="2019-04-14T09:48:28.000Z">
+<meta property="og:updated_time" content="2019-04-14T13:13:12.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Hadoop MapReduce原理案例及搭建">
-<meta name="twitter:description" content="map   数据多个切片，多个map，一个map有多个key  reduce  一个key下的数据不能分隔 最终数量由人，默认一个reduce 2中key  内部有序，外部无序，归并算法  block 和切片 map 和 reduce 不违背原义 ， 一个key不能分割 分区数就是reduce task数，默认1个  Shuffler洗牌  map kv -&amp;gt; kvp 分区号 多个map">
-<meta name="twitter:image" content="http://yoursite.com/2019/04/14/Hadoop-MapReduce原理案例及搭建/图片%201.png">
+<meta name="twitter:description" content="MapReduce语义  MapTask(左边)  a. block和切片：block是物理的存储，偏移量和位置信息；切片是逻辑概念。1:1 1:N N:1关系 b. 切片和map：1：1关系 。 数据多个切片，多个map。一个map有多个key。 c. 同一个map，根据partion的分区信息排序，再根据key，进行一次快排。  ReduceTask(右边)  a. reduce最终数量由人，">
+<meta name="twitter:image" content="http://yoursite.com/2019/04/14/Hadoop-MapReduce原理案例及搭建/图片%202.png">
   
     <link rel="alternative" href="/atom.xml" title="xiaowu&#39;s blog" type="application/atom+xml">
   
@@ -174,42 +177,28 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        <ul>
-<li>map </li>
-</ul>
-<p>数据多个切片，多个map，一个map有多个key</p>
+        <h2 id="MapReduce语义"><a href="#MapReduce语义" class="headerlink" title="MapReduce语义"></a>MapReduce语义</h2><p><img src="/2019/04/14/Hadoop-MapReduce原理案例及搭建/图片 2.png" alt="图片 2"></p>
 <ul>
-<li>reduce</li>
+<li>MapTask(左边)</li>
 </ul>
-<p>一个key下的数据不能分隔</p>
-<p>最终数量由人，默认一个reduce</p>
-<p>2中key</p>
+<p>a. block和切片：block是物理的存储，偏移量和位置信息；切片是逻辑概念。1:1 1:N N:1关系</p>
+<p>b. 切片和map：1：1关系 。 数据多个切片，多个map。一个map有多个key。</p>
+<p>c. 同一个map，根据partion的分区信息排序，再根据key，进行一次快排。</p>
 <ul>
-<li><strong>内部有序，外部无序，归并算法</strong></li>
+<li>ReduceTask(右边)</li>
 </ul>
-<p>block 和切片</p>
-<p>map 和 reduce 不违背原义 ， 一个key不能分割</p>
-<p>分区数就是reduce task数，默认1个</p>
-<ul>
-<li>Shuffler洗牌</li>
-</ul>
-<p>map kv -&gt; kvp 分区号</p>
-<p>多个map ，一个key会在多个map中</p>
-<p>内存达到80%，溢血 ， <strong>分区排序，再key排序</strong> ，只有这里是一个无序到有序的快排</p>
-<p>计算向数据移动 </p>
-<p>shuffler : 多个map ，取相同key的为一组</p>
-<ul>
-<li>排序</li>
-</ul>
-<p>字典序</p>
-<ul>
-<li>client</li>
-</ul>
-<p>jar (client mapTask reduceTask)  推算计算清单</p>
-<ul>
-<li>1.x job Tracker</li>
-</ul>
-<p>资源管理 任务调度</p>
+<p>a. reduce最终数量由人，默认一个reduce。map和reduce的关系数目不固定。</p>
+<p>b. 从其他map拿到相同的key，做归并排序。1个key不能分割，只能在一个分区partition（原语）。</p>
+<h3 id="shuffer洗牌"><a href="#shuffer洗牌" class="headerlink" title="shuffer洗牌"></a>shuffer洗牌</h3><p><img src="/2019/04/14/Hadoop-MapReduce原理案例及搭建/图片 3.png" alt="图片 3"></p>
+<p>a. 一个切片split =&gt; 一个map=&gt; 内存根据分区和Key做一次快排 , (partition,key,value)</p>
+<p>b. reduceTask是在一个分区partition，从不同的map，拿到相同的key。内部有序，外部无序，进行归并排序。</p>
+<p><img src="/Users/zhouxiaowu/IdeaProject-gupao/blog/source/_posts/Hadoop-MapReduce原理案例及搭建/图片 4.png" alt=""></p>
+<p>如上图</p>
+<p>a. split进行逻辑分割，默认是一个block为一个split</p>
+<p>b. map操作，(key,value,partition)信息，排序可选</p>
+<p>c. shuffler，洗牌，从不同的map拿到相同的Key，归并</p>
+<p>d. reduce计算</p>
+<p>e. 合并拿到最后结果</p>
 <h2 id="YARN-HA部署"><a href="#YARN-HA部署" class="headerlink" title="YARN HA部署"></a>YARN HA部署</h2><p><img src="/2019/04/14/Hadoop-MapReduce原理案例及搭建/图片 1.png" alt=""></p>
 <p>a. client提交任务，包含计算清单</p>
 <p>b. ResourceManager根据NodeManager的状态，挑选一台，作为App Master</p>
@@ -406,6 +395,15 @@
   
 <nav id="article-nav">
   
+    <a href="/2019/04/16/单点登录实现——基于OAuth2-0协议的接入方案/" id="article-nav-newer" class="article-nav-link-wrap">
+      <i class="icon-circle-left"></i>
+      <div class="article-nav-title">
+        
+          单点登录实现——基于OAuth2.0协议的接入方案
+        
+      </div>
+    </a>
+  
   
     <a href="/2019/04/12/Zookeeper客户端Curator使用详解/" id="article-nav-older" class="article-nav-link-wrap">
       <div class="article-nav-title">Zookeeper客户端Curator使用详解</div>
@@ -538,11 +536,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">java并发包</a>
+                <a href="javascript:void(0)" class="js-tag color1">Dubbo</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">Dubbo</a>
+                <a href="javascript:void(0)" class="js-tag color3">java并发包</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -566,15 +564,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">linux</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">java内存模型</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">快捷键</a>
+                <a href="javascript:void(0)" class="js-tag color1">linux</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -582,7 +576,7 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">test</a>
+                <a href="javascript:void(0)" class="js-tag color4">快捷键</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -594,15 +588,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">test</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">Netty</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">限流</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">react</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -610,11 +600,19 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">spring</a>
+                <a href="javascript:void(0)" class="js-tag color1">react</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">限流</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">RxJava</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">spring</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -658,11 +656,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">Mac</a>
+                <a href="javascript:void(0)" class="js-tag color2">python</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">python</a>
+                <a href="javascript:void(0)" class="js-tag color4">Mac</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -694,15 +692,15 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">前端指南</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">分布式</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">事务</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">前端指南</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -734,15 +732,15 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">前端跨域</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">HashMap</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">单例</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">前端跨域</a>
               </li>
              
               <li class="article-tag-list-item">

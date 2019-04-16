@@ -150,6 +150,79 @@
           <div id="js-content" class="content-ll">
             
   
+    <article id="post-浅谈springMVC中的设计模式——组合模式" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2018/11/09/浅谈springMVC中的设计模式——组合模式/">浅谈springMVC中的设计模式——组合模式</a>
+    </h1>
+  
+
+        
+        <a href="/2018/11/09/浅谈springMVC中的设计模式——组合模式/" class="archive-article-date">
+  	<time datetime="2018-11-09T14:31:35.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-11-09</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="定义"><a href="#定义" class="headerlink" title="定义"></a>定义</h2><p>惯例我们先来看一看组合模式的定义：组合模式，将对象组合成树形结构以表示“部分-整体”的层次结构，组合模式使得用户对单个对象和组合对象的使用具有一致性。通俗的来说，就是讲一系列的对象组合在一个整体的对象中，用户在对这个组合对象操作使用时就能跟操作一个对象一样。</p>
+<h2 id="WebMvcConfigurerComposite"><a href="#WebMvcConfigurerComposite" class="headerlink" title="WebMvcConfigurerComposite"></a>WebMvcConfigurerComposite</h2><h3 id="1-component-gt-WebMvcConfigurer抽象接口"><a href="#1-component-gt-WebMvcConfigurer抽象接口" class="headerlink" title="1.  component -&gt; WebMvcConfigurer抽象接口"></a>1.  component -&gt; WebMvcConfigurer抽象接口</h3><figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">public<span class="built_in"> interface </span>WebMvcConfigurer &#123;</span><br><span class="line"></span><br><span class="line"><span class="built_in">..</span>.</span><br><span class="line"><span class="built_in">	default </span>void addInterceptors(InterceptorRegistry registry) &#123;</span><br><span class="line">	&#125;</span><br><span class="line"><span class="built_in">..</span>.	</span><br><span class="line">	</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="2-leaf-具体实现-gt-自定义实现"><a href="#2-leaf-具体实现-gt-自定义实现" class="headerlink" title="2. leaf 具体实现 -&gt; 自定义实现"></a>2. leaf 具体实现 -&gt; 自定义实现</h2><figure class="highlight aspectj"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Bean</span></span><br><span class="line"><span class="keyword">public</span> <span class="function">WebMvcConfigurer <span class="title">webMvcConfigurer</span><span class="params">()</span></span>&#123;</span><br><span class="line">    WebMvcConfigurer configurer = <span class="keyword">new</span> WebMvcConfigurer() &#123;</span><br><span class="line">        <span class="meta">@Override</span></span><br><span class="line">        <span class="keyword">public</span> <span class="function"><span class="keyword">void</span> <span class="title">addInterceptors</span><span class="params">(InterceptorRegistry registry)</span> </span>&#123;</span><br><span class="line">            registry.addInterceptor(<span class="keyword">new</span> HandlerInterceptor() &#123;</span><br><span class="line">                <span class="meta">@Override</span></span><br><span class="line">                <span class="keyword">public</span> <span class="function"><span class="keyword">boolean</span> <span class="title">preHandle</span><span class="params">(HttpServletRequest request, HttpServletResponse response, Object <span class="keyword">handler</span>)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">                    System.out.println(<span class="string">"handler执行前"</span>);</span><br><span class="line">                    <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> configurer;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="3-composite容器-gt-WebMvcConfigurerComposite"><a href="#3-composite容器-gt-WebMvcConfigurerComposite" class="headerlink" title="3. composite容器 -&gt; WebMvcConfigurerComposite"></a>3. composite容器 -&gt; WebMvcConfigurerComposite</h3><p><code>@EnableWebMvc</code></p>
+<p>​    <code>@Import(DelegatingWebMvcConfiguration.class)</code></p>
+<p>​        <code>WebMvcConfigurerComposite</code></p>
+<p>本身也实现component <code>WebMvcConfigurer</code>接口，并存在<code>List&lt;WebMvcConfigurer&gt; delegates</code>，对所有的leaf进行统一配置</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">WebMvcConfigurerComposite</span> <span class="keyword">implements</span> <span class="title">WebMvcConfigurer</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">private</span> <span class="keyword">final</span> List&lt;WebMvcConfigurer&gt; delegates = <span class="keyword">new</span> ArrayList&lt;&gt;();</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">addWebMvcConfigurers</span><span class="params">(List&lt;WebMvcConfigurer&gt; configurers)</span> </span>&#123;</span><br><span class="line">		<span class="keyword">if</span> (!CollectionUtils.isEmpty(configurers)) &#123;</span><br><span class="line">			<span class="keyword">this</span>.delegates.addAll(configurers);</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="meta">@Override</span></span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">configurePathMatch</span><span class="params">(PathMatchConfigurer configurer)</span> </span>&#123;</span><br><span class="line">		<span class="keyword">for</span> (WebMvcConfigurer delegate : <span class="keyword">this</span>.delegates) &#123;</span><br><span class="line">			delegate.configurePathMatch(configurer);</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	</span><br><span class="line">	...	</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+      
+
+      <div style="font-size: 12px;">
+        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
+      </div>
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2018/11/09/浅谈springMVC中的设计模式——组合模式/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
     <article id="post-如何保证微服务接口的幂等性" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
@@ -1171,81 +1244,6 @@
 
 
   
-    <article id="post-kafka原理详解" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2018/09/06/kafka原理详解/">kafka原理详解</a>
-    </h1>
-  
-
-        
-        <a href="/2018/09/06/kafka原理详解/" class="archive-article-date">
-  	<time datetime="2018-09-06T13:54:39.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-09-06</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h2 id="kafka提供的基本脚本"><a href="#kafka提供的基本脚本" class="headerlink" title="kafka提供的基本脚本"></a>kafka提供的基本脚本</h2><h3 id="启动broker-server"><a href="#启动broker-server" class="headerlink" title="启动broker server"></a>启动broker server</h3><figure class="highlight axapta"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">bin/kafka-<span class="keyword">server</span>-start.sh config/<span class="keyword">server</span>.properties</span><br></pre></td></tr></table></figure>
-<h3 id="创建topic"><a href="#创建topic" class="headerlink" title="创建topic"></a>创建topic</h3><figure class="highlight brainfuck"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">bin/kafka</span><span class="literal">-</span><span class="comment">topics</span><span class="string">.</span><span class="comment">sh</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">create</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">zookeeper</span> <span class="comment">localhost:2181</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">replication</span><span class="literal">-</span><span class="comment">factor</span> <span class="comment">2</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">partitions</span> <span class="comment">3</span> <span class="literal">-</span><span class="literal">-</span> <span class="comment">topic</span> <span class="comment">testReplicaTopic</span></span><br></pre></td></tr></table></figure>
-<p>当broker节点本身只有1个，少于副本数2时，报错</p>
-<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[<span class="number">2018</span>-<span class="number">09</span>-<span class="number">06</span> <span class="number">23</span>:<span class="number">13</span>:<span class="number">38</span>,<span class="number">288</span>] ERROR org<span class="selector-class">.apache</span><span class="selector-class">.kafka</span><span class="selector-class">.common</span><span class="selector-class">.errors</span><span class="selector-class">.InvalidReplicationFactorException</span>: Replication factor: <span class="number">2</span> larger than available brokers: <span class="number">1</span>.</span><br><span class="line"> (kafka<span class="selector-class">.admin</span><span class="selector-class">.TopicCommand</span>$)</span><br></pre></td></tr></table></figure>
-<h3 id="查看某个topic的信息"><a href="#查看某个topic的信息" class="headerlink" title="查看某个topic的信息"></a>查看某个topic的信息</h3><figure class="highlight brainfuck"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">bin/kafka</span><span class="literal">-</span><span class="comment">topics</span><span class="string">.</span><span class="comment">sh</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">describe</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">zookeeper</span> <span class="comment">localhost:2181</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">topic</span> <span class="comment">xiaowu</span><span class="literal">-</span><span class="comment">topic</span></span><br></pre></td></tr></table></figure>
-<h3 id="生产者发送消息"><a href="#生产者发送消息" class="headerlink" title="生产者发送消息"></a>生产者发送消息</h3><figure class="highlight vim"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">bin/kafka-console-producer.<span class="keyword">sh</span> --broker-<span class="keyword">list</span> localhos<span class="variable">t:9092</span> --topic xiaowu-topic</span><br></pre></td></tr></table></figure>
-<h3 id="消费者消费消息"><a href="#消费者消费消息" class="headerlink" title="消费者消费消息"></a>消费者消费消息</h3><figure class="highlight brainfuck"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">bin/kafka</span><span class="literal">-</span><span class="comment">console</span><span class="literal">-</span><span class="comment">consumer</span><span class="string">.</span><span class="comment">sh</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">bootstrap</span><span class="literal">-</span><span class="comment">server</span> <span class="comment">localhost:9092</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">topic</span> <span class="comment">xiaowu</span><span class="literal">-</span><span class="comment">topic</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">from</span><span class="literal">-</span><span class="comment">beginning</span></span><br></pre></td></tr></table></figure>
-<h3 id="查看消息日志文件"><a href="#查看消息日志文件" class="headerlink" title="查看消息日志文件"></a>查看消息日志文件</h3><figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">bin/kafka-run-class<span class="selector-class">.sh</span> kafka<span class="selector-class">.tools</span><span class="selector-class">.DumpLogSegments</span> --files /Users/zhouxiaowu/install/kafka/kafka-data/xiaowu-topic-<span class="number">0</span>/<span class="number">00000000000000000000</span><span class="selector-class">.log</span> --print-data-log</span><br></pre></td></tr></table></figure>
-<h3 id="查看索引文件内容"><a href="#查看索引文件内容" class="headerlink" title="查看索引文件内容"></a>查看索引文件内容</h3><figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">bin/kafka-run-class<span class="selector-class">.sh</span> kafka<span class="selector-class">.tools</span><span class="selector-class">.DumpLogSegments</span> --files /Users/zhouxiaowu/install/kafka/kafka-data/xiaowu-topic-<span class="number">0</span>/<span class="number">00000000000000000000</span><span class="selector-class">.index</span> --print-data-log</span><br></pre></td></tr></table></figure>
-<h2 id="zookeeper状态"><a href="#zookeeper状态" class="headerlink" title="zookeeper状态"></a>zookeeper状态</h2><h3 id="查看某个topic的某个分区的状态"><a href="#查看某个topic的某个分区的状态" class="headerlink" title="查看某个topic的某个分区的状态"></a>查看某个topic的某个分区的状态</h3><figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[<span class="string">zk:</span> <span class="string">localhost:</span><span class="number">2181</span>(CONNECTED) <span class="number">16</span>] get  <span class="regexp">/brokers/</span>topics<span class="regexp">/xiaowu-topic/</span>partitions<span class="regexp">/0/</span>state</span><br><span class="line">&#123;<span class="string">"controller_epoch"</span>:<span class="number">4</span>,<span class="string">"leader"</span>:<span class="number">0</span>,<span class="string">"version"</span>:<span class="number">1</span>,<span class="string">"leader_epoch"</span>:<span class="number">0</span>,<span class="string">"isr"</span>:[<span class="number">0</span>]&#125;</span><br></pre></td></tr></table></figure>
-
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-      
-
-      <div style="font-size: 12px;">
-        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
-      </div>
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2018/09/06/kafka原理详解/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
   
     <nav id="page-nav">
       <a class="extend prev" rel="prev" href="/page/3/">&laquo; Prev</a><a class="page-number" href="/">1</a><a class="page-number" href="/page/2/">2</a><a class="page-number" href="/page/3/">3</a><span class="page-number current">4</span><a class="page-number" href="/page/5/">5</a><a class="page-number" href="/page/6/">6</a><span class="space">&hellip;</span><a class="page-number" href="/page/17/">17</a><a class="extend next" rel="next" href="/page/5/">Next &raquo;</a>
@@ -1347,11 +1345,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">java并发包</a>
+                <a href="javascript:void(0)" class="js-tag color1">Dubbo</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">Dubbo</a>
+                <a href="javascript:void(0)" class="js-tag color3">java并发包</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1375,15 +1373,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">linux</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">java内存模型</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">快捷键</a>
+                <a href="javascript:void(0)" class="js-tag color1">linux</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1391,7 +1385,7 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">test</a>
+                <a href="javascript:void(0)" class="js-tag color4">快捷键</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1403,15 +1397,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">test</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">Netty</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">限流</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">react</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1419,11 +1409,19 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">spring</a>
+                <a href="javascript:void(0)" class="js-tag color1">react</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">限流</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">RxJava</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">spring</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1467,11 +1465,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">Mac</a>
+                <a href="javascript:void(0)" class="js-tag color2">python</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">python</a>
+                <a href="javascript:void(0)" class="js-tag color4">Mac</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1503,15 +1501,15 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">前端指南</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">分布式</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">事务</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">前端指南</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1543,15 +1541,15 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">前端跨域</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">HashMap</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">单例</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">前端跨域</a>
               </li>
              
               <li class="article-tag-list-item">
