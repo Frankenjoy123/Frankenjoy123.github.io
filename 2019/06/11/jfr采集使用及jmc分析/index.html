@@ -7,14 +7,18 @@
   <meta name="renderer" content="webkit">
   <meta http-equiv="X-UA-Compatible" content="IE=edge" >
   <link rel="dns-prefetch" href="http://yoursite.com">
-  <title>Archives: 2016/3 | xiaowu&#39;s blog</title>
+  <title>jfr采集使用及jmc分析 | xiaowu&#39;s blog</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta property="og:type" content="website">
-<meta property="og:title" content="xiaowu&#39;s blog">
-<meta property="og:url" content="http://yoursite.com/archives/2016/03/index.html">
+  <meta name="description" content="找到java进程1ps -ef | grep java 解锁Java程序的商业特性1234jcmd 12174 VM.check_commercial_features12174:Commercial Features are locked. 采集JFR固定时长采集123jcmd $pid JFR.start name=myrec settings=temple delay=20s duratio">
+<meta property="og:type" content="article">
+<meta property="og:title" content="jfr采集使用及jmc分析">
+<meta property="og:url" content="http://yoursite.com/2019/06/11/jfr采集使用及jmc分析/index.html">
 <meta property="og:site_name" content="xiaowu&#39;s blog">
+<meta property="og:description" content="找到java进程1ps -ef | grep java 解锁Java程序的商业特性1234jcmd 12174 VM.check_commercial_features12174:Commercial Features are locked. 采集JFR固定时长采集123jcmd $pid JFR.start name=myrec settings=temple delay=20s duratio">
+<meta property="og:updated_time" content="2019-06-11T03:03:58.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="xiaowu&#39;s blog">
+<meta name="twitter:title" content="jfr采集使用及jmc分析">
+<meta name="twitter:description" content="找到java进程1ps -ef | grep java 解锁Java程序的商业特性1234jcmd 12174 VM.check_commercial_features12174:Commercial Features are locked. 采集JFR固定时长采集123jcmd $pid JFR.start name=myrec settings=temple delay=20s duratio">
   
     <link rel="alternative" href="/atom.xml" title="xiaowu&#39;s blog" type="application/atom+xml">
   
@@ -148,71 +152,179 @@
             <canvas data-colors="#eaeaea" data-sectionHeight="100" data-contentId="js-content" id="myCanvas1" class="anm-canvas"></canvas>
           </div>
           <div id="js-content" class="content-ll">
-            
-  
-  
+            <article id="post-jfr采集使用及jmc分析" class="article article-type-post " itemscope itemprop="blogPost">
+  <div class="article-inner">
     
-    
-      
-      
-      <section class="archives-wrap">
-        <div class="archive-year-wrap">
-          <a href="/archives/2016" class="archive-year">2016</a>
-        </div>
-        <div class="archives">
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2016/03/29/科学上网/" class="archive-article-date">
-  	<time datetime="2016-03-28T16:00:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2016-03-29</time>
-</a>
-        </div>
-    	 
+      <header class="article-header">
+        
   
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2016/03/29/科学上网/">科学上网</a>
+    <h1 class="article-title" itemprop="name">
+      jfr采集使用及jmc分析
     </h1>
   
 
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">科学上网，hosts</a>
-        		</li>
-      		
-		</ul>
-	</div>
+        
+        <a href="/2019/06/11/jfr采集使用及jmc分析/" class="archive-article-date">
+  	<time datetime="2019-06-11T02:49:20.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2019-06-11</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="找到java进程"><a href="#找到java进程" class="headerlink" title="找到java进程"></a>找到java进程</h2><figure class="highlight vim"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">ps</span> -ef | <span class="keyword">grep</span> java</span><br></pre></td></tr></table></figure>
+<h2 id="解锁Java程序的商业特性"><a href="#解锁Java程序的商业特性" class="headerlink" title="解锁Java程序的商业特性"></a>解锁Java程序的商业特性</h2><figure class="highlight inform7"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">jcmd 12174 VM.check_commercial_features</span><br><span class="line"></span><br><span class="line">12174:</span><br><span class="line">Commercial Features <span class="keyword">are</span> <span class="keyword">locked</span>.</span><br></pre></td></tr></table></figure>
+<h2 id="采集JFR"><a href="#采集JFR" class="headerlink" title="采集JFR"></a>采集JFR</h2><h3 id="固定时长采集"><a href="#固定时长采集" class="headerlink" title="固定时长采集"></a>固定时长采集</h3><figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">jcmd <span class="variable">$pid</span> JFR.start <span class="attribute">name</span>=myrec <span class="attribute">settings</span>=temple <span class="attribute">delay</span>=20s <span class="attribute">duration</span>=2m <span class="attribute">filename</span>=/tmp/$pid.jfr</span><br><span class="line"></span><br><span class="line">jcmd 12174 JFR.start <span class="attribute">name</span>=10min.jfr <span class="attribute">settings</span>=profile <span class="attribute">delay</span>=3s <span class="attribute">duration</span>=5m</span><br></pre></td></tr></table></figure>
+<h3 id="持续采集JFR"><a href="#持续采集JFR" class="headerlink" title="持续采集JFR"></a>持续采集JFR</h3><figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">jcmd 12174 JFR.start <span class="attribute">name</span>=endless <span class="attribute">settings</span>=profile <span class="attribute">delay</span>=3s <span class="attribute">duration</span>=0  <span class="attribute">compress</span>=<span class="literal">true</span></span><br></pre></td></tr></table></figure>
+<p>对于这种持续采集的任务，我们需要手动转存：</p>
+<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">jcmd 12174 JFR.dump <span class="attribute">recording</span>=3 <span class="attribute">filename</span>=<span class="string">"/Users/jianyuan/Personal/dump_endless.jfr"</span> <span class="attribute">compress</span>=<span class="literal">true</span></span><br></pre></td></tr></table></figure>
+<h2 id="分析JFR文件"><a href="#分析JFR文件" class="headerlink" title="分析JFR文件"></a>分析JFR文件</h2><p>线下输入<code>jmc</code></p>
+<figure class="highlight ebnf"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">jmc</span></span><br></pre></td></tr></table></figure>
+<p>打开<code>java mission control</code></p>
+<p>选择打开导出的jfr文件</p>
+<h3 id="分析角度"><a href="#分析角度" class="headerlink" title="分析角度"></a>分析角度</h3><p>一般来说可以从下面几个方式来入手：</p>
+<ul>
+<li>应用异常</li>
+<li>热点线程和方法</li>
+<li>不合预期的IO</li>
+<li>过长的GC</li>
+</ul>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><blockquote>
+<p><a href="https://blog.csdn.net/yue530tomtom/article/details/80805412" target="_blank" rel="external">https://blog.csdn.net/yue530tomtom/article/details/80805412</a></p>
+<p><a href="http://www.manongjc.com/article/7589.html" target="_blank" rel="external">http://www.manongjc.com/article/7589.html</a></p>
+</blockquote>
 
-          
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/科学上网//" class="article-tag-list-link color5">科学上网</a>
-        		</li>
-      		
-		</ul>
-	</div>
+      
 
-
+      
+        <div class="page-reward">
+          <a href="javascript:;" class="page-reward-btn tooltip-top">
+            <div class="tooltip tooltip-east">
+            <span class="tooltip-item">
+              赏
+            </span>
+            <span class="tooltip-content">
+              <span class="tooltip-text">
+                <span class="tooltip-inner">
+                  <p class="reward-p"><i class="icon icon-quo-left"></i>谢谢你请我吃糖果<i class="icon icon-quo-right"></i></p>
+                  <div class="reward-box">
+                    
+                    
+                  </div>
+                </span>
+              </span>
+            </span>
+          </div>
+          </a>
         </div>
-        <div class="clearfix"></div>
-    </header>
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+      
+
+      <div style="font-size: 12px;">
+        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
+      </div>
+      
+
+      
+        
+<div class="share-btn share-icons tooltip-left">
+  <div class="tooltip tooltip-east">
+    <span class="tooltip-item">
+      <a href="javascript:;" class="share-sns share-outer">
+        <i class="icon icon-share"></i>
+      </a>
+    </span>
+    <span class="tooltip-content">
+      <div class="share-wrap">
+        <div class="share-icons">
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="icon icon-weibo"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="icon icon-weixin"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="icon icon-qq"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="icon icon-douban"></i>
+          </a>
+          <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a>
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="icon icon-facebook"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="icon icon-twitter"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="icon icon-google"></i>
+          </a>
+        </div>
+      </div>
+    </span>
+  </div>
+</div>
+
+<div class="page-modal wx-share js-wx-box">
+    <a class="close js-modal-close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="http://s.jiathis.com/qrcode.php?url=http://yoursite.com/2019/06/11/jfr采集使用及jmc分析/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div class="mask js-mask"></div>
+      
+      <div class="clearfix"></div>
+    </div>
   </div>
 </article>
+
+  
+<nav id="article-nav">
   
   
-    </div></section>
+    <a href="/2019/06/11/Arthas使用文档/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">Arthas使用文档</div>
+      <i class="icon-circle-right"></i>
+    </a>
+  
+</nav>
+
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+  
+  
   
 
-    
+  
+
+  
+
+  
 
 
           </div>
@@ -235,8 +347,8 @@
 	var yiliaConfig = {
 		mathjax: false,
 		isHome: false,
-		isPost: false,
-		isArchive: true,
+		isPost: true,
+		isArchive: false,
 		isTag: false,
 		isCategory: false,
 		open_in_new: true,
@@ -309,15 +421,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">Dubbo</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">java并发包</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">git</a>
+                <a href="javascript:void(0)" class="js-tag color1">Dubbo</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -325,7 +433,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">java</a>
+                <a href="javascript:void(0)" class="js-tag color4">git</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">Maven</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -333,7 +445,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">Maven</a>
+                <a href="javascript:void(0)" class="js-tag color5">java</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">redis</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -345,15 +461,7 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">redis</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">快捷键</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">MySQL</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -361,11 +469,7 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">test</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">Netty</a>
+                <a href="javascript:void(0)" class="js-tag color1">MySQL</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -373,7 +477,7 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">react</a>
+                <a href="javascript:void(0)" class="js-tag color1">Netty</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -382,6 +486,14 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">RxJava</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">test</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">react</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -413,6 +525,10 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">nio</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">debug</a>
               </li>
              
@@ -421,15 +537,7 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">nio</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">rest</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">python</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -453,6 +561,10 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">分布式锁</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Spring</a>
               </li>
              
@@ -461,7 +573,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">分布式锁</a>
+                <a href="javascript:void(0)" class="js-tag color5">前端指南</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">后端</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -470,14 +586,6 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">事务</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">前端指南</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">后端</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -501,11 +609,7 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">科学上网，hosts</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">HashMap</a>
+                <a href="javascript:void(0)" class="js-tag color5">前端跨域</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -513,7 +617,7 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">前端跨域</a>
+                <a href="javascript:void(0)" class="js-tag color3">HashMap</a>
               </li>
              
               <li class="article-tag-list-item">

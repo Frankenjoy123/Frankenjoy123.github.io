@@ -150,6 +150,477 @@
           <div id="js-content" class="content-ll">
             
   
+    <article id="post-vmware-网络设置" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2018/09/25/vmware-网络设置/">vmware 网络设置</a>
+    </h1>
+  
+
+        
+        <a href="/2018/09/25/vmware-网络设置/" class="archive-article-date">
+  	<time datetime="2018-09-25T14:29:30.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-09-25</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="NAT设置"><a href="#NAT设置" class="headerlink" title="NAT设置"></a>NAT设置</h2><ul>
+<li>删除原有的NAT</li>
+<li>新建一个新的NAT链接，生成MAC网卡地址</li>
+<li>检查LAN网段</li>
+</ul>
+<h2 id="桥接设置"><a href="#桥接设置" class="headerlink" title="桥接设置"></a>桥接设置</h2><ul>
+<li>删除原有的桥接</li>
+<li>新建一个新的桥接，<strong>生成MAC网卡地址 ， 路由admin绑定静态IP</strong></li>
+<li>检查LAN网段</li>
+<li>ip addr 查看IP和网卡</li>
+</ul>
+<h2 id="路由设置"><a href="#路由设置" class="headerlink" title="路由设置"></a>路由设置</h2><ul>
+<li><ol>
+<li>DHCP服务器 -&gt; 静态地址保留 ， 生效所有</li>
+<li><a href="http://192.168.0.1/userRpm/LanArpBindingRpm.htm" target="_blank" rel="external">IP与MAC绑定</a>  -&gt; <a href="http://192.168.0.1/userRpm/LanArpBindingRpm.htm" target="_blank" rel="external">静态ARP绑定设置</a> ，生效所有</li>
+<li>关闭虚拟机，重启路由器</li>
+</ol>
+</li>
+</ul>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+      
+
+      <div style="font-size: 12px;">
+        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
+      </div>
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2018/09/25/vmware-网络设置/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
+    <article id="post-Mysql多表连接删除" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2018/09/21/Mysql多表连接删除/">Mysql多表连接删除</a>
+    </h1>
+  
+
+        
+        <a href="/2018/09/21/Mysql多表连接删除/" class="archive-article-date">
+  	<time datetime="2018-09-21T02:06:34.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-09-21</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h3 id="联表删除："><a href="#联表删除：" class="headerlink" title="联表删除："></a>联表删除：</h3><p>1、从数据表t1 中把那些id值在数据表t2 里有匹配的记录全删除掉</p>
+<figure class="highlight mipsasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">DELETE <span class="built_in">t1</span> FROM <span class="built_in">t1</span>,<span class="built_in">t2</span> WHERE <span class="built_in">t1</span>.id=<span class="built_in">t2</span>.id    </span><br><span class="line"></span><br><span class="line">或</span><br><span class="line"></span><br><span class="line">DELETE  FROM <span class="built_in">t1</span> USING <span class="built_in">t1</span>,<span class="built_in">t2</span> WHERE <span class="built_in">t1</span>.id=<span class="built_in">t2</span>.id</span><br></pre></td></tr></table></figure>
+<p>2、从数据表t1里在数据表t2里没有匹配的记录查找出来并删除掉</p>
+<figure class="highlight n1ql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">DELETE</span> t1 <span class="keyword">FROM</span> t1 <span class="keyword">LEFT</span> <span class="keyword">JOIN</span> T2 <span class="keyword">ON</span> t1.id=t2.id <span class="keyword">WHERE</span> t2.id <span class="keyword">IS</span> <span class="literal">NULL</span> </span><br><span class="line"></span><br><span class="line">或</span><br><span class="line"></span><br><span class="line"><span class="keyword">DELETE</span>  <span class="keyword">FROM</span> t1,<span class="keyword">USING</span> t1 <span class="keyword">LEFT</span> <span class="keyword">JOIN</span> T2 <span class="keyword">ON</span> t1.id=t2.id <span class="keyword">WHERE</span> t2.id <span class="keyword">IS</span> <span class="literal">NULL</span></span><br></pre></td></tr></table></figure>
+<p>3、从两个表中找出相同记录的数据并把两个表中的数据都删除掉</p>
+<figure class="highlight mipsasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">DELETE <span class="built_in">t1</span>,<span class="built_in">t2</span> from <span class="built_in">t1</span> LEFT <span class="keyword">JOIN </span><span class="built_in">t2</span> ON <span class="built_in">t1</span>.id=<span class="built_in">t2</span>.id WHERE <span class="built_in">t1</span>.id=<span class="number">25</span></span><br></pre></td></tr></table></figure>
+<p>注意此处的delete t1,t2 from 中的t1,t2不能是别名</p>
+<p>如：<br><figure class="highlight applescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">delete t1,t2 <span class="keyword">from</span> table_name <span class="keyword">as</span> t1 left join table2_name <span class="keyword">as</span> t2 <span class="keyword">on</span> t1.<span class="built_in">id</span>=t2.<span class="built_in">id</span> <span class="keyword">where</span> table_name.<span class="built_in">id</span>=<span class="number">25</span></span><br></pre></td></tr></table></figure></p>
+<p><strong>要求：MYSQL 版本不小于5.0</strong></p>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+      
+
+      <div style="font-size: 12px;">
+        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
+      </div>
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2018/09/21/Mysql多表连接删除/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
+    <article id="post-Spring之AOP源码分析" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2018/09/18/Spring之AOP源码分析/">Spring之AOP源码分析</a>
+    </h1>
+  
+
+        
+        <a href="/2018/09/18/Spring之AOP源码分析/" class="archive-article-date">
+  	<time datetime="2018-09-18T12:47:55.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-09-18</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="表达式"><a href="#表达式" class="headerlink" title="表达式"></a>表达式</h2><ul>
+<li>第一个点代表真正的点，也就是包名上的点</li>
+<li>第二个点代表正则表达式，表示任意字符</li>
+</ul>
+<h2 id="AopProxyUtil"><a href="#AopProxyUtil" class="headerlink" title="AopProxyUtil"></a>AopProxyUtil</h2><ul>
+<li>getSingletonTarget</li>
+</ul>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+      
+
+      <div style="font-size: 12px;">
+        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
+      </div>
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2018/09/18/Spring之AOP源码分析/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
+    <article id="post-Redis原理详解" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2018/09/15/Redis原理详解/">Redis原理详解</a>
+    </h1>
+  
+
+        
+        <a href="/2018/09/15/Redis原理详解/" class="archive-article-date">
+  	<time datetime="2018-09-15T13:10:43.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-09-15</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="expire"><a href="#expire" class="headerlink" title="expire"></a>expire</h2><blockquote>
+<p><a href="https://redis.io/commands/expire" target="_blank" rel="external">https://redis.io/commands/expire</a></p>
+</blockquote>
+<ul>
+<li>消极方式，访问Key，已过期删除</li>
+<li>积极方式，1秒10次。1. 选取20个随机的key 2.删除过期key 3.超过20%过期，执行1步骤。</li>
+</ul>
+<blockquote>
+<h2 id="How-Redis-expires-keys"><a href="#How-Redis-expires-keys" class="headerlink" title="How Redis expires keys"></a>How Redis expires keys</h2><p>Redis keys are expired in two ways: a passive way, and an active way.</p>
+<p>A key is passively expired simply when some client tries to access it, and the key is found to be timed out.</p>
+<p>Of course this is not enough as there are expired keys that will never be accessed again. These keys should be expired anyway, so periodically Redis tests a few keys at random among keys with an expire set. All the keys that are already expired are deleted from the keyspace.</p>
+<p>Specifically this is what Redis does 10 times per second:</p>
+<ol>
+<li>Test 20 random keys from the set of keys with an associated expire.</li>
+<li>Delete all the keys found expired.</li>
+<li>If more than 25% of keys were expired, start again from step 1.</li>
+</ol>
+<p>This is a trivial probabilistic algorithm, basically the assumption is that our sample is representative of the whole key space, and we continue to expire until the percentage of keys that are likely to be expired is under 25%</p>
+<p>This means that at any given moment the maximum amount of keys already expired that are using memory is at max equal to max amount of write operations per second divided by 4.</p>
+</blockquote>
+<h2 id="数据持久化"><a href="#数据持久化" class="headerlink" title="数据持久化"></a>数据持久化</h2><h3 id="rdb-（默认）"><a href="#rdb-（默认）" class="headerlink" title="rdb （默认）"></a>rdb （默认）</h3><blockquote>
+<p>  条件满足一个执行，每条规则之间是“或”的关系</p>
+<p>  In the example below the behaviour will be to save:<br>  after 900 sec (15 min) if at least 1 key changed<br>  after 300 sec (5 min) if at least 10 keys changed<br>  after 60 sec if at least 10000 keys changed</p>
+</blockquote>
+<figure class="highlight lsl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">save <span class="number">900</span> <span class="number">1</span> </span><br><span class="line">save <span class="number">300</span> <span class="number">10</span></span><br><span class="line">save <span class="number">60</span> <span class="number">10000</span></span><br></pre></td></tr></table></figure>
+<h3 id="aof"><a href="#aof" class="headerlink" title="aof"></a>aof</h3><ul>
+<li>默认的rdb能够满足持久化的需求，但是存在缺陷就是两次快照之间，可能会丢失数据。</li>
+</ul>
+<blockquote>
+<p>By default Redis asynchronously dumps the dataset on disk. This mode is<br>good enough in many applications, but an issue with the Redis process or<br>a power outage may result into a few minutes of writes lost (depending on<br>the configured save points).</p>
+</blockquote>
+<figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">appendonly</span> <span class="literal">yes</span></span><br><span class="line">appendfilename <span class="string">"appendonly.aof"</span></span><br></pre></td></tr></table></figure>
+<h2 id="lua脚本"><a href="#lua脚本" class="headerlink" title="lua脚本"></a>lua脚本</h2><h3 id="保证原子性"><a href="#保证原子性" class="headerlink" title="保证原子性"></a>保证原子性</h3><ul>
+<li><p>redis-cli –eval example.lua</p>
+</li>
+<li><p>比较暴力</p>
+</li>
+</ul>
+<h3 id="限流demo"><a href="#限流demo" class="headerlink" title="限流demo"></a>限流demo</h3><ul>
+<li>10秒内限流10次demo</li>
+<li>script load 导入脚本，生成sha</li>
+<li>evalsha “{sha}”</li>
+<li>lua执行死环境脚本，会有阻塞问题</li>
+<li>redis-cli –eval example.lua</li>
+</ul>
+<h2 id="单线程如何保证高性能"><a href="#单线程如何保证高性能" class="headerlink" title="单线程如何保证高性能"></a>单线程如何保证高性能</h2><h3 id="同步阻塞"><a href="#同步阻塞" class="headerlink" title="同步阻塞"></a>同步阻塞</h3><h3 id="同步非阻塞"><a href="#同步非阻塞" class="headerlink" title="同步非阻塞"></a>同步非阻塞</h3><h3 id="异步阻塞-redis实现，多路复用"><a href="#异步阻塞-redis实现，多路复用" class="headerlink" title="异步阻塞(redis实现，多路复用)"></a>异步阻塞(redis实现，多路复用)</h3><p>异步不一定是多线程</p>
+<h3 id="异步非阻塞"><a href="#异步非阻塞" class="headerlink" title="异步非阻塞"></a>异步非阻塞</h3><h2 id="分布式"><a href="#分布式" class="headerlink" title="分布式"></a>分布式</h2><h3 id="配置"><a href="#配置" class="headerlink" title="配置"></a>配置</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 无磁盘复制</span></span><br><span class="line">repl-diskless-sync</span><br></pre></td></tr></table></figure>
+<h3 id="命令"><a href="#命令" class="headerlink" title="命令"></a>命令</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash">查看集群信息</span></span><br><span class="line">info replication</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash">告诉master节点 slave的端口</span></span><br><span class="line">replconf listening-port 6379</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash">抓取master的同步信息</span></span><br><span class="line">sync</span><br></pre></td></tr></table></figure>
+<h3 id="主从复制"><a href="#主从复制" class="headerlink" title="主从复制"></a>主从复制</h3><p>全量复制</p>
+<p>增量复制</p>
+<ul>
+<li>链接到集群</li>
+</ul>
+<figure class="highlight llvm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">redis-cli -<span class="keyword">c</span> -p <span class="number">7000</span></span><br><span class="line">会有redirect <span class="keyword">to</span> slot提示</span><br></pre></td></tr></table></figure>
+<ul>
+<li>连接到某台机器</li>
+</ul>
+<figure class="highlight stata"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">redis-<span class="keyword">cli</span> -p 7001</span><br><span class="line">提示MOVED <span class="keyword">error</span></span><br></pre></td></tr></table></figure>
+<ul>
+<li>cluster slots 查看集群信息 槽信息</li>
+</ul>
+<figure class="highlight lsl"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">3</span>主<span class="number">6</span>从</span><br></pre></td></tr></table></figure>
+<ul>
+<li>cluster nodes 查看节点信息</li>
+<li>哨兵模式</li>
+</ul>
+<figure class="highlight crmsh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">连接哨兵节点，然后查询<span class="literal">master</span>的节点</span><br></pre></td></tr></table></figure>
+<h2 id="客户端"><a href="#客户端" class="headerlink" title="客户端"></a>客户端</h2><h3 id="jedis"><a href="#jedis" class="headerlink" title="jedis"></a>jedis</h3><ul>
+<li>sentinel cluster</li>
+<li><p>cluster</p>
+</li>
+<li><p>jedis.watch 标志释放锁不会失败</p>
+</li>
+</ul>
+<h3 id="redission"><a href="#redission" class="headerlink" title="redission"></a>redission</h3><ul>
+<li>single</li>
+<li>sentinel</li>
+</ul>
+<figure class="highlight less"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="selector-tag">redissionClinet</span><span class="selector-class">.getBucket</span>(<span class="string">""</span>) 获取字符串</span><br><span class="line">其他类型相同</span><br></pre></td></tr></table></figure>
+<ul>
+<li>cluster</li>
+</ul>
+<h2 id="分布式锁"><a href="#分布式锁" class="headerlink" title="分布式锁"></a>分布式锁</h2><ul>
+<li>setNX</li>
+<li>redission lock unlock 源码解读</li>
+</ul>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+      
+
+      <div style="font-size: 12px;">
+        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
+      </div>
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2018/09/15/Redis原理详解/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
+    <article id="post-springboot-stater自定义开发" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2018/09/14/springboot-stater自定义开发/">springboot stater自定义开发</a>
+    </h1>
+  
+
+        
+        <a href="/2018/09/14/springboot-stater自定义开发/" class="archive-article-date">
+  	<time datetime="2018-09-13T16:19:28.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-09-14</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="一-springboot-starter生成"><a href="#一-springboot-starter生成" class="headerlink" title="一 springboot-starter生成"></a>一 springboot-starter生成</h2><h3 id="1-pom引入"><a href="#1-pom引入" class="headerlink" title="1. pom引入"></a>1. pom引入</h3><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line"><span class="php"><span class="meta">&lt;?</span>xml version=<span class="string">"1.0"</span> encoding=<span class="string">"UTF-8"</span><span class="meta">?&gt;</span></span></span><br><span class="line"><span class="tag">&lt;<span class="name">project</span> <span class="attr">xmlns</span>=<span class="string">"http://maven.apache.org/POM/4.0.0"</span> <span class="attr">xmlns:xsi</span>=<span class="string">"http://www.w3.org/2001/XMLSchema-instance"</span></span></span><br><span class="line"><span class="tag">	<span class="attr">xsi:schemaLocation</span>=<span class="string">"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">modelVersion</span>&gt;</span>4.0.0<span class="tag">&lt;/<span class="name">modelVersion</span>&gt;</span></span><br><span class="line"></span><br><span class="line">	<span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.joey.segmentment<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>lessson-20-starter<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">version</span>&gt;</span>0.0.1-SNAPSHOT<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">packaging</span>&gt;</span>jar<span class="tag">&lt;/<span class="name">packaging</span>&gt;</span></span><br><span class="line"></span><br><span class="line">	<span class="tag">&lt;<span class="name">name</span>&gt;</span>lessson-20-starter<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">description</span>&gt;</span>Demo project for Spring Boot<span class="tag">&lt;/<span class="name">description</span>&gt;</span></span><br><span class="line"></span><br><span class="line">	<span class="tag">&lt;<span class="name">parent</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-starter-parent<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">version</span>&gt;</span>2.0.5.RELEASE<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">relativePath</span>/&gt;</span> <span class="comment">&lt;!-- lookup parent from repository --&gt;</span></span><br><span class="line">	<span class="tag">&lt;/<span class="name">parent</span>&gt;</span></span><br><span class="line"></span><br><span class="line">	<span class="tag">&lt;<span class="name">properties</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">project.build.sourceEncoding</span>&gt;</span>UTF-8<span class="tag">&lt;/<span class="name">project.build.sourceEncoding</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">project.reporting.outputEncoding</span>&gt;</span>UTF-8<span class="tag">&lt;/<span class="name">project.reporting.outputEncoding</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">java.version</span>&gt;</span>1.8<span class="tag">&lt;/<span class="name">java.version</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;/<span class="name">properties</span>&gt;</span></span><br><span class="line"></span><br><span class="line">	<span class="tag">&lt;<span class="name">dependencies</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">			<span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">			<span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-autoconfigure<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"></span><br><span class="line">		<span class="comment">&lt;!--用于生成编辑提示--&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">			<span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">			<span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-configuration-processor<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;/<span class="name">dependencies</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;/<span class="name">project</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<h3 id="2-autoconfigure"><a href="#2-autoconfigure" class="headerlink" title="2. autoconfigure"></a>2. autoconfigure</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Configuration</span></span><br><span class="line"><span class="meta">@ConditionalOnProperty</span>(prefix = <span class="string">"person"</span>,name = <span class="string">"enable"</span>,</span><br><span class="line">        havingValue = <span class="string">"true"</span>,matchIfMissing = <span class="keyword">true</span>)</span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">PersonAutoConfigure</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Bean</span></span><br><span class="line">    <span class="meta">@ConfigurationProperties</span>(prefix = <span class="string">"person"</span>)</span><br><span class="line">    <span class="function"><span class="keyword">public</span> Person <span class="title">person</span><span class="params">()</span></span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> Person();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight fortran"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> Person &#123;</span><br><span class="line">    <span class="keyword">private</span> Long id;</span><br><span class="line">    <span class="keyword">private</span> String <span class="keyword">name</span>;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">Integer</span> age;</span><br><span class="line"></span><br><span class="line">... getter setter</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li><p><code>@Configuration</code>,被该注解注释的类会提供一个或则多个<code>@bean</code>修饰的方法并且会被spring容器处理来生成<code>bean definitions</code>。</p>
+</li>
+<li><p><code>@bean</code>注解是必须修饰函数的，该函数可以提供一个<code>bean</code>。而且该函数的函数名必须和bean的名称一致，除了首字母不需要大写。</p>
+</li>
+<li><p><code>@ConditionalOnClass</code>注解是条件判断的注解，表示对应的类在classpath目录下存在时，才会去解析对应的配置文件。</p>
+</li>
+<li><p><code>ConditionalOnProperty</code>注解是条件判断的注解，表示如果配置文件中的响应配置项数值为true,才会对该bean进行初始化。</p>
+</li>
+<li>更多注解参考 <a href="https://docs.spring.io/spring-boot/docs/current/reference/html/boot-features-developing-auto-configuration.html" target="_blank" rel="external">https://docs.spring.io/spring-boot/docs/current/reference/html/boot-features-developing-auto-configuration.html</a></li>
+</ul>
+<h3 id="3-META-INF-spring-factories"><a href="#3-META-INF-spring-factories" class="headerlink" title="3. META-INF/spring.factories"></a>3. META-INF/spring.factories</h3><p>在文件中添加</p>
+<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">org<span class="selector-class">.springframework</span><span class="selector-class">.boot</span><span class="selector-class">.autoconfigure</span><span class="selector-class">.EnableAutoConfiguration</span>=\</span><br><span class="line">  com<span class="selector-class">.joey</span><span class="selector-class">.segmentment</span><span class="selector-class">.starter</span><span class="selector-class">.autoconfigure</span><span class="selector-class">.PersonAutoConfigure</span></span><br></pre></td></tr></table></figure>
+<h3 id="4-mvn-clean-install"><a href="#4-mvn-clean-install" class="headerlink" title="4. mvn clean install"></a>4. mvn clean install</h3><h2 id="二-project引入starterjar包"><a href="#二-project引入starterjar包" class="headerlink" title="二 project引入starterjar包"></a>二 project引入starterjar包</h2><h3 id="1-引入jar包"><a href="#1-引入jar包" class="headerlink" title="1. 引入jar包"></a>1. 引入jar包</h3><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.joey.segmentment<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>lessson-20-starter<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">version</span>&gt;</span>0.0.1-SNAPSHOT<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<h3 id="2-application-properties填写配置"><a href="#2-application-properties填写配置" class="headerlink" title="2. application.properties填写配置"></a>2. application.properties填写配置</h3><figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">person.<span class="attribute">enable</span>=<span class="literal">true</span></span><br><span class="line"></span><br><span class="line">person.<span class="attribute">id</span>=1</span><br><span class="line">person.<span class="attribute">name</span>=joey</span><br><span class="line">person.<span class="attribute">age</span>=18</span><br></pre></td></tr></table></figure>
+<h3 id="3-代码使用"><a href="#3-代码使用" class="headerlink" title="3. 代码使用"></a>3. 代码使用</h3><figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@RestController</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">TestController</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="keyword">private</span> Person person;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@GetMapping(value = <span class="meta-string">"/person"</span>)</span></span><br><span class="line">    <span class="keyword">public</span> Person <span class="keyword">get</span>()&#123;</span><br><span class="line">        <span class="keyword">return</span> person;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>文献参考</li>
+</ul>
+<blockquote>
+<p><a href="https://docs.spring.io/spring-boot/docs/current/reference/html/boot-features-developing-auto-configuration.html" target="_blank" rel="external">https://docs.spring.io/spring-boot/docs/current/reference/html/boot-features-developing-auto-configuration.html</a></p>
+</blockquote>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+      
+
+      <div style="font-size: 12px;">
+        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
+      </div>
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2018/09/14/springboot-stater自定义开发/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
     <article id="post-kafka原理详解" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
@@ -635,645 +1106,9 @@
 
 
   
-    <article id="post-Spring-cloud服务发现" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2018/08/05/Spring-cloud服务发现/">Spring cloud服务发现</a>
-    </h1>
-  
-
-        
-        <a href="/2018/08/05/Spring-cloud服务发现/" class="archive-article-date">
-  	<time datetime="2018-08-05T08:39:02.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-08-05</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h2 id="简单对比-Eureka"><a href="#简单对比-Eureka" class="headerlink" title="简单对比 Eureka"></a>简单对比 Eureka</h2><table>
-<thead>
-<tr>
-<th>比较点</th>
-<th>Eureka</th>
-<th>Zookeeper</th>
-<th>Consul</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>运维熟悉度</td>
-<td>相对陌生</td>
-<td>熟悉</td>
-<td>更陌生</td>
-</tr>
-<tr>
-<td>一致性（CAP）</td>
-<td>AP（最终一致性）</td>
-<td>CP（一致性强）</td>
-<td>AP（最终一致性）</td>
-</tr>
-<tr>
-<td>一致性协议</td>
-<td>HTTP 定时轮训</td>
-<td>ZAB</td>
-<td>RAFT</td>
-</tr>
-<tr>
-<td>通讯方式</td>
-<td>HTTP REST</td>
-<td>自定义协议</td>
-<td>HTTP REST</td>
-</tr>
-<tr>
-<td>更新机制</td>
-<td>Peer 2 Peer（服务器之间） + Scheduler（服务器和客户端）</td>
-<td>ZK Watch</td>
-<td>Agent 监听的方式</td>
-</tr>
-<tr>
-<td>适用规模</td>
-<td>20 K ~ 30 K 实例（节点）</td>
-<td>10K ~ 20K 实例（节点）</td>
-<td>&lt; 3K 实例（节点）</td>
-</tr>
-<tr>
-<td>性能问题</td>
-<td>简单的更新机制、复杂设计、规模较大时 GC 频繁</td>
-<td>扩容麻烦、规模较大时 GC 频繁</td>
-<td>3K 节点以上，更新列表缓慢</td>
-</tr>
-</tbody>
-</table>
-<h2 id="为什么推荐使用-ZK-作为-Spring-Cloud-的基础设施"><a href="#为什么推荐使用-ZK-作为-Spring-Cloud-的基础设施" class="headerlink" title="为什么推荐使用 ZK 作为 Spring Cloud 的基础设施"></a>为什么推荐使用 ZK 作为 Spring Cloud 的基础设施</h2><h3 id="一致性模型"><a href="#一致性模型" class="headerlink" title="一致性模型"></a>一致性模型</h3><h3 id="维护相对熟悉"><a href="#维护相对熟悉" class="headerlink" title="维护相对熟悉"></a>维护相对熟悉</h3><h3 id="配置中心和服务注册中心单一化"><a href="#配置中心和服务注册中心单一化" class="headerlink" title="配置中心和服务注册中心单一化"></a>配置中心和服务注册中心单一化</h3><h5 id="传统的问题"><a href="#传统的问题" class="headerlink" title="传统的问题"></a>传统的问题</h5><p>Spring Cloud 默认配置</p>
-<p>Eureka 做注册中心</p>
-<p>Git/JDBC 做配置中心</p>
-<h2 id="主要内容"><a href="#主要内容" class="headerlink" title="主要内容"></a>主要内容</h2><h3 id="Spring-Cloud-Discovery-客户端"><a href="#Spring-Cloud-Discovery-客户端" class="headerlink" title="Spring Cloud Discovery 客户端"></a>Spring Cloud Discovery 客户端</h3><h3 id="Spring-Cloud-Discovery-ZK-服务器"><a href="#Spring-Cloud-Discovery-ZK-服务器" class="headerlink" title="Spring Cloud Discovery ZK 服务器"></a>Spring Cloud Discovery ZK 服务器</h3><h4 id="Spring-Cloud-增加-ZK-依赖"><a href="#Spring-Cloud-增加-ZK-依赖" class="headerlink" title="Spring Cloud 增加 ZK 依赖"></a>Spring Cloud 增加 ZK 依赖</h4><ul>
-<li>错误配置（高 ZK Client 版本 3.5，低服务器版本 3.4）</li>
-</ul>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependencies</span>&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-starter-web<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.cloud<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-cloud-starter-zookeeper-discovery<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependencies</span>&gt;</span></span><br></pre></td></tr></table></figure>
-<ul>
-<li>正确配置</li>
-</ul>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.cloud<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-cloud-starter-zookeeper-all<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">exclusions</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">exclusion</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.apache.zookeeper<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>zookeeper<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">exclusion</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">exclusions</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.apache.zookeeper<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>zookeeper<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>3.4.12<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">exclusions</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">exclusion</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.slf4j<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>slf4j-log4j12<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">exclusion</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">exclusions</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
-<ul>
-<li>注册发现</li>
-<li>配置管理</li>
-</ul>
-<h4 id="启动-ZK（3-4-11）"><a href="#启动-ZK（3-4-11）" class="headerlink" title="启动 ZK（3.4.11）"></a>启动 ZK（3.4.11）</h4><h4 id="编写引导类"><a href="#编写引导类" class="headerlink" title="编写引导类"></a>编写引导类</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@SpringBootApplication</span></span><br><span class="line"><span class="meta">@EnableDiscoveryClient</span> <span class="comment">// 尽可能使用 @EnableDiscoveryClient</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ZkDSClientApplication</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        SpringApplication.run(ZkDSClientApplication.class, args);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>实例一：端口 56517</p>
-<p>ZK ID : fff20552-b4a0-43d8-a9ce-c82096f2005e</p>
-<p>实例二：端口 56577</p>
-<p>ZK ID : 9f4e2c91-4765-4f39-9d4b-2036e8e6c4d4</p>
-<p>ZK 节点路径（/services/spring-cloud-service-discovery-client）</p>
-<p>ZK 服务发现节点规则（/services/{spring.application.name}/{serviceId_UUID}/)</p>
-<p>注册增加 service Id 计算</p>
-<p>获取应该去重</p>
-<ul>
-<li>Eureka 2.0 不开源，Eureka 1.x 还可以用的</li>
-</ul>
-<h2 id="代码demo"><a href="#代码demo" class="headerlink" title="代码demo"></a>代码demo</h2><p><code>https://github.com/Frankenjoy123/microservices-joey-project</code></p>
-<p>找到<code>spring-cloud-service-discovery</code>入口启动</p>
-
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-      
-
-      <div style="font-size: 12px;">
-        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
-      </div>
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2018/08/05/Spring-cloud服务发现/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
-    <article id="post-Spring-cloud-配置管理" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2018/08/01/Spring-cloud-配置管理/">Spring cloud 配置管理</a>
-    </h1>
-  
-
-        
-        <a href="/2018/08/01/Spring-cloud-配置管理/" class="archive-article-date">
-  	<time datetime="2018-08-01T12:43:03.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-08-01</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h1 id="Spring-cloud配置管理"><a href="#Spring-cloud配置管理" class="headerlink" title="Spring cloud配置管理"></a>Spring cloud配置管理</h1><h2 id="客户端"><a href="#客户端" class="headerlink" title="客户端"></a>客户端</h2><h3 id="第三方配置commons包"><a href="#第三方配置commons包" class="headerlink" title="第三方配置commons包"></a>第三方配置commons包</h3><h5 id="commons-configuration"><a href="#commons-configuration" class="headerlink" title="commons-configuration"></a><code>commons-configuration</code></h5><ul>
-<li><code>Configuration</code> : 提供大多数常见类型的 Value 转换<ul>
-<li><code>PropertiesConfiguration</code>: 将 Properties 作为 <code>Configuration</code> 配置</li>
-<li><code>MapConfiguration</code><ul>
-<li><code>EnvironmentConfiguration</code> ： OS 环境变量</li>
-<li><code>SystemConfiguration</code> : Java 系统属性</li>
-</ul>
-</li>
-<li>`CompositeConfiguration</li>
-</ul>
-</li>
-</ul>
-<h3 id="ApplicationContext-与-Environment关系"><a href="#ApplicationContext-与-Environment关系" class="headerlink" title="ApplicationContext 与 Environment关系"></a>ApplicationContext 与 Environment关系</h3><figure class="highlight actionscript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ConfigurableEnvironment <span class="keyword">extends</span> Environment</span><br></pre></td></tr></table></figure>
-<ul>
-<li>ApplicationContext 与Environment 一一对应，但是会merge Parent的Environment。</li>
-<li>ConfigurableEnvironment —&gt; MutablePropertySources，一个Environment对应一个PropertySources</li>
-<li>MutablePropertySources -&gt; List PropertySource : 包含多个</li>
-</ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Environment -&gt; ConfigurableEnvironment: 父子层次</span><br><span class="line">ConfigurableEnvironment -&gt; MutablePropertySources: 获取可变多个配置源</span><br><span class="line">MutablePropertySources -&gt; List PropertySource : 包含多个 PropertySource</span><br></pre></td></tr></table></figure>
-<p><code>PropertySource</code> : 配置源</p>
-<ul>
-<li><code>MapPropertySource</code><ul>
-<li><code>PropertiesPropertySource</code></li>
-</ul>
-</li>
-<li><code>CompositePropertySource</code> : 组合</li>
-<li><code>SystemEnvironmentPropertySource</code> 环境变量</li>
-</ul>
-<p>Spring Cloud 客户端配置定位扩展 : <code>PropertySourceLocator</code></p>
-<h3 id="org-springframework-core-env包"><a href="#org-springframework-core-env包" class="headerlink" title="org.springframework.core.env包"></a>org.springframework.core.env包</h3><ul>
-<li><p>PropertySource</p>
-<ul>
-<li>SystemEnvironmentPropertySource</li>
-</ul>
-</li>
-</ul>
-<figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">http:<span class="regexp">//</span>localhost:<span class="number">9095</span><span class="regexp">/config/</span>dev</span><br><span class="line">http:<span class="regexp">//</span>localhost:<span class="number">9095</span><span class="regexp">/config/</span>default</span><br></pre></td></tr></table></figure>
-<h2 id="服务端"><a href="#服务端" class="headerlink" title="服务端"></a>服务端</h2><h3 id="基于-Git-实现"><a href="#基于-Git-实现" class="headerlink" title="基于 Git 实现"></a>基于 Git 实现</h3><ul>
-<li>版本化配置</li>
-</ul>
-<p>/应用名/profile/${label}</p>
-<p>/应用名/profile/ = /应用名/profile/master</p>
-<p>/应用名/ = /应用名.properties</p>
-<p>${label} : 分支</p>
-<ul>
-<li>Spring Cloud Config 实现一套完整的配置管理 API 设计</li>
-</ul>
-<p>Git 实现缺陷：</p>
-<ul>
-<li><p>复杂的版本更新机制（ Git 仓库）</p>
-<ul>
-<li>版本</li>
-<li>分支</li>
-<li>提交</li>
-<li>配置</li>
-</ul>
-</li>
-<li><p>憋足的内容更新（实时性不高）</p>
-<ul>
-<li><p>客户端第一次启动拉取</p>
-</li>
-<li><p>需要整合 BUS 做更新通知</p>
-</li>
-</ul>
-</li>
-</ul>
-<h3 id="设计原理"><a href="#设计原理" class="headerlink" title="设计原理"></a>设计原理</h3><h4 id="分析-EnableConfigServer"><a href="#分析-EnableConfigServer" class="headerlink" title="分析@EnableConfigServer"></a>分析<code>@EnableConfigServer</code></h4><figure class="highlight less"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">@Target</span>(&#123;ElementType.TYPE&#125;)</span><br><span class="line"><span class="variable">@Retention</span>(RetentionPolicy.RUNTIME)</span><br><span class="line"><span class="variable">@Documented</span></span><br><span class="line"><span class="variable">@Import</span>(&#123;ConfigServerConfiguration.class&#125;)</span><br><span class="line">public <span class="variable">@interface</span> EnableConfigServer &#123;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p><code>org.springframework.cloud.config.server.config.ConfigServerAutoConfiguration</code></p>
-<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">JdbcRepositoryConfiguration<span class="selector-class">.class</span>, </span><br><span class="line">VaultRepositoryConfiguration<span class="selector-class">.class</span>,		</span><br><span class="line">SvnRepositoryConfiguration<span class="selector-class">.class</span>, </span><br><span class="line">NativeRepositoryConfiguration<span class="selector-class">.class</span>, </span><br><span class="line">GitRepositoryConfiguration<span class="selector-class">.class</span>,  git的实现</span><br><span class="line">DefaultRepositoryConfiguration.class</span><br><span class="line">从代码中看，才是最真实的。</span><br></pre></td></tr></table></figure>
-<figure class="highlight less"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">@Configuration</span></span><br><span class="line"><span class="variable">@ConditionalOnBean</span>(ConfigServerConfiguration.Marker.class)</span><br><span class="line"><span class="variable">@EnableConfigurationProperties</span>(ConfigServerProperties.class)</span><br><span class="line"><span class="variable">@Import</span>(&#123; EnvironmentRepositoryConfiguration.class, CompositeConfiguration.class, ResourceRepositoryConfiguration.class,</span><br><span class="line">		ConfigServerEncryptionConfiguration.class, ConfigServerMvcConfiguration.class &#125;)</span><br><span class="line">public class ConfigServerAutoConfiguration &#123;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>当应用配置类标注了</p>
-<ul>
-<li><p><code>@EnableConfigSever</code> </p>
-<ul>
-<li><p>导入 <code>ConfigServerConfiguration</code></p>
-<ul>
-<li><p>注册 <code>Marker</code> Bean</p>
-<ul>
-<li>作为 <code>ConfigServerAutoConfiguration</code> 条件之一</li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-<h4 id="jdbc实现"><a href="#jdbc实现" class="headerlink" title="jdbc实现"></a>jdbc实现</h4><ul>
-<li>核心接口 EnvironmentRepository</li>
-</ul>
-<figure class="highlight delphi"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Environment findOne(<span class="keyword">String</span> application, <span class="keyword">String</span> profile, <span class="keyword">String</span> <span class="keyword">label</span>)</span><br></pre></td></tr></table></figure>
-<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">jdbc.query(this<span class="selector-class">.sql</span>,</span><br><span class="line">      new Object[] &#123; app, env, <span class="selector-tag">label</span> &#125;</span><br></pre></td></tr></table></figure>
-<ul>
-<li><p>JdbcTemplate Bean 来源</p>
-<ul>
-<li><code>JdbcTemplateAutoConfiguration</code></li>
-</ul>
-</li>
-<li><p>SQL 来源</p>
-<ul>
-<li><p><code>JdbcEnvironmentProperties</code></p>
-<ul>
-<li><p><code>spring.cloud.config.server.jdbc.sql</code> </p>
-<ul>
-<li><p>不配置，默认：<code>DEFAULT_SQL</code></p>
-<ul>
-<li><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> <span class="keyword">KEY</span>, <span class="keyword">VALUE</span> <span class="keyword">from</span> PROPERTIES <span class="keyword">where</span> APPLICATION=? <span class="keyword">and</span> PROFILE=? <span class="keyword">and</span> LABEL=?</span><br></pre></td></tr></table></figure>
-</li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-<table>
-<thead>
-<tr>
-<th>KEY</th>
-<th>VALUE</th>
-<th>APPLICATION</th>
-<th>PROFILE</th>
-<th>LABEL</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>name</td>
-<td>mercyblitz</td>
-<td>config</td>
-<td>default</td>
-<td>master</td>
-</tr>
-<tr>
-<td>name</td>
-<td>xiaomage</td>
-<td>config</td>
-<td>test</td>
-<td>master</td>
-</tr>
-<tr>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-</tbody>
-</table>
-<p>本质说明：</p>
-<p>JDBC 连接技术</p>
-<p>DB 存储介质</p>
-<p><code>EnvironmentRepository</code> 核心接口</p>
-<ul>
-<li>ConfigServerAutoConfiguration<ul>
-<li>EnvironmentRepositoryConfiguration</li>
-</ul>
-</li>
-</ul>
-<h4 id="默认是-Git-作为配置仓库的原因"><a href="#默认是-Git-作为配置仓库的原因" class="headerlink" title="默认是 Git 作为配置仓库的原因"></a>默认是 Git 作为配置仓库的原因</h4><ul>
-<li>找到了为什么默认是 Git 作为配置仓库的原因：</li>
-</ul>
-<figure class="highlight less"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">@Configuration</span></span><br><span class="line"><span class="variable">@ConditionalOnMissingBean</span>(value = EnvironmentRepository.class, search = SearchStrategy.CURRENT)</span><br><span class="line">class DefaultRepositoryConfiguration</span><br></pre></td></tr></table></figure>
-<p>git 是默认实现，条件是在EnvironmentRepository的bean没有加载。</p>
-<p>所以自己实现自定义的配置，只需要加载一个EnvironmentRepository的bean即可。</p>
-<h4 id="HTTP-请求模式"><a href="#HTTP-请求模式" class="headerlink" title="HTTP 请求模式"></a>HTTP 请求模式</h4><p>/${application}/$${profile}/$${label}</p>
-<p><code>@Controller</code> 或者 <code>@RestController</code></p>
-<p>@RequestMapping(“/{application}/{profile}/{label}”)</p>
-<p>/config/test/master</p>
-<p>config : application</p>
-<p>test : profile</p>
-<p>master : label</p>
-<h2 id="客户端实现Spring-Cloud-Config-Client"><a href="#客户端实现Spring-Cloud-Config-Client" class="headerlink" title="客户端实现Spring Cloud Config Client"></a>客户端实现Spring Cloud Config Client</h2><p>通过<code>spring.cloud.config.uri</code>搜索，找到<code>spring-configuration-metadata.json</code></p>
-<p>找到class<code>ConfigClientProperties</code>，发现<code>private String[] uri = { &quot;http://localhost:8888&quot; }</code>，发现url默认端口8888。</p>
-<h2 id="代码demo"><a href="#代码demo" class="headerlink" title="代码demo"></a>代码demo</h2><p><code>https://github.com/Frankenjoy123/microservices-joey-project</code></p>
-<p>启动spring-cloud-config-server中的main入口，访问如下地址：</p>
-<p><code>http://localhost:9095/config/dev</code></p>
-<h2 id="Jconsole"><a href="#Jconsole" class="headerlink" title="Jconsole"></a>Jconsole</h2><h2 id="RefreshScope"><a href="#RefreshScope" class="headerlink" title="@RefreshScope"></a>@RefreshScope</h2><h2 id="actuator-loggers"><a href="#actuator-loggers" class="headerlink" title="actuator/loggers"></a>actuator/loggers</h2><h2 id="actuator-env"><a href="#actuator-env" class="headerlink" title="actuator/env"></a>actuator/env</h2><h2 id="EnvironmentRepository-接口"><a href="#EnvironmentRepository-接口" class="headerlink" title="EnvironmentRepository  接口"></a>EnvironmentRepository  接口</h2><p>Properties 实现HashTable hashmap</p>
-
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-      
-
-      <div style="font-size: 12px;">
-        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
-      </div>
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2018/08/01/Spring-cloud-配置管理/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
-    <article id="post-Spring应用上下文及事件监听源码分析" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2018/08/01/Spring应用上下文及事件监听源码分析/">Spring应用上下文及事件监听源码分析</a>
-    </h1>
-  
-
-        
-        <a href="/2018/08/01/Spring应用上下文及事件监听源码分析/" class="archive-article-date">
-  	<time datetime="2018-07-31T23:30:54.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-08-01</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>##关闭spring-cloud bootstrap应用上下文</p>
-<p>应用启动参数添加</p>
-<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">--spring<span class="selector-class">.cloud</span><span class="selector-class">.bootstrap</span><span class="selector-class">.enabled</span>=false</span><br></pre></td></tr></table></figure>
-<p><a href="http://localhost:9091/actuator/beans" target="_blank" rel="external">http://localhost:9091/actuator/beans</a></p>
-<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line"><span class="attr">"contexts"</span>: &#123;</span><br><span class="line"><span class="attr">"Joey"</span>: &#123;&#125;,</span><br><span class="line"><span class="attr">"first-boot-app"</span>: &#123;&#125;</span><br><span class="line">&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">BootstrapApplicationListener</span><br><span class="line">onApplicationEvent</span><br></pre></td></tr></table></figure>
-<h2 id="环境变量"><a href="#环境变量" class="headerlink" title="环境变量"></a>环境变量</h2><p><a href="http://localhost:9091/actuator/env" target="_blank" rel="external">http://localhost:9091/actuator/env</a></p>
-<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line"><span class="attr">"activeProfiles"</span>: [],</span><br><span class="line"><span class="attr">"propertySources"</span>: [</span><br><span class="line">&#123;</span><br><span class="line"><span class="attr">"name"</span>: <span class="string">"server.ports"</span>,</span><br><span class="line"><span class="attr">"properties"</span>: &#123;&#125;</span><br><span class="line">&#125;,</span><br><span class="line">&#123;</span><br><span class="line"><span class="attr">"name"</span>: <span class="string">"commandLineArgs"</span>,</span><br><span class="line"><span class="attr">"properties"</span>: &#123;&#125;</span><br><span class="line">&#125;,</span><br><span class="line">&#123;</span><br><span class="line"><span class="attr">"name"</span>: <span class="string">"servletContextInitParams"</span>,</span><br><span class="line"><span class="attr">"properties"</span>: &#123;&#125;</span><br><span class="line">&#125;,</span><br><span class="line">&#123;</span><br><span class="line"><span class="attr">"name"</span>: <span class="string">"systemProperties"</span>,</span><br><span class="line"><span class="attr">"properties"</span>: &#123;&#125;</span><br><span class="line">&#125;,</span><br><span class="line">&#123;</span><br><span class="line"><span class="attr">"name"</span>: <span class="string">"systemEnvironment"</span>,</span><br><span class="line"><span class="attr">"properties"</span>: &#123;&#125;</span><br><span class="line">&#125;,</span><br><span class="line">&#123;</span><br><span class="line"><span class="attr">"name"</span>: <span class="string">"springCloudClientHostInfo"</span>,</span><br><span class="line"><span class="attr">"properties"</span>: &#123;&#125;</span><br><span class="line">&#125;,</span><br><span class="line">&#123;</span><br><span class="line"><span class="attr">"name"</span>: <span class="string">"applicationConfig: [classpath:/application.properties]"</span>,</span><br><span class="line"><span class="attr">"properties"</span>: &#123;&#125;</span><br><span class="line">&#125;</span><br><span class="line">]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h3 id="透过现象找源码"><a href="#透过现象找源码" class="headerlink" title="透过现象找源码"></a>透过现象找源码</h3><ol>
-<li><code>commandLineArgs</code> -&gt; findInPath -&gt; scope : project and library</li>
-<li><code>CommandLinePropertySource.COMMAND_LINE_PROPERTY_SOURCE_NAME</code></li>
-<li>find usage spring boot的引用-&gt; <code>org.springframework.boot.SpringApplication#configurePropertySources</code></li>
-<li>这样就可以继续分析源码 <code>sources.addFirst(new SimpleCommandLinePropertySource(args))</code></li>
-</ol>
-<figure class="highlight haxe"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">protected void configurePropertySources(ConfigurableEnvironment environment,</span><br><span class="line">		<span class="keyword">String</span>[] args) &#123;</span><br><span class="line">	MutablePropertySources sources = environment.getPropertySources();</span><br><span class="line">	<span class="keyword">if</span> (<span class="built_in">this</span>.defaultProperties != <span class="literal">null</span> &amp;&amp; !<span class="built_in">this</span>.defaultProperties.isEmpty()) &#123;</span><br><span class="line">		sources.addLast(</span><br><span class="line">				<span class="keyword">new</span> <span class="type">MapPropertySource</span>(<span class="string">"defaultProperties"</span>, <span class="built_in">this</span>.defaultProperties));</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">if</span> (<span class="built_in">this</span>.addCommandLineProperties &amp;&amp; args.length &gt; <span class="number">0</span>) &#123;</span><br><span class="line">		<span class="keyword">String</span> name = CommandLinePropertySource.COMMAND_LINE_PROPERTY_SOURCE_NAME;</span><br><span class="line">		<span class="keyword">if</span> (sources.contains(name)) &#123;</span><br><span class="line">			PropertySource&lt;?&gt; source = sources.<span class="keyword">get</span>(name);</span><br><span class="line">			CompositePropertySource composite = <span class="keyword">new</span> <span class="type">CompositePropertySource</span>(name);</span><br><span class="line">			composite.addPropertySource(<span class="keyword">new</span> <span class="type">SimpleCommandLinePropertySource</span>(</span><br><span class="line">					<span class="string">"springApplicationCommandLineArgs"</span>, args));</span><br><span class="line">			composite.addPropertySource(source);</span><br><span class="line">			sources.replace(name, composite);</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">else</span> &#123;</span><br><span class="line">			sources.addFirst(<span class="keyword">new</span> <span class="type">SimpleCommandLinePropertySource</span>(args));</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>从这段代码，可以看出，<code>defaultProperties</code>优先级最低，放在最后。<code>commandLine</code>优先级很高，放在最前面，addFirst。</p>
-<h2 id="代码demo"><a href="#代码demo" class="headerlink" title="代码demo"></a>代码demo</h2><p><code>https://github.com/Frankenjoy123/microservices-joey-project</code></p>
-<p>找到<code>spring-cloud-native-application</code>项目入口启动</p>
-
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-      
-
-      <div style="font-size: 12px;">
-        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
-      </div>
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2018/08/01/Spring应用上下文及事件监听源码分析/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
-    <article id="post-node及npm安装-版本升级" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2018/07/26/node及npm安装-版本升级/">node及npm安装 版本升级</a>
-    </h1>
-  
-
-        
-        <a href="/2018/07/26/node及npm安装-版本升级/" class="archive-article-date">
-  	<time datetime="2018-07-26T06:50:39.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-07-26</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>#1.官网下载node</p>
-<p><a href="https://nodejs.org/en/download/" target="_blank" rel="external">https://nodejs.org/en/download/</a></p>
-<h1 id="2-升级npm"><a href="#2-升级npm" class="headerlink" title="2.升级npm"></a>2.升级npm</h1><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 先安装模块n</span></span><br><span class="line">npm install n -g</span><br><span class="line"><span class="meta">#</span><span class="bash"> 将 node 升级到最新稳定版</span></span><br><span class="line">n stable</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 将 npm 升级到最新版</span></span><br><span class="line">npm install npm -g</span><br><span class="line"><span class="meta">#</span><span class="bash"> 如果要指定版本，可以通过@指定版本</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> npm install npm@3.10.10 -g</span></span><br></pre></td></tr></table></figure>
-
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-      
-
-      <div style="font-size: 12px;">
-        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
-      </div>
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2018/07/26/node及npm安装-版本升级/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
-    <article id="post-Spring-framework-5-0-2源码导入idea步骤及demo开发" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2018/07/21/Spring-framework-5-0-2源码导入idea步骤及demo开发/">Spring-framework 5.0.2源码导入idea步骤及demo开发</a>
-    </h1>
-  
-
-        
-        <a href="/2018/07/21/Spring-framework-5-0-2源码导入idea步骤及demo开发/" class="archive-article-date">
-  	<time datetime="2018-07-21T00:38:21.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-07-21</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h1 id="1-源码的下载"><a href="#1-源码的下载" class="headerlink" title="1.源码的下载"></a>1.源码的下载</h1><p>Spring的源码可以从GitHub上下载：<a href="https://github.com/spring-projects/spring-framework" target="_blank" rel="external">https://github.com/spring-projects/spring-framework</a></p>
-<p>选择tag<code>5.0.2</code>，下载zip文件</p>
-<h1 id="2-源码编译"><a href="#2-源码编译" class="headerlink" title="2. 源码编译"></a>2. 源码编译</h1><p>可以参考<code>import-into-idea.md</code>文档</p>
-<ol>
-<li>执行<code>./gradlew :spring-oxm:compileTestJava</code>  先对 <code>Spring-oxm</code> 模块进行预编译。</li>
-<li>在IDEA中 <code>File -&gt; New -&gt; Project from Existing Sources -&gt; Navigate to directory</code>选择<code>build.grale</code>文件打开</li>
-<li>在<code>spring-aspects</code>中右键模块<code>load/upload modules</code>，upload<code>spring-aspects</code>的三个子目录</li>
-</ol>
-<blockquote>
-<p>Spring-framework跳过单测，可以执行<code>./gradlew build -x test</code></p>
-</blockquote>
-<h1 id="3-demo搭建"><a href="#3-demo搭建" class="headerlink" title="3.demo搭建"></a>3.demo搭建</h1><h2 id="1-demo配置"><a href="#1-demo配置" class="headerlink" title="1.demo配置"></a>1.demo配置</h2><h3 id="maven-quick-start快速搭建"><a href="#maven-quick-start快速搭建" class="headerlink" title="maven quick start快速搭建"></a>maven quick start快速搭建</h3><p>这里可以创建一个简单的Demo，该Demo依赖于Spring的源码，这样，就可以从外部，运行Demo，跟踪到Spring的内部源码了。为不失一般性，这里的Demo采用MVN进行构建，只不过，相关的Spring的源码依赖需要在IDEA中设置成本地源码</p>
-<p>①使用IDEA 在Spring的源码的Project目录下，创建一个Demo，可以直接使用MVN的骨架</p>
-<p><a href="http://www.fangyuzhong.com/wp-content/uploads/2017/09/08b9e5fdcad4e6c6608adf0c9353afe6_fe003d25-1cae-42cc-b78b-7d34307982d8.png" target="_blank" rel="external"><img src="http://www.fangyuzhong.com/wp-content/uploads/2017/09/08b9e5fdcad4e6c6608adf0c9353afe6_fe003d25-1cae-42cc-b78b-7d34307982d8.png" alt="img"></a></p>
-<h3 id="设置依赖"><a href="#设置依赖" class="headerlink" title="设置依赖"></a>设置依赖</h3><p>A、设置一下pom.xml 中的 junit 依赖版本，修改为 4.12 否则Spring的单元测试，编译不通过</p>
-<p>B、在IDEA设置Spring的项目依赖（设置Spring-core、Spring-beans、Spring-context、Spring-expression这几个module就可以了）：</p>
-<p><img src="http://www.fangyuzhong.com/wp-content/uploads/2017/09/08b9e5fdcad4e6c6608adf0c9353afe6_9ad961a0-1c6a-4031-b241-fc5f9cde29d6.png" alt="img"></p>
-<p>C、pom.xml中需要引入commons-logging的依赖,否则编译报找不到LogginFactory的错误.配置静态资源路径(否则读取xml的时候,找不到路径)</p>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br></pre></td><td class="code"><pre><span class="line"><span class="php"><span class="meta">&lt;?</span>xml version=<span class="string">"1.0"</span> encoding=<span class="string">"UTF-8"</span><span class="meta">?&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">project</span> <span class="attr">xmlns</span>=<span class="string">"http://maven.apache.org/POM/4.0.0"</span> <span class="attr">xmlns:xsi</span>=<span class="string">"http://www.w3.org/2001/XMLSchema-instance"</span></span></span><br><span class="line"><span class="tag">  <span class="attr">xsi:schemaLocation</span>=<span class="string">"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">modelVersion</span>&gt;</span>4.0.0<span class="tag">&lt;/<span class="name">modelVersion</span>&gt;</span></span><br><span class="line"></span><br><span class="line">  <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.joey.demo<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>demo-start<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">version</span>&gt;</span>1.0-SNAPSHOT<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"></span><br><span class="line">  <span class="tag">&lt;<span class="name">name</span>&gt;</span>demo-start<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">  <span class="comment">&lt;!-- FIXME change it to the project's website --&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">url</span>&gt;</span>http://www.example.com<span class="tag">&lt;/<span class="name">url</span>&gt;</span></span><br><span class="line"></span><br><span class="line">  <span class="tag">&lt;<span class="name">properties</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">project.build.sourceEncoding</span>&gt;</span>UTF-8<span class="tag">&lt;/<span class="name">project.build.sourceEncoding</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">maven.compiler.source</span>&gt;</span>1.8<span class="tag">&lt;/<span class="name">maven.compiler.source</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">maven.compiler.target</span>&gt;</span>1.8<span class="tag">&lt;/<span class="name">maven.compiler.target</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">properties</span>&gt;</span></span><br><span class="line"></span><br><span class="line">  <span class="tag">&lt;<span class="name">dependencies</span>&gt;</span></span><br><span class="line"></span><br><span class="line">	  <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">		  <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>commons-logging<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">		  <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>commons-logging<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">		  <span class="tag">&lt;<span class="name">version</span>&gt;</span>1.2<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">	  <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>junit<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>junit<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">version</span>&gt;</span>4.12<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">scope</span>&gt;</span>test<span class="tag">&lt;/<span class="name">scope</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">  <span class="tag">&lt;/<span class="name">dependencies</span>&gt;</span></span><br><span class="line"></span><br><span class="line">  <span class="tag">&lt;<span class="name">build</span>&gt;</span></span><br><span class="line"></span><br><span class="line">	<span class="tag">&lt;<span class="name">resources</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">resource</span>&gt;</span></span><br><span class="line">			<span class="tag">&lt;<span class="name">directory</span>&gt;</span>src/main/resources<span class="tag">&lt;/<span class="name">directory</span>&gt;</span></span><br><span class="line">			<span class="tag">&lt;<span class="name">filtering</span>&gt;</span>true<span class="tag">&lt;/<span class="name">filtering</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;/<span class="name">resource</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;/<span class="name">resources</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">pluginManagement</span>&gt;</span><span class="comment">&lt;!-- lock down plugins versions to avoid using Maven defaults (may be moved to parent pom) --&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">plugins</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">plugin</span>&gt;</span></span><br><span class="line">          <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>maven-clean-plugin<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">          <span class="tag">&lt;<span class="name">version</span>&gt;</span>3.0.0<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">plugin</span>&gt;</span></span><br><span class="line">        <span class="comment">&lt;!-- see http://maven.apache.org/ref/current/maven-core/default-bindings.html#Plugin_bindings_for_jar_packaging --&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">plugin</span>&gt;</span></span><br><span class="line">          <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>maven-resources-plugin<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">          <span class="tag">&lt;<span class="name">version</span>&gt;</span>3.0.2<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">plugin</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">plugin</span>&gt;</span></span><br><span class="line">          <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>maven-compiler-plugin<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">          <span class="tag">&lt;<span class="name">version</span>&gt;</span>3.7.0<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">plugin</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">plugin</span>&gt;</span></span><br><span class="line">          <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>maven-surefire-plugin<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">          <span class="tag">&lt;<span class="name">version</span>&gt;</span>2.20.1<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">plugin</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">plugin</span>&gt;</span></span><br><span class="line">          <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>maven-jar-plugin<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">          <span class="tag">&lt;<span class="name">version</span>&gt;</span>3.0.2<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">plugin</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">plugin</span>&gt;</span></span><br><span class="line">          <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>maven-install-plugin<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">          <span class="tag">&lt;<span class="name">version</span>&gt;</span>2.5.2<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">plugin</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">plugin</span>&gt;</span></span><br><span class="line">          <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>maven-deploy-plugin<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">          <span class="tag">&lt;<span class="name">version</span>&gt;</span>2.8.2<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">plugin</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;/<span class="name">plugins</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">pluginManagement</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">build</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">project</span>&gt;</span></span><br></pre></td></tr></table></figure>
-<p>D、设置Spring的配置和编写简单的Spring代码</p>
-<p>创建一个简单的 登录接口 ILogin：</p>
-<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">public<span class="built_in"> interface </span>ILogin &#123;</span><br><span class="line">	String loginCheck(String userName,String password);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>它有个实现类：</p>
-<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> LoginServiceImpl <span class="keyword">implements</span> ILogin &#123;</span><br><span class="line"></span><br><span class="line">	<span class="built_in">String</span> id = <span class="string">""</span>;</span><br><span class="line"></span><br><span class="line">	<span class="meta">@Autowired</span>(required = <span class="literal">false</span>)</span><br><span class="line">	<span class="keyword">public</span> <span class="built_in">void</span> setId(<span class="built_in">String</span> id) &#123;</span><br><span class="line">		<span class="keyword">this</span>.id = id;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="meta">@Override</span></span><br><span class="line">	<span class="keyword">public</span> <span class="built_in">String</span> loginCheck(<span class="built_in">String</span> userName, <span class="built_in">String</span> password) &#123;</span><br><span class="line">		System.out.println(<span class="string">"boy登录..."</span>);</span><br><span class="line">		<span class="keyword">return</span> <span class="string">"success"</span>;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>然后，把该bean 注册到配置中(路径spring-debug/src/spring-config.xml)：</p>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="php"><span class="meta">&lt;?</span>xml version=<span class="string">"1.0"</span> encoding=<span class="string">"UTF-8"</span><span class="meta">?&gt;</span></span></span><br><span class="line"><span class="tag">&lt;<span class="name">beans</span> <span class="attr">xmlns</span>=<span class="string">"http://www.springframework.org/schema/beans"</span></span></span><br><span class="line"><span class="tag">	   <span class="attr">xmlns:xsi</span>=<span class="string">"http://www.w3.org/2001/XMLSchema-instance"</span></span></span><br><span class="line"><span class="tag">	   <span class="attr">xsi:schemaLocation</span>=<span class="string">"http://www.springframework.org/schema/beans</span></span></span><br><span class="line"><span class="tag"><span class="string">       http://www.springframework.org/schema/beans/spring-beans.xsd"</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">"loginService"</span> <span class="attr">class</span>=<span class="string">"com.joey.demo.service.impl.LoginServiceImpl"</span>/&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">beans</span>&gt;</span></span><br></pre></td></tr></table></figure>
-<p>最后，编写调用的代码：</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">App</span> </span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">( String[] args )</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line"></span><br><span class="line">		ApplicationContext applicationContext = <span class="keyword">new</span> ClassPathXmlApplicationContext(<span class="string">"classpath:applicationContext.xml"</span>);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">//		String XMLPath = "//Users/sky/Java/spring-framework/spring-debug/src/spring-config.xml";</span></span><br><span class="line"><span class="comment">//		ApplicationContext applicationContext = new FileSystemXmlApplicationContext(XMLPath);</span></span><br><span class="line"></span><br><span class="line">		ILogin login = (ILogin) applicationContext.getBean(<span class="string">"loginService"</span>);</span><br><span class="line">		login.loginCheck(<span class="string">"boy"</span>, <span class="string">"123"</span>);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>然后就可以 进行Debug了，并且可以Debug到Spring源码内部。</p>
-
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-      
-
-      <div style="font-size: 12px;">
-        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
-      </div>
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2018/07/21/Spring-framework-5-0-2源码导入idea步骤及demo开发/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
   
     <nav id="page-nav">
-      <a class="extend prev" rel="prev" href="/page/4/">&laquo; Prev</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/3/">3</a><a class="page-number" href="/page/4/">4</a><span class="page-number current">5</span><a class="page-number" href="/page/6/">6</a><a class="page-number" href="/page/7/">7</a><span class="space">&hellip;</span><a class="page-number" href="/page/17/">17</a><a class="extend next" rel="next" href="/page/6/">Next &raquo;</a>
+      <a class="extend prev" rel="prev" href="/page/4/">&laquo; Prev</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/3/">3</a><a class="page-number" href="/page/4/">4</a><span class="page-number current">5</span><a class="page-number" href="/page/6/">6</a><a class="page-number" href="/page/7/">7</a><span class="space">&hellip;</span><a class="page-number" href="/page/18/">18</a><a class="extend next" rel="next" href="/page/6/">Next &raquo;</a>
     </nav>
   
 
@@ -1372,15 +1207,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">Dubbo</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">java并发包</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">git</a>
+                <a href="javascript:void(0)" class="js-tag color1">Dubbo</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1388,7 +1219,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">java</a>
+                <a href="javascript:void(0)" class="js-tag color4">git</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">Maven</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1396,7 +1231,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">Maven</a>
+                <a href="javascript:void(0)" class="js-tag color5">java</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">redis</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1408,15 +1247,7 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">redis</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">快捷键</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">MySQL</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1424,11 +1255,7 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">test</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">Netty</a>
+                <a href="javascript:void(0)" class="js-tag color1">MySQL</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1436,7 +1263,7 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">react</a>
+                <a href="javascript:void(0)" class="js-tag color1">Netty</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1445,6 +1272,14 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">RxJava</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">test</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">react</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1476,6 +1311,10 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">nio</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">debug</a>
               </li>
              
@@ -1484,15 +1323,7 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">nio</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">rest</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">python</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1516,6 +1347,10 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">分布式锁</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Spring</a>
               </li>
              
@@ -1524,7 +1359,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">分布式锁</a>
+                <a href="javascript:void(0)" class="js-tag color5">前端指南</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">后端</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1533,14 +1372,6 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">事务</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">前端指南</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">后端</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1564,11 +1395,7 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">科学上网，hosts</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">HashMap</a>
+                <a href="javascript:void(0)" class="js-tag color5">前端跨域</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1576,7 +1403,7 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">前端跨域</a>
+                <a href="javascript:void(0)" class="js-tag color3">HashMap</a>
               </li>
              
               <li class="article-tag-list-item">
