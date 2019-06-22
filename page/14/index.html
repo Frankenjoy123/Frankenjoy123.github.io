@@ -150,6 +150,379 @@
           <div id="js-content" class="content-ll">
             
   
+    <article id="post-React生命周期" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2017/12/27/React生命周期/">React生命周期</a>
+    </h1>
+  
+
+        
+        <a href="/2017/12/27/React生命周期/" class="archive-article-date">
+  	<time datetime="2017-12-27T10:13:26.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2017-12-27</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>学习React，生命周期很重要，我们了解完生命周期的各个组件，对写高性能组件会有很大的帮助.</p>
+<h3 id="Ract生命周期"><a href="#Ract生命周期" class="headerlink" title="Ract生命周期"></a>Ract生命周期</h3><p>React 生命周期分为三种状态 1. 初始化 2.更新 3.销毁</p>
+<p><img src="http://images2015.cnblogs.com/blog/588767/201612/588767-20161205190022429-1074951616.jpg" alt="img"></p>
+<ul>
+<li><strong>初始化</strong></li>
+</ul>
+<p><em>1、getDefaultProps()</em></p>
+<blockquote>
+<p>设置默认的props，也可以用dufaultProps设置组件的默认属性.</p>
+</blockquote>
+<p><em>2、getInitialState()</em></p>
+<blockquote>
+<p>在使用es6的class语法时是没有这个钩子函数的，可以直接在constructor中定义this.state。此时可以访问this.props</p>
+</blockquote>
+<p><em>3、componentWillMount()</em></p>
+<blockquote>
+<p>组件初始化时只调用，以后组件更新不调用，整个生命周期只调用一次，此时可以修改state。</p>
+</blockquote>
+<p><em>4、 render()</em></p>
+<blockquote>
+<p>react最重要的步骤，创建虚拟dom，进行diff算法，更新dom树都在此进行。此时就不能更改state了。</p>
+</blockquote>
+<p><em>5、componentDidMount()</em></p>
+<blockquote>
+<p>组件渲染之后调用，只调用一次。</p>
+</blockquote>
+<ul>
+<li><strong>更新</strong></li>
+</ul>
+<p><em>6、componentWillReceiveProps(nextProps)</em></p>
+<blockquote>
+<p>组件初始化时不调用，组件接受新的props时调用。</p>
+</blockquote>
+<p><em>7、shouldComponentUpdate(nextProps, nextState)</em></p>
+<blockquote>
+<p>react性能优化非常重要的一环。组件接受新的state或者props时调用，我们可以设置在此对比前后两个props和state是否相同，如果相同则返回false阻止更新，因为相同的属性状态一定会生成相同的dom树，这样就不需要创造新的dom树和旧的dom树进行diff算法对比，节省大量性能，尤其是在dom结构复杂的时候</p>
+</blockquote>
+<p><em>8、componentWillUpdata(nextProps, nextState)</em></p>
+<blockquote>
+<p>组件初始化时不调用，只有在组件将要更新时才调用，此时可以修改state</p>
+</blockquote>
+<p><em>9、render()</em></p>
+<blockquote>
+<p>组件渲染</p>
+</blockquote>
+<p><em>10、componentDidUpdate()</em></p>
+<blockquote>
+<p>组件初始化时不调用，组件更新完成后调用，此时可以获取dom节点。</p>
+</blockquote>
+<ul>
+<li><strong>卸载</strong></li>
+</ul>
+<p><em>11、componentWillUnmount()</em></p>
+<blockquote>
+<p>组件将要卸载时调用，一些事件监听和定时器需要在此时清除。</p>
+</blockquote>
+<h3 id="结束语"><a href="#结束语" class="headerlink" title="结束语"></a>结束语</h3><p>以上就是React 的生命周期，大家可以自行写下code测试一下，在这里我就不贴code 了。</p>
+<p><strong>下面所写的，只适合前端的React。（React也支持后端渲染，而且和前端有点小区别，不过我没用过。）</strong></p>
+<h1 id="相关函数"><a href="#相关函数" class="headerlink" title="相关函数"></a>相关函数</h1><p>简单地说，React Component通过其定义的几个函数来控制组件在生命周期的各个阶段的动作。</p>
+<p>在ES6中，一个React组件是用一个class来表示的（具体可以参考<a href="https://link.jianshu.com?t=http://facebook.github.io/react/docs/reusable-components.html#es6-classes" target="_blank" rel="external">官方文档</a>），如下：</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 定义一个TodoList的React组件，通过继承React.Component来实现</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">TodoList</span> <span class="keyword">extends</span> <span class="title">React</span>.<span class="title">Component</span> </span>&#123;</span><br><span class="line">  ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这几个生命周期相关的函数有：</p>
+<figure class="highlight delphi"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">constructor</span><span class="params">(props, context)</span></span></span><br></pre></td></tr></table></figure>
+<p>构造函数，在创建组件的时候调用一次。</p>
+<figure class="highlight actionscript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">void</span> componentWillMount()</span><br></pre></td></tr></table></figure>
+<p>在组件挂载之前调用一次。如果在这个函数里面调用setState，本次的render函数可以看到更新后的state，并且只渲染一次。</p>
+<figure class="highlight actionscript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">void</span> componentDidMount()</span><br></pre></td></tr></table></figure>
+<p>在组件挂载之后调用一次。这个时候，子主键也都挂载好了，可以在这里使用refs。</p>
+<figure class="highlight lisp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">void componentWillReceiveProps(<span class="name">nextProps</span>)</span><br></pre></td></tr></table></figure>
+<p>props是父组件传递给子组件的。父组件发生render的时候子组件就会调用componentWillReceiveProps（不管props有没有更新，也不管父子组件之间有没有数据交换）。</p>
+<figure class="highlight lisp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">bool shouldComponentUpdate(<span class="name">nextProps</span>, nextState)</span><br></pre></td></tr></table></figure>
+<p>组件挂载之后，每次调用setState后都会调用shouldComponentUpdate判断是否需要重新渲染组件。默认返回true，需要重新render。在比较复杂的应用里，有一些数据的改变并不影响界面展示，可以在这里做判断，优化渲染效率。</p>
+<figure class="highlight lisp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">void componentWillUpdate(<span class="name">nextProps</span>, nextState)</span><br></pre></td></tr></table></figure>
+<p>shouldComponentUpdate返回true或者调用forceUpdate之后，componentWillUpdate会被调用。</p>
+<figure class="highlight actionscript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">void</span> componentDidUpdate()</span><br></pre></td></tr></table></figure>
+<p>除了首次render之后调用componentDidMount，其它render结束之后都是调用componentDidUpdate。</p>
+<p>componentWillMount、componentDidMount和componentWillUpdate、componentDidUpdate可以对应起来。区别在于，前者只有在挂载的时候会被调用；而后者在以后的每次更新渲染之后都会被调用。</p>
+<figure class="highlight less"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="selector-tag">ReactElement</span> <span class="selector-tag">render</span>()</span><br></pre></td></tr></table></figure>
+<p>render是一个React组件所必不可少的核心函数（上面的其它函数都不是必须的）。记住，不要在render里面修改state。</p>
+<figure class="highlight actionscript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">void</span> componentWillUnmount()</span><br></pre></td></tr></table></figure>
+<p>组件被卸载的时候调用。一般在componentDidMount里面注册的事件需要在这里删除。</p>
+<h1 id="更新方式"><a href="#更新方式" class="headerlink" title="更新方式"></a>更新方式</h1><p>在react中，触发render的有4条路径。</p>
+<p><strong>以下假设shouldComponentUpdate都是按照默认返回true的方式。</strong></p>
+<ol>
+<li>首次渲染Initial Render</li>
+<li>调用this.setState （并不是一次setState会触发一次render，React可能会合并操作，再一次性进行render）</li>
+<li>父组件发生更新（一般就是props发生改变，但是就算props没有改变或者父子组件之间没有数据交换也会触发render）</li>
+<li>调用this.forceUpdate</li>
+</ol>
+<p>下面是我对React组件四条更新路径地总结：</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/1814354-4bf62e54553a32b7.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/700" alt="img"></p>
+<p>React组件更新路径.png</p>
+<p>注意，如果在shouldComponentUpdate里面返回false可以提前退出更新路径。</p>
+<h1 id="一个React组件生命周期的测试例子"><a href="#一个React组件生命周期的测试例子" class="headerlink" title="一个React组件生命周期的测试例子"></a>一个React组件生命周期的测试例子</h1><p>代码比较简单，没有逻辑，只是在每个相关函数里面alert一下。</p><h1><a href="https://link.jianshu.com?t=http://wximg.gtimg.com/shake_tv/test/lifeCycle2113.html" target="_blank" rel="external">点击链接</a>来试试这个例子。</h1><br>源码：<p></p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">LifeCycle</span> <span class="keyword">extends</span> <span class="title">React</span>.<span class="title">Component</span> </span>&#123;</span><br><span class="line">    <span class="keyword">constructor</span>(props) &#123;</span><br><span class="line">        <span class="keyword">super</span>(props);</span><br><span class="line">        alert(<span class="string">"Initial render"</span>);</span><br><span class="line">        alert(<span class="string">"constructor"</span>);</span><br><span class="line">        <span class="keyword">this</span>.state = &#123;<span class="attr">str</span>: <span class="string">"hello"</span>&#125;;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    componentWillMount() &#123;</span><br><span class="line">        alert(<span class="string">"componentWillMount"</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    componentDidMount() &#123;</span><br><span class="line">        alert(<span class="string">"componentDidMount"</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    componentWillReceiveProps(nextProps) &#123;</span><br><span class="line">        alert(<span class="string">"componentWillReceiveProps"</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    shouldComponentUpdate() &#123;</span><br><span class="line">        alert(<span class="string">"shouldComponentUpdate"</span>);</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">true</span>;        <span class="comment">// 记得要返回true</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    componentWillUpdate() &#123;</span><br><span class="line">        alert(<span class="string">"componentWillUpdate"</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    componentDidUpdate() &#123;</span><br><span class="line">        alert(<span class="string">"componentDidUpdate"</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    componentWillUnmount() &#123;</span><br><span class="line">        alert(<span class="string">"componentWillUnmount"</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    setTheState() &#123;</span><br><span class="line">        <span class="keyword">let</span> s = <span class="string">"hello"</span>;</span><br><span class="line">        <span class="keyword">if</span> (<span class="keyword">this</span>.state.str === s) &#123;</span><br><span class="line">            s = <span class="string">"HELLO"</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">this</span>.setState(&#123;</span><br><span class="line">            str: s</span><br><span class="line">        &#125;);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    forceItUpdate() &#123;</span><br><span class="line">        <span class="keyword">this</span>.forceUpdate();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    render() &#123;</span><br><span class="line">        alert(<span class="string">"render"</span>);</span><br><span class="line">        <span class="keyword">return</span>(</span><br><span class="line">            &lt;div&gt;</span><br><span class="line">                &lt;span&gt;&#123;<span class="string">"Props:"</span>&#125;&lt;h2&gt;&#123;<span class="built_in">parseInt</span>(<span class="keyword">this</span>.props.num)&#125;&lt;<span class="regexp">/h2&gt;&lt;/</span>span&gt;</span><br><span class="line">                &lt;br /&gt;</span><br><span class="line">                &lt;span&gt;&#123;<span class="string">"State:"</span>&#125;&lt;h2&gt;&#123;<span class="keyword">this</span>.state.str&#125;&lt;<span class="regexp">/h2&gt;&lt;/</span>span&gt;</span><br><span class="line">            &lt;<span class="regexp">/div&gt;</span></span><br><span class="line"><span class="regexp">        );</span></span><br><span class="line"><span class="regexp">    &#125;</span></span><br><span class="line"><span class="regexp">&#125;</span></span><br><span class="line"><span class="regexp"></span></span><br><span class="line"><span class="regexp">class Container  extends React.Component &#123;</span></span><br><span class="line"><span class="regexp">    constructor(props) &#123;</span></span><br><span class="line"><span class="regexp">        super(props);</span></span><br><span class="line"><span class="regexp">        this.state = &#123;</span></span><br><span class="line"><span class="regexp">            num: Math.random() * 100</span></span><br><span class="line"><span class="regexp">        &#125;;</span></span><br><span class="line"><span class="regexp">    &#125;</span></span><br><span class="line"><span class="regexp"></span></span><br><span class="line"><span class="regexp">    propsChange() &#123;</span></span><br><span class="line"><span class="regexp">        this.setState(&#123;</span></span><br><span class="line"><span class="regexp">            num: Math.random() * 100</span></span><br><span class="line"><span class="regexp">        &#125;);</span></span><br><span class="line"><span class="regexp">    &#125;</span></span><br><span class="line"><span class="regexp"></span></span><br><span class="line"><span class="regexp">    setLifeCycleState() &#123;</span></span><br><span class="line"><span class="regexp">        this.refs.rLifeCycle.setTheState();</span></span><br><span class="line"><span class="regexp">    &#125;</span></span><br><span class="line"><span class="regexp"></span></span><br><span class="line"><span class="regexp">    forceLifeCycleUpdate() &#123;</span></span><br><span class="line"><span class="regexp">        this.refs.rLifeCycle.forceItUpdate();</span></span><br><span class="line"><span class="regexp">    &#125;</span></span><br><span class="line"><span class="regexp"></span></span><br><span class="line"><span class="regexp">    unmountLifeCycle() &#123;</span></span><br><span class="line"><span class="regexp">        /</span><span class="regexp">/ 这里卸载父组件也会导致卸载子组件</span></span><br><span class="line"><span class="regexp">        React.unmountComponentAtNode(document.getElementById("container"));</span></span><br><span class="line"><span class="regexp">    &#125;</span></span><br><span class="line"><span class="regexp"></span></span><br><span class="line"><span class="regexp">    parentForceUpdate() &#123;</span></span><br><span class="line"><span class="regexp">        this.forceUpdate();</span></span><br><span class="line"><span class="regexp">    &#125;</span></span><br><span class="line"><span class="regexp"></span></span><br><span class="line"><span class="regexp">    render() &#123;</span></span><br><span class="line"><span class="regexp">        return (</span></span><br><span class="line"><span class="regexp">            &lt;div&gt;</span></span><br><span class="line"><span class="regexp">                &lt;a href="javascript:;" className="weui_btn weui_btn_primary" onClick=&#123;this.propsChange.bind(this)&#125;&gt;propsChange&lt;/</span>a&gt;</span><br><span class="line">                &lt;a href=<span class="string">"javascript:;"</span> className=<span class="string">"weui_btn weui_btn_primary"</span> onClick=&#123;<span class="keyword">this</span>.setLifeCycleState.bind(<span class="keyword">this</span>)&#125;&gt;setState&lt;<span class="regexp">/a&gt;</span></span><br><span class="line"><span class="regexp">                &lt;a href="javascript:;" className="weui_btn weui_btn_primary" onClick=&#123;this.forceLifeCycleUpdate.bind(this)&#125;&gt;forceUpdate&lt;/</span>a&gt;</span><br><span class="line">                &lt;a href=<span class="string">"javascript:;"</span> className=<span class="string">"weui_btn weui_btn_primary"</span> onClick=&#123;<span class="keyword">this</span>.unmountLifeCycle.bind(<span class="keyword">this</span>)&#125;&gt;unmount&lt;<span class="regexp">/a&gt;</span></span><br><span class="line"><span class="regexp">                &lt;a href="javascript:;" className="weui_btn weui_btn_primary" onClick=&#123;this.parentForceUpdate.bind(this)&#125;&gt;parentForceUpdateWithoutChange&lt;/</span>a&gt;</span><br><span class="line">                &lt;LifeCycle ref=<span class="string">"rLifeCycle"</span> num=&#123;<span class="keyword">this</span>.state.num&#125;&gt;<span class="xml"><span class="tag">&lt;/<span class="name">LifeCycle</span>&gt;</span></span></span><br><span class="line">            &lt;<span class="regexp">/div&gt;</span></span><br><span class="line"><span class="regexp">        );</span></span><br><span class="line"><span class="regexp">    &#125;</span></span><br><span class="line"><span class="regexp">&#125;</span></span><br><span class="line"><span class="regexp"></span></span><br><span class="line"><span class="regexp">ReactDom.render(</span></span><br><span class="line"><span class="regexp">    &lt;Container&gt;&lt;/</span>Container&gt;,</span><br><span class="line">    <span class="built_in">document</span>.getElementById(<span class="string">'container'</span>)</span><br><span class="line">);</span><br></pre></td></tr></table></figure>
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">react</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+      
+
+      <div style="font-size: 12px;">
+        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
+      </div>
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2017/12/27/React生命周期/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
+    <article id="post-前端指南-react快速开发" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2017/12/23/前端指南-react快速开发/">前端指南-react快速开发</a>
+    </h1>
+  
+
+        
+        <a href="/2017/12/23/前端指南-react快速开发/" class="archive-article-date">
+  	<time datetime="2017-12-23T09:20:14.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2017-12-23</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="React项目开发"><a href="#React项目开发" class="headerlink" title="React项目开发"></a>React项目开发</h1><h2 id="通过-npm-使用-React"><a href="#通过-npm-使用-React" class="headerlink" title="通过 npm 使用 React"></a>通过 npm 使用 React</h2><p>如果你的系统还不支持 Node.js 及 NPM 可以参考我们的 <a href="http://www.runoob.com/nodejs/nodejs-tutorial.html" target="_blank" rel="external">Node.js 教程</a>。</p>
+<p>我们建议在 React 中使用 CommonJS 模块系统，比如 browserify 或 webpack，本教程使用 webpack。</p>
+<p>国内使用 npm 速度很慢，你可以使用淘宝定制的 cnpm (gzip 压缩支持) 命令行工具代替默认的 npm:</p>
+<figure class="highlight gams"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="symbol">$</span> npm install -g cnpm --registry=https:<span class="comment">//registry.npm.taobao.org</span></span><br><span class="line"><span class="symbol">$</span> npm config <span class="keyword">set</span> registry <span class="comment">https:</span>//<span class="comment">registry.npm.taobao.org</span></span><br></pre></td></tr></table></figure>
+<p>这样就可以使用 cnpm 命令来安装模块了：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> cnpm install [name]</span></span><br></pre></td></tr></table></figure>
+<p>更多信息可以查阅：<a href="http://npm.taobao.org/" target="_blank" rel="external">http://npm.taobao.org/</a>。</p>
+<hr>
+<h2 id="使用-create-react-app-快速构建-React-开发环境"><a href="#使用-create-react-app-快速构建-React-开发环境" class="headerlink" title="使用 create-react-app 快速构建 React 开发环境"></a>使用 create-react-app 快速构建 React 开发环境</h2><p>create-react-app 是来自于 Facebook，通过该命令我们无需配置就能快速构建 React 开发环境。</p>
+<p>create-react-app 自动创建的项目是基于 Webpack + ES6 。</p>
+<p>执行以下命令创建项目：</p>
+<figure class="highlight dsconfig"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">$ <span class="string">cnpm </span><span class="string">install </span>-g <span class="built_in">create-react-app</span></span><br><span class="line"><span class="built_in">$</span> <span class="built_in">create-react-app</span> <span class="string">my-app</span></span><br><span class="line"><span class="string">$</span> <span class="string">cd </span><span class="string">my-app/</span></span><br><span class="line">$ <span class="string">npm </span><span class="string">start</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">yarn </span><span class="string">start</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">yarn </span><span class="string">build</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">  yarn <span class="keyword">start</span></span><br><span class="line">    Starts the development server.</span><br><span class="line"></span><br><span class="line">  yarn <span class="keyword">build</span></span><br><span class="line">    Bundles the app <span class="keyword">into</span> <span class="keyword">static</span> files <span class="keyword">for</span> production.</span><br><span class="line"></span><br><span class="line">  yarn <span class="keyword">test</span></span><br><span class="line">    Starts the <span class="keyword">test</span> runner.</span><br><span class="line"></span><br><span class="line">  yarn eject</span><br><span class="line">    Removes this tool <span class="keyword">and</span> copies <span class="keyword">build</span> dependencies, configuration files</span><br><span class="line">    <span class="keyword">and</span> scripts <span class="keyword">into</span> the app directory. <span class="keyword">If</span> you <span class="keyword">do</span> this, you can’t <span class="keyword">go</span> back!</span><br><span class="line"></span><br><span class="line">We suggest that you <span class="keyword">begin</span> <span class="keyword">by</span> typing:</span><br><span class="line"></span><br><span class="line">  cd billing-monitor-web</span><br><span class="line">  yarn <span class="keyword">start</span></span><br></pre></td></tr></table></figure>
+<h1 id="使用yarn构建前端"><a href="#使用yarn构建前端" class="headerlink" title="使用yarn构建前端"></a>使用yarn构建前端</h1><figure class="highlight lsl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">3425</span>  npm install yarn -g  <span class="comment">//全局安装yarn,不在package.json文件</span></span><br><span class="line"><span class="number">3426</span>  ls</span><br><span class="line"><span class="number">3427</span>  yarn add serve -g <span class="comment">//全局安装serve,有个服务容器</span></span><br><span class="line"><span class="number">3428</span>  lsysq</span><br><span class="line"><span class="number">3429</span>  yarn start <span class="comment">//启动项目  </span></span><br><span class="line">yarn build 构建前端</span><br></pre></td></tr></table></figure>
+<h1 id="node项目开发"><a href="#node项目开发" class="headerlink" title="node项目开发"></a>node项目开发</h1><p>##进入工程目录</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> <span class="variable">$&#123;project_path&#125;</span></span><br></pre></td></tr></table></figure>
+<p>##从git中获取最新代码</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">git pull</span><br><span class="line">git checkout $&#123;tag_name&#125;</span><br></pre></td></tr></table></figure>
+<p>##运行npm install</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npm install</span><br></pre></td></tr></table></figure>
+<h2 id="查看pm2进程id"><a href="#查看pm2进程id" class="headerlink" title="查看pm2进程id"></a>查看pm2进程id</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pm2 list</span><br></pre></td></tr></table></figure>
+<ol>
+<li><p>停止原服务</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pm2 delete <span class="variable">$&#123;pm2_ID&#125;</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>启动服务</p>
+<ol>
+<li><p>切换NODE_VERSION</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nvm use <span class="variable">$&#123;node_version&#125;</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>启动服务</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">NODE_ENV=<span class="variable">$&#123;env&#125;</span> pm2 start <span class="variable">$&#123;main_script&#125;</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>检查服务运行情况</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">pm2 list <span class="comment">#查看当前所有运行服务</span></span><br><span class="line">pm2 logs <span class="variable">$&#123;pm2_ID&#125;</span> <span class="comment">#查看某服务的日志</span></span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+</li>
+</ol>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">$&#123;project_path&#125;: ~/lss_core</span><br><span class="line">$&#123;tag_name&#125;: release-20160705-GATEWAY-40</span><br><span class="line">$&#123;pm2_ID&#125;: // Get by pm2 list</span><br><span class="line">$&#123;node_version&#125;: 0.10.44</span><br><span class="line">$&#123;env&#125;: prod  // dev | test | uat | prod</span><br><span class="line">$&#123;main_script&#125;: lss-core.js</span><br></pre></td></tr></table></figure>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">npm <span class="keyword">install</span> xxx —<span class="keyword">save</span></span><br><span class="line">pm2 <span class="keyword">logs</span> <span class="number">39</span></span><br><span class="line">pm2 <span class="keyword">list</span></span><br></pre></td></tr></table></figure>
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">前端指南</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+      
+
+      <div style="font-size: 12px;">
+        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
+      </div>
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2017/12/23/前端指南-react快速开发/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
+    <article id="post-Linux探究-硬连接与符号连接" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2017/12/20/Linux探究-硬连接与符号连接/">Linux探究-硬连接与符号连接</a>
+    </h1>
+  
+
+        
+        <a href="/2017/12/20/Linux探究-硬连接与符号连接/" class="archive-article-date">
+  	<time datetime="2017-12-20T02:56:09.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2017-12-20</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h3 id="创建硬连接"><a href="#创建硬连接" class="headerlink" title="创建硬连接"></a>创建硬连接</h3><figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">mkdit aa.txt</span><br><span class="line">vim aa.txt</span><br><span class="line"></span><br><span class="line">ln aa<span class="selector-class">.txt</span> aa-hard</span><br></pre></td></tr></table></figure>
+<ul>
+<li>注意无论修改aa.txt aa-hard中的任何一个，内容都会同时变化。</li>
+<li>删除其中任何一个，另一个还会存在。</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 查看当前目录的字节数</span></span><br><span class="line">du -sb</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 查看iNode会指向同一个</span></span><br><span class="line">ls -i</span><br></pre></td></tr></table></figure>
+<h3 id="创建符号连接Symbolic"><a href="#创建符号连接Symbolic" class="headerlink" title="创建符号连接Symbolic"></a>创建符号连接Symbolic</h3><figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ln -s aa<span class="selector-class">.txt</span> aa-symbolic</span><br></pre></td></tr></table></figure>
+<ul>
+<li>注意符号连接如果指向目录，会直接对原目录的内容操作，增删改，要小心。</li>
+</ul>
+<p>### </p>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">linux</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+      
+
+      <div style="font-size: 12px;">
+        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
+      </div>
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2017/12/20/Linux探究-硬连接与符号连接/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
     <article id="post-Tomcat解惑-之-CATALINA-HOME与CATALINA-BASE" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
@@ -605,24 +978,20 @@
     <article id="post-vi-vim使用手册" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2017/12/13/vi-vim使用手册/">vi vim使用手册</a>
-    </h1>
-  
-
-        
-        <a href="/2017/12/13/vi-vim使用手册/" class="archive-article-date">
-  	<time datetime="2017-12-13T10:48:08.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2017-12-13</time>
-</a>
-        
-      </header>
-    
     <div class="article-entry" itemprop="articleBody">
       
-        <h1 id="删除"><a href="#删除" class="headerlink" title="删除"></a>删除</h1><h2 id="单行删除"><a href="#单行删除" class="headerlink" title="单行删除"></a>单行删除</h2><ul>
+        <h1 id="vi状态执行命令"><a href="#vi状态执行命令" class="headerlink" title="vi状态执行命令"></a>vi状态执行命令</h1><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">:! <span class="built_in">echo</span> <span class="variable">$JAVA_HOME</span></span><br></pre></td></tr></table></figure>
+<h1 id="光标移动"><a href="#光标移动" class="headerlink" title="光标移动"></a>光标移动</h1><h2 id="单词移动"><a href="#单词移动" class="headerlink" title="单词移动"></a>单词移动</h2><h3 id="向后移动单词"><a href="#向后移动单词" class="headerlink" title="向后移动单词"></a>向后移动单词</h3><figure class="highlight ebnf"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">w</span></span><br></pre></td></tr></table></figure>
+<h3 id="向前移动单词"><a href="#向前移动单词" class="headerlink" title="向前移动单词"></a>向前移动单词</h3><figure class="highlight ebnf"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">b</span></span><br></pre></td></tr></table></figure>
+<h2 id="移动到行首"><a href="#移动到行首" class="headerlink" title="移动到行首"></a>移动到行首</h2><figure class="highlight lsl"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">0</span></span><br></pre></td></tr></table></figure>
+<p>移动到行尾</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"></span></span><br></pre></td></tr></table></figure>
+<h1 id="删除"><a href="#删除" class="headerlink" title="删除"></a>删除</h1><h2 id="单行删除"><a href="#单行删除" class="headerlink" title="单行删除"></a>单行删除</h2><ul>
+<li>删至行首<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">d0</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<p>删至行尾<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">d$</span><span class="bash"></span></span><br></pre></td></tr></table></figure></p>
+<ul>
 <li>删除当前行</li>
 </ul>
 <figure class="highlight ebnf"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">dd</span></span><br></pre></td></tr></table></figure>
@@ -642,6 +1011,11 @@
 <li>从某行开始至文本末尾全部删除，删除第8行至末尾</li>
 </ul>
 <figure class="highlight autoit"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">: <span class="number">8</span>，$d</span><br></pre></td></tr></table></figure>
+<ul>
+<li>删除全部</li>
+</ul>
+<p>1代表开始第一行，$标识结束行，d删除命令</p>
+<figure class="highlight autoit"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">: <span class="number">1</span>,$d</span><br></pre></td></tr></table></figure>
 <h1 id="查找"><a href="#查找" class="headerlink" title="查找"></a>查找</h1><h2 id="位置"><a href="#位置" class="headerlink" title="位置"></a>位置</h2><ul>
 <li>跳到首行</li>
 </ul>
@@ -927,84 +1301,6 @@
 
 
   
-    <article id="post-maven-deploy" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2017/11/29/maven-deploy/">maven deploy</a>
-    </h1>
-  
-
-        
-        <a href="/2017/11/29/maven-deploy/" class="archive-article-date">
-  	<time datetime="2017-11-29T05:11:38.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2017-11-29</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>指定文件deploy</p>
-<figure class="highlight armasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">mvn </span>clean deploy -f pom-deploy.xml</span><br></pre></td></tr></table></figure>
-
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">maven</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-      
-
-      <div style="font-size: 12px;">
-        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
-      </div>
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2017/11/29/maven-deploy/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
     <article id="post-zookeeper详解" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
@@ -1089,228 +1385,6 @@ connect host:port
       
         <p class="article-more-link">
           <a class="article-more-a" href="/2017/11/26/zookeeper详解/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
-    <article id="post-Mockito浅谈" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2017/11/25/Mockito浅谈/">Mockito浅谈</a>
-    </h1>
-  
-
-        
-        <a href="/2017/11/25/Mockito浅谈/" class="archive-article-date">
-  	<time datetime="2017-11-25T02:54:39.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2017-11-25</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h1 id="Mockito简介"><a href="#Mockito简介" class="headerlink" title="Mockito简介"></a>Mockito简介</h1><ul>
-<li>什么是mock？<br>在软件开发的世界之外, “mock”一词是指模仿或者效仿。 因此可以将“mock”理解为一个替身，替代者. 在软件开发中提及”mock”，通常理解为模拟对象或者Fake。</li>
-<li>为什么需要Mock?<br>Mock是为了解决units之间由于耦合而难于被测试的问题。所以mock object是unit test的一部分。</li>
-</ul>
-<h1 id="Mock的好处是什么"><a href="#Mock的好处是什么" class="headerlink" title="Mock的好处是什么?"></a>Mock的好处是什么?</h1><ul>
-<li><p>提前创建测试，TDD（测试驱动开发） </p>
-<blockquote>
-<p>这是个最大的好处吧。如果你创建了一个Mock那么你就可以在service接口创建之前写Service Tests了，这样你就能在开发过程中把测试添加到你的自动化测试环境中了。换句话说，模拟使你能够使用测试驱动开发。 </p>
-</blockquote>
-</li>
-<li><p>团队可以并行工作 </p>
-<blockquote>
-<p>这类似于上面的那点；为不存在的代码创建测试。但前面讲的是开发人员编写测试程序，这里说的是测试团队来创建。当还没有任何东西要测的时候测试团队如何来创建测试呢？模拟并针对模拟测试！这意味着当service借口需要测试时，实际上QA团队已经有了一套完整的测试组件；没有出现一个团队等待另一个团队完成的情况。这使得模拟的效益型尤为突出了。</p>
-</blockquote>
-</li>
-<li><p>你可以创建一个验证或者演示程序。 </p>
-<blockquote>
-<p>由于Mocks非常高效，Mocks可以用来创建一个概念证明，作为一个示意图，或者作为一个你正考虑构建项目的演示程序。这为你决定项目接下来是否要进行提供了有力的基础，但最重要的还是提供了实际的设计决策。 </p>
-</blockquote>
-</li>
-<li><p>为无法访问的资源编写测试</p>
-<blockquote>
-<p>这个好处不属于实际效益的一种，而是作为一个必要时的“救生圈”。有没有遇到这样的情况？当你想要测试一个service接口，但service需要经过防火墙访问，防火墙不能为你打开或者你需要认证才能访问。遇到这样情况时，你可以在你能访问的地方使用MockService替代，这就是一个“救生圈”功能。 </p>
-</blockquote>
-</li>
-<li><p>Mock 可以交给用户 </p>
-<blockquote>
-<p>在有些情况下，某种原因你需要允许一些外部来源访问你的测试系统，像合作伙伴或者客户。这些原因导致别人也可以访问你的敏感信息，而你或许只是想允许访问部分测试环境。在这种情况下，如何向合作伙伴或者客户提供一个测试系统来开发或者做测试呢？最简单的就是提供一个mock，无论是来自于你的网络或者客户的网络。soapUI mock非常容易配置，他可以运行在soapUI或者作为一个war包发布到你的java服务器里面。</p>
-</blockquote>
-</li>
-<li><p>隔离系统 </p>
-<blockquote>
-<p>有时，你希望在没有系统其他部分的影响下测试系统单独的一部分。由于其他系统部分会给测试数据造成干扰，影响根据数据收集得到的测试结论。使用mock你可以移除掉除了需要测试部分的系统依赖的模拟。当隔离这些mocks后，mocks就变得非常简单可靠，快速可预见。这为你提供了一个移除了随机行为，有重复模式并且可以监控特殊系统的测试环境。 </p>
-</blockquote>
-</li>
-</ul>
-<h1 id="Mockito使用示例"><a href="#Mockito使用示例" class="headerlink" title="Mockito使用示例"></a>Mockito使用示例</h1><h2 id="模拟对象"><a href="#模拟对象" class="headerlink" title="模拟对象"></a>模拟对象</h2><figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 模拟LinkedList 的一个对象  </span></span><br><span class="line">LinkedList mockedList = mock(LinkedList.<span class="keyword">class</span>);</span><br><span class="line"><span class="comment">// 此时调用get方法，会返回null，因为还没有对方法调用的返回值做模拟</span></span><br><span class="line">System.<span class="keyword">out</span>.println(mockedList.<span class="keyword">get</span>(<span class="number">0</span>));</span><br></pre></td></tr></table></figure>
-<h2 id="模拟方法调用的返回值"><a href="#模拟方法调用的返回值" class="headerlink" title="模拟方法调用的返回值"></a>模拟方法调用的返回值</h2><figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 模拟获取第一个元素时，返回字符串first。  给特定的方法调用返回固定值在官方说法中称为stub。</span></span><br><span class="line"><span class="keyword">when</span>(mockedList.<span class="keyword">get</span>(<span class="number">0</span>)).thenReturn(<span class="string">"first"</span>);</span><br><span class="line"><span class="comment">// 此时打印输出first</span></span><br><span class="line">System.<span class="keyword">out</span>.println(mockedList.<span class="keyword">get</span>(<span class="number">0</span>));</span><br></pre></td></tr></table></figure>
-<h2 id="模拟方法调用抛出异常"><a href="#模拟方法调用抛出异常" class="headerlink" title="模拟方法调用抛出异常"></a>模拟方法调用抛出异常</h2><figure class="highlight arduino"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 模拟获取第二个元素时，抛出RuntimeException  </span></span><br><span class="line">when(mockedList.<span class="built_in">get</span>(<span class="number">1</span>)).thenThrow(<span class="keyword">new</span> RuntimeException());</span><br><span class="line"><span class="comment">// 此时将会抛出RuntimeException  </span></span><br><span class="line">System.out.<span class="built_in">println</span>(mockedList.<span class="built_in">get</span>(<span class="number">1</span>));</span><br></pre></td></tr></table></figure>
-<p>如果一个函数没有返回值类型，那么可以使用此方法模拟异常抛出</p>
-<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="title">doThrow</span><span class="params">(new RuntimeException(<span class="string">"clear exception"</span>)</span></span>).when(mockedList).<span class="attribute">clear</span>();</span><br><span class="line">mockedList.<span class="attribute">clear</span>();</span><br></pre></td></tr></table></figure>
-<h2 id="模拟调用方法时的参数匹配"><a href="#模拟调用方法时的参数匹配" class="headerlink" title="模拟调用方法时的参数匹配"></a>模拟调用方法时的参数匹配</h2><figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// anyInt()匹配任何int参数，这意味着参数为任意值，其返回值均是element  </span></span><br><span class="line"><span class="keyword">when</span>(mockedList.<span class="keyword">get</span>(anyInt())).thenReturn(<span class="string">"element"</span>);</span><br><span class="line"><span class="comment">// 此时打印是element</span></span><br><span class="line">System.<span class="keyword">out</span>.println(mockedList.<span class="keyword">get</span>(<span class="number">999</span>));</span><br></pre></td></tr></table></figure>
-<h2 id="模拟方法调用次数"><a href="#模拟方法调用次数" class="headerlink" title="模拟方法调用次数"></a>模拟方法调用次数</h2><figure class="highlight less"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 调用add一次</span></span><br><span class="line"><span class="selector-tag">mockedList</span><span class="selector-class">.add</span>(<span class="string">"once"</span>); </span><br><span class="line"><span class="comment">// 下面两个写法验证效果一样，均验证add方法是否被调用了一次</span></span><br><span class="line"><span class="selector-tag">verify</span>(mockedList)<span class="selector-class">.add</span>(<span class="string">"once"</span>);</span><br><span class="line"><span class="selector-tag">verify</span>(mockedList, times(<span class="number">1</span>))<span class="selector-class">.add</span>(<span class="string">"once"</span>);</span><br></pre></td></tr></table></figure>
-<h2 id="校验行为"><a href="#校验行为" class="headerlink" title="校验行为"></a>校验行为</h2><figure class="highlight gcode"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// mock creation</span></span><br><span class="line">List mockedList = mock<span class="comment">(List.class)</span>;</span><br><span class="line"><span class="comment">// using mock object</span></span><br><span class="line">mockedList.add<span class="comment">("one")</span>;</span><br><span class="line">mockedList.clear<span class="comment">()</span>;</span><br><span class="line"><span class="comment">//verification</span></span><br><span class="line">verify<span class="comment">(mockedList)</span>.add<span class="comment">("one")</span>;</span><br><span class="line">verify<span class="comment">(mockedList)</span>.clear<span class="comment">()</span>;</span><br></pre></td></tr></table></figure>
-<h2 id="模拟方法调用-Stubbing"><a href="#模拟方法调用-Stubbing" class="headerlink" title="模拟方法调用(Stubbing)"></a>模拟方法调用(Stubbing)</h2><figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//You can mock concrete classes, not just interfaces</span></span><br><span class="line">LinkedList mockedList = mock(LinkedList.<span class="keyword">class</span>);</span><br><span class="line"><span class="comment">//stubbing</span></span><br><span class="line"><span class="keyword">when</span>(mockedList.<span class="keyword">get</span>(<span class="number">0</span>)).thenReturn(<span class="string">"first"</span>);</span><br><span class="line"><span class="keyword">when</span>(mockedList.<span class="keyword">get</span>(<span class="number">1</span>)).thenThrow(new RuntimeException());</span><br><span class="line"><span class="comment">//following prints "first"</span></span><br><span class="line">System.<span class="keyword">out</span>.println(mockedList.<span class="keyword">get</span>(<span class="number">0</span>));</span><br><span class="line"><span class="comment">//following throws runtime exception</span></span><br><span class="line">System.<span class="keyword">out</span>.println(mockedList.<span class="keyword">get</span>(<span class="number">1</span>));</span><br><span class="line"><span class="comment">//following prints "null" because get(999) was not stubbed</span></span><br><span class="line">System.<span class="keyword">out</span>.println(mockedList.<span class="keyword">get</span>(<span class="number">999</span>));</span><br><span class="line"></span><br><span class="line">verify(mockedList).<span class="keyword">get</span>(<span class="number">0</span>);</span><br></pre></td></tr></table></figure>
-<h2 id="参数匹配"><a href="#参数匹配" class="headerlink" title="参数匹配"></a>参数匹配</h2><figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//stubbing using built-in anyInt() argument matcher</span></span><br><span class="line"><span class="keyword">when</span>(mockedList.<span class="keyword">get</span>(anyInt())).thenReturn(<span class="string">"element"</span>);</span><br><span class="line"><span class="comment">//stubbing using custom matcher (let's say isValid() returns your own matcher implementation):</span></span><br><span class="line"><span class="keyword">when</span>(mockedList.contains(argThat(isValid()))).thenReturn(<span class="string">"element"</span>);</span><br><span class="line"><span class="comment">//following prints "element"</span></span><br><span class="line">System.<span class="keyword">out</span>.println(mockedList.<span class="keyword">get</span>(<span class="number">999</span>));</span><br><span class="line"><span class="comment">//you can also verify using an argument matcher</span></span><br><span class="line">verify(mockedList).<span class="keyword">get</span>(anyInt());</span><br><span class="line"><span class="comment">//argument matchers can also be written as Java 8 Lambdas</span></span><br><span class="line">verify(mockedList).add(someString -&gt; someString.length() &gt; <span class="number">5</span>);</span><br></pre></td></tr></table></figure>
-<h2 id="校验方法调用次数"><a href="#校验方法调用次数" class="headerlink" title="校验方法调用次数"></a>校验方法调用次数</h2><figure class="highlight less"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//using mock</span></span><br><span class="line"><span class="selector-tag">mockedList</span><span class="selector-class">.add</span>(<span class="string">"once"</span>);</span><br><span class="line"></span><br><span class="line"><span class="selector-tag">mockedList</span><span class="selector-class">.add</span>(<span class="string">"twice"</span>);</span><br><span class="line"><span class="selector-tag">mockedList</span><span class="selector-class">.add</span>(<span class="string">"twice"</span>);</span><br><span class="line"></span><br><span class="line"><span class="selector-tag">mockedList</span><span class="selector-class">.add</span>(<span class="string">"three times"</span>);</span><br><span class="line"><span class="selector-tag">mockedList</span><span class="selector-class">.add</span>(<span class="string">"three times"</span>);</span><br><span class="line"><span class="selector-tag">mockedList</span><span class="selector-class">.add</span>(<span class="string">"three times"</span>);</span><br><span class="line"><span class="comment">//following two verifications work exactly the same - times(1) is used by default</span></span><br><span class="line"><span class="selector-tag">verify</span>(mockedList)<span class="selector-class">.add</span>(<span class="string">"once"</span>);</span><br><span class="line"><span class="selector-tag">verify</span>(mockedList, times(<span class="number">1</span>))<span class="selector-class">.add</span>(<span class="string">"once"</span>);</span><br><span class="line"><span class="comment">//exact number of invocations verification</span></span><br><span class="line"><span class="selector-tag">verify</span>(mockedList, times(<span class="number">2</span>))<span class="selector-class">.add</span>(<span class="string">"twice"</span>);</span><br><span class="line"><span class="selector-tag">verify</span>(mockedList, times(<span class="number">3</span>))<span class="selector-class">.add</span>(<span class="string">"three times"</span>);</span><br><span class="line"><span class="comment">//verification using never(). never() is an alias to times(0)</span></span><br><span class="line"><span class="selector-tag">verify</span>(mockedList, never())<span class="selector-class">.add</span>(<span class="string">"never happened"</span>);</span><br><span class="line"><span class="comment">//verification using atLeast()/atMost()</span></span><br><span class="line"><span class="selector-tag">verify</span>(mockedList, atLeastOnce())<span class="selector-class">.add</span>(<span class="string">"three times"</span>);</span><br><span class="line"><span class="selector-tag">verify</span>(mockedList, atLeast(<span class="number">2</span>))<span class="selector-class">.add</span>(<span class="string">"five times"</span>);</span><br><span class="line"><span class="selector-tag">verify</span>(mockedList, atMost(<span class="number">5</span>))<span class="selector-class">.add</span>(<span class="string">"three times"</span>);</span><br></pre></td></tr></table></figure>
-<h2 id="模拟无返回方法抛出异常"><a href="#模拟无返回方法抛出异常" class="headerlink" title="模拟无返回方法抛出异常"></a>模拟无返回方法抛出异常</h2><figure class="highlight pony"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">doThrow(<span class="function"><span class="keyword">new</span> <span class="title">RuntimeException</span>()).<span class="title">when</span>(mockedList).<span class="title">clear</span>();</span></span><br><span class="line"><span class="function"><span class="comment">//following throws RuntimeException:</span></span></span><br><span class="line"><span class="function"><span class="title">mockedList</span>.<span class="title">clear</span>();</span></span><br></pre></td></tr></table></figure>
-<h2 id="校验方法调用顺序"><a href="#校验方法调用顺序" class="headerlink" title="校验方法调用顺序"></a>校验方法调用顺序</h2><figure class="highlight dart"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// A. Single mock whose methods must be invoked in a particular order</span></span><br><span class="line"><span class="built_in">List</span> singleMock = mock(<span class="built_in">List</span>.<span class="keyword">class</span>);</span><br><span class="line"><span class="comment">//using a single mock</span></span><br><span class="line">singleMock.add(<span class="string">"was added first"</span>);</span><br><span class="line">singleMock.add(<span class="string">"was added second"</span>);</span><br><span class="line"><span class="comment">//create an inOrder verifier for a single mock</span></span><br><span class="line">InOrder inOrder = inOrder(singleMock);</span><br><span class="line"><span class="comment">//following will make sure that add is first called with "was added first, then with "was added second"</span></span><br><span class="line">inOrder.verify(singleMock).add(<span class="string">"was added first"</span>);</span><br><span class="line">inOrder.verify(singleMock).add(<span class="string">"was added second"</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">// B. Multiple mocks that must be used in a particular order</span></span><br><span class="line"><span class="built_in">List</span> firstMock = mock(<span class="built_in">List</span>.<span class="keyword">class</span>);</span><br><span class="line"><span class="built_in">List</span> secondMock = mock(<span class="built_in">List</span>.<span class="keyword">class</span>);</span><br><span class="line"><span class="comment">//using mocks</span></span><br><span class="line">firstMock.add(<span class="string">"was called first"</span>);</span><br><span class="line">secondMock.add(<span class="string">"was called second"</span>);</span><br><span class="line"><span class="comment">//create inOrder object passing any mocks that need to be verified in order</span></span><br><span class="line">InOrder inOrder = inOrder(firstMock, secondMock);</span><br><span class="line"><span class="comment">//following will make sure that firstMock was called before secondMock</span></span><br><span class="line">inOrder.verify(firstMock).add(<span class="string">"was called first"</span>);</span><br><span class="line">inOrder.verify(secondMock).add(<span class="string">"was called second"</span>);</span><br><span class="line"><span class="comment">// Oh, and A + B can be mixed together at will</span></span><br></pre></td></tr></table></figure>
-<h2 id="校验方法是否从未调用"><a href="#校验方法是否从未调用" class="headerlink" title="校验方法是否从未调用"></a>校验方法是否从未调用</h2><figure class="highlight less"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//using mocks - only mockOne is interacted</span></span><br><span class="line"><span class="selector-tag">mockOne</span><span class="selector-class">.add</span>(<span class="string">"one"</span>);</span><br><span class="line"><span class="comment">//ordinary verification</span></span><br><span class="line"><span class="selector-tag">verify</span>(mockOne)<span class="selector-class">.add</span>(<span class="string">"one"</span>);</span><br><span class="line"><span class="comment">//verify that method was never called on a mock</span></span><br><span class="line"><span class="selector-tag">verify</span>(mockOne, never())<span class="selector-class">.add</span>(<span class="string">"two"</span>);</span><br><span class="line"><span class="comment">//verify that other mocks were not interacted</span></span><br><span class="line"><span class="selector-tag">verifyZeroInteractions</span>(mockTwo, mockThree);</span><br></pre></td></tr></table></figure>
-<h2 id="快速创建Mock对象"><a href="#快速创建Mock对象" class="headerlink" title="快速创建Mock对象"></a>快速创建Mock对象</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ArticleManagerTest</span> </span>&#123;</span><br><span class="line">   <span class="meta">@Mock</span> <span class="keyword">private</span> ArticleCalculator calculator;</span><br><span class="line">      <span class="meta">@Mock</span> <span class="keyword">private</span> ArticleDatabase database;</span><br><span class="line">      <span class="meta">@Mock</span> <span class="keyword">private</span> UserProvider userProvider;</span><br><span class="line">      <span class="meta">@Before</span></span><br><span class="line">      <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">before</span><span class="params">()</span></span>&#123;</span><br><span class="line">          MockitoAnnotations.initMocks(<span class="keyword">this</span>);</span><br><span class="line">      &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h2 id="自定义返回不同结果"><a href="#自定义返回不同结果" class="headerlink" title="自定义返回不同结果"></a>自定义返回不同结果</h2><figure class="highlight arduino"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">when(mock.someMethod(<span class="string">"some arg"</span>))</span><br><span class="line">   .thenThrow(<span class="keyword">new</span> RuntimeException())  <span class="comment">// 第一次会抛出异常</span></span><br><span class="line">   .thenReturn(<span class="string">"foo"</span>); <span class="comment">// 第二次会返回这个结果</span></span><br><span class="line"><span class="comment">//First call: throws runtime exception:</span></span><br><span class="line">mock.someMethod(<span class="string">"some arg"</span>); <span class="comment">// 第一次</span></span><br><span class="line"><span class="comment">//Second call: prints "foo"</span></span><br><span class="line">System.out.<span class="built_in">println</span>(mock.someMethod(<span class="string">"some arg"</span>)); <span class="comment">// 第二次</span></span><br><span class="line"><span class="comment">//Any consecutive call: prints "foo" as well (last stubbing wins).</span></span><br><span class="line">System.out.<span class="built_in">println</span>(mock.someMethod(<span class="string">"some arg"</span>)); <span class="comment">// 第n次(n&gt; 2)，依旧以最后返回最后一个配置</span></span><br></pre></td></tr></table></figure>
-<h2 id="对返回结果进行拦截"><a href="#对返回结果进行拦截" class="headerlink" title="对返回结果进行拦截"></a>对返回结果进行拦截</h2><figure class="highlight processing"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">when(mock.someMethod(anyString())).thenAnswer(<span class="keyword">new</span> Answer() &#123;</span><br><span class="line">    <span class="keyword">Object</span> answer(InvocationOnMock invocation) &#123;</span><br><span class="line">        <span class="keyword">Object</span>[] args = invocation.getArguments();</span><br><span class="line">        <span class="keyword">Object</span> mock = invocation.getMock();</span><br><span class="line">        <span class="keyword">return</span> <span class="string">"called with arguments: "</span> + args;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;);</span><br><span class="line"><span class="comment">//the following prints "called with arguments: foo"</span></span><br><span class="line">System.out.<span class="built_in">println</span>(mock.someMethod(<span class="string">"foo"</span>));</span><br></pre></td></tr></table></figure>
-<h2 id="Mock函数操作"><a href="#Mock函数操作" class="headerlink" title="Mock函数操作"></a>Mock函数操作</h2><p>可以通过doThrow(), doAnswer(), doNothing(), doReturn() and doCallRealMethod() 来自定义函数操作。</p>
-<h2 id="暗中调用真实对象"><a href="#暗中调用真实对象" class="headerlink" title="暗中调用真实对象"></a>暗中调用真实对象</h2><figure class="highlight processing"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">List list = <span class="keyword">new</span> LinkedList();</span><br><span class="line">List spy = spy(list);</span><br><span class="line"><span class="comment">//optionally, you can stub out some methods:</span></span><br><span class="line">when(spy.<span class="built_in">size</span>()).thenReturn(<span class="number">100</span>);</span><br><span class="line"><span class="comment">//using the spy calls *real* methods</span></span><br><span class="line">spy.<span class="built_in">add</span>(<span class="string">"one"</span>);</span><br><span class="line">spy.<span class="built_in">add</span>(<span class="string">"two"</span>);</span><br><span class="line"><span class="comment">//prints "one" - the first element of a list</span></span><br><span class="line">System.out.<span class="built_in">println</span>(spy.<span class="built_in">get</span>(<span class="number">0</span>));</span><br><span class="line"><span class="comment">//size() method was stubbed - 100 is printed</span></span><br><span class="line">System.out.<span class="built_in">println</span>(spy.<span class="built_in">size</span>());</span><br><span class="line"><span class="comment">//optionally, you can verify</span></span><br><span class="line">verify(spy).<span class="built_in">add</span>(<span class="string">"one"</span>);</span><br><span class="line">   verify(spy).<span class="built_in">add</span>(<span class="string">"two"</span>);</span><br></pre></td></tr></table></figure>
-<h2 id="改变默认返回值"><a href="#改变默认返回值" class="headerlink" title="改变默认返回值"></a>改变默认返回值</h2><figure class="highlight lisp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Foo mock = mock(<span class="name">Foo</span>.class, Mockito.RETURNS_SMART_NULLS)<span class="comment">;</span></span><br><span class="line">Foo mockTwo = mock(<span class="name">Foo</span>.class, new YourOwnAnswer())<span class="comment">;</span></span><br></pre></td></tr></table></figure>
-<h2 id="捕获函数的参数值"><a href="#捕获函数的参数值" class="headerlink" title="捕获函数的参数值"></a>捕获函数的参数值</h2><figure class="highlight mipsasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">ArgumentCaptor&lt;Person&gt; argument = ArgumentCaptor.forClass(Person.class)<span class="comment">;</span></span><br><span class="line">verify(mock).doSomething(argument.capture())<span class="comment">;</span></span><br><span class="line">assertEquals(<span class="string">"John"</span>, argument.getValue().getName())<span class="comment">;</span></span><br></pre></td></tr></table></figure>
-<h2 id="部分Mock"><a href="#部分Mock" class="headerlink" title="部分Mock"></a>部分Mock</h2><figure class="highlight pony"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//you can create partial mock with spy() method:</span></span><br><span class="line"><span class="type">List</span> list = spy(<span class="function"><span class="keyword">new</span> <span class="title">LinkedList</span>());</span></span><br><span class="line"><span class="function"><span class="comment">//you can enable partial mock capabilities selectively on mocks:</span></span></span><br><span class="line"><span class="function"><span class="title">Foo</span> <span class="title">mock</span> = <span class="title">mock</span>(<span class="type">Foo</span>.class);</span></span><br><span class="line"><span class="function"><span class="comment">//Be sure the real implementation is 'safe'.</span></span></span><br><span class="line"><span class="function"><span class="comment">//If real implementation throws exceptions or depends on specific state of the object then you're in trouble.</span></span></span><br><span class="line"><span class="function"><span class="title">when</span>(mock.someMethod()).<span class="title">thenCallRealMethod</span>();</span></span><br></pre></td></tr></table></figure>
-<h2 id="重置Mock"><a href="#重置Mock" class="headerlink" title="重置Mock"></a>重置Mock</h2><figure class="highlight dart"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">List</span> mock = mock(<span class="built_in">List</span>.<span class="keyword">class</span>);</span><br><span class="line">when(mock.size()).thenReturn(<span class="number">10</span>);</span><br><span class="line">mock.add(<span class="number">1</span>);</span><br><span class="line">reset(mock);</span><br><span class="line"><span class="comment">//at this point the mock forgot any interactions &amp; stubbing</span></span><br></pre></td></tr></table></figure>
-<h2 id="序列化"><a href="#序列化" class="headerlink" title="序列化"></a>序列化</h2><figure class="highlight lisp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">List&lt;Object&gt; list = new ArrayList&lt;Object&gt;()<span class="comment">;</span></span><br><span class="line">List&lt;Object&gt; spy = mock(<span class="name">ArrayList</span>.class, withSettings()</span><br><span class="line">                 .spiedInstance(<span class="name">list</span>)</span><br><span class="line">                 .defaultAnswer(<span class="name">CALLS_REAL_METHODS</span>)</span><br><span class="line">                 .serializable())<span class="comment">;</span></span><br></pre></td></tr></table></figure>
-<h2 id="检查超时"><a href="#检查超时" class="headerlink" title="检查超时"></a>检查超时</h2><figure class="highlight gcode"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//passes when someMethod() is called within given time span</span></span><br><span class="line">verify<span class="comment">(mock, timeout(100)</span>).someMethod<span class="comment">()</span>;</span><br><span class="line"><span class="comment">//above is an alias to:</span></span><br><span class="line">verify<span class="comment">(mock, timeout(100)</span>.times<span class="comment">(1)</span>).someMethod<span class="comment">()</span>;</span><br><span class="line"><span class="comment">//passes when som`eMethod() is called *exactly* 2 times within given time span</span></span><br><span class="line">verify<span class="comment">(mock, timeout(100)</span>.times<span class="comment">(2)</span>).someMethod<span class="comment">()</span>;</span><br><span class="line"><span class="comment">//passes when someMethod() is called *at least* 2 times within given time span</span></span><br><span class="line">verify<span class="comment">(mock, timeout(100)</span>.atLeast<span class="comment">(2)</span>).someMethod<span class="comment">()</span>;</span><br><span class="line"><span class="comment">//verifies someMethod() within given time span using given verification mode</span></span><br><span class="line"><span class="comment">//useful only if you have your own custom verification modes.</span></span><br><span class="line">verify<span class="comment">(mock, new Timeout(100, yourOwnVerificationMode)</span>).someMethod<span class="comment">()</span>;</span><br></pre></td></tr></table></figure>
-<h2 id="Mock详情"><a href="#Mock详情" class="headerlink" title="Mock详情"></a>Mock详情</h2><figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="selector-tag">Mockito</span><span class="selector-class">.mockingDetails</span>(<span class="selector-tag">someObject</span>)<span class="selector-class">.isMock</span>();</span><br><span class="line"><span class="selector-tag">Mockito</span><span class="selector-class">.mockingDetails</span>(<span class="selector-tag">someObject</span>)<span class="selector-class">.isSpy</span>();</span><br></pre></td></tr></table></figure>
-
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">test</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-      
-
-      <div style="font-size: 12px;">
-        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
-      </div>
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2017/11/25/Mockito浅谈/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
-    <article id="post-mysql-group-cat" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2017/11/16/mysql-group-cat/">mysql group_cat</a>
-    </h1>
-  
-
-        
-        <a href="/2017/11/16/mysql-group-cat/" class="archive-article-date">
-  	<time datetime="2017-11-16T08:55:41.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2017-11-16</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>　group_concat()函数的参数是可以直接使用order by排序的。666。。下面通过例子来说明，首先看下面的t1表。</p>
-<p><img src="http://images2015.cnblogs.com/blog/711223/201610/711223-20161010141510680-2000506790.png" alt="img"></p>
-<p>比如，我们要查看每个人的多个分数，将该人对应的多个分数显示在一起，分数要从高到底排序。可以这样写：</p>
-<p>SELECT username,GROUP_CONCAT(score ORDER BY score DESC) AS myScore FROM t1 GROUP BY username;</p>
-<p>效果如下：</p>
-<p><img src="http://images2015.cnblogs.com/blog/711223/201610/711223-20161010141914446-1535043052.png" alt="img"></p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">UPDATE</span> cash_billing_item bi,</span><br><span class="line">  (</span><br><span class="line">    <span class="keyword">SELECT</span> bi.id</span><br><span class="line">    <span class="keyword">FROM</span> cash_billing_item bi</span><br><span class="line">    <span class="keyword">WHERE</span> bi.id <span class="keyword">and</span> bi.status = <span class="number">1</span> <span class="keyword">and</span> bi.id</span><br><span class="line">                    <span class="keyword">not</span> <span class="keyword">in</span></span><br><span class="line">                    (</span><br><span class="line">                      <span class="keyword">SELECT</span> <span class="keyword">group_concat</span>(<span class="keyword">id</span> <span class="keyword">ORDER</span> <span class="keyword">BY</span> product_start_time <span class="keyword">desc</span>)</span><br><span class="line">                      <span class="keyword">FROM</span> cash_billing_item</span><br><span class="line">                      <span class="keyword">WHERE</span> product_no = bi.product_no <span class="keyword">AND</span> customer_no = bi.customer_no</span><br><span class="line">                        <span class="keyword">and</span> <span class="keyword">status</span> = <span class="number">1</span></span><br><span class="line">                      <span class="keyword">GROUP</span> <span class="keyword">BY</span> product_no, customer_no</span><br><span class="line">                    )</span><br><span class="line">  ) temp</span><br><span class="line"><span class="keyword">SET</span> bi.status = <span class="number">2</span></span><br><span class="line"><span class="keyword">WHERE</span> bi.id = temp.id;</span><br></pre></td></tr></table></figure>
-<p>group_cat之后相当于还有一个SELECT substring_index(‘10,3,4,5’,’,’,1); 返回第一个10</p>
-
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">mysql</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-      
-
-      <div style="font-size: 12px;">
-        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
-      </div>
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2017/11/16/mysql-group-cat/">展开全文 >></a>
         </p>
       
 
@@ -1449,19 +1523,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">ops</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">git</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">Maven</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">JVM</a>
+                <a href="javascript:void(0)" class="js-tag color4">ops</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1469,7 +1535,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">redis</a>
+                <a href="javascript:void(0)" class="js-tag color4">JVM</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">Maven</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1477,11 +1547,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">linux</a>
+                <a href="javascript:void(0)" class="js-tag color1">redis</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">快捷键</a>
+                <a href="javascript:void(0)" class="js-tag color1">linux</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1489,11 +1559,15 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">MySQL</a>
+                <a href="javascript:void(0)" class="js-tag color5">test</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">Python</a>
+                <a href="javascript:void(0)" class="js-tag color4">快捷键</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">MySQL</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1501,19 +1575,19 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">Python</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">限流</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">RxJava</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">test</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">react</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">RxJava</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1533,19 +1607,15 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">elastic-job</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">guava</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">大数据</a>
+                <a href="javascript:void(0)" class="js-tag color2">elastic-job</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">nio</a>
+                <a href="javascript:void(0)" class="js-tag color4">大数据</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1557,19 +1627,19 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">nio</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">rest</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">Mac</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">maven</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">mybatis</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">Mac</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1593,19 +1663,19 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">前端指南</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">后端</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">分布式</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">事务</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">前端指南</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">后端</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1629,15 +1699,15 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">HashMap</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">前端跨域</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">单例</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">HashMap</a>
               </li>
              
               <li class="article-tag-list-item">

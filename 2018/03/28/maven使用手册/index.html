@@ -7,18 +7,18 @@
   <meta name="renderer" content="webkit">
   <meta http-equiv="X-UA-Compatible" content="IE=edge" >
   <link rel="dns-prefetch" href="http://yoursite.com">
-  <title>spring中InitializingBean接口使用理解 | xiaowu&#39;s blog</title>
+  <title>maven使用手册 | xiaowu&#39;s blog</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="InitializingBean接口为bean提供了初始化方法的方式，它只包括afterPropertiesSet方法，凡是继承该接口的类，在初始化bean的时候会执行该方法。 测试程序如下： 12345678910import org.springframework.beans.factory.InitializingBean;public class TestInitializingBean">
+  <meta name="description" content="依赖机制1、A-&amp;gt;B-&amp;gt;C-&amp;gt;X(1.0)，A-&amp;gt;D-&amp;gt;X(2.0)，此时两条依赖路径上有两个版本的X，此时遵循路径最近者优先，因此X(2.0)将被解析使用 2、A-&amp;gt;B-&amp;gt;Y(1.0)，A-&amp;gt;C-&amp;gt;Y(2.0)，Y(1.0)和Y(2.0)的依赖长度是一样的，从Maven2.0.9开始，此时遵循第一声明者优先，即顺序最靠前的那个依赖优先 依赖树">
 <meta property="og:type" content="article">
-<meta property="og:title" content="spring中InitializingBean接口使用理解">
-<meta property="og:url" content="http://yoursite.com/2018/11/12/spring中InitializingBean接口使用理解/index.html">
+<meta property="og:title" content="maven使用手册">
+<meta property="og:url" content="http://yoursite.com/2018/03/28/maven使用手册/index.html">
 <meta property="og:site_name" content="xiaowu&#39;s blog">
-<meta property="og:description" content="InitializingBean接口为bean提供了初始化方法的方式，它只包括afterPropertiesSet方法，凡是继承该接口的类，在初始化bean的时候会执行该方法。 测试程序如下： 12345678910import org.springframework.beans.factory.InitializingBean;public class TestInitializingBean">
-<meta property="og:updated_time" content="2018-11-12T03:21:20.000Z">
+<meta property="og:description" content="依赖机制1、A-&amp;gt;B-&amp;gt;C-&amp;gt;X(1.0)，A-&amp;gt;D-&amp;gt;X(2.0)，此时两条依赖路径上有两个版本的X，此时遵循路径最近者优先，因此X(2.0)将被解析使用 2、A-&amp;gt;B-&amp;gt;Y(1.0)，A-&amp;gt;C-&amp;gt;Y(2.0)，Y(1.0)和Y(2.0)的依赖长度是一样的，从Maven2.0.9开始，此时遵循第一声明者优先，即顺序最靠前的那个依赖优先 依赖树">
+<meta property="og:updated_time" content="2019-06-17T06:42:40.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="spring中InitializingBean接口使用理解">
-<meta name="twitter:description" content="InitializingBean接口为bean提供了初始化方法的方式，它只包括afterPropertiesSet方法，凡是继承该接口的类，在初始化bean的时候会执行该方法。 测试程序如下： 12345678910import org.springframework.beans.factory.InitializingBean;public class TestInitializingBean">
+<meta name="twitter:title" content="maven使用手册">
+<meta name="twitter:description" content="依赖机制1、A-&amp;gt;B-&amp;gt;C-&amp;gt;X(1.0)，A-&amp;gt;D-&amp;gt;X(2.0)，此时两条依赖路径上有两个版本的X，此时遵循路径最近者优先，因此X(2.0)将被解析使用 2、A-&amp;gt;B-&amp;gt;Y(1.0)，A-&amp;gt;C-&amp;gt;Y(2.0)，Y(1.0)和Y(2.0)的依赖长度是一样的，从Maven2.0.9开始，此时遵循第一声明者优先，即顺序最靠前的那个依赖优先 依赖树">
   
     <link rel="alternative" href="/atom.xml" title="xiaowu&#39;s blog" type="application/atom+xml">
   
@@ -152,53 +152,50 @@
             <canvas data-colors="#eaeaea" data-sectionHeight="100" data-contentId="js-content" id="myCanvas1" class="anm-canvas"></canvas>
           </div>
           <div id="js-content" class="content-ll">
-            <article id="post-spring中InitializingBean接口使用理解" class="article article-type-post " itemscope itemprop="blogPost">
+            <article id="post-maven使用手册" class="article article-type-post " itemscope itemprop="blogPost">
   <div class="article-inner">
     
       <header class="article-header">
         
   
     <h1 class="article-title" itemprop="name">
-      spring中InitializingBean接口使用理解
+      maven使用手册
     </h1>
   
 
         
-        <a href="/2018/11/12/spring中InitializingBean接口使用理解/" class="archive-article-date">
-  	<time datetime="2018-11-12T03:18:38.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-11-12</time>
+        <a href="/2018/03/28/maven使用手册/" class="archive-article-date">
+  	<time datetime="2018-03-28T14:15:47.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-03-28</time>
 </a>
         
       </header>
     
     <div class="article-entry" itemprop="articleBody">
       
-        <p>InitializingBean接口为bean提供了初始化方法的方式，它只包括afterPropertiesSet方法，凡是继承该接口的类，在初始化bean的时候会执行该方法。</p>
-<p>测试程序如下：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> org.springframework.beans.factory.InitializingBean;</span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">TestInitializingBean</span> <span class="keyword">implements</span> <span class="title">InitializingBean</span></span>&#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">afterPropertiesSet</span><span class="params">()</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"ceshi InitializingBean"</span>);        </span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">testInit</span><span class="params">()</span></span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"ceshi init-method"</span>);        </span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>配置文件如下：</p>
-<figure class="highlight clean"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">`&lt;``bean` `id``=``<span class="string">"testInitializingBean"</span>` `<span class="keyword">class</span>``=``<span class="string">"com.TestInitializingBean"</span>` `&gt;&lt;/``bean``&gt;`</span><br></pre></td></tr></table></figure>
-<p>Main主程序如下：</p>
-<figure class="highlight clean"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">`public` `<span class="keyword">class</span>` `Main &#123;``    ``public` `static` `void` `main(String[] args)&#123;``        ``ApplicationContext context = ``new` `FileSystemXmlApplicationContext(``<span class="string">"/src/main/java/com/beans.xml"</span>``);``    ``&#125;``&#125;`</span><br></pre></td></tr></table></figure>
-<p>运行Main程序，打印如下结果：</p>
-<figure class="highlight clean"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">`ceshi InitializingBean`</span><br></pre></td></tr></table></figure>
-<p>这说明在spring初始化bean的时候，如果bean实现了InitializingBean接口，会自动调用afterPropertiesSet方法。</p>
-<p><strong>问题</strong></p>
-<p>实现InitializingBean接口与在配置文件中指定init-method有什么不同？</p>
-<p>修改配置文件，加上init-method配置，修改如下：</p>
-<figure class="highlight clean"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">`&lt;``bean` `id``=``<span class="string">"testInitializingBean"</span>` `<span class="keyword">class</span>``=``<span class="string">"com.TestInitializingBean"</span>` `init-method``=``<span class="string">"testInit"</span>``&gt;&lt;/``bean``&gt;`</span><br></pre></td></tr></table></figure>
-<p>在配置文件中加入init-method=”testInit”。</p>
-<p>运行Main程序，打印如下结果：</p>
-<figure class="highlight oxygene"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">`ceshi InitializingBean``ceshi init-<span class="function"><span class="keyword">method</span>`</span></span><br></pre></td></tr></table></figure>
-<p>由结果可看出，在spring初始化bean的时候，如果该bean是实现了InitializingBean接口，并且同时在配置文件中指定了init-method，系统则是先调用afterPropertiesSet方法，然后在调用init-method中指定的方法。</p>
-<p>这方式在spring中是怎么实现的？</p>
-<p>通过查看spring的加载bean的源码类(AbstractAutowireCapableBeanFactory)可看出其中奥妙</p>
-<p>AbstractAutowireCapableBeanFactory类中的invokeInitMethods讲解的非常清楚，源码如下：</p>
-<figure class="highlight coffeescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">`<span class="javascript">protected</span>` `<span class="javascript"><span class="keyword">void</span></span>` `<span class="javascript">invokeInitMethods(<span class="built_in">String</span> beanName, </span>``<span class="javascript">final</span>` `<span class="javascript"><span class="built_in">Object</span> bean, RootBeanDefinition mbd) </span>``<span class="javascript">throws</span>` `<span class="javascript">Throwable &#123;</span>``<span class="javascript">    </span>``<span class="javascript"><span class="comment">//判断该bean是否实现了实现了InitializingBean接口，如果实现了InitializingBean接口，则只掉调用bean的afterPropertiesSet方法</span></span>``<span class="javascript">    </span>``<span class="javascript">boolean</span>` `<span class="javascript">isInitializingBean = (bean </span>``<span class="javascript"><span class="keyword">instanceof</span></span>` `<span class="javascript">InitializingBean);</span>``<span class="javascript">    </span>``<span class="javascript"><span class="keyword">if</span></span>` `<span class="javascript">(isInitializingBean &amp;&amp; (mbd == </span>``<span class="javascript"><span class="literal">null</span></span>` `<span class="javascript">|| !mbd.isExternallyManagedInitMethod(</span>``<span class="javascript"><span class="string">"afterPropertiesSet"</span></span>``<span class="javascript">))) &#123;</span>``<span class="javascript">        </span>``<span class="javascript"><span class="keyword">if</span></span>` `<span class="javascript">(logger.isDebugEnabled()) &#123;</span>``<span class="javascript">            </span>``<span class="javascript">logger.debug(</span>``<span class="javascript"><span class="string">"Invoking afterPropertiesSet() on bean with name '"</span></span>` `<span class="javascript">+ beanName + </span>``<span class="javascript"><span class="string">"'"</span></span>``<span class="javascript">);</span>``<span class="javascript">        </span>``<span class="javascript">&#125;</span>``<span class="javascript">        </span>` `<span class="javascript">        </span>``<span class="javascript"><span class="keyword">if</span></span>` `<span class="javascript">(System.getSecurityManager() != </span>``<span class="javascript"><span class="literal">null</span></span>``<span class="javascript">) &#123;</span>``<span class="javascript">            </span>``<span class="javascript"><span class="keyword">try</span></span>` `<span class="javascript">&#123;</span>``<span class="javascript">                </span>``<span class="javascript">AccessController.doPrivileged(</span>``<span class="javascript"><span class="keyword">new</span></span>` `<span class="javascript">PrivilegedExceptionAction&lt;<span class="built_in">Object</span>&gt;() &#123;</span>``<span class="javascript">                    </span>``<span class="javascript">public</span>` `<span class="javascript"><span class="built_in">Object</span> run() </span>``<span class="javascript">throws</span>` `<span class="javascript">Exception &#123;</span>``<span class="javascript">                        </span>``<span class="javascript"><span class="comment">//直接调用afterPropertiesSet</span></span>``<span class="javascript">                        </span>``<span class="javascript">((InitializingBean) bean).afterPropertiesSet();</span>``<span class="javascript">                        </span>``<span class="javascript"><span class="keyword">return</span></span>` `<span class="javascript"><span class="literal">null</span></span>``<span class="javascript">;</span>``<span class="javascript">                    </span>``<span class="javascript">&#125;</span>``<span class="javascript">                </span>``<span class="javascript">&#125;,getAccessControlContext());</span>``<span class="javascript">            </span>``<span class="javascript">&#125; </span>``<span class="javascript"><span class="keyword">catch</span></span>` `<span class="javascript">(PrivilegedActionException pae) &#123;</span>``<span class="javascript">                </span>``<span class="javascript"><span class="keyword">throw</span></span>` `<span class="javascript">pae.getException();</span>``<span class="javascript">            </span>``<span class="javascript">&#125;</span>``<span class="javascript">        </span>``<span class="javascript">&#125;                </span>``<span class="javascript">        </span>``<span class="javascript"><span class="keyword">else</span></span>` `<span class="javascript">&#123;</span>``<span class="javascript">            </span>``<span class="javascript"><span class="comment">//直接调用afterPropertiesSet</span></span>``<span class="javascript">            </span>``<span class="javascript">((InitializingBean) bean).afterPropertiesSet();</span>``<span class="javascript">        </span>``<span class="javascript">&#125;</span>``<span class="javascript">    </span>``<span class="javascript">&#125;</span>``<span class="javascript">    </span>``<span class="javascript"><span class="keyword">if</span></span>` `<span class="javascript">(mbd != </span>``<span class="javascript"><span class="literal">null</span></span>``<span class="javascript">) &#123;</span>``<span class="javascript">        </span>``<span class="javascript"><span class="built_in">String</span> initMethodName = mbd.getInitMethodName();</span>``<span class="javascript">        </span>``<span class="javascript"><span class="comment">//判断是否指定了init-method方法，如果指定了init-method方法，则再调用制定的init-method</span></span>``<span class="javascript">        </span>``<span class="javascript"><span class="keyword">if</span></span>` `<span class="javascript">(initMethodName != </span>``<span class="javascript"><span class="literal">null</span></span>` `<span class="javascript">&amp;&amp; !(isInitializingBean &amp;&amp; </span>``<span class="javascript"><span class="string">"afterPropertiesSet"</span></span>``<span class="javascript">.equals(initMethodName)) &amp;&amp;</span>``<span class="javascript">                </span>``<span class="javascript">!mbd.isExternallyManagedInitMethod(initMethodName)) &#123;</span>``<span class="javascript">            </span>``<span class="javascript"><span class="comment">//进一步查看该方法的源码，可以发现init-method方法中指定的方法是通过反射实现</span></span>``<span class="javascript">            </span>``<span class="javascript">invokeCustomInitMethod(beanName, bean, mbd);</span>``<span class="javascript">        </span>``<span class="javascript">&#125;</span>``<span class="javascript">    </span>``<span class="javascript">&#125;</span>``<span class="javascript">&#125;</span>`</span><br></pre></td></tr></table></figure>
-<p><strong>总结</strong></p>
-<p>1：spring为bean提供了两种初始化bean的方式，实现InitializingBean接口，实现afterPropertiesSet方法，或者在配置文件中同过init-method指定，两种方式可以同时使用</p>
-<p>2：实现InitializingBean接口是直接调用afterPropertiesSet方法，比通过反射调用init-method指定的方法效率相对来说要高点。但是init-method方式消除了对spring的依赖</p>
-<p>3：如果调用afterPropertiesSet方法时出错，则不调用init-method指定的方法。</p>
-
+        <h1 id="依赖机制"><a href="#依赖机制" class="headerlink" title="依赖机制"></a>依赖机制</h1><p>1、A-&gt;B-&gt;C-&gt;X(1.0)，A-&gt;D-&gt;X(2.0)，此时两条依赖路径上有两个版本的X，此时遵循<strong>路径最近者优先</strong>，因此X(2.0)将被解析使用</p>
+<p>2、A-&gt;B-&gt;Y(1.0)，A-&gt;C-&gt;Y(2.0)，Y(1.0)和Y(2.0)的依赖长度是一样的，从Maven2.0.9开始，此时遵循<strong>第一声明者优先</strong>，即顺序最靠前的那个依赖优先</p>
+<h2 id="依赖树查看"><a href="#依赖树查看" class="headerlink" title="依赖树查看"></a>依赖树查看</h2><figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mvn dependency:tree -Dincludes=org<span class="selector-class">.apache</span><span class="selector-class">.httpcomponents</span>:httpclient</span><br></pre></td></tr></table></figure>
+<h3 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h3><blockquote>
+<p><a href="http://maven.apache.org/plugins/maven-dependency-plugin/tree-mojo.html" target="_blank" rel="external">http://maven.apache.org/plugins/maven-dependency-plugin/tree-mojo.html</a></p>
+</blockquote>
+<h2 id="排除依赖"><a href="#排除依赖" class="headerlink" title="排除依赖"></a>排除依赖</h2><p>传递性依赖会给项目隐式地引入很多依赖，这极大地简化了项目依赖的管理，但是有时候这种特性也会带来问题。比如有种情况：</p>
+<figure class="highlight dns"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">当前项目依赖<span class="keyword">A</span>，<span class="keyword">A</span>由于某些原因依赖了另外一个类库的SNAPSHOT版本，那么这个SNAPSHOT就会成为当前项目的传递性依赖，二SNAPSHOT的不稳定性将直接影响到当前的项目，此时就需要排除该SNAPSHOT，并且在当前项目中声明该类库的某个正式发布的版本</span><br></pre></td></tr></table></figure>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.alibaba.rocketmq<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>rocketmq-client<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>3.2.7<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">exclusions</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">exclusion</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>apache-lang<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>commons-lang<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">exclusion</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">exclusions</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<h1 id="settings-xml"><a href="#settings-xml" class="headerlink" title="settings.xml"></a>settings.xml</h1><h2 id="proxy"><a href="#proxy" class="headerlink" title="proxy"></a>proxy</h2><p>proxy表示Maven的代理，看一下写法：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">proxies</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">proxy</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">id</span>&gt;</span>optional<span class="tag">&lt;/<span class="name">id</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">active</span>&gt;</span>true<span class="tag">&lt;/<span class="name">active</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">protocol</span>&gt;</span>http<span class="tag">&lt;/<span class="name">protocol</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">username</span>&gt;</span>proxyuser<span class="tag">&lt;/<span class="name">username</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">password</span>&gt;</span>proxypass<span class="tag">&lt;/<span class="name">password</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">host</span>&gt;</span>proxy.host.net<span class="tag">&lt;/<span class="name">host</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">port</span>&gt;</span>80<span class="tag">&lt;/<span class="name">port</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">nonProxyHosts</span>&gt;</span>local.net|some.host.com<span class="tag">&lt;/<span class="name">nonProxyHosts</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">proxy</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">proxies</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>需要proxy是因为很多时候你所在的公司基于安全因素考虑，要求你使用通过安全认证的代理访问因特网。这种情况下，就需要为Maven配置HTTP代理，才能让它正常访问外部仓库，以下载所需要的资源。proxies下可以配置多个proxy元素，如果声明了多个proxy元素，则默认情况下第一个被激活的proxy会生效。active为true表示激活该代理，protocol表示使用的代理协议，当然最重要的是指定正确的主机名（host）和端口（port），如果代理服务器需要认证则配置username和password，nonProxyHost元素表示指定哪些主机名不需要代理，可以用”|”分隔多个主机名，也支持通配符”*”。</p>
+<h2 id="repository"><a href="#repository" class="headerlink" title="repository"></a>repository</h2><p>repository表示Maven的中央仓库，因为尽管默认的远程仓库中的构件非常庞大，但是总归会有不满足我们需求的时候，这时候就要用到别的中央仓库了。看一下写法：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">repository</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">id</span>&gt;</span>public<span class="tag">&lt;/<span class="name">id</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">name</span>&gt;</span>local private nexus<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">url</span>&gt;</span>http://192.168.1.6:8081/nexus/content/groups/public<span class="tag">&lt;/<span class="name">url</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">releases</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">enabled</span>&gt;</span>true<span class="tag">&lt;/<span class="name">enabled</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">releases</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">snapshots</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">enabled</span>&gt;</span>false<span class="tag">&lt;/<span class="name">enabled</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">snapshots</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">repository</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>可以声明多个repository。id必须是唯一的，尤其注意，Maven自带的中央仓库使用的id为central，如果其他仓库声明也用该id，就会覆盖中央仓库的配置。releases和snapshots比较重要，前者表示开启仓库的发布版本下载支持，后者表示关闭仓库的快照版本下载支持，这样一来，Maven就会去仓库下载发布版本的构件而不会下载快照版本的构件了。</p>
+<h2 id="server"><a href="#server" class="headerlink" title="server"></a>server</h2><p>大部分远程仓库无须认证就可以访问，但是有时候处于安全方面的因素考虑，需要提供认证信息才能访问一些远程仓库，处于安全考虑，认证信息一般只放在settings.xml中，server就是认证元素。看一下配置：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">server</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">id</span>&gt;</span>nexus-releases<span class="tag">&lt;/<span class="name">id</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">username</span>&gt;</span>deployment<span class="tag">&lt;/<span class="name">username</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">password</span>&gt;</span>deployment<span class="tag">&lt;/<span class="name">password</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">server</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>这里的关键是id，这个id必须与需要认证的repository元素的id完全一致才行，换句话说，正式这个id将认证信息和仓库配置联系在了一起。</p>
+<h2 id="mirror"><a href="#mirror" class="headerlink" title="mirror"></a>mirror</h2><p>如果仓库X可以提供仓库Y存储的所有内容，那么就可以认为仓库X是仓库Y的一个镜像（mirror），换句话说，任何一个可以从Y中获取到的构件够可以从X中获取到。举个例子，”<a href="http://maven.net.cn/content/groups/public/&quot;是中央仓库&quot;http://repo1.maven.org/maven2/&quot;在中国的镜像，由于地理位置的因素，该镜像往往能够提供比中央仓库更快的服务，这就是为什么要使用mirror的原因。" target="_blank" rel="external">http://maven.net.cn/content/groups/public/&quot;是中央仓库&quot;http://repo1.maven.org/maven2/&quot;在中国的镜像，由于地理位置的因素，该镜像往往能够提供比中央仓库更快的服务，这就是为什么要使用mirror的原因。</a></p>
+<p>看一下mirror的配置：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">mirror</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">id</span>&gt;</span>nexus<span class="tag">&lt;/<span class="name">id</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">name</span>&gt;</span>internal nexus repository<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">url</span>&gt;</span>http://192.168.1.6:8081/nexus/content/groups/public<span class="tag">&lt;/<span class="name">url</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">mirrorOf</span>&gt;</span>*<span class="tag">&lt;/<span class="name">mirrorOf</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">mirror</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>该例子中，mirrof为*，表示该配置为所有中央仓库的镜像，任何对于中央仓库的请求都会转至该镜像。另外三个元素id、name、url与一般仓库配置无异，表示该镜像仓库的唯一标识符、名称以及地址。类似的，如果该镜像需要认证，也可以基于该id配置仓库认证。</p>
+<h1 id="maven-deploy"><a href="#maven-deploy" class="headerlink" title="maven deploy"></a>maven deploy</h1><p>指定文件deploy</p>
+<figure class="highlight armasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">mvn </span>clean deploy -f pom-deploy.xml</span><br></pre></td></tr></table></figure>
       
 
       
@@ -280,7 +277,7 @@
     <a class="close js-modal-close" href="javascript:;"><i class="icon icon-close"></i></a>
     <p>扫一扫，分享到微信</p>
     <div class="wx-qrcode">
-      <img src="http://s.jiathis.com/qrcode.php?url=http://yoursite.com/2018/11/12/spring中InitializingBean接口使用理解/" alt="微信分享二维码">
+      <img src="http://s.jiathis.com/qrcode.php?url=http://yoursite.com/2018/03/28/maven使用手册/" alt="微信分享二维码">
     </div>
 </div>
 
@@ -294,18 +291,18 @@
   
 <nav id="article-nav">
   
-    <a href="/2018/11/15/MySQL查看和修改字符集的方法/" id="article-nav-newer" class="article-nav-link-wrap">
+    <a href="/2018/04/09/分布式系统的CAP理论/" id="article-nav-newer" class="article-nav-link-wrap">
       <i class="icon-circle-left"></i>
       <div class="article-nav-title">
         
-          MySQL查看和修改字符集的方法
+          分布式系统的CAP理论
         
       </div>
     </a>
   
   
-    <a href="/2018/11/09/浅谈springMVC中的设计模式——组合模式/" id="article-nav-older" class="article-nav-link-wrap">
-      <div class="article-nav-title">浅谈springMVC中的设计模式——组合模式</div>
+    <a href="/2018/03/27/安全技术-哈希算法密码破解之彩虹表/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">安全技术--哈希算法密码破解之彩虹表</div>
       <i class="icon-circle-right"></i>
     </a>
   
@@ -443,19 +440,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">ops</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">git</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">Maven</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">JVM</a>
+                <a href="javascript:void(0)" class="js-tag color4">ops</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -463,7 +452,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">redis</a>
+                <a href="javascript:void(0)" class="js-tag color4">JVM</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">Maven</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -471,11 +464,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">linux</a>
+                <a href="javascript:void(0)" class="js-tag color1">redis</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">快捷键</a>
+                <a href="javascript:void(0)" class="js-tag color1">linux</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -483,11 +476,15 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">MySQL</a>
+                <a href="javascript:void(0)" class="js-tag color5">test</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">Python</a>
+                <a href="javascript:void(0)" class="js-tag color4">快捷键</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">MySQL</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -495,19 +492,19 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">Python</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">限流</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">RxJava</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">test</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">react</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">RxJava</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -527,19 +524,15 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">elastic-job</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">guava</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">大数据</a>
+                <a href="javascript:void(0)" class="js-tag color2">elastic-job</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">nio</a>
+                <a href="javascript:void(0)" class="js-tag color4">大数据</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -551,19 +544,19 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">nio</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">rest</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">Mac</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">maven</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">mybatis</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">Mac</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -587,19 +580,19 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">前端指南</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">后端</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">分布式</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">事务</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">前端指南</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">后端</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -623,15 +616,15 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">HashMap</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">前端跨域</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">单例</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">HashMap</a>
               </li>
              
               <li class="article-tag-list-item">

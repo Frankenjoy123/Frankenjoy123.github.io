@@ -150,6 +150,380 @@
           <div id="js-content" class="content-ll">
             
   
+    <article id="post-策略模式与Spring结合使用" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2019/01/17/策略模式与Spring结合使用/">策略模式与Spring结合使用</a>
+    </h1>
+  
+
+        
+        <a href="/2019/01/17/策略模式与Spring结合使用/" class="archive-article-date">
+  	<time datetime="2019-01-17T08:12:28.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2019-01-17</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <blockquote>
+<p>IOC是Spring的核心之一，利用Spring使用设计模式中的策略模式，可以把具体策略的创建交给Spring容器来管理。</p>
+</blockquote>
+<h2 id="策略模式接口的定义"><a href="#策略模式接口的定义" class="headerlink" title="策略模式接口的定义"></a>策略模式接口的定义</h2><blockquote>
+<p>需求：设计一个统计报表接口，暂定有两种统计方式：统计订单总数,统计新增用户数。</p>
+</blockquote>
+<p>首先定义统计接口。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment">- 策略模式的使用:选择统计算法,分离实现</span></span><br><span class="line"><span class="comment">- 统计策略接口:定义统一的调用方法</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">StatStrategy</span> </span>&#123;</span><br><span class="line">	<span class="function"><span class="keyword">void</span> <span class="title">getStatData</span><span class="params">()</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>具体的统计算法：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">OrderStrategyImpl</span> <span class="keyword">implements</span> <span class="title">StatStrategy</span> </span>&#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">getStatData</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"统计订单总数"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">UserStrategyImpl</span> <span class="keyword">implements</span> <span class="title">StatStrategy</span> </span>&#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">getStatData</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"统计新增用户数"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>利用@Component 注解将算法的实现交由Spring容器管理。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 统计策略的上下文</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">StatContext</span> </span>&#123;</span><br><span class="line">    <span class="comment">//装载策略对象的集合,其中key:Statistics类型为自定义的枚举类型</span></span><br><span class="line">    <span class="keyword">private</span> Map&lt;Statistics, StatStrategy&gt; statStrategy = <span class="keyword">new</span> HashMap&lt;&gt;();</span><br><span class="line"></span><br><span class="line">    <span class="comment">//提供给客户端使用的方法</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">loadDetailData</span><span class="params">(Integer strategyId)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">for</span> (Map.Entry&lt;Statistics,StatStrategy&gt; entry : statStrategy.entrySet()) &#123;</span><br><span class="line">            <span class="keyword">if</span> (entry.getKey().getId()==strategyId.intValue()) &#123;</span><br><span class="line">                statStrategy.get(entry.getKey()).getStatData();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Map&lt;Statistics, StatStrategy&gt; <span class="title">getStatStrategy</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> statStrategy;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setStatStrategy</span><span class="params">(Map&lt;Statistics, StatStrategy&gt; statStrategy)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.statStrategy = statStrategy;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>自定义的枚举类型Statistics ：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">enum</span>  Statistics &#123;</span><br><span class="line"></span><br><span class="line">    订单_总数统计(<span class="number">101</span>, <span class="string">"【订单】总数统计"</span>),</span><br><span class="line">    用户_新增用户数统计(<span class="number">201</span>, <span class="string">"【用户】新增用户数统计"</span>);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> id;</span><br><span class="line">    <span class="keyword">private</span> String name;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">getId</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> id;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">getName</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> name;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    Statistics(<span class="keyword">int</span> id, String name) &#123;</span><br><span class="line">        <span class="keyword">this</span>.id = id;</span><br><span class="line">        <span class="keyword">this</span>.name = name;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>策略模式结合Spring来使用<br>接下来，就是把交由Spring管理的具体算法注入到StatContext 中，用xml文件的形式来实现，Bean的定义写在<code>applicationContext.xml</code>中：</p>
+<p>策略放到map中</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">"statContext"</span> <span class="attr">class</span>=<span class="string">"StatContext"</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"statStrategy"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">map</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">entry</span> <span class="attr">key-ref</span>=<span class="string">"statOrder"</span> <span class="attr">value-ref</span>=<span class="string">"orderStrategyImpl "</span>&gt;</span><span class="tag">&lt;/<span class="name">entry</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">entry</span> <span class="attr">key-ref</span>=<span class="string">"statUser"</span> <span class="attr">value-ref</span>=<span class="string">"userStrategyImpl "</span>&gt;</span><span class="tag">&lt;/<span class="name">entry</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">map</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">bean</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">&lt;!--枚举类型要想注入到类中，一定要先使用org.springframework.beans.factory.config.FieldRetrievingFactoryBean类将枚举类型进行转换--&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">"statOrder"</span> <span class="attr">class</span>=<span class="string">"org.springframework.beans.factory.config.FieldRetrievingFactoryBean"</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"staticField"</span> <span class="attr">value</span>=<span class="string">"Statistics.订单_总数统计"</span> /&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">bean</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">"statUser"</span> <span class="attr">class</span>=<span class="string">"org.springframework.beans.factory.config.FieldRetrievingFactoryBean"</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"staticField"</span> <span class="attr">value</span>=<span class="string">"Statistics.用户_新增用户数统计"</span> /&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">bean</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>策略模式的相关定义已经写好，接下来使用就很简单了，按照MVC的架构，我们是在Service层来调用相关的策略算法，首先定义Service接口。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">StatService</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">loadDetailData</span><span class="params">(Integer strategyId)</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>接口实现。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Service</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">StatServiceImpl</span> <span class="keyword">implements</span> <span class="title">StatService</span> </span>&#123;</span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="keyword">private</span> StatContext statContext;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">loadDetailData</span><span class="params">(Integer strategyId)</span> </span>&#123;</span><br><span class="line">        <span class="comment">//策略模式结合Spring使用,使代码结构更清晰,避免多重if-else判断</span></span><br><span class="line">        statContext.loadDetailData(strategyId);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>策略模式结合Spring使用就是这么简单，具体细节再结合项目的使用来修改，完毕。</p>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color2">Spring</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+      
+
+      <div style="font-size: 12px;">
+        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
+      </div>
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2019/01/17/策略模式与Spring结合使用/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
+    <article id="post-tomcat架构解析" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2019/01/17/tomcat架构解析/">Tomcat架构解析及部署方式</a>
+    </h1>
+  
+
+        
+        <a href="/2019/01/17/tomcat架构解析/" class="archive-article-date">
+  	<time datetime="2019-01-17T02:33:48.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2019-01-17</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="目录结构"><a href="#目录结构" class="headerlink" title="目录结构"></a>目录结构</h2><h3 id="conf-目录"><a href="#conf-目录" class="headerlink" title="conf 目录"></a>conf 目录</h3><p><code>catalina.policy</code> :  Tomcat 安全策略文件，控制 JVM 相关权限，具体可以参考<code>java.security.Permission</code></p>
+<p><code>catalina.properties</code> : Tomcat Catalina 行为控制配置文件，比如 Common ClassLoader</p>
+<p><code>logging.properties</code>  : Tomcat 日志配置文件，JDK Logging</p>
+<p><code>server.xml</code>  :  Tomcat Server 配置文件</p>
+<ul>
+<li><code>GlobalNamingResources</code> : 全局 JNDI 资源</li>
+</ul>
+<p><code>context.xml</code> : 全局 Context 配置文件</p>
+<p><code>tomcat-users.xml</code> : Tomcat 角色配置文件，（Realm 文件实现方式）、</p>
+<p><code>web.xml</code> : Servlet 标准的 web.xml 部署文件，Tomcat 默认实现部分配置入内：</p>
+<ul>
+<li><code>org.apache.catalina.servlets.DefaultServlet</code></li>
+<li><code>org.apache.jasper.servlet.JspServlet</code></li>
+</ul>
+        
+          <a class="article-more-a" href="/2019/01/17/tomcat架构解析/#more">more >></a>
+        
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color2">tomcat</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+      
+
+      <div style="font-size: 12px;">
+        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
+      </div>
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2019/01/17/tomcat架构解析/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
+    <article id="post-Expires、Last-Modified、Etag缓存控制" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2019/01/08/Expires、Last-Modified、Etag缓存控制/">Expires、Last-Modified、Etag缓存控制</a>
+    </h1>
+  
+
+        
+        <a href="/2019/01/08/Expires、Last-Modified、Etag缓存控制/" class="archive-article-date">
+  	<time datetime="2019-01-08T02:02:25.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2019-01-08</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>当请求一个页面时，如果浏览器使用本地缓存，因此我们经常会看到一个HTTP请求为304状态。或者显示200状态，在chrome下标注是from cache，在火狐下会标注BFCache；</p>
+<p>我们希望在服务器端更新了静态文件（如css、js、图片），能够在客户端得到及时的更新，但又不想让浏览器每次请求都从服务器端获取静态资源。那么就需要了解一些下面的知识：</p>
+<h3 id="Last-Modified-If-Modified-Since"><a href="#Last-Modified-If-Modified-Since" class="headerlink" title="Last-Modified / If-Modified-Since"></a>Last-Modified / If-Modified-Since</h3><p>当浏览器第一次请求一个url时，服务器端的返回状态码为200，同时HTTP响应头会有一个Last-Modified标记着文件在服务器端最后被修改的时间。</p>
+<p><img src="/2019/01/08/Expires、Last-Modified、Etag缓存控制/221003436286349.jpg" alt="last-modifed"></p>
+<p><img src="/2019/01/08/Expires、Last-Modified、Etag缓存控制/221003436286349.jpg" alt=""></p>
+<p>浏览器第二次请求上次请求过的url时，浏览器会在HTTP请求头添加一个If-Modified-Since的标记，用来询问服务器该时间之后文件是否被修改过。</p>
+<p><img src="https://images0.cnblogs.com/blog/648334/201408/221005550499434.jpg" alt="img"></p>
+<p>如果服务器端的资源没有变化，则自动返回304状态，使用浏览器缓存，从而保证了浏览器不会重复从服务器端获取资源，也保证了服务器有变化是，客户端能够及时得到最新的资源。</p>
+<h3 id="Etag-If-None-Match"><a href="#Etag-If-None-Match" class="headerlink" title="Etag / If-None-Match"></a>Etag / If-None-Match</h3><p>当浏览器第一次请求一个url时，服务器端的返回状态码为200，同时HTTP响应头会有一个Etag，存放着服务器端生成的一个序列值。</p>
+<p><img src="https://images0.cnblogs.com/blog/648334/201408/221003436286349.jpg" alt="img"></p>
+<p>浏览器第二次请求上次请求过的url时，浏览器会在HTTP请求头添加一个If-None-Match的标记，用来询问服务器该文件有没有被修改。</p>
+<p> <img src="https://images0.cnblogs.com/blog/648334/201408/221005550499434.jpg" alt="img"></p>
+<p>Etag 主要为了解决 Last-Modified 无法解决的一些问题:</p>
+<p>1、一些文件也许会周期性的更改，但是他的内容并不改变(仅仅改变的修改时间)，这个时候我们并不希望客户端认为这个文件被修改了，而重新GET;</p>
+<p>2、某些文件修改非常频繁，比如在秒以下的时间内进行修改，(比方说1s内修改了N次)，If-Modified-Since能检查到的粒度是s级的，这种修改无法判断(或者说UNIX记录MTIME只能精确到秒)</p>
+<p>3、某些服务器不能精确的得到文件的最后修改时间；</p>
+<h3 id="Expires"><a href="#Expires" class="headerlink" title="Expires"></a>Expires</h3><figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;meta <span class="attribute">http-equiv</span>=<span class="string">"expires"</span> <span class="attribute">content</span>=<span class="string">"Fri, 22 Aug 2014 00:52:49 GMT"</span> /&gt;</span><br></pre></td></tr></table></figure>
+<p>HTTP 1.0，设置缓存的截止时间，在此之前，浏览器对缓存的数据不重新发请求。它与Last-Modified/Etag结合使用，用来控制请求文件的有效时间，当请求数据在有效期内，浏览器从缓存获得数据。Last-Modifed/Etag能够节省一点宽带，但是还会发一个HTTP请求。</p>
+<h3 id="Catch-Control"><a href="#Catch-Control" class="headerlink" title="Catch-Control"></a>Catch-Control</h3><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!--Cache-Control: max-age=秒 --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">meta</span> <span class="attr">http-equiv</span>=<span class="string">"Cache-Control"</span> <span class="attr">content</span>=<span class="string">"max-age=120"</span>/&gt;</span></span><br></pre></td></tr></table></figure>
+<p>HTTP 1.1，设置资源在本地缓存多长时间。</p>
+<p>如果Cache-Control与expires同时存在，Cache-Control生效。expires 的一个缺点就是，返回的到期时间是服务器端的时间，这样存在一个问题，如果客户端的时间与服务器的时间相差很大，那么误差就很大，所以在HTTP 1.1版开始，使用Cache-Control: max-age=秒替代。</p>
+<h3 id="用户操作与缓存"><a href="#用户操作与缓存" class="headerlink" title="用户操作与缓存"></a>用户操作与缓存</h3><p><img src="https://images0.cnblogs.com/blog/648334/201408/221016051591259.png" alt="img"></p>
+<h3 id="禁止缓存"><a href="#禁止缓存" class="headerlink" title="禁止缓存"></a>禁止缓存</h3><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!--禁止浏览器本地缓存 --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">meta</span> <span class="attr">http-equiv</span>=<span class="string">"Cache-Control"</span> <span class="attr">content</span>=<span class="string">"no-cache"</span>/&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">&lt;!-- 或者 --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">meta</span> <span class="attr">http-equiv</span>=<span class="string">"Cache-Control"</span> <span class="attr">content</span>=<span class="string">"max-age=0"</span>/&gt;</span></span><br></pre></td></tr></table></figure>
+<p>还有POST请求不使用缓存，HTTP响应头不包含Last-Modified/Etag，也不包含Cache-Control/Expires不会使用缓存。</p>
+<p>除非有特殊需求，最好还是不要禁用缓存，毕竟是用缓存能节省宽带，节省服务器资源，节省money…</p>
+<h3 id="浏览器第一次请求过程"><a href="#浏览器第一次请求过程" class="headerlink" title="浏览器第一次请求过程"></a>浏览器第一次请求过程</h3><p><img src="https://images0.cnblogs.com/blog/648334/201408/221537307378944.jpg" alt="img"></p>
+<h3 id="浏览器第二次请求过程"><a href="#浏览器第二次请求过程" class="headerlink" title="浏览器第二次请求过程"></a>浏览器第二次请求过程</h3><p><img src="https://images0.cnblogs.com/blog/648334/201408/221538345655678.jpg" alt="img"></p>
+<p>我们希望服务器端更新了文件，客户端可以及时的更新文件，根具上面流程，我们需要针对静态文件的响应头添加expires，设置为永久过期，浏览器每次请求静态文件，就会询问服务器文件有没有做过更改，如果更改了就从服务器端获取资源，否则直接使用缓存。  </p>
+<h3 id="apache的配置："><a href="#apache的配置：" class="headerlink" title="apache的配置："></a>apache的配置：</h3><p><a href="javascript:void(0" target="_blank" rel="external"><img src="https://common.cnblogs.com/images/copycode.gif" alt="复制代码"></a>;)</p>
+<figure class="highlight apache"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#开启mod_expires模块</span></span><br><span class="line"><span class="attribute"><span class="nomarkup">LoadModule</span></span> expires_module modules/mod_expires.so</span><br><span class="line"></span><br><span class="line"><span class="attribute">ExpiresActive</span> <span class="literal">On</span></span><br><span class="line"><span class="attribute">ExpiresDefault</span> <span class="string">"access plus 0 seconds"</span> #默认缓存0s</span><br><span class="line"><span class="section">&lt;Directory  "根目录"&gt;</span></span><br><span class="line">    <span class="comment">#Options FollowSymLinks</span></span><br><span class="line">    <span class="comment">#AllowOverride all</span></span><br><span class="line">    <span class="attribute"><span class="nomarkup">Order</span></span> deny,allow</span><br><span class="line">    <span class="attribute"><span class="nomarkup">Allow</span></span> from <span class="literal">all</span></span><br><span class="line">    <span class="comment">#ExpiresByType application/* "access plus 0 seconds"</span></span><br><span class="line">    <span class="comment">#ExpiresByType image/* "access plus 0 seconds"</span></span><br><span class="line">    <span class="comment">#ExpiresByType text/css "access plus 0 seconds"</span></span><br><span class="line"><span class="section">&lt;/Directory&gt;</span></span><br></pre></td></tr></table></figure>
+<p><a href="javascript:void(0" target="_blank" rel="external"><img src="https://common.cnblogs.com/images/copycode.gif" alt="复制代码"></a>;)</p>
+<p>这样的做法有个弊端，就是每次请求都会询问服务器端资源是否过期，当然还有更好的办法。</p>
+<h3 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h3><p><a href="https://www.cnblogs.com/zhouwenhong/p/3928645.html" target="_blank" rel="external">Expires、Last-Modified、Etag缓存控制</a></p>
+<p><a href="https://www.cnblogs.com/guojiao1600/p/5110971.html" target="_blank" rel="external">浏览器缓存之Expires Etag Last-Modified max-age详解</a></p>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+      
+
+      <div style="font-size: 12px;">
+        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
+      </div>
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2019/01/08/Expires、Last-Modified、Etag缓存控制/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
+    <article id="post-序列化之serialVersionUID" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2018/12/25/序列化之serialVersionUID/">序列化之serialVersionUID</a>
+    </h1>
+  
+
+        
+        <a href="/2018/12/25/序列化之serialVersionUID/" class="archive-article-date">
+  	<time datetime="2018-12-25T03:28:51.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-12-25</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="serialVersionUID"><a href="#serialVersionUID" class="headerlink" title="serialVersionUID"></a>serialVersionUID</h1><p><code>serialVersionUID</code>是用来验证版本一致性的。所以<strong>在做兼容性升级的时候，不要改变类中serialVersionUID的值。</strong></p>
+<p>强调一下：serialVersionUID <strong>既然是验证版本一致性的，在做版本升级的时候（非兼容性升级），记得要修改这个字段的值哦，这样可以避免序列化混乱。</strong></p>
+        
+          <a class="article-more-a" href="/2018/12/25/序列化之serialVersionUID/#more">more >></a>
+        
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">java</a>
+        		</li>
+      		 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">序列化</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+      
+
+      <div style="font-size: 12px;">
+        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
+      </div>
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2018/12/25/序列化之serialVersionUID/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
     <article id="post-MySQL性能优化常用方法" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
@@ -488,97 +862,6 @@
 
 
   
-    <article id="post-spring中InitializingBean接口使用理解" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2018/11/12/spring中InitializingBean接口使用理解/">spring中InitializingBean接口使用理解</a>
-    </h1>
-  
-
-        
-        <a href="/2018/11/12/spring中InitializingBean接口使用理解/" class="archive-article-date">
-  	<time datetime="2018-11-12T03:18:38.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-11-12</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>InitializingBean接口为bean提供了初始化方法的方式，它只包括afterPropertiesSet方法，凡是继承该接口的类，在初始化bean的时候会执行该方法。</p>
-<p>测试程序如下：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> org.springframework.beans.factory.InitializingBean;</span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">TestInitializingBean</span> <span class="keyword">implements</span> <span class="title">InitializingBean</span></span>&#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">afterPropertiesSet</span><span class="params">()</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"ceshi InitializingBean"</span>);        </span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">testInit</span><span class="params">()</span></span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"ceshi init-method"</span>);        </span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>配置文件如下：</p>
-<figure class="highlight clean"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">`&lt;``bean` `id``=``<span class="string">"testInitializingBean"</span>` `<span class="keyword">class</span>``=``<span class="string">"com.TestInitializingBean"</span>` `&gt;&lt;/``bean``&gt;`</span><br></pre></td></tr></table></figure>
-<p>Main主程序如下：</p>
-<figure class="highlight clean"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">`public` `<span class="keyword">class</span>` `Main &#123;``    ``public` `static` `void` `main(String[] args)&#123;``        ``ApplicationContext context = ``new` `FileSystemXmlApplicationContext(``<span class="string">"/src/main/java/com/beans.xml"</span>``);``    ``&#125;``&#125;`</span><br></pre></td></tr></table></figure>
-<p>运行Main程序，打印如下结果：</p>
-<figure class="highlight clean"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">`ceshi InitializingBean`</span><br></pre></td></tr></table></figure>
-<p>这说明在spring初始化bean的时候，如果bean实现了InitializingBean接口，会自动调用afterPropertiesSet方法。</p>
-<p><strong>问题</strong></p>
-<p>实现InitializingBean接口与在配置文件中指定init-method有什么不同？</p>
-<p>修改配置文件，加上init-method配置，修改如下：</p>
-<figure class="highlight clean"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">`&lt;``bean` `id``=``<span class="string">"testInitializingBean"</span>` `<span class="keyword">class</span>``=``<span class="string">"com.TestInitializingBean"</span>` `init-method``=``<span class="string">"testInit"</span>``&gt;&lt;/``bean``&gt;`</span><br></pre></td></tr></table></figure>
-<p>在配置文件中加入init-method=”testInit”。</p>
-<p>运行Main程序，打印如下结果：</p>
-<figure class="highlight oxygene"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">`ceshi InitializingBean``ceshi init-<span class="function"><span class="keyword">method</span>`</span></span><br></pre></td></tr></table></figure>
-<p>由结果可看出，在spring初始化bean的时候，如果该bean是实现了InitializingBean接口，并且同时在配置文件中指定了init-method，系统则是先调用afterPropertiesSet方法，然后在调用init-method中指定的方法。</p>
-<p>这方式在spring中是怎么实现的？</p>
-<p>通过查看spring的加载bean的源码类(AbstractAutowireCapableBeanFactory)可看出其中奥妙</p>
-<p>AbstractAutowireCapableBeanFactory类中的invokeInitMethods讲解的非常清楚，源码如下：</p>
-<figure class="highlight coffeescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">`<span class="javascript">protected</span>` `<span class="javascript"><span class="keyword">void</span></span>` `<span class="javascript">invokeInitMethods(<span class="built_in">String</span> beanName, </span>``<span class="javascript">final</span>` `<span class="javascript"><span class="built_in">Object</span> bean, RootBeanDefinition mbd) </span>``<span class="javascript">throws</span>` `<span class="javascript">Throwable &#123;</span>``<span class="javascript">    </span>``<span class="javascript"><span class="comment">//判断该bean是否实现了实现了InitializingBean接口，如果实现了InitializingBean接口，则只掉调用bean的afterPropertiesSet方法</span></span>``<span class="javascript">    </span>``<span class="javascript">boolean</span>` `<span class="javascript">isInitializingBean = (bean </span>``<span class="javascript"><span class="keyword">instanceof</span></span>` `<span class="javascript">InitializingBean);</span>``<span class="javascript">    </span>``<span class="javascript"><span class="keyword">if</span></span>` `<span class="javascript">(isInitializingBean &amp;&amp; (mbd == </span>``<span class="javascript"><span class="literal">null</span></span>` `<span class="javascript">|| !mbd.isExternallyManagedInitMethod(</span>``<span class="javascript"><span class="string">"afterPropertiesSet"</span></span>``<span class="javascript">))) &#123;</span>``<span class="javascript">        </span>``<span class="javascript"><span class="keyword">if</span></span>` `<span class="javascript">(logger.isDebugEnabled()) &#123;</span>``<span class="javascript">            </span>``<span class="javascript">logger.debug(</span>``<span class="javascript"><span class="string">"Invoking afterPropertiesSet() on bean with name '"</span></span>` `<span class="javascript">+ beanName + </span>``<span class="javascript"><span class="string">"'"</span></span>``<span class="javascript">);</span>``<span class="javascript">        </span>``<span class="javascript">&#125;</span>``<span class="javascript">        </span>` `<span class="javascript">        </span>``<span class="javascript"><span class="keyword">if</span></span>` `<span class="javascript">(System.getSecurityManager() != </span>``<span class="javascript"><span class="literal">null</span></span>``<span class="javascript">) &#123;</span>``<span class="javascript">            </span>``<span class="javascript"><span class="keyword">try</span></span>` `<span class="javascript">&#123;</span>``<span class="javascript">                </span>``<span class="javascript">AccessController.doPrivileged(</span>``<span class="javascript"><span class="keyword">new</span></span>` `<span class="javascript">PrivilegedExceptionAction&lt;<span class="built_in">Object</span>&gt;() &#123;</span>``<span class="javascript">                    </span>``<span class="javascript">public</span>` `<span class="javascript"><span class="built_in">Object</span> run() </span>``<span class="javascript">throws</span>` `<span class="javascript">Exception &#123;</span>``<span class="javascript">                        </span>``<span class="javascript"><span class="comment">//直接调用afterPropertiesSet</span></span>``<span class="javascript">                        </span>``<span class="javascript">((InitializingBean) bean).afterPropertiesSet();</span>``<span class="javascript">                        </span>``<span class="javascript"><span class="keyword">return</span></span>` `<span class="javascript"><span class="literal">null</span></span>``<span class="javascript">;</span>``<span class="javascript">                    </span>``<span class="javascript">&#125;</span>``<span class="javascript">                </span>``<span class="javascript">&#125;,getAccessControlContext());</span>``<span class="javascript">            </span>``<span class="javascript">&#125; </span>``<span class="javascript"><span class="keyword">catch</span></span>` `<span class="javascript">(PrivilegedActionException pae) &#123;</span>``<span class="javascript">                </span>``<span class="javascript"><span class="keyword">throw</span></span>` `<span class="javascript">pae.getException();</span>``<span class="javascript">            </span>``<span class="javascript">&#125;</span>``<span class="javascript">        </span>``<span class="javascript">&#125;                </span>``<span class="javascript">        </span>``<span class="javascript"><span class="keyword">else</span></span>` `<span class="javascript">&#123;</span>``<span class="javascript">            </span>``<span class="javascript"><span class="comment">//直接调用afterPropertiesSet</span></span>``<span class="javascript">            </span>``<span class="javascript">((InitializingBean) bean).afterPropertiesSet();</span>``<span class="javascript">        </span>``<span class="javascript">&#125;</span>``<span class="javascript">    </span>``<span class="javascript">&#125;</span>``<span class="javascript">    </span>``<span class="javascript"><span class="keyword">if</span></span>` `<span class="javascript">(mbd != </span>``<span class="javascript"><span class="literal">null</span></span>``<span class="javascript">) &#123;</span>``<span class="javascript">        </span>``<span class="javascript"><span class="built_in">String</span> initMethodName = mbd.getInitMethodName();</span>``<span class="javascript">        </span>``<span class="javascript"><span class="comment">//判断是否指定了init-method方法，如果指定了init-method方法，则再调用制定的init-method</span></span>``<span class="javascript">        </span>``<span class="javascript"><span class="keyword">if</span></span>` `<span class="javascript">(initMethodName != </span>``<span class="javascript"><span class="literal">null</span></span>` `<span class="javascript">&amp;&amp; !(isInitializingBean &amp;&amp; </span>``<span class="javascript"><span class="string">"afterPropertiesSet"</span></span>``<span class="javascript">.equals(initMethodName)) &amp;&amp;</span>``<span class="javascript">                </span>``<span class="javascript">!mbd.isExternallyManagedInitMethod(initMethodName)) &#123;</span>``<span class="javascript">            </span>``<span class="javascript"><span class="comment">//进一步查看该方法的源码，可以发现init-method方法中指定的方法是通过反射实现</span></span>``<span class="javascript">            </span>``<span class="javascript">invokeCustomInitMethod(beanName, bean, mbd);</span>``<span class="javascript">        </span>``<span class="javascript">&#125;</span>``<span class="javascript">    </span>``<span class="javascript">&#125;</span>``<span class="javascript">&#125;</span>`</span><br></pre></td></tr></table></figure>
-<p><strong>总结</strong></p>
-<p>1：spring为bean提供了两种初始化bean的方式，实现InitializingBean接口，实现afterPropertiesSet方法，或者在配置文件中同过init-method指定，两种方式可以同时使用</p>
-<p>2：实现InitializingBean接口是直接调用afterPropertiesSet方法，比通过反射调用init-method指定的方法效率相对来说要高点。但是init-method方式消除了对spring的依赖</p>
-<p>3：如果调用afterPropertiesSet方法时出错，则不调用init-method指定的方法。</p>
-
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-      
-
-      <div style="font-size: 12px;">
-        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
-      </div>
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2018/11/12/spring中InitializingBean接口使用理解/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
     <article id="post-浅谈springMVC中的设计模式——组合模式" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
@@ -742,466 +1025,6 @@
 
 
   
-    <article id="post-2PC到3PC到Paxos到Raft到ISR" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2018/10/15/2PC到3PC到Paxos到Raft到ISR/">2PC到3PC到Paxos到Raft到ISR</a>
-    </h1>
-  
-
-        
-        <a href="/2018/10/15/2PC到3PC到Paxos到Raft到ISR/" class="archive-article-date">
-  	<time datetime="2018-10-15T13:04:21.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-10-15</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <blockquote>
-<p>分布式理论系列</p>
-</blockquote>
-<ul>
-<li><a href="https://segmentfault.com/a/1190000004468442" target="_blank" rel="external">从ACID到CAP到BASE</a></li>
-<li><a href="https://segmentfault.com/a/1190000004474543" target="_blank" rel="external">2PC到3PC到Paxos到Raft到ISR</a></li>
-<li><a href="https://segmentfault.com/a/1190000004485355" target="_blank" rel="external">复制、分片和路由</a></li>
-<li><a href="https://segmentfault.com/a/1190000004480546" target="_blank" rel="external">副本更新策略</a></li>
-<li><a href="https://segmentfault.com/a/1190000004492447" target="_blank" rel="external">负载均衡算法及手段</a></li>
-<li><a href="https://segmentfault.com/a/1190000004499551" target="_blank" rel="external">RWN及Quorum与强一致性</a></li>
-</ul>
-<h2 id="序"><a href="#序" class="headerlink" title="序"></a>序</h2><p>本文主要讲述2PC及3PC，以及Paxos以及Raft协议。</p>
-<h2 id="两类一致性-操作原子性与副本一致性"><a href="#两类一致性-操作原子性与副本一致性" class="headerlink" title="两类一致性(操作原子性与副本一致性)"></a>两类一致性(<code>操作原子性与副本一致性</code>)</h2><ul>
-<li>2PC协议用于保证属于多个数据分片上的操作的原子性。这些数据分片可能分布在不同的服务器上，2PC协议保证多台服务器上的操作要么全部成功，要么全部失败。</li>
-<li>Paxos协议用于保证同一个数据分片的多个副本之间的数据一致性。当这些副本分布到不同的数据中心时，这个需求尤其强烈。</li>
-</ul>
-<h2 id="一、2PC（阻塞、数据不一致问题、单点问题）"><a href="#一、2PC（阻塞、数据不一致问题、单点问题）" class="headerlink" title="一、2PC（阻塞、数据不一致问题、单点问题）"></a>一、2PC（阻塞、数据不一致问题、单点问题）</h2><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Two-Phase <span class="keyword">Commit</span>，两阶段提交</span><br></pre></td></tr></table></figure>
-<h3 id="1、阶段一：提交事务请求（投票阶段）"><a href="#1、阶段一：提交事务请求（投票阶段）" class="headerlink" title="1、阶段一：提交事务请求（投票阶段）"></a>1、阶段一：提交事务请求（投票阶段）</h3><p>（1）事务询问</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">协调者向所有的参与者发送事务内容，询问是否可以执行事务提交操作，并开始等待各参与者的响应</span><br></pre></td></tr></table></figure>
-<p>（2）执行事务</p>
-<figure class="highlight coq"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">各参与者节点执行事务操作，并将<span class="keyword">Undo</span>和Redo信息计入事务日志中</span><br></pre></td></tr></table></figure>
-<p>（3）各参与者向协调者反馈事务询问的响应</p>
-<figure class="highlight gams"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">如果参与者成功执行了事务操作，那么就反馈给协调者<span class="keyword">Yes</span>响应，表示事务可以执行；如果参与者没有成功执行事务，那么就反馈给协调者<span class="keyword">No</span>响应，表示事务不可以执行。</span><br></pre></td></tr></table></figure>
-<h3 id="2、阶段二：执行事务提交（执行阶段）"><a href="#2、阶段二：执行事务提交（执行阶段）" class="headerlink" title="2、阶段二：执行事务提交（执行阶段）"></a>2、阶段二：执行事务提交（执行阶段）</h3><h4 id="（1）执行事务提交"><a href="#（1）执行事务提交" class="headerlink" title="（1）执行事务提交"></a>（1）执行事务提交</h4><p><img src="http://oz3qait0p.bkt.clouddn.com/2pc%20-1.png" alt="clipboard.png"></p>
-<figure class="highlight gams"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">如果所有参与者的反馈都是<span class="keyword">Yes</span>响应，那么</span><br></pre></td></tr></table></figure>
-<ul>
-<li><p>A、发送提交请求</p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">协调者向所有参与者节点发出<span class="keyword">Commit</span>请求</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>B、事务提交</p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">参与者接收到<span class="keyword">Commit</span>请求后，会正式执行事务提交操作，并在完成提交之后释放在整个事务执行期间占用的事务资源</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>C、反馈事务提交结果</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">参与者在完成事务提交之后，向协调者发送ACK信息</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>D、完成事务</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">协调者接收到所有参与者反馈的ACK消息后，完成事务</span><br></pre></td></tr></table></figure>
-</li>
-</ul>
-<h4 id="（2）中断事务"><a href="#（2）中断事务" class="headerlink" title="（2）中断事务"></a>（2）中断事务</h4><p><img src="http://oz3qait0p.bkt.clouddn.com/2pc-2.png" alt="clipboard.png"></p>
-<figure class="highlight gams"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">任何一个参与者反馈了<span class="keyword">No</span>响应，或者在等待超时之后，协调者尚无法接收到所有参与者的反馈响应，那么就会中断事务。</span><br></pre></td></tr></table></figure>
-<ul>
-<li><p>A、发送回滚请求</p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">协调者向所有参与者节点发出<span class="keyword">Rollback</span>请求</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>B、事务回滚</p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">参与者接收到<span class="keyword">rollback</span>请求后，会利用其在阶段一中记录的<span class="keyword">Undo</span>信息来执行事务回滚操作，并在完成回滚之后释放整个事务执行期间占用的资源</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>C、反馈事务回滚结果</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">参与者在完成事务回滚之后，向协调者发送ACK信息</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>D、中断事务</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">协调者接收到所有参与者反馈的ACK信息后，完成事务中断</span><br></pre></td></tr></table></figure>
-</li>
-</ul>
-<h4 id="优缺点"><a href="#优缺点" class="headerlink" title="优缺点"></a>优缺点</h4><p>优点：原理简单、实现方便<br>缺点：同步阻塞、单点问题、数据不一致、太过保守</p>
-<ul>
-<li>（1）同步阻塞<br>同步阻塞会极大地限制分布式系统的性能。在二阶段提交的执行过程中，所有参与该事务操作的逻辑都处于阻塞状态，各个参与者在等待其他参与者响应的过程中，将无法进行其他任何操作。</li>
-<li>（2）单点问题<br>一旦协调者出现问题，那么整个二阶段提交流程将无法运转，更为严重的是，如果是在阶段二中出现问题，那么其他参与者将会一直处于锁定事务资源的状态中，无法继续完成事务操作。</li>
-<li>（3）数据不一致<br>在阶段二，当协调者向所有参与者发送commit请求之后，发生了局部网络异常或协调者在尚未发完commit请求之前自身发生了崩溃，导致最终只有部分参与者接收到了commit请求，于是这部分参与者执行事务提交，而没收到commit请求的参与者则无法进行事务提交，于是整个分布式系统出现了数据不一致性现象。</li>
-<li>（4）太过保守<br>如果参与者在与协调者通信期间出现故障，协调者只能靠超时机制来判断是否需要中断事务，这个策略比较保守，需要更为完善的容错机制，任意一个节点的失败都会导致整个事务的失败。</li>
-</ul>
-<h2 id="二、3PC（解决2PC的阻塞，但还是可能造成数据不一致）"><a href="#二、3PC（解决2PC的阻塞，但还是可能造成数据不一致）" class="headerlink" title="二、3PC（解决2PC的阻塞，但还是可能造成数据不一致）"></a>二、3PC（解决2PC的阻塞，但还是可能造成数据不一致）</h2><p>Three-Phase Commit，三阶段提交，分为CanCommit、PreCommit、do Commit三个阶段。<br><img src="http://oz3qait0p.bkt.clouddn.com/3pc%20-1.png" alt="clipboard.png"></p>
-<p>为了避免在通知所有参与者提交事务时，其中一个参与者crash不一致时，就出现了三阶段提交的方式。三阶段提交在两阶段提交的基础上增加了一个preCommit的过程，当所有参与者收到preCommit后，并不执行动作，直到收到commit或超过一定时间后才完成操作。</p>
-<h3 id="1、阶段一CanCommit"><a href="#1、阶段一CanCommit" class="headerlink" title="1、阶段一CanCommit"></a>1、阶段一CanCommit</h3><ul>
-<li>（1）事务询问<br>协调者向各参与者发送CanCommit的请求，询问是否可以执行事务提交操作，并开始等待各参与者的响应</li>
-<li>（2）参与者向协调者反馈询问的响应<br>参与者收到CanCommit请求后，正常情况下，如果自身认为可以顺利执行事务，那么会反馈Yes响应，并进入预备状态，否则反馈No。</li>
-</ul>
-<h3 id="2、阶段二PreCommit"><a href="#2、阶段二PreCommit" class="headerlink" title="2、阶段二PreCommit"></a>2、阶段二PreCommit</h3><h4 id="（1）执行事务预提交"><a href="#（1）执行事务预提交" class="headerlink" title="（1）执行事务预提交"></a>（1）执行事务预提交</h4><figure class="highlight gams"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">如果协调者接收到各参与者反馈都是<span class="keyword">Yes</span>，那么执行事务预提交</span><br></pre></td></tr></table></figure>
-<ul>
-<li>A、发送预提交请求<br>协调者向各参与者发送preCommit请求，并进入prepared阶段</li>
-<li>B、事务预提交<br>参与者接收到preCommit请求后，会执行事务操作，并将Undo和Redo信息记录到事务日记中</li>
-<li>C、各参与者向协调者反馈事务执行的响应<br>如果各参与者都成功执行了事务操作，那么反馈给协调者Ack响应，同时等待最终指令，提交commit或者终止abort</li>
-</ul>
-<h4 id="（2）中断事务-1"><a href="#（2）中断事务-1" class="headerlink" title="（2）中断事务"></a>（2）中断事务</h4><p>如果任何一个参与者向协调者反馈了No响应，或者在等待超时后，协调者无法接收到所有参与者的反馈，那么就会中断事务。</p>
-<ul>
-<li><p>A、发送中断请求</p>
-<figure class="highlight ada"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">协调者向所有参与者发送<span class="keyword">abort</span>请求</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>B、中断事务</p>
-<figure class="highlight ada"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">无论是收到来自协调者的<span class="keyword">abort</span>请求，还是等待超时，参与者都中断事务</span><br></pre></td></tr></table></figure>
-</li>
-</ul>
-<h3 id="3、阶段三doCommit"><a href="#3、阶段三doCommit" class="headerlink" title="3、阶段三doCommit"></a>3、阶段三doCommit</h3><h4 id="（1）执行提交"><a href="#（1）执行提交" class="headerlink" title="（1）执行提交"></a>（1）执行提交</h4><ul>
-<li>A、发送提交请求<br>假设协调者正常工作，接收到了所有参与者的ack响应，那么它将从预提交阶段进入提交状态，并向所有参与者发送doCommit请求</li>
-<li>B、事务提交<br>参与者收到doCommit请求后，正式提交事务，并在完成事务提交后释放占用的资源</li>
-<li>C、反馈事务提交结果<br>参与者完成事务提交后，向协调者发送ACK信息</li>
-<li>D、完成事务<br>协调者接收到所有参与者ack信息，完成事务</li>
-</ul>
-<h4 id="（2）中断事务-2"><a href="#（2）中断事务-2" class="headerlink" title="（2）中断事务"></a>（2）中断事务</h4><p>假设协调者正常工作，并且有任一参与者反馈No，或者在等待超时后无法接收所有参与者的反馈，都会中断事务</p>
-<ul>
-<li>A、发送中断请求<br>协调者向所有参与者节点发送abort请求</li>
-<li>B、事务回滚<br>参与者接收到abort请求后，利用undo日志执行事务回滚，并在完成事务回滚后释放占用的资源</li>
-<li>C、反馈事务回滚结果<br>参与者在完成事务回滚之后，向协调者发送ack信息</li>
-<li>D、中断事务<br>协调者接收到所有参与者反馈的ack信息后，中断事务。</li>
-</ul>
-<p>阶段三可能出现的问题：<br>协调者出现问题、协调者与参与者之间网络出现故障。不论出现哪种情况，最终都会导致参与者无法及时接收到来自协调者的doCommit或是abort请求，针对这种情况，参与者都会在等待超时后，继续进行事务提交（timeout后中断事务）。</p>
-<p>优点：降低参与者阻塞范围，并能够在出现单点故障后继续达成一致<br>缺点：引入preCommit阶段，在这个阶段如果出现网络分区，协调者无法与参与者正常通信，参与者依然会进行事务提交，造成数据不一致。</p>
-<h2 id="三、Paxos（解决单点问题）"><a href="#三、Paxos（解决单点问题）" class="headerlink" title="三、Paxos（解决单点问题）"></a>三、Paxos（解决单点问题）</h2><p>基于消息传递且具有高度容错性的一致性算法。Paxos算法要解决的问题就是如何在可能发生几起宕机或网络异常的分布式系统中，快速且正确地在集群内部对某个数据的值达成一致，并且保证不论发生以上任何异常，都不会破坏整个系统的一致性。</p>
-<p>拜占庭问题：消息不完整或者被篡改。Paxos在维持领导者选举或者变量修改一致性上，采取一种类似议会投票的过半同意机制，比如设定一个领导者，需要将此看做一个议案，征求过半同意，每个节点通过一个议案会有编号记录，再次收到此领导者的不同人选，发现已经有编号记录便驳回，最后以多数通过的结果为准。</p>
-<p>我们举个简单的例子，来阐述一下Paxos的基本思想：假设我们有5台计算机A、B、C、D、E，每台计算机保存着公司CEO的信息，现在CEO任期到了，需要进行新一界选举了。</p>
-<p>A计算机发起一个选举议案，提议CEO为“张三”，如果没有其他候选人议案，也没有网络问题，只要其中半数以上计算机收到并通过议案，那么最终“张三”当选CEO。由于是分布式环境，并发请求、机器故障、网络故障等问题是常态，如果A和E同时提交选举议案，A提名“张三”，E提名“李四”，那么肯定会涉及多计算机的一致性问题了：假设A、B、C先收到A的议案，D、E先收到E的议案，那么A继续提交给D时，D告诉它已经先收到E的议案了，因此驳回了A的请求。同样E继续提交给A、B、C时也碰到相同的问题。</p>
-<p>我们可以通过“在每台计算机同时接受议案提交时设置一个编号，编号先的通过，编号后的驳回”的方式来实现。议案提交上去后，发现A、B、C投票“张三”为CEO，D、E投票“李四”为CEO，少数服从多数，因此最后结果为“张三”当选CEO。</p>
-<p><img src="http://oz3qait0p.bkt.clouddn.com/paxos%20-1.png" alt="clipboard.png"></p>
-<p>如果是C计算机发生了网络问题或者故障，双方投票相同，那么选举无法完成。</p>
-<p>如果C计算机发生了网络问题或者故障，A、B、D投票“张三”，E投票“李四”，那么结果为“张三”当选，而C对于这些情况一无所知，但是当C计算机恢复正常时，他会发起一个“询问谁是CEO”的议案获取最新信息。简言之，Paxos对每个节点的并发修改采取编号记录的方式保持一致性，对多个节点的并发修改采取少数服从多数的方式保持一致性。Paxos有点类似分布式二阶段提交方式，但是又不同，二阶段提交不能是多数节点同意，必须是全部同意。为了遵守过半节点同意的约束，Paxos算法往往要求节点总数为奇数。</p>
-<p>Paxos 算法解决的问题是在一个可能发生上述异常的分布式系统中如何就某个值达成一致，保证不论发生以上任何异常，都不会破坏决议的一致性。一个典型的场景是，在一个分布式数据库系统中，如果各节点的初始状态一致，每个节点都执行相同的操作序列，那么他们最后能得到一个一致的状态。为保证每个节点执行相同的命令序列，需要在每一条指令上执行一个「一致性算法」以保证每个节点看到的指令一致。一个通用的一致性算法可以应用在许多场景中，是分布式计算中的重要问题。从20世纪80年代起对于一致性算法的研究就没有停止过。</p>
-<p>简单说来，Paxos的目的是让整个集群的结点对某个值的变更达成一致。Paxos算法基本上来说是个民主选举的算法——大多数的决定会成个整个集群的统一决定。任何一个点都可以提出要修改某个数据的提案，是否通过这个提案取决于这个集群中是否有超过半数的结点同意（所以Paxos算法需要集群中的结点是单数）。</p>
-<p>这个算法有两个阶段（假设这个有三个结点：A，B，C）：</p>
-<h3 id="第一阶段：Prepare阶段"><a href="#第一阶段：Prepare阶段" class="headerlink" title="第一阶段：Prepare阶段"></a>第一阶段：Prepare阶段</h3><p>A把申请修改的请求Prepare Request发给所有的结点A，B，C。注意，Paxos算法会有一个Sequence Number（你可以认为是一个提案号，这个数不断递增，而且是唯一的，也就是说A和B不可能有相同的提案号），这个提案号会和修改请求一同发出，任何结点在“Prepare阶段”时都会拒绝其值小于当前提案号的请求。所以，结点A在向所有结点申请修改请求的时候，需要带一个提案号，越新的提案，这个提案号就越是是最大的。</p>
-<p>如果接收结点收到的提案号n大于其它结点发过来的提案号，这个结点会回应Yes（本结点上最新的被批准提案号），并保证不接收其它&lt;n的提案。这样一来，结点上在Prepare阶段里总是会对最新的提案做承诺。</p>
-<p>优化：在上述 prepare 过程中，如果任何一个结点发现存在一个更高编号的提案，则需要通知 提案人，提醒其中断这次提案。</p>
-<h3 id="第二阶段：Accept阶段"><a href="#第二阶段：Accept阶段" class="headerlink" title="第二阶段：Accept阶段"></a>第二阶段：Accept阶段</h3><p>如果提案者A收到了超过半数的结点返回的Yes，然后他就会向所有的结点发布Accept Request（同样，需要带上提案号n），如果没有超过半数的话，那就返回失败。</p>
-<p>当结点们收到了Accept Request后，如果对于接收的结点来说，n是最大的了，那么，它就会通过request（修改这个值），如果发现自己有一个更大的提案号，那么，结点就会拒绝request（拒绝修改）。</p>
-<p>我们可以看以，这似乎就是一个“两段提交”的优化。其实，2PC/3PC都是分布式一致性算法的残次版本，Google Chubby的作者Mike Burrows说过这个世界上只有一种一致性算法，那就是Paxos，其它的算法都是残次品。</p>
-<p>我们还可以看到：对于同一个值的在不同结点的修改提案就算是在接收方被乱序收到也是没有问题的。</p>
-<h2 id="四、Raft协议-解决paxos的实现难度"><a href="#四、Raft协议-解决paxos的实现难度" class="headerlink" title="四、Raft协议(解决paxos的实现难度)"></a>四、Raft协议(<code>解决paxos的实现难度</code>)</h2><p>Paxos 相比 Raft 比较复杂和难以理解。角色扮演和流程比 Raft 都要啰嗦。比如 Agreement 这个流程，在 Paxos 里边：Client 发起请求举荐 Proposer 成为 Leader，Proposer 然后向全局 Acceptors 寻求确认，Acceptors 全部同意 Proposer 后，Proposer 的 Leader 地位得已承认，Acceptors 还得再向Learners 进行全局广播来同步。而在 Raft 里边，只有 Follower/Candidate/Leader 三种角色，角色本身代表状态，角色之间进行状态转移是一件非常自由民主的事情。Raft虽然有角色之分但是是全民参与进行选举的模式；但是在Paxos里边，感觉更像议员参政模式。</p>
-<h3 id="三个角色"><a href="#三个角色" class="headerlink" title="三个角色"></a>三个角色</h3><p>follower、candidate、leader。<br>最开始大家都是follower，当follower监听不到leader，就可以自己成为candidate，发起投票</p>
-<h3 id="leader选举：timeout限制"><a href="#leader选举：timeout限制" class="headerlink" title="leader选举：timeout限制"></a>leader选举：timeout限制</h3><h4 id="选举的timeout"><a href="#选举的timeout" class="headerlink" title="选举的timeout"></a>选举的timeout</h4><p>follower成为candidate的超时时间，每个follower都在150ms and 300ms之间随机，之后看谁先timeout，谁就先成为candidate，然后它会先投自己一票，再向其他节点发起投票邀请。<br>如果其他节点在这轮选举还没有投过票，那么就给candidate投票，然后重置自己的选举timeout。<br>如果得到大多数的投票就成为leader，之后定期开始向follower发送心跳。</p>
-<p>如果两个follower同时成为candidate的话，如果最后得到的票数相同，则等待其他follower的选择timeout之后成为candidate，继续开始新一轮的选举。</p>
-<h3 id="log复制"><a href="#log复制" class="headerlink" title="log复制"></a>log复制</h3><p>leader把变动的log借助心跳同步给follower，过半回复之后才成功提交，之后再下一次心跳之后，follower也commit变动，在自己的node上生效。</p>
-<p>分裂之后，另一个分区的follower接受不到leader的timeout，然后会有一个先timeout，成为candidate，最后成为leader。<br>于是两个分区就有了两个leader。</p>
-<p>当客户端有变动时，其中的leader由于无法收到过半的提交，则保持未提交状态。有的leader的修改，可以得到过半的提交，则可以修改生效。</p>
-<p>当分裂恢复之后，leader开始对比选举的term，发现有更高的term存在时，他们会撤销未提交的修改，然后以最新的为准。</p>
-<h2 id="五、ISR的机制-解决f容错的2f-1成本问题"><a href="#五、ISR的机制-解决f容错的2f-1成本问题" class="headerlink" title="五、ISR的机制(解决f容错的2f+1成本问题)"></a>五、ISR的机制(<code>解决f容错的2f+1成本问题</code>)</h2><p>Kafka并没有使用Zab或Paxos协议的多数投票机制来保证主备数据的一致性，而是提出了ISR的机制（In-Sync Replicas）的机制来保证数据一致性。</p>
-<p>ISR认为对于2f+1个副本来说，多数投票机制要求最多只能允许f个副本发生故障，如果要支持2个副本的容错，则需要至少维持5个副本，对于消息系统的场景来说，效率太低。</p>
-<p>ISR的运行机制如下：将所有次级副本数据分到两个集合，其中一个被称为ISR集合，这个集合备份数据的特点是即时和主副本数据保持一致，而另外一个集合的备份数据允许其消息队列落后于主副本的数据。在做主备切换时，只允许从ISR集合中选择主副本，只有ISR集合内所有备份都写成功才能认为这次写入操作成功。在具体实现时，kafka利用zookeeper来保持每个ISR集合的信息，当ISR集合内成员变化时，相关构件也便于通知。通过这种方式，如果设定ISR集合大小为f+1，那么可以最多允许f个副本故障，而对于多数投票机制来说，则需要2f+1个副本才能达到相同的容错性。</p>
-<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><ul>
-<li><a href="http://www.jdon.com/artichect/raft.html" target="_blank" rel="external">分布式系统的Raft算法</a></li>
-<li><a href="http://thesecretlivesofdata.com/raft/" target="_blank" rel="external">英文动画演示Raft</a>(<code>推荐</code>)</li>
-<li><a href="https://angus.nyc/2012/paxos-by-example/" target="_blank" rel="external">paxos-by-example</a></li>
-<li><a href="http://chuansong.me/n/1019861" target="_blank" rel="external">为啥CoreOS没用Paxos，重新搞了Raft？</a></li>
-</ul>
-
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-      
-
-      <div style="font-size: 12px;">
-        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
-      </div>
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2018/10/15/2PC到3PC到Paxos到Raft到ISR/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
-    <article id="post-微服务架构下分布式事务解决方式-GTS" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2018/10/10/微服务架构下分布式事务解决方式-GTS/">微服务架构下分布式事务解决方式-GTS</a>
-    </h1>
-  
-
-        
-        <a href="/2018/10/10/微服务架构下分布式事务解决方式-GTS/" class="archive-article-date">
-  	<time datetime="2018-10-10T02:31:57.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-10-10</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h2 id="1-微服务的发展"><a href="#1-微服务的发展" class="headerlink" title="1 微服务的发展"></a>1 微服务的发展</h2><p>微服务倡导将复杂的单体应用拆分为若干个功能简单、松耦合的服务，这样可以降低开发难度、增强扩展性、便于敏捷开发。当前被越来越多的开发者推崇，很多互联网行业巨头、开源社区等都开始了微服务的讨论和实践。Hailo有160个不同服务构成，NetFlix有大约600个服务。国内方面，阿里巴巴、<a href="http://www.sohu.com/a/203351190_468650" target="_blank" rel="external">腾讯</a>、<a href="http://blog.csdn.net/lambert310/article/details/78084859" target="_blank" rel="external">360</a>、京东、58同城等很多互联网公司都进行了微服务化实践。当前微服务的开发框架也非常多，比较著名的有<a href="http://dubbo.io/" target="_blank" rel="external">Dubbo</a>、<a href="https://springcloud.cc/" target="_blank" rel="external">SpringCloud</a>、<a href="http://thrift.apache.org/" target="_blank" rel="external">thrift</a> 、<a href="http://doc.oschina.net/grpc?t=57966" target="_blank" rel="external">grpc</a>等。</p>
-<h2 id="2-微服务落地存在的问题"><a href="#2-微服务落地存在的问题" class="headerlink" title="2 微服务落地存在的问题"></a>2 微服务落地存在的问题</h2><p>虽然微服务现在如火如荼，但对其实践其实仍处于探索阶段。很多中小型互联网公司，鉴于经验、技术实力等问题，微服务落地比较困难。如著名架构师Chris Richardson所言，目前存在的主要困难有如下几方面：</p>
-<p>1）单体应用拆分为分布式系统后，进程间的通讯机制和故障处理措施变的更加复杂。</p>
-<p>2）系统微服务化后，一个看似简单的功能，内部可能需要调用多个服务并操作多个数据库实现，服务调用的分布式事务问题变的非常突出。</p>
-<p>3）微服务数量众多，其测试、部署、监控等都变的更加困难。</p>
-<p>随着RPC框架的成熟，第一个问题已经逐渐得到解决。例如dubbo可以支持多种通讯协议，springcloud可以非常好的支持restful调用。对于第三个问题，随着docker、devops技术的发展以及各公有云paas平台自动化运维工具的推出，微服务的测试、部署与运维会变得越来越容易。</p>
-<p>而对于第二个问题，现在还没有通用方案很好的解决微服务产生的事务问题。分布式事务已经成为微服务落地最大的阻碍，也是最具挑战性的一个<a href="http://tech.huanqiu.com/news/2017-04/10451235.html" target="_blank" rel="external">技术难题</a>。 为此，本文将深入和大家探讨微服务架构下，分布式事务的各种解决方案，并重点为大家解读阿里巴巴提出的分布式事务解决方案—-GTS。<strong>该方案中提到的GTS是全新一代解决微服务问题的分布式事务互联网中间件</strong>。</p>
-<h2 id="3-SOA分布式事务解决方案"><a href="#3-SOA分布式事务解决方案" class="headerlink" title="3 SOA分布式事务解决方案"></a>3 SOA分布式事务解决方案</h2><h3 id="3-1-基于XA协议的两阶段提交方案"><a href="#3-1-基于XA协议的两阶段提交方案" class="headerlink" title="3.1 基于XA协议的两阶段提交方案"></a>3.1 基于XA协议的两阶段提交方案</h3><p>交易中间件与数据库通过 XA 接口规范，使用两阶段提交来完成一个全局事务， XA 规范的基础是两阶段提交协议。<br>第一阶段是表决阶段，所有参与者都将本事务能否成功的信息反馈发给协调者；第二阶段是执行阶段，协调者根据所有参与者的反馈，通知所有参与者，步调一致地在所有分支上提交或者回滚。</p>
-<p><img src="https://images2018.cnblogs.com/blog/1334519/201803/1334519-20180307150636190-1704712093.png" alt="img"></p>
-<p>两阶段提交方案应用非常广泛，几乎所有商业OLTP数据库都支持XA协议。但是两阶段提交方案锁定资源时间长，对性能影响很大，基本不适合解决微服务事务问题。</p>
-<h3 id="3-2-TCC方案"><a href="#3-2-TCC方案" class="headerlink" title="3.2 TCC方案"></a>3.2 TCC方案</h3><p><a href="https://wenku.baidu.com/view/be946bec0975f46527d3e104.html" target="_blank" rel="external">TCC方案</a>在电商、金融领域落地较多。TCC方案其实是两阶段提交的一种改进。其将整个业务逻辑的每个分支显式的分成了Try、Confirm、Cancel三个操作。Try部分完成业务的准备工作，confirm部分完成业务的提交，cancel部分完成事务的回滚。基本原理如下图所示。</p>
-<p><img src="https://images2018.cnblogs.com/blog/1334519/201803/1334519-20180307150648591-1729601878.png" alt="img"></p>
-<p>事务开始时，业务应用会向事务协调器注册启动事务。之后业务应用会调用所有服务的try接口，完成一阶段准备。之后事务协调器会根据try接口返回情况，决定调用confirm接口或者cancel接口。如果接口调用失败，会进行重试。</p>
-<p>TCC方案让应用自己定义数据库操作的粒度，使得降低锁冲突、提高吞吐量成为可能。 当然TCC方案也有不足之处，集中表现在以下两个方面：</p>
-<ul>
-<li><strong>对应用的侵入性强</strong>。业务逻辑的每个分支都需要实现try、confirm、cancel三个操作，应用侵入性较强，改造成本高。</li>
-<li><strong>实现难度较大</strong>。需要按照网络状态、系统故障等不同的失败原因实现不同的回滚策略。为了满足一致性的要求，confirm和cancel接口必须实现幂等。</li>
-</ul>
-<p>上述原因导致TCC方案大多被研发实力较强、有迫切需求的大公司所采用。微服务倡导服务的轻量化、易部署，而TCC方案中很多事务的处理逻辑需要应用自己编码实现，复杂且开发量大。</p>
-<h3 id="3-3-基于消息的最终一致性方案"><a href="#3-3-基于消息的最终一致性方案" class="headerlink" title="3.3 基于消息的最终一致性方案"></a>3.3 基于消息的最终一致性方案</h3><p>消息一致性方案是通过消息中间件保证上、下游应用数据操作的<a href="https://segmentfault.com/a/1190000011479826" target="_blank" rel="external">一致性</a>。基本思路是将本地操作和发送消息放在一个事务中，保证本地操作和消息发送要么两者都成功或者都失败。下游应用向消息系统订阅该消息，收到消息后执行相应操作。</p>
-<p><img src="https://images2018.cnblogs.com/blog/1334519/201803/1334519-20180307150703434-1501056265.png" alt="img"></p>
-<p>消息方案从本质上讲是将分布式事务转换为两个本地事务，然后依靠下游业务的重试机制达到最终一致性。基于消息的最终一致性方案对应用侵入性也很高，应用需要进行大量业务改造，成本较高。</p>
-<h2 id="4-GTS–分布式事务解决方案"><a href="#4-GTS–分布式事务解决方案" class="headerlink" title="4 GTS–分布式事务解决方案"></a>4 GTS–分布式事务解决方案</h2><p><a href="https://www.aliyun.com/aliware/txc?spm=5176.8142029.388261.386.a72376f4lqvQxv" target="_blank" rel="external">GTS是一款分布式事务中间件</a>，由阿里巴巴中间件部门研发，可以为微服务架构中的分布式事务提供一站式解决方案。</p>
-<p>更多GTS资料请访问<a href="https://weibo.com/jiangyu666" target="_blank" rel="external">创始人微博</a>。</p>
-<h3 id="4-1-GTS的核心优势"><a href="#4-1-GTS的核心优势" class="headerlink" title="4.1 GTS的核心优势"></a>4.1 GTS的核心优势</h3><ul>
-<li><p><strong>性能超强</strong></p>
-<p>GTS通过大量创新，解决了事务ACID特性与高性能、高可用、低侵入不可兼得的问题。单事务分支的平均响应时间在2ms左右，3台服务器组成的集群可以支撑3万TPS以上的分布式事务请求。</p>
-</li>
-<li><p><strong>应用侵入性极低</strong></p>
-<p>GTS对业务低侵入，业务代码最少只需要添加一行注解（@TxcTransaction）声明事务即可。业务与事务分离，将微服务从事务中解放出来，微服务关注于业务本身，不再需要考虑反向接口、幂等、回滚策略等复杂问题，极大降低了微服务开发的难度与工作量。</p>
-</li>
-<li><p><strong>完整解决方案</strong></p>
-<p>GTS支持多种主流的服务框架，包括EDAS，Dubbo，Spring Cloud等。<br>有些情况下，应用需要调用第三方系统的接口，而第三方系统没有接入GTS。此时需要用到GTS的MT模式。GTS的MT模式可以等价于TCC模式，用户可以根据自身业务需求自定义每个事务阶段的具体行为。MT模式提供了更多的灵活性，可能性，以达到特殊场景下的自定义优化及特殊功能的实现。</p>
-</li>
-<li><p><strong>容错能力强</strong></p>
-<p>GTS解决了XA事务协调器单点问题，实现真正的高可用，可以保证各种异常情况下的严格数据一致。</p>
-</li>
-</ul>
-<h3 id="4-2-GTS的应用场景"><a href="#4-2-GTS的应用场景" class="headerlink" title="4.2 GTS的应用场景"></a>4.2 GTS的应用场景</h3><p>GTS可应用在涉及服务调用的多个领域，包括但不限于金融支付、电信、电子商务、快递物流、广告营销、社交、即时通信、手游、视频、物联网、车联网等，详细介绍可以阅读 <a href="https://www.jianshu.com/u/c9668ae2b661" target="_blank" rel="external">《GTS–阿里巴巴分布式事务全新解决方案》</a>一文。</p>
-<h3 id="4-3-GTS与微服务的集成"><a href="#4-3-GTS与微服务的集成" class="headerlink" title="4.3 GTS与微服务的集成"></a>4.3 GTS与微服务的集成</h3><p>GTS包括客户端（GTS Client）、资源管理器（GTS RM）和事务协调器（GTS Server）三个部分。GTS Client主要用来界定事务边界，完成事务的发起与结束。GTS RM完成事务分支的创建、提交、回滚等操作。GTS Server主要负责分布式事务的整体推进，事务生命周期的管理。GTS和微服务集成的结构图如下所示，GTS Client需要和业务应用集成部署，RM与微服务集成部署。</p>
-<p><img src="https://images2018.cnblogs.com/blog/1334519/201803/1334519-20180307150720354-1188496664.png" alt="img"></p>
-<h3 id="4-4-GTS的输出形式"><a href="#4-4-GTS的输出形式" class="headerlink" title="4.4 GTS的输出形式"></a>4.4 GTS的输出形式</h3><p>GTS目前有三种输出形式：公有云输出、公网输出、专有云输出。</p>
-<h4 id="4-4-1-公有云输出"><a href="#4-4-1-公有云输出" class="headerlink" title="4.4.1 公有云输出"></a>4.4.1 公有云输出</h4><p>这种输出形式面向阿里云用户。如果用户的业务系统已经部署到阿里云上，可以申请开通公有云GTS。开通后业务应用即可通过GTS保证服务调用的一致性。这种使用场景下，业务系统和GTS间的网络环境比较理想，达到很好性能。</p>
-<p><img src="https://images2018.cnblogs.com/blog/1334519/201803/1334519-20180307150813657-193084867.png" alt="img"></p>
-<h4 id="4-4-2-公网输出"><a href="#4-4-2-公网输出" class="headerlink" title="4.4.2 公网输出"></a>4.4.2 公网输出</h4><p>这种输出形式面向于非阿里云的用户，使用更加方便、灵活，业务系统只要能连接互联网即可享受GTS提供的云服务（与公有云输出的差别在于客户端部署于用户本地，而不在云上）。</p>
-<p>在正常网络环境下，以包含两个本地事务的全局事务为例，事务完成时间在20ms左右，50个并发就可以轻松实现1000TPS以上分布式事务，对绝大多数业务来说性能是足够的。在公网环境，网络闪断很难完全避免，这种情况下GTS仍能保证服务调用的数据一致性。</p>
-<p><img src="https://images2018.cnblogs.com/blog/1334519/201803/1334519-20180307150800978-1059620711.png" alt="img"></p>
-<p>具体使用样例使用参见4.7节GTS的工程样例。</p>
-<h4 id="4-4-3-专有云输出"><a href="#4-4-3-专有云输出" class="headerlink" title="4.4.3 专有云输出"></a>4.4.3 专有云输出</h4><p>这种形式主要面向于已建设了自己专有云平台的大用户，GTS可以直接部署到用户的专有云上，为专有云提供分布式事务服务。目前已经有10多个特大型企业的专有云使用GTS解决分布式事务难题，性能与稳定性经过了用户的严格检测。</p>
-<h3 id="4-5-GTS的使用方式"><a href="#4-5-GTS的使用方式" class="headerlink" title="4.5 GTS的使用方式"></a>4.5 <a href="https://help.aliyun.com/document_detail/53298.html?spm=a2c4g.11186623.6.554.NZEXg9" target="_blank" rel="external">GTS的使用方式</a></h3><p>GTS对应用的侵入性非常低，使用也很简单。下面以订单存储应用为例说明。订单业务应用通过调用订单服务和库存服务完成订单业务，服务开发框架为Dubbo。</p>
-<h4 id="4-5-1-订单业务应用"><a href="#4-5-1-订单业务应用" class="headerlink" title="4.5.1 订单业务应用"></a>4.5.1 订单业务应用</h4><p>在业务函数外围使用@TxcTransaction注解即可开启分布式事务。Dubbo应用通过隐藏参数将GTS的事务xid传播到服务端。</p>
-<figure class="highlight haxe"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"> @TxcTransaction(timeout = <span class="number">1000</span> * <span class="number">10</span>)</span><br><span class="line"><span class="keyword">public</span> void Bussiness(OrderService orderService, StockService stockService, <span class="keyword">String</span> userId) &#123;</span><br><span class="line">    <span class="comment">//获取事务上下文</span></span><br><span class="line">    <span class="keyword">String</span> xid = TxcContext.getCurrentXid();</span><br><span class="line">    <span class="comment">//通过RpcContext将xid传到一个服务端</span></span><br><span class="line">    RpcContext.getContext().setAttachment(<span class="string">"xid"</span>, xid);</span><br><span class="line">    </span><br><span class="line">    <span class="comment">//执行自己的业务逻辑</span></span><br><span class="line">    int productId = <span class="keyword">new</span> <span class="type">Random</span>().nextInt(<span class="number">100</span>);</span><br><span class="line">    int productNum = <span class="keyword">new</span> <span class="type">Random</span>().nextInt(<span class="number">100</span>);</span><br><span class="line">    OrderDO orderDO = <span class="keyword">new</span> <span class="type">OrderDO</span>(userId, productId, productNum, <span class="keyword">new</span> <span class="type">Timestamp</span>(<span class="keyword">new</span> <span class="type">Date</span>().getTime()));</span><br><span class="line">    orderService.createOrder(orderDO);</span><br><span class="line">    </span><br><span class="line">    <span class="comment">//通过RpcContext将xid传到另一个服务端</span></span><br><span class="line">    RpcContext.getContext().setAttachment(<span class="string">"xid"</span>,xid);</span><br><span class="line">    stockService.updateStock(orderDO);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h4 id="4-5-2-服务提供者"><a href="#4-5-2-服务提供者" class="headerlink" title="4.5.2 服务提供者"></a>4.5.2 服务提供者</h4><p>更新库存方法</p>
-<figure class="highlight processing"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="built_in">int</span> updateStock(OrderDO orderDO) &#123;</span><br><span class="line"></span><br><span class="line"><span class="comment">//获取全局事务ID，并绑定到上下文</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">String</span> xid = RpcContext.getContext().getAttachment(<span class="string">"xid"</span>);</span><br><span class="line"></span><br><span class="line">TxcContext.bind(xid,<span class="keyword">null</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">//执行自己的业务逻辑</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">int</span> ret = jdbcTemplate.update(<span class="string">"update stock set amount = amount - ? where product_id = ?"</span>,<span class="keyword">new</span> <span class="keyword">Object</span>[]&#123;orderDO.getNumber(), orderDO.getProductId()&#125;);</span><br><span class="line"></span><br><span class="line">TxcContext.unbind();</span><br><span class="line"></span><br><span class="line"><span class="keyword">return</span> ret;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h3 id="4-6-GTS的应用情况"><a href="#4-6-GTS的应用情况" class="headerlink" title="4.6 GTS的应用情况"></a>4.6 GTS的应用情况</h3><p>GTS目前已经在淘宝、天猫、阿里影业、淘票票、阿里妈妈、1688等阿里各业务系统广泛使用，经受了16年和17年两年双十一海量请求的考验。某线上业务系统最高流量已达十万TPS（每秒钟10万笔事务）。</p>
-<p>GTS在公有云和专有云输出后，已经有了100多个线上用户，很多用户通过GTS解决SpringCloud、Dubbo、Edas等服务框架的分布式事务问题。业务领域涉及电力、物流、ETC、烟草、金融、零售、电商、共享出行等十几个行业，得到<a href="https://www.aliyun.com/aliware/hotproducts/gtscase1?open_id=42e50fd2-3b02-4d91-9468-4c785adaaff4-53709576&amp;open_cid=17680" target="_blank" rel="external">用户的一致认可</a>。</p>
-<p><img src="https://images2018.cnblogs.com/blog/1334519/201803/1334519-20180307150852411-2089496276.png" alt="img"></p>
-<p>上图是GTS与SpringCloud集成，应用于某共享出行系统。业务共享出行场景下，通过GTS支撑物联网系统、订单系统、支付系统、运维系统、分析系统等系各统应用的数据一致性，保证海量订单和数千万流水的交易。</p>
-<h3 id="4-7-GTS的工程样例"><a href="#4-7-GTS的工程样例" class="headerlink" title="4.7 GTS的工程样例"></a>4.7 GTS的工程样例</h3><p>GTS的公有云样例可参考阿里云网站。在公网环境下提供<a href="http://txc-console.oss-cn-beijing.aliyuncs.com/sample/sample-txc-simple.zip" target="_blank" rel="external">sample-txc-simple</a>和<a href="http://txc-console.oss-cn-beijing.aliyuncs.com/sample/sample-txc-dubbo.zip" target="_blank" rel="external">sample-txc-dubbo</a>两个样例工程。</p>
-<h4 id="4-7-1-sample-txc-simple样例"><a href="#4-7-1-sample-txc-simple样例" class="headerlink" title="4.7.1 sample-txc-simple样例"></a>4.7.1 sample-txc-simple样例</h4><h5 id="4-7-1-1-样例业务逻辑"><a href="#4-7-1-1-样例业务逻辑" class="headerlink" title="4.7.1.1 样例业务逻辑"></a>4.7.1.1 样例业务逻辑</h5><p>该样例是GTS的入门sample，案例的业务逻辑是从A账户转账给B账户，其中A和B分别位于两个MySQL数据库中，使用GTS事务保证A和B账户钱的总数始终不变。</p>
-<h5 id="4-7-1-2-样例搭建方法"><a href="#4-7-1-2-样例搭建方法" class="headerlink" title="4.7.1.2 样例搭建方法"></a>4.7.1.2 样例搭建方法</h5><p>1) 准备数据库环境</p>
-<p>安装MySQL，创建两个数据库db1和db2。在db1和db2中分别创建<strong>txc_undo_log</strong>表（SQL脚本见4.7.3）。在db1库中创建user_money_a表，在db2库中创建user_money_b表。</p>
-<p>2) 下载样例</p>
-<p>将sample-txc-simple文件下载到本地，样例中已经包含了GTS的SDK。</p>
-<p>3) 修改配置</p>
-<p>打开sample-txc-simple/src/main/resources目录下的txc-client-context.xml，将数据源的url、username、password修改为实际值。</p>
-<p>4) 运行样例</p>
-<p>在sample-txc-simple目录下执行build.sh编译本工程。编译完成后执行run.sh。</p>
-<h4 id="4-7-2-sample-txc-dubbo-样例"><a href="#4-7-2-sample-txc-dubbo-样例" class="headerlink" title="4.7.2 sample-txc-dubbo 样例"></a>4.7.2 sample-txc-dubbo 样例</h4><h5 id="4-7-2-1-样例业务逻辑"><a href="#4-7-2-1-样例业务逻辑" class="headerlink" title="4.7.2.1 样例业务逻辑"></a>4.7.2.1 样例业务逻辑</h5><p>本案例模拟了用户下订单、减库存的业务逻辑。客户端（Client）通过调用订单服务（OrderService）创建订单，之后通过调用库存服务（StockService）扣库存。其中订单服务读写订单数据库，库存服务读写库存数据库。由 GTS 保证跨服务事务的一致性。</p>
-<h5 id="4-7-2-2-样例搭建方法"><a href="#4-7-2-2-样例搭建方法" class="headerlink" title="4.7.2.2 样例搭建方法"></a>4.7.2.2 样例搭建方法</h5><p>1) 准备数据库环境</p>
-<p>安装MySQL，创建两个数据库db1和db2。在db1和db2中分别创建txc_undo_log表。在db1库中创建orders表，在db2库中创建stock表。</p>
-<p>2) 下载样例</p>
-<p>将样例文件sample-txc-dubbo下载到本地机器，样例中已经包含了GTS的SDK。</p>
-<p>3) 修改配置</p>
-<p>打开sample-txc-dubbo/src/main/resources目录，将dubbo-order-service.xml、dubbo-stock-service.xml两个文件中数据源的url、username、password修改为实际值。</p>
-<p>4) 运行样例</p>
-<p>a. 编译程序</p>
-<p>在工程根目录执行 build.sh 命令，编译工程。编译后会在 sample-txc-dubbo/client/bin 目录下生成 order_run.sh、stock_run.sh、client_run.sh 三个运行脚本对应订单服务、库存服务以及客户端。</p>
-<p>b. 运行程序</p>
-<p>在根目录执行run.sh，该脚本会依次启动order_run.sh(订单服务)、stock_run.sh(库存服务)和client_run.sh(客户端程序)。</p>
-<h5 id="4-7-2-3-其他说明"><a href="#4-7-2-3-其他说明" class="headerlink" title="4.7.2.3 其他说明"></a>4.7.2.3 其他说明</h5><p>样例使用Multicast注册中心的声明方式。如果本机使用无线网络，dubbo服务在绑定地址时有可能获取ipv6地址，可以通过jvm启动参数禁用。<br>方法是配置jvm启动参数 <strong>-Djava.net.preferIPv4Stack=true</strong>。</p>
-<h4 id="4-7-3-SQL"><a href="#4-7-3-SQL" class="headerlink" title="4.7.3 SQL"></a>4.7.3 SQL</h4><h5 id="4-7-3-1-建表-txc-undo-log"><a href="#4-7-3-1-建表-txc-undo-log" class="headerlink" title="4.7.3.1 建表 txc_undo_log"></a>4.7.3.1 建表 txc_undo_log</h5><p>CREATE TABLE <code>txc_undo_log</code> (</p>
-<p><code>id</code> bigint(20) NOT NULL AUTO_INCREMENT COMMENT ‘主键’,</p>
-<p><code>gmt_create</code> datetime NOT NULL COMMENT ‘创建时间’,</p>
-<p><code>gmt_modified</code> datetime NOT NULL COMMENT ‘修改时间’,</p>
-<p><code>xid</code> varchar(100) NOT NULL COMMENT ‘全局事务ID’,</p>
-<p><code>branch_id</code> bigint(20) NOT NULL COMMENT ‘分支事务ID’,</p>
-<p><code>rollback_info</code> longblob NOT NULL COMMENT ‘LOG’,</p>
-<p><code>status</code> int(11) NOT NULL COMMENT ‘状态’,</p>
-<p><code>server</code> varchar(32) NOT NULL COMMENT ‘分支所在DB IP’,</p>
-<p>PRIMARY KEY (<code>id</code>),</p>
-<p>KEY <code>unionkey</code> (<code>xid</code>,<code>branch_id</code>)</p>
-<p>) ENGINE=InnoDB AUTO_INCREMENT=211225994 DEFAULT CHARSET=utf8 COMMENT=’事务日志表’;</p>
-<h5 id="4-7-3-2-建表-user-money-a"><a href="#4-7-3-2-建表-user-money-a" class="headerlink" title="4.7.3.2 建表 user_money_a"></a>4.7.3.2 建表 user_money_a</h5><p>CREATE TABLE <code>user_money_a</code> (</p>
-<p><code>id</code> int(11) NOT NULL AUTO_INCREMENT,</p>
-<p><code>money</code> int(11) DEFAULT NULL,</p>
-<p>PRIMARY KEY (<code>id</code>)</p>
-<p>) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;</p>
-<h5 id="4-7-3-3-建表-user-money-b"><a href="#4-7-3-3-建表-user-money-b" class="headerlink" title="4.7.3.3 建表 user_money_b"></a>4.7.3.3 建表 user_money_b</h5><p>CREATE TABLE <code>user_money_b</code> (</p>
-<p><code>id</code> int(11) NOT NULL AUTO_INCREMENT,</p>
-<p><code>money</code> int(11) DEFAULT NULL,</p>
-<p>PRIMARY KEY (<code>id</code>)</p>
-<p>) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;</p>
-<h5 id="4-7-3-4-建表-orders"><a href="#4-7-3-4-建表-orders" class="headerlink" title="4.7.3.4 建表 orders"></a>4.7.3.4 建表 orders</h5><p>CREATE TABLE <code>orders</code> (</p>
-<p><code>id</code> bigint(20) NOT NULL AUTO_INCREMENT,</p>
-<p><code>user_id</code> varchar(255) NOT NULL,</p>
-<p><code>product_id</code> int(11) NOT NULL,</p>
-<p><code>number</code> int(11) NOT NULL,</p>
-<p><code>gmt_create</code> timestamp NOT NULL,</p>
-<p>PRIMARY KEY (<code>id</code>)</p>
-<p>) ENGINE=MyISAM AUTO_INCREMENT=351 DEFAULT CHARSET=utf8</p>
-<h5 id="4-7-3-5-建表-stock"><a href="#4-7-3-5-建表-stock" class="headerlink" title="4.7.3.5 建表 stock"></a>4.7.3.5 建表 stock</h5><p>CREATE TABLE <code>stock</code> (</p>
-<p><code>product_id</code> int(11) NOT NULL,</p>
-<p><code>price</code> float NOT NULL,</p>
-<p><code>amount</code> int(11) NOT NULL,</p>
-<p>PRIMARY KEY (<code>product_id</code>)</p>
-<p>) ENGINE=InnoDB DEFAULT CHARSET=utf8</p>
-<blockquote>
-<p><a href="https://www.cnblogs.com/jiangyu666/p/8522547.html" target="_blank" rel="external">https://www.cnblogs.com/jiangyu666/p/8522547.html</a></p>
-</blockquote>
-
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-      
-
-      <div style="font-size: 12px;">
-        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
-      </div>
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2018/10/10/微服务架构下分布式事务解决方式-GTS/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
-    <article id="post-Spring-AutowireCapableBeanFactory-整合-quartz" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2018/09/27/Spring-AutowireCapableBeanFactory-整合-quartz/">Spring AutowireCapableBeanFactory 整合 quartz</a>
-    </h1>
-  
-
-        
-        <a href="/2018/09/27/Spring-AutowireCapableBeanFactory-整合-quartz/" class="archive-article-date">
-  	<time datetime="2018-09-27T09:29:58.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-09-27</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h3 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h3><p>最近做spring与quartz整合。业务实现时，需要在job里引入spring的bean，但是job的初始化时quartz在执行时new出来的。不受spring的管理，无法注入相关的依赖bean。多方查阅资料后，发现AutowireCapableBeanFactory可以实现类似功能。下面就通过走读代码的方式来学习下这个类的用法。</p>
-<h3 id="进入正题"><a href="#进入正题" class="headerlink" title="进入正题"></a>进入正题</h3><p>首先来看下AutowireCapableBeanFactory的定义：</p>
-<figure class="highlight processing"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> interface AutowireCapableBeanFactory extends BeanFactory &#123;</span><br><span class="line">    &lt;T&gt; T createBean(Class&lt;T&gt; beanClass) <span class="keyword">throws</span> BeansException;</span><br><span class="line">    <span class="keyword">void</span> autowireBean(<span class="keyword">Object</span> existingBean) <span class="keyword">throws</span> BeansException;</span><br><span class="line">    <span class="keyword">Object</span> configureBean(<span class="keyword">Object</span> existingBean, <span class="keyword">String</span> beanName) <span class="keyword">throws</span> BeansException;</span><br><span class="line">    <span class="keyword">Object</span> createBean(Class&lt;?&gt; beanClass, <span class="built_in">int</span> autowireMode, <span class="built_in">boolean</span> dependencyCheck) <span class="keyword">throws</span> BeansException;</span><br><span class="line">    <span class="keyword">Object</span> autowire(Class&lt;?&gt; beanClass, <span class="built_in">int</span> autowireMode, <span class="built_in">boolean</span> dependencyCheck) <span class="keyword">throws</span> BeansException;</span><br><span class="line">    <span class="keyword">void</span> autowireBeanProperties(<span class="keyword">Object</span> existingBean, <span class="built_in">int</span> autowireMode, <span class="built_in">boolean</span> dependencyCheck)</span><br><span class="line">            <span class="keyword">throws</span> BeansException;</span><br><span class="line">    <span class="keyword">void</span> applyBeanPropertyValues(<span class="keyword">Object</span> existingBean, <span class="keyword">String</span> beanName) <span class="keyword">throws</span> BeansException;</span><br><span class="line">    <span class="keyword">Object</span> initializeBean(<span class="keyword">Object</span> existingBean, <span class="keyword">String</span> beanName) <span class="keyword">throws</span> BeansException;</span><br><span class="line">    <span class="keyword">Object</span> applyBeanPostProcessorsBeforeInitialization(<span class="keyword">Object</span> existingBean, <span class="keyword">String</span> beanName)</span><br><span class="line">            <span class="keyword">throws</span> BeansException;</span><br><span class="line">    <span class="keyword">Object</span> applyBeanPostProcessorsAfterInitialization(<span class="keyword">Object</span> existingBean, <span class="keyword">String</span> beanName)</span><br><span class="line">            <span class="keyword">throws</span> BeansException;</span><br><span class="line">    <span class="keyword">void</span> destroyBean(<span class="keyword">Object</span> existingBean);</span><br><span class="line">    &lt;T&gt; NamedBeanHolder&lt;T&gt; resolveNamedBean(Class&lt;T&gt; requiredType) <span class="keyword">throws</span> BeansException;</span><br><span class="line">    <span class="keyword">Object</span> resolveDependency(DependencyDescriptor descriptor, <span class="keyword">String</span> requestingBeanName) <span class="keyword">throws</span> BeansException;</span><br><span class="line">    <span class="keyword">Object</span> resolveDependency(DependencyDescriptor descriptor, <span class="keyword">String</span> requestingBeanName,</span><br><span class="line">            Set&lt;<span class="keyword">String</span>&gt; autowiredBeanNames, TypeConverter typeConverter) <span class="keyword">throws</span> BeansException;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>该类的注释中有这么一句话<code>Integration code for other frameworks can leverage this interface to wire and populate existing bean instances that Spring does not control the lifecycle of</code>，意思是说该类可以填充那些不受spring容器控制的bean。<br> spring和quartz在集成的时候用了autowireBean方法。下面走读这个方法的代码来看处理逻辑。<br> autowireBean的实现在类AbstractAutowireCapableBeanFactory中。<br> 代码如下</p>
-<figure class="highlight armasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="symbol">public</span> void autowireBean(Object existingBean) &#123;</span><br><span class="line">        // Use non-singleton <span class="keyword">bean </span>definition, to avoid registering <span class="keyword">bean </span>as dependent <span class="keyword">bean.</span></span><br><span class="line"><span class="keyword"> </span>       RootBeanDefinition <span class="keyword">bd </span>= new RootBeanDefinition(ClassUtils.getUserClass(existingBean))<span class="comment">;</span></span><br><span class="line">        <span class="keyword">bd.setScope(BeanDefinition.SCOPE_PROTOTYPE);</span></span><br><span class="line"><span class="keyword"> </span>       <span class="keyword">bd.allowCaching </span>= ClassUtils.isCacheSafe(<span class="keyword">bd.getBeanClass(), </span>getBeanClassLoader())<span class="comment">;</span></span><br><span class="line">        <span class="keyword">BeanWrapper </span><span class="keyword">bw </span>= new <span class="keyword">BeanWrapperImpl(existingBean);</span></span><br><span class="line"><span class="keyword"> </span>       initBeanWrapper(<span class="keyword">bw);</span></span><br><span class="line"><span class="keyword"> </span>       <span class="keyword">populateBean(bd.getBeanClass().getName(), </span><span class="keyword">bd, </span><span class="keyword">bw);</span></span><br><span class="line"><span class="keyword"> </span>   &#125;</span><br></pre></td></tr></table></figure>
-<p>该方法的逻辑主要在populateBean中。这个方法是spring里很重要的一个方法，用于装配bean。这里逻辑很复杂，主要是通过反射获取我们new出来的对象的属性及注解。若注解是Autowired,Value,Inject时，进行bean的组装。此方法执行完成之后。我们new出来的对象里通过注解注入的bean就可以使用了。<br> 关键代码展示：</p>
-<figure class="highlight armasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line"><span class="symbol">protected</span> void <span class="keyword">populateBean(String </span><span class="keyword">beanName, </span>RootBeanDefinition mbd, <span class="keyword">BeanWrapper </span><span class="keyword">bw) </span>&#123;</span><br><span class="line">    ......</span><br><span class="line">        <span class="meta">if</span> (hasInstAwareBpps <span class="title">||</span> needsDepCheck) &#123;</span><br><span class="line">            PropertyDescriptor[] filteredPds = filterPropertyDescriptorsForDependencyCheck(<span class="keyword">bw, </span>mbd.allowCaching)<span class="comment">;</span></span><br><span class="line">            <span class="meta">if</span> (hasInstAwareBpps) &#123;</span><br><span class="line">                for (<span class="keyword">BeanPostProcessor </span><span class="keyword">bp </span>: getBeanPostProcessors()) &#123;</span><br><span class="line">                    <span class="meta">if</span> (<span class="keyword">bp </span>instanceof InstantiationAwareBeanPostProcessor) &#123;</span><br><span class="line">                        InstantiationAwareBeanPostProcessor ibp = (InstantiationAwareBeanPostProcessor) <span class="keyword">bp;</span></span><br><span class="line"><span class="keyword"> </span>                     //依赖的<span class="keyword">bean注入在这里实现</span></span><br><span class="line"><span class="keyword"> </span>                       pvs = ibp.postProcessPropertyValues(pvs, filteredPds, <span class="keyword">bw.getWrappedInstance(), </span><span class="keyword">beanName);</span></span><br><span class="line"><span class="keyword"> </span>                 //<span class="meta">end</span></span><br><span class="line">                        <span class="meta">if</span> (pvs == null) &#123;</span><br><span class="line">                            return<span class="comment">;</span></span><br><span class="line">                        &#125;</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="meta">if</span> (needsDepCheck) &#123;</span><br><span class="line">                checkDependencies(<span class="keyword">beanName, </span>mbd, filteredPds, pvs)<span class="comment">;</span></span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        applyPropertyValues(<span class="keyword">beanName, </span>mbd, <span class="keyword">bw, </span>pvs)<span class="comment">;</span></span><br><span class="line">    &#125;</span><br><span class="line"><span class="symbol">public</span> PropertyValues postProcessPropertyValues(</span><br><span class="line">            PropertyValues pvs, PropertyDescriptor[] pds, Object <span class="keyword">bean, </span><span class="keyword">String </span><span class="keyword">beanName) </span>throws <span class="keyword">BeanCreationException </span>&#123;</span><br><span class="line"></span><br><span class="line">            //获取注入的属性</span><br><span class="line">        InjectionMetadata metadata = findAutowiringMetadata(<span class="keyword">beanName, </span><span class="keyword">bean.getClass(), </span>pvs)<span class="comment">;</span></span><br><span class="line">        try &#123;</span><br><span class="line">                    //注入</span><br><span class="line">            metadata.inject(<span class="keyword">bean, </span><span class="keyword">beanName, </span>pvs)<span class="comment">;</span></span><br><span class="line">        &#125;</span><br><span class="line">        catch (<span class="keyword">BeanCreationException </span>ex) &#123;</span><br><span class="line">            throw ex<span class="comment">;</span></span><br><span class="line">        &#125;</span><br><span class="line">        catch (Throwable ex) &#123;</span><br><span class="line">            throw new <span class="keyword">BeanCreationException(beanName, </span><span class="string">"Injection of autowired dependencies failed"</span>, ex)<span class="comment">;</span></span><br><span class="line">        &#125;</span><br><span class="line">        return pvs<span class="comment">;</span></span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
-<h3 id="例子"><a href="#例子" class="headerlink" title="例子"></a>例子</h3><p>quartz 的job里注入bean：<br> job 工厂：</p>
-<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">public <span class="class"><span class="keyword">class</span> <span class="title">JobFactory</span> <span class="keyword">extends</span> <span class="title">AdaptableJobFactory</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="keyword">private</span> <span class="type">AutowireCapableBeanFactory</span> capableBeanFactory;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">protected</span> <span class="type">Object</span> createJobInstance(<span class="type">TriggerFiredBundle</span> bundle) <span class="keyword">throws</span> <span class="type">Exception</span> &#123;</span><br><span class="line">        <span class="comment">//调用父类的方法</span></span><br><span class="line">        <span class="type">Object</span> jobInstance = <span class="keyword">super</span>.createJobInstance(bundle);</span><br><span class="line">        <span class="comment">//进行注入</span></span><br><span class="line">        capableBeanFactory.autowireBean(jobInstance);</span><br><span class="line">        <span class="keyword">return</span> jobInstance;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>job的具体处理逻辑</p>
-<figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">final</span> <span class="class"><span class="keyword">class</span> <span class="title">InternalJob</span> <span class="keyword">implements</span> <span class="title">Job</span> &#123;</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> Logger logger = LoggerFactory.getLogger(InternalJob .<span class="keyword">class</span>);</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="keyword">private</span> CuratorFramework client;</span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="keyword">private</span> JobAlarmEventService jobAlarmEventService;</span><br></pre></td></tr></table></figure>
-<p>job的spring配置：</p>
-<figure class="highlight applescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&lt;bean <span class="built_in">id</span>=<span class="string">"jobFactory"</span> <span class="built_in">class</span>=<span class="string">"com.test.scheduler.JobFactory"</span>&gt;&lt;/bean&gt;</span><br><span class="line">    &lt;bean <span class="built_in">id</span>=<span class="string">"schedulerFactoryBean"</span> <span class="built_in">class</span>=<span class="string">"org.springframework.scheduling.quartz.SchedulerFactoryBean"</span>&gt;</span><br><span class="line">        &lt;<span class="keyword">property</span> <span class="built_in">name</span>=<span class="string">"jobFactory"</span> <span class="keyword">ref</span>=<span class="string">"jobFactory"</span>&gt;&lt;/<span class="keyword">property</span>&gt;</span><br><span class="line">        &lt;<span class="keyword">property</span> <span class="built_in">name</span>=<span class="string">"schedulerName"</span> value=<span class="string">"scheduler"</span>&gt;&lt;/<span class="keyword">property</span>&gt;</span><br><span class="line">        &lt;<span class="keyword">property</span> <span class="built_in">name</span>=<span class="string">"configLocation"</span>  value=<span class="string">"classpath:META-INF/spring/quartz.properties"</span>&gt;&lt;/<span class="keyword">property</span>&gt;    </span><br><span class="line">    &lt;/bean&gt;</span><br></pre></td></tr></table></figure>
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-      
-
-      <div style="font-size: 12px;">
-        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
-      </div>
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2018/09/27/Spring-AutowireCapableBeanFactory-整合-quartz/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
   
     <nav id="page-nav">
       <a class="extend prev" rel="prev" href="/page/3/">&laquo; Prev</a><a class="page-number" href="/">1</a><a class="page-number" href="/page/2/">2</a><a class="page-number" href="/page/3/">3</a><span class="page-number current">4</span><a class="page-number" href="/page/5/">5</a><a class="page-number" href="/page/6/">6</a><span class="space">&hellip;</span><a class="page-number" href="/page/18/">18</a><a class="extend next" rel="next" href="/page/5/">Next &raquo;</a>
@@ -1311,19 +1134,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">ops</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">git</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">Maven</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">JVM</a>
+                <a href="javascript:void(0)" class="js-tag color4">ops</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1331,7 +1146,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">redis</a>
+                <a href="javascript:void(0)" class="js-tag color4">JVM</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">Maven</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1339,11 +1158,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">linux</a>
+                <a href="javascript:void(0)" class="js-tag color1">redis</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">快捷键</a>
+                <a href="javascript:void(0)" class="js-tag color1">linux</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1351,11 +1170,15 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">MySQL</a>
+                <a href="javascript:void(0)" class="js-tag color5">test</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">Python</a>
+                <a href="javascript:void(0)" class="js-tag color4">快捷键</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">MySQL</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1363,19 +1186,19 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">Python</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">限流</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">RxJava</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">test</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">react</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">RxJava</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1395,19 +1218,15 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">elastic-job</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">guava</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">大数据</a>
+                <a href="javascript:void(0)" class="js-tag color2">elastic-job</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">nio</a>
+                <a href="javascript:void(0)" class="js-tag color4">大数据</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1419,19 +1238,19 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">nio</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">rest</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">Mac</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">maven</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">mybatis</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">Mac</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1455,19 +1274,19 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">前端指南</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">后端</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">分布式</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">事务</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">前端指南</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">后端</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1491,15 +1310,15 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">HashMap</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">前端跨域</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">单例</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">HashMap</a>
               </li>
              
               <li class="article-tag-list-item">

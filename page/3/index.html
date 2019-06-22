@@ -150,6 +150,740 @@
           <div id="js-content" class="content-ll">
             
   
+    <article id="post-Spring-session-与JWT、OAtuh2" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2019/02/17/Spring-session-与JWT、OAtuh2/">Spring session 与JWT、OAuth2</a>
+    </h1>
+  
+
+        
+        <a href="/2019/02/17/Spring-session-与JWT、OAtuh2/" class="archive-article-date">
+  	<time datetime="2019-02-17T08:04:14.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2019-02-17</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="spring-session-data-redis"><a href="#spring-session-data-redis" class="headerlink" title="spring-session-data-redis"></a>spring-session-data-redis</h2><h3 id="sesssion存的值及属性"><a href="#sesssion存的值及属性" class="headerlink" title="sesssion存的值及属性"></a>sesssion存的值及属性</h3><p><code>get spring:session:sessions:expires:381be901-f399-443d-baf7-a274a98ac019</code></p>
+<p>得到<br><code>maxInactiveInterval</code><br><code>lastAccessedTime</code><br><code>creationTime</code><br><code>sessionAttr:Mic</code></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">request.getSession().setAttribute(<span class="string">"Mic"</span>,<span class="string">"value"</span>);</span><br></pre></td></tr></table></figure>
+<figure class="highlight taggerscript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">127.0.0.1:6379&gt; hgetall spring:session:sessions:e8b7c9a1-8c4a-4f03-996f-619cfba91ea1</span><br><span class="line">1) "maxInactiveInterval"</span><br><span class="line">2) "<span class="symbol">\x</span>ac<span class="symbol">\x</span>ed<span class="symbol">\x</span>00<span class="symbol">\x</span>05sr<span class="symbol">\x</span>00<span class="symbol">\x</span>11java.lang.Integer<span class="symbol">\x</span>12<span class="symbol">\x</span>e2<span class="symbol">\x</span>a0<span class="symbol">\x</span>a4<span class="symbol">\x</span>f7<span class="symbol">\x</span>81<span class="symbol">\x</span>878<span class="symbol">\x</span>02<span class="symbol">\x</span>00<span class="symbol">\x</span>01I<span class="symbol">\x</span>00<span class="symbol">\x</span>05valuexr<span class="symbol">\x</span>00<span class="symbol">\x</span>10java.lang.Number<span class="symbol">\x</span>86<span class="symbol">\x</span>ac<span class="symbol">\x</span>95<span class="symbol">\x</span>1d<span class="symbol">\x</span>0b<span class="symbol">\x</span>94<span class="symbol">\x</span>e0<span class="symbol">\x</span>8b<span class="symbol">\x</span>02<span class="symbol">\x</span>00<span class="symbol">\x</span>00xp<span class="symbol">\x</span>00<span class="symbol">\x</span>00<span class="symbol">\x</span>02X"</span><br><span class="line">3) "lastAccessedTime"</span><br><span class="line">4) "<span class="symbol">\x</span>ac<span class="symbol">\x</span>ed<span class="symbol">\x</span>00<span class="symbol">\x</span>05sr<span class="symbol">\x</span>00<span class="symbol">\x</span>0ejava.lang.Long;<span class="symbol">\x</span>8b<span class="symbol">\x</span>e4<span class="symbol">\x</span>90<span class="symbol">\x</span>cc<span class="symbol">\x</span>8f#<span class="symbol">\x</span>df<span class="symbol">\x</span>02<span class="symbol">\x</span>00<span class="symbol">\x</span>01J<span class="symbol">\x</span>00<span class="symbol">\x</span>05valuexr<span class="symbol">\x</span>00<span class="symbol">\x</span>10java.lang.Number<span class="symbol">\x</span>86<span class="symbol">\x</span>ac<span class="symbol">\x</span>95<span class="symbol">\x</span>1d<span class="symbol">\x</span>0b<span class="symbol">\x</span>94<span class="symbol">\x</span>e0<span class="symbol">\x</span>8b<span class="symbol">\x</span>02<span class="symbol">\x</span>00<span class="symbol">\x</span>00xp<span class="symbol">\x</span>00<span class="symbol">\x</span>00<span class="symbol">\x</span>01h<span class="symbol">\x</span>f9<span class="symbol">\x</span>bb<span class="symbol">\x</span>cc<span class="symbol">\x</span>ff"</span><br><span class="line">5) "sessionAttr:Mic"</span><br><span class="line">6) "<span class="symbol">\x</span>ac<span class="symbol">\x</span>ed<span class="symbol">\x</span>00<span class="symbol">\x</span>05t<span class="symbol">\x</span>00<span class="symbol">\x</span>05value"</span><br><span class="line">7) "creationTime"</span><br><span class="line">8) "<span class="symbol">\x</span>ac<span class="symbol">\x</span>ed<span class="symbol">\x</span>00<span class="symbol">\x</span>05sr<span class="symbol">\x</span>00<span class="symbol">\x</span>0ejava.lang.Long;<span class="symbol">\x</span>8b<span class="symbol">\x</span>e4<span class="symbol">\x</span>90<span class="symbol">\x</span>cc<span class="symbol">\x</span>8f#<span class="symbol">\x</span>df<span class="symbol">\x</span>02<span class="symbol">\x</span>00<span class="symbol">\x</span>01J<span class="symbol">\x</span>00<span class="symbol">\x</span>05valuexr<span class="symbol">\x</span>00<span class="symbol">\x</span>10java.lang.Number<span class="symbol">\x</span>86<span class="symbol">\x</span>ac<span class="symbol">\x</span>95<span class="symbol">\x</span>1d<span class="symbol">\x</span>0b<span class="symbol">\x</span>94<span class="symbol">\x</span>e0<span class="symbol">\x</span>8b<span class="symbol">\x</span>02<span class="symbol">\x</span>00<span class="symbol">\x</span>00xp<span class="symbol">\x</span>00<span class="symbol">\x</span>00<span class="symbol">\x</span>01h<span class="symbol">\x</span>f9<span class="symbol">\x</span>b6<span class="symbol">\x</span>d0<span class="symbol">\x</span>f5"</span><br></pre></td></tr></table></figure>
+<h3 id="过期时间"><a href="#过期时间" class="headerlink" title="过期时间"></a>过期时间</h3><p><code>get spring:session:sessions:expires:e8b7c9a1-8c4a-4f03-996f-619cfba91ea1</code></p>
+<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">127<span class="selector-class">.0</span><span class="selector-class">.0</span><span class="selector-class">.1</span><span class="selector-pseudo">:6379</span>&gt; <span class="selector-tag">get</span> <span class="selector-tag">spring</span><span class="selector-pseudo">:session</span><span class="selector-pseudo">:sessions</span><span class="selector-pseudo">:expires</span><span class="selector-pseudo">:e8b7c9a1-8c4a-4f03-996f-619cfba91ea1</span></span><br></pre></td></tr></table></figure>
+<h2 id="JWT"><a href="#JWT" class="headerlink" title="JWT"></a>JWT</h2><blockquote>
+<p><a href="https://jwt.io" target="_blank" rel="external">https://jwt.io</a></p>
+</blockquote>
+<ul>
+<li>验证签名规范</li>
+</ul>
+<h3 id="header"><a href="#header" class="headerlink" title="header"></a>header</h3><figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">"alg"</span>: <span class="string">"HS256"</span>,</span><br><span class="line">  <span class="attr">"typ"</span>: <span class="string">"JWT"</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="payload"><a href="#payload" class="headerlink" title="payload"></a>payload</h3><figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">"sub"</span>: <span class="string">"1234567890"</span>,</span><br><span class="line">  <span class="attr">"name"</span>: <span class="string">"John Doe"</span>,</span><br><span class="line">  <span class="attr">"iat"</span>: <span class="number">1516239022</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="签名算法-verify-signature"><a href="#签名算法-verify-signature" class="headerlink" title="签名算法 verify signature"></a>签名算法 verify signature</h3><figure class="highlight lisp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">HMACSHA256(</span><br><span class="line">  base64UrlEncode(<span class="name">header</span>) + <span class="string">"."</span> +</span><br><span class="line">  base64UrlEncode(<span class="name">payload</span>),</span><br><span class="line"><span class="string">"your-256-bit-secret"</span></span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+<ul>
+<li>your-256-bit-secret 类似秘钥</li>
+</ul>
+<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">HMACSHA256(</span><br><span class="line">  base64UrlEncode(header) + <span class="string">"."</span> +</span><br><span class="line">  base64UrlEncode(payload),</span><br><span class="line">  secret</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+<h3 id="代码参考"><a href="#代码参考" class="headerlink" title="代码参考"></a>代码参考</h3><blockquote>
+<p><a href="https://gitee.com/Joey_z/vip-project-space/blob/master/user-service/user-provider/src/main/java/com/gupaoedu/user/utils/JwtTokenUtils.java" target="_blank" rel="external">https://gitee.com/Joey_z/vip-project-space/blob/master/user-service/user-provider/src/main/java/com/gupaoedu/user/utils/JwtTokenUtils.java</a></p>
+</blockquote>
+<figure class="highlight processing"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> class JwtTokenUtils &#123;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> main(<span class="keyword">String</span>[] args) &#123;</span><br><span class="line">        System.out.<span class="built_in">println</span>(UUID.randomUUID().</span><br><span class="line">                toString().replace(<span class="string">"-"</span>,<span class="string">""</span>));</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//定义your-256-bit-secret</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> Key generatorKey()&#123;</span><br><span class="line">        SignatureAlgorithm saa=SignatureAlgorithm.HS256;</span><br><span class="line">        <span class="built_in">byte</span>[] bin=DatatypeConverter.parseBase64Binary</span><br><span class="line">                (<span class="string">"f3973b64918e4324ad85acea1b6cbec5"</span>);</span><br><span class="line">        Key <span class="built_in">key</span>=<span class="keyword">new</span> SecretKeySpec(bin,saa.getJcaName());</span><br><span class="line">        <span class="keyword">return</span> <span class="built_in">key</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">String</span> generatorToken(Map&lt;<span class="keyword">String</span>,<span class="keyword">Object</span>&gt; payLoad)&#123;</span><br><span class="line">        ObjectMapper objectMapper=<span class="keyword">new</span> ObjectMapper();</span><br><span class="line"></span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line"></span><br><span class="line">      <span class="comment">//定义payload</span></span><br><span class="line">            <span class="keyword">return</span> Jwts.builder().setPayload(objectMapper.writeValueAsString(payLoad))</span><br><span class="line">            <span class="comment">//Jwt  SignatureAlgorithm.HS256定义了header</span></span><br><span class="line">            .signWith(SignatureAlgorithm.HS256,generatorKey()).compact();</span><br><span class="line"></span><br><span class="line">        &#125; <span class="keyword">catch</span> (JsonProcessingException e) &#123;</span><br><span class="line"></span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> Claims phaseToken(<span class="keyword">String</span> token)&#123;</span><br><span class="line">        Jws&lt;Claims&gt; claimsJwt=Jwts.parser().setSigningKey(generatorKey()).parseClaimsJws(token);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> claimsJwt.getBody();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="OAuth2"><a href="#OAuth2" class="headerlink" title="OAuth2"></a>OAuth2</h2>
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+      
+
+      <div style="font-size: 12px;">
+        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
+      </div>
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2019/02/17/Spring-session-与JWT、OAtuh2/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
+    <article id="post-Spring-MVC-DispatchServlet-HanderInteceptor分析" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2019/02/17/Spring-MVC-DispatchServlet-HanderInteceptor分析/">Spring-MVC DispatchServlet HanderInteceptor分析</a>
+    </h1>
+  
+
+        
+        <a href="/2019/02/17/Spring-MVC-DispatchServlet-HanderInteceptor分析/" class="archive-article-date">
+  	<time datetime="2019-02-17T07:46:39.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2019-02-17</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="DispatchServlet-doDispatch方法"><a href="#DispatchServlet-doDispatch方法" class="headerlink" title="DispatchServlet #doDispatch方法"></a>DispatchServlet #doDispatch方法</h2><figure class="highlight smali"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">if (!mappedHandler.applyPreHandle(processedRequest, response)) &#123;</span><br><span class="line">   return;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">// Actually<span class="built_in"> invoke </span>the handler.</span><br><span class="line">mv = ha.handle(processedRequest, response, mappedHandler.getHandler());</span><br><span class="line"></span><br><span class="line">if (asyncManager.isConcurrentHandlingStarted()) &#123;</span><br><span class="line">   return;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">applyDefaultViewName(processedRequest, mv);</span><br><span class="line">mappedHandler.applyPostHandle(processedRequest, response, mv);</span><br></pre></td></tr></table></figure>
+<h2 id="HandlerExecutionChain-applyPreHandle"><a href="#HandlerExecutionChain-applyPreHandle" class="headerlink" title="HandlerExecutionChain#applyPreHandle"></a>HandlerExecutionChain#applyPreHandle</h2><p>实际上责任链模式，分别执行每个<code>HandlerInterceptor</code>的<code>preHandle</code>方法</p>
+<figure class="highlight abnf"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">private HandlerInterceptor[] interceptors<span class="comment">;</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight aspectj"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">boolean</span> <span class="title">applyPreHandle</span><span class="params">(HttpServletRequest request, HttpServletResponse response)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">	HandlerInterceptor[] interceptors = getInterceptors();</span><br><span class="line">	<span class="keyword">if</span> (!ObjectUtils.isEmpty(interceptors)) &#123;</span><br><span class="line">		<span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; interceptors.length; i++) &#123;</span><br><span class="line">			HandlerInterceptor interceptor = interceptors[i];</span><br><span class="line">			<span class="keyword">if</span> (!interceptor.preHandle(request, response, <span class="keyword">this</span>.<span class="keyword">handler</span>)) &#123;</span><br><span class="line">				triggerAfterCompletion(request, response, <span class="keyword">null</span>);</span><br><span class="line">				<span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">			&#125;</span><br><span class="line">			<span class="keyword">this</span>.interceptorIndex = i;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="HandlerExecutionChain-applyPostHandle"><a href="#HandlerExecutionChain-applyPostHandle" class="headerlink" title="HandlerExecutionChain#applyPostHandle"></a>HandlerExecutionChain#applyPostHandle</h2><figure class="highlight aspectj"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">applyPostHandle</span><span class="params">(HttpServletRequest request, HttpServletResponse response, ModelAndView mv)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">	HandlerInterceptor[] interceptors = getInterceptors();</span><br><span class="line">	<span class="keyword">if</span> (!ObjectUtils.isEmpty(interceptors)) &#123;</span><br><span class="line">		<span class="keyword">for</span> (<span class="keyword">int</span> i = interceptors.length - <span class="number">1</span>; i &gt;= <span class="number">0</span>; i--) &#123;</span><br><span class="line">			HandlerInterceptor interceptor = interceptors[i];</span><br><span class="line">			interceptor.postHandle(request, response, <span class="keyword">this</span>.<span class="keyword">handler</span>, mv);</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">Spring-MVC</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+      
+
+      <div style="font-size: 12px;">
+        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
+      </div>
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2019/02/17/Spring-MVC-DispatchServlet-HanderInteceptor分析/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
+    <article id="post-精尽-Dubbo-源码分析-——-01API-配置（一）之应用" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2019/02/11/精尽-Dubbo-源码分析-——-01API-配置（一）之应用/">精尽 Dubbo 源码分析 —— 01API 配置（一）之应用</a>
+    </h1>
+  
+
+        
+        <a href="/2019/02/11/精尽-Dubbo-源码分析-——-01API-配置（一）之应用/" class="archive-article-date">
+  	<time datetime="2019-02-11T13:34:16.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2019-02-11</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <blockquote>
+<p>友情提示，【<strong>配置</strong>】这块的内容，会相对比较枯燥。所以，如果看到一些很难懂的地方，建议先跳过。</p>
+<p>对于 Dubbo ，重点是要去理解，多协议、RPC、容错等等模块，而不是【<strong>配置</strong>】。</p>
+</blockquote>
+<h1 id="1-概述"><a href="#1-概述" class="headerlink" title="1. 概述"></a>1. 概述</h1><p>我们都“知道”，Dubbo 的配置是非常“灵活”的。</p>
+<p>例如，目前提供了四种<strong>配置方式</strong>：</p>
+<ol>
+<li>API 配置</li>
+<li>属性配置</li>
+<li>XML 配置</li>
+<li>注解配置</li>
+</ol>
+<p>ps：🙂 后续的几篇文章也是按照这样的顺序，解析 Dubbo 配置的源码。</p>
+<p>再例如，可灵活设置的<strong>配置项</strong>：</p>
+<blockquote>
+<p>FROM <a href="http://dubbo.apache.org/zh-cn/docs/user/references/xml/introduction.html" target="_blank" rel="external">《Dubbo 用户指南 —— schema 配置参考手册》</a></p>
+<p>所有配置项分为三大类，参见下表中的”作用”一列。</p>
+<ul>
+<li>服务发现：表示该配置项用于服务的注册与发现，目的是让消费方找到提供方。</li>
+<li>服务治理：表示该配置项用于治理服务间的关系，或为开发测试提供便利条件。</li>
+<li>性能调优：表示该配置项用于调优性能，不同的选项对性能会产生影响。</li>
+</ul>
+<p>所有配置最终都将转换为 Dubbo URL 表示，并由服务提供方生成，经注册中心传递给消费方，各属性对应 URL 的参数，参见配置项一览表中的 “对应URL参数” 列。</p>
+</blockquote>
+<p>ps：🙂 可能转换成 Dubbo <a href="https://github.com/YunaiV/dubbo/blob/9d38b6f9f95798755141d6140e311e8fd51fecc1/dubbo-common/src/main/java/com/alibaba/dubbo/common/URL.java" target="_blank" rel="external">URL</a> 不太好理解。良心如笔者，后续有文章会贯串它。</p>
+<p>当然，凡事都有两面性，在社区里也存在建议的声音，例如：<a href="https://github.com/alibaba/dubbo/issues/738" target="_blank" rel="external">《ISSUE#738：XML配置项重新梳理》</a> ：</p>
+<blockquote>
+<p>目前有一些配置项存在暴露的位置不正确、暴露不全面、文档和含义不匹配等问题，期望在2.5.7版本将已知问题予以整理修复</p>
+<p><strong>如果使用中有遇到的配置问题，请在评论中列出以便改进</strong></p>
+</blockquote>
+<h1 id="2-配置一览"><a href="#2-配置一览" class="headerlink" title="2. 配置一览"></a>2. 配置一览</h1><p>我们来看看 <code>dubbo-config-api</code> 的<strong>项目结构</strong>，如下图所示：</p>
+<p><img src="https://gitee.com/Joey_z/dubbo-picture/blob/master/2018_01_07/01.png" alt="dubbo-config-api 项目结构"></p>
+<p>一脸懵逼，好多啊。下面我们来整理下<strong>配置之间的关系</strong>，如下图所示：</p>
+<blockquote>
+<p>FROM <a href="http://dubbo.apache.org/zh-cn/docs/user/configuration/xml.html" target="_blank" rel="external">《Dubbo 用户指南 —— XML 配置》</a><br><img src="http://www.iocoder.cn/images/Dubbo/2018_01_07/02.png" alt="配置之间的关系"></p>
+</blockquote>
+<p>从这张图中，可以看出分成<strong>四个</strong>部分：</p>
+<ol>
+<li>application-shared</li>
+<li>provider-side</li>
+<li>consumer-side</li>
+<li>sub-config</li>
+</ol>
+<p>实际上，上图和目前版本的代码会存在一点点出入，我们在看看实际的<strong>类关系</strong>，如下图所示：</p>
+<p><img src="http://www.iocoder.cn/images/Dubbo/2018_01_07/03.png" alt="配置类关系"></p>
+<ul>
+<li><strong>红勾</strong>部分，application-shared ，在本文进行分享。</li>
+<li><strong>黄框</strong>部分，provider-side ，在 <a href="http://svip.iocoder.cn/Dubbo/configuration-api-2/?self" target="_blank" rel="external">《API 配置（二）之服务提供者》</a> 分享。</li>
+<li><strong>红框</strong>部分，consumer-side ，在 <a href="http://svip.iocoder.cn/Dubbo/configuration-api-3/?self" target="_blank" rel="external">《API 配置（三）之服务消费者》</a> 分享。</li>
+<li><strong>其他</strong>部分，sub-config ，在 <a href="http://svip.iocoder.cn/Dubbo/configuration-api-2/?self" target="_blank" rel="external">《API 配置（二）之服务提供者》</a> 分享。</li>
+</ul>
+<h1 id="3-Config"><a href="#3-Config" class="headerlink" title="3. Config"></a>3. Config</h1><p>我们先来看一段 <a href="http://dubbo.apache.org/zh-cn/docs/user/configuration/api.html" target="_blank" rel="external">《Dubbo 用户指南 —— API 配置》</a> ，提供的消费者的初始化代码：</p>
+<figure class="highlight pony"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 当前应用配置</span></span><br><span class="line"><span class="type">ApplicationConfig</span> application = <span class="function"><span class="keyword">new</span> <span class="title">ApplicationConfig</span>();</span></span><br><span class="line"><span class="function"><span class="title">application</span>.<span class="title">setName</span>("yyy");</span></span><br><span class="line"><span class="function"></span></span><br><span class="line"><span class="function"><span class="comment">// 连接注册中心配置</span></span></span><br><span class="line"><span class="function"><span class="title">RegistryConfig</span> <span class="title">registry</span> = <span class="title">new</span> <span class="title">RegistryConfig</span>();</span></span><br><span class="line"><span class="function"><span class="title">registry</span>.<span class="title">setAddress</span>("<span class="number">10.20</span><span class="number">.130</span><span class="number">.230</span>:<span class="number">9090</span>");</span></span><br><span class="line"><span class="function"><span class="title">registry</span>.<span class="title">setUsername</span>("aaa");</span></span><br><span class="line"><span class="function"><span class="title">registry</span>.<span class="title">setPassword</span>("bbb");</span></span><br><span class="line"><span class="function"></span></span><br><span class="line"><span class="function"><span class="comment">// 注意：ReferenceConfig为重对象，内部封装了与注册中心的连接，以及与服务提供方的连接</span></span></span><br><span class="line"><span class="function"></span></span><br><span class="line"><span class="function"><span class="comment">// 引用远程服务</span></span></span><br><span class="line"><span class="function"><span class="title">ReferenceConfig</span>&lt;<span class="title">XxxService</span>&gt; <span class="title">reference</span> = <span class="title">new</span> <span class="title">ReferenceConfig</span>&lt;<span class="title">XxxService</span>&gt;(); <span class="comment">// 此实例很重，封装了与注册中心的连接以及与提供者的连接，请自行缓存，否则可能造成内存和连接泄漏</span></span></span><br><span class="line"><span class="function"><span class="title">reference</span>.<span class="title">setApplication</span>(application);</span></span><br><span class="line"><span class="function"><span class="title">reference</span>.<span class="title">setRegistry</span>(registry); <span class="comment">// 多个注册中心可以用setRegistries()</span></span></span><br><span class="line"><span class="function"><span class="title">reference</span>.<span class="title">setInterface</span>(<span class="type">XxxService</span>.class);</span></span><br><span class="line"><span class="function"><span class="title">reference</span>.<span class="title">setVersion</span>("<span class="number">1.0</span><span class="number">.0</span>");</span></span><br><span class="line"><span class="function"></span></span><br><span class="line"><span class="function"><span class="comment">// 和本地bean一样使用xxxService</span></span></span><br><span class="line"><span class="function"><span class="title">XxxService</span> <span class="title">xxxService</span> = <span class="title">reference</span>.<span class="title">get</span>(); <span class="comment">// 注意：此代理对象内部封装了所有通讯细节，对象较重，请缓存复用</span></span></span><br></pre></td></tr></table></figure>
+<ul>
+<li>可以看到，创建了 ApplicationConfig 和 RegistryConfig 对象，设置到 ReferenceConfig 对象。</li>
+<li>如果创建 ModuleConfig 或 MonitorConfig 对象，也是可以设置到 ReferenceConfig 对象中。</li>
+</ul>
+<h2 id="3-1-AbstractConfig"><a href="#3-1-AbstractConfig" class="headerlink" title="3.1 AbstractConfig"></a>3.1 AbstractConfig</h2><p><a href="https://github.com/YunaiV/dubbo/blob/9d38b6f9f95798755141d6140e311e8fd51fecc1/dubbo-config/dubbo-config-api/src/main/java/com/alibaba/dubbo/config/AbstractConfig.java" target="_blank" rel="external"><code>com.alibaba.dubbo.config.AbstractConfig</code></a> ，<strong>抽象</strong>配置类，除了 ArgumentConfig ，我们可以看到所有的配置类都继承该类。</p>
+<p>AbstractConfig 主要提供配置解析与校验相关的工具方法。下面我们开始看看它的代码。</p>
+<p><a href="https://github.com/YunaiV/dubbo/blob/9d38b6f9f95798755141d6140e311e8fd51fecc1/dubbo-config/dubbo-config-api/src/main/java/com/alibaba/dubbo/config/AbstractConfig.java#L110" target="_blank" rel="external"><code>id</code></a> 属性，配置对象的编号，适用于除了 API 配置<strong>之外</strong>的三种配置方式，标记一个配置对象，可用于对象之间的引用。例如 XML 的 <code>&lt;dubbo:service provider=&quot;${PROVIDER_ID}&quot;&gt;</code> ，其中 <code>provider</code> 为 <code>&lt;dubbo:provider&gt;</code> 的 ID 属性。</p>
+<p>那为什么说不适用 API 配置呢？直接 <code>#setXXX(config)</code> 对象即可。</p>
+<hr>
+<p>配置项校验的工具方法，例如属性值长度限制、格式限制等等，比较简单。相关代码如下：</p>
+<ul>
+<li><a href="https://github.com/YunaiV/dubbo/blob/9d38b6f9f95798755141d6140e311e8fd51fecc1/dubbo-config/dubbo-config-api/src/main/java/com/alibaba/dubbo/config/AbstractConfig.java#L49-L67" target="_blank" rel="external">静态属性</a></li>
+<li><a href="https://github.com/YunaiV/dubbo/blob/9d38b6f9f95798755141d6140e311e8fd51fecc1/dubbo-config/dubbo-config-api/src/main/java/com/alibaba/dubbo/config/AbstractConfig.java#L413-L494" target="_blank" rel="external">静态方法</a></li>
+</ul>
+<hr>
+<p><a href="https://github.com/YunaiV/dubbo/blob/9d38b6f9f95798755141d6140e311e8fd51fecc1/dubbo-config/dubbo-config-api/src/main/java/com/alibaba/dubbo/config/AbstractConfig.java#L244-L313" target="_blank" rel="external"><code>#appendParameters(parameters, config, prefix)</code></a> 方法，将配置对象的属性，添加到参数集合。代码如下 ：</p>
+<blockquote>
+<p>在看具体代码之前，我们先来了解 <a href="http://svip.iocoder.cn/Dubbo/configuration-api-1/#" target="_blank" rel="external">「4. URL」</a> 和 <a href="http://svip.iocoder.cn/Dubbo/configuration-api-1/#" target="_blank" rel="external">「5. @Parameter」</a> 。</p>
+</blockquote>
+<figure class="highlight processing"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br></pre></td><td class="code"><pre><span class="line"> <span class="number">1</span>: <span class="keyword">protected</span> <span class="keyword">static</span> <span class="keyword">void</span> appendParameters(Map&lt;<span class="keyword">String</span>, <span class="keyword">String</span>&gt; parameters, <span class="keyword">Object</span> config, <span class="keyword">String</span> prefix) &#123;</span><br><span class="line"> <span class="number">2</span>:     <span class="keyword">if</span> (config == <span class="keyword">null</span>) &#123;</span><br><span class="line"> <span class="number">3</span>:         <span class="keyword">return</span>;</span><br><span class="line"> <span class="number">4</span>:     &#125;</span><br><span class="line"> <span class="number">5</span>:     Method[] methods = config.getClass().getMethods();</span><br><span class="line"> <span class="number">6</span>:     <span class="keyword">for</span> (Method method : methods) &#123;</span><br><span class="line"> <span class="number">7</span>:         <span class="keyword">try</span> &#123;</span><br><span class="line"> <span class="number">8</span>:             <span class="keyword">String</span> name = method.getName();</span><br><span class="line"> <span class="number">9</span>:             <span class="keyword">if</span> ((name.startsWith(<span class="string">"get"</span>) || name.startsWith(<span class="string">"is"</span>))</span><br><span class="line"><span class="number">10</span>:                     &amp;&amp; !<span class="string">"getClass"</span>.equals(name)</span><br><span class="line"><span class="number">11</span>:                     &amp;&amp; Modifier.isPublic(method.getModifiers())</span><br><span class="line"><span class="number">12</span>:                     &amp;&amp; method.getParameterTypes().length == <span class="number">0</span></span><br><span class="line"><span class="number">13</span>:                     &amp;&amp; isPrimitive(method.getReturnType())) &#123; <span class="comment">// 方法为获取基本类型，public 的 getting 方法。</span></span><br><span class="line"><span class="number">14</span>:                 Parameter parameter = method.getAnnotation(Parameter.class);</span><br><span class="line"><span class="number">15</span>:                 <span class="keyword">if</span> (method.getReturnType() == <span class="keyword">Object</span>.class || parameter != <span class="keyword">null</span> &amp;&amp; parameter.excluded()) &#123;</span><br><span class="line"><span class="number">16</span>:                     <span class="keyword">continue</span>;</span><br><span class="line"><span class="number">17</span>:                 &#125;</span><br><span class="line"><span class="number">18</span>:                 <span class="comment">// 获得属性名</span></span><br><span class="line"><span class="number">19</span>:                 <span class="built_in">int</span> i = name.startsWith(<span class="string">"get"</span>) ? <span class="number">3</span> : <span class="number">2</span>;</span><br><span class="line"><span class="number">20</span>:                 <span class="keyword">String</span> prop = StringUtils.camelToSplitName(name.substring(i, i + <span class="number">1</span>).toLowerCase() + name.substring(i + <span class="number">1</span>), <span class="string">"."</span>);</span><br><span class="line"><span class="number">21</span>:                 <span class="keyword">String</span> <span class="built_in">key</span>;</span><br><span class="line"><span class="number">22</span>:                 <span class="keyword">if</span> (parameter != <span class="keyword">null</span> &amp;&amp; parameter.<span class="built_in">key</span>() != <span class="keyword">null</span> &amp;&amp; parameter.<span class="built_in">key</span>().length() &gt; <span class="number">0</span>) &#123;</span><br><span class="line"><span class="number">23</span>:                     <span class="built_in">key</span> = parameter.<span class="built_in">key</span>();</span><br><span class="line"><span class="number">24</span>:                 &#125; <span class="keyword">else</span> &#123;</span><br><span class="line"><span class="number">25</span>:                     <span class="built_in">key</span> = prop;</span><br><span class="line"><span class="number">26</span>:                 &#125;</span><br><span class="line"><span class="number">27</span>:                 <span class="comment">// 获得属性值</span></span><br><span class="line"><span class="number">28</span>:                 <span class="keyword">Object</span> value = method.invoke(config, <span class="keyword">new</span> <span class="keyword">Object</span>[<span class="number">0</span>]);</span><br><span class="line"><span class="number">29</span>:                 <span class="keyword">String</span> <span class="built_in">str</span> = <span class="keyword">String</span>.valueOf(value).<span class="built_in">trim</span>();</span><br><span class="line"><span class="number">30</span>:                 <span class="keyword">if</span> (value != <span class="keyword">null</span> &amp;&amp; <span class="built_in">str</span>.length() &gt; <span class="number">0</span>) &#123;</span><br><span class="line"><span class="number">31</span>:                     <span class="comment">// 转义</span></span><br><span class="line"><span class="number">32</span>:                     <span class="keyword">if</span> (parameter != <span class="keyword">null</span> &amp;&amp; parameter.escaped()) &#123;</span><br><span class="line"><span class="number">33</span>:                         <span class="built_in">str</span> = URL.encode(<span class="built_in">str</span>);</span><br><span class="line"><span class="number">34</span>:                     &#125;</span><br><span class="line"><span class="number">35</span>:                     <span class="comment">// 拼接，详细说明参见 `Parameter#append()` 方法的说明。</span></span><br><span class="line"><span class="number">36</span>:                     <span class="keyword">if</span> (parameter != <span class="keyword">null</span> &amp;&amp; parameter.<span class="built_in">append</span>()) &#123;</span><br><span class="line"><span class="number">37</span>:                         <span class="keyword">String</span> pre = parameters.<span class="built_in">get</span>(Constants.DEFAULT_KEY + <span class="string">"."</span> + <span class="built_in">key</span>); <span class="comment">// default. 里获取，适用于 ServiceConfig =》ProviderConfig 、ReferenceConfig =》ConsumerConfig 。</span></span><br><span class="line"><span class="number">38</span>:                         <span class="keyword">if</span> (pre != <span class="keyword">null</span> &amp;&amp; pre.length() &gt; <span class="number">0</span>) &#123;</span><br><span class="line"><span class="number">39</span>:                             <span class="built_in">str</span> = pre + <span class="string">","</span> + <span class="built_in">str</span>;</span><br><span class="line"><span class="number">40</span>:                         &#125;</span><br><span class="line"><span class="number">41</span>:                         pre = parameters.<span class="built_in">get</span>(<span class="built_in">key</span>); <span class="comment">// 通过 `parameters` 属性配置，例如 `AbstractMethodConfig.parameters` 。</span></span><br><span class="line"><span class="number">42</span>:                         <span class="keyword">if</span> (pre != <span class="keyword">null</span> &amp;&amp; pre.length() &gt; <span class="number">0</span>) &#123;</span><br><span class="line"><span class="number">43</span>:                             <span class="built_in">str</span> = pre + <span class="string">","</span> + <span class="built_in">str</span>;</span><br><span class="line"><span class="number">44</span>:                         &#125;</span><br><span class="line"><span class="number">45</span>:                     &#125;</span><br><span class="line"><span class="number">46</span>:                     <span class="keyword">if</span> (prefix != <span class="keyword">null</span> &amp;&amp; prefix.length() &gt; <span class="number">0</span>) &#123;</span><br><span class="line"><span class="number">47</span>:                         <span class="built_in">key</span> = prefix + <span class="string">"."</span> + <span class="built_in">key</span>;</span><br><span class="line"><span class="number">48</span>:                     &#125;</span><br><span class="line"><span class="number">49</span>:                     parameters.put(<span class="built_in">key</span>, <span class="built_in">str</span>);</span><br><span class="line"><span class="number">50</span>: <span class="comment">//                    System.out.println("kv:" + key + "\t" + str);</span></span><br><span class="line"><span class="number">51</span>:                 &#125; <span class="keyword">else</span> <span class="keyword">if</span> (parameter != <span class="keyword">null</span> &amp;&amp; parameter.required()) &#123;</span><br><span class="line"><span class="number">52</span>:                     <span class="keyword">throw</span> <span class="keyword">new</span> IllegalStateException(config.getClass().getSimpleName() + <span class="string">"."</span> + <span class="built_in">key</span> + <span class="string">" == null"</span>);</span><br><span class="line"><span class="number">53</span>:                 &#125;</span><br><span class="line"><span class="number">54</span>:             &#125; <span class="keyword">else</span> <span class="keyword">if</span> (<span class="string">"getParameters"</span>.equals(name)</span><br><span class="line"><span class="number">55</span>:                     &amp;&amp; Modifier.isPublic(method.getModifiers())</span><br><span class="line"><span class="number">56</span>:                     &amp;&amp; method.getParameterTypes().length == <span class="number">0</span></span><br><span class="line"><span class="number">57</span>:                     &amp;&amp; method.getReturnType() == Map.class) &#123; <span class="comment">// `#getParameters()` 方法</span></span><br><span class="line"><span class="number">58</span>:                 Map&lt;<span class="keyword">String</span>, <span class="keyword">String</span>&gt; <span class="built_in">map</span> = (Map&lt;<span class="keyword">String</span>, <span class="keyword">String</span>&gt;) method.invoke(config, <span class="keyword">new</span> <span class="keyword">Object</span>[<span class="number">0</span>]);</span><br><span class="line"><span class="number">59</span>:                 <span class="keyword">if</span> (<span class="built_in">map</span> != <span class="keyword">null</span> &amp;&amp; <span class="built_in">map</span>.<span class="built_in">size</span>() &gt; <span class="number">0</span>) &#123;</span><br><span class="line"><span class="number">60</span>:                     <span class="keyword">String</span> pre = (prefix != <span class="keyword">null</span> &amp;&amp; prefix.length() &gt; <span class="number">0</span> ? prefix + <span class="string">"."</span> : <span class="string">""</span>);</span><br><span class="line"><span class="number">61</span>:                     <span class="keyword">for</span> (Map.Entry&lt;<span class="keyword">String</span>, <span class="keyword">String</span>&gt; entry : <span class="built_in">map</span>.entrySet()) &#123;</span><br><span class="line"><span class="number">62</span>:                         parameters.put(pre + entry.getKey().replace(<span class="string">'-'</span>, <span class="string">'.'</span>), entry.getValue());</span><br><span class="line"><span class="number">63</span>:                     &#125;</span><br><span class="line"><span class="number">64</span>:                 &#125;</span><br><span class="line"><span class="number">65</span>:             &#125;</span><br><span class="line"><span class="number">66</span>:         &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line"><span class="number">67</span>:             <span class="keyword">throw</span> <span class="keyword">new</span> IllegalStateException(e.getMessage(), e);</span><br><span class="line"><span class="number">68</span>:         &#125;</span><br><span class="line"><span class="number">69</span>:     &#125;</span><br><span class="line"><span class="number">70</span>: &#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li><p><code>parameters</code> ，参数集合。实际上，该集合会用于 <code>URL.parameters</code> 。</p>
+</li>
+<li><p><code>config</code> ，配置对象。</p>
+</li>
+<li><p><code>prefix</code> ，属性前缀。用于配置项添加到 <code>parameters</code> 中时的前缀。</p>
+</li>
+<li><p>第 5 行：获得所有方法的数组，为下面通过<strong>反射</strong>获得配置项的值做准备。</p>
+</li>
+<li><p>第 6 行：<strong>循环</strong>每个方法。</p>
+</li>
+<li><p>第 9 至 13 行：方法为获得</p>
+<p>基本类型</p>
+</li>
+</ul>
+<p>  +</p>
+  <figure class="highlight actionscript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span></span><br></pre></td></tr></table></figure>
+<p>  的 getting 方法。</p>
+<ul>
+<li>第 14 至 17 行：返回值类型为 Object 或排除( <a href="mailto:%60@Parameter.exclue" target="_blank" rel="external">`@Parameter.exclue</a>=true` )的配置项，跳过。</li>
+<li>第 19 至 26 行：获得配置项<strong>名</strong>。</li>
+<li>第 28 至 48 行：获得配置项<strong>值</strong>。中间有一些逻辑处理，胖友看下代码的注释。</li>
+<li>第 49 行：添加配置项到 <code>parameters</code> 。</li>
+<li>第 51 至 53 行：当 <a href="mailto:%60@Parameter.required" target="_blank" rel="external">`@Parameter.required</a> = true` 时，校验配置项非空。</li>
+</ul>
+<ul>
+<li>第 54 至 57 行：当方法为</li>
+</ul>
+  <figure class="highlight leaf"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">#</span><span class="title">getParameters</span><span class="params">()</span></span></span><br></pre></td></tr></table></figure>
+<p>  时，</p>
+<p>  例如</p>
+<p>  。</p>
+<ul>
+<li>第 58 行：通过反射，获得 <code>#getParameters()</code> 的返回值为 <code>map</code> 。</li>
+<li>第 59 至 64 行：将 <code>map</code> 添加到 <code>parameters</code> ，kv 格式为 <code>prefix:entry.key</code> <code>entry.value</code> 。</li>
+<li>因此，通过 <code>#getParameters()</code> 对应的属性，<strong>动态设置配置项，拓展出非 Dubbo 内置好的逻辑</strong>。</li>
+</ul>
+<hr>
+<p><a href="https://github.com/YunaiV/dubbo/blob/9d38b6f9f95798755141d6140e311e8fd51fecc1/dubbo-config/dubbo-config-api/src/main/java/com/alibaba/dubbo/config/AbstractConfig.java#L326-L363" target="_blank" rel="external"><code>#appendAttributes(parameters, config, prefix)</code></a> 方法，将 <code>@Parameter(attribute = true)</code> 配置对象的属性，添加到参数集合。代码如下：</p>
+<figure class="highlight processing"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"> <span class="number">1</span>: <span class="keyword">protected</span> <span class="keyword">static</span> <span class="keyword">void</span> appendAttributes(Map&lt;<span class="keyword">Object</span>, <span class="keyword">Object</span>&gt; parameters, <span class="keyword">Object</span> config, <span class="keyword">String</span> prefix) &#123;</span><br><span class="line"> <span class="number">2</span>:     <span class="keyword">if</span> (config == <span class="keyword">null</span>) &#123;</span><br><span class="line"> <span class="number">3</span>:         <span class="keyword">return</span>;</span><br><span class="line"> <span class="number">4</span>:     &#125;</span><br><span class="line"> <span class="number">5</span>:     Method[] methods = config.getClass().getMethods();</span><br><span class="line"> <span class="number">6</span>:     <span class="keyword">for</span> (Method method : methods) &#123;</span><br><span class="line"> <span class="number">7</span>:         <span class="keyword">try</span> &#123;</span><br><span class="line"> <span class="number">8</span>:             <span class="keyword">String</span> name = method.getName();</span><br><span class="line"> <span class="number">9</span>:             <span class="keyword">if</span> ((name.startsWith(<span class="string">"get"</span>) || name.startsWith(<span class="string">"is"</span>))</span><br><span class="line"><span class="number">10</span>:                     &amp;&amp; !<span class="string">"getClass"</span>.equals(name)</span><br><span class="line"><span class="number">11</span>:                     &amp;&amp; Modifier.isPublic(method.getModifiers())</span><br><span class="line"><span class="number">12</span>:                     &amp;&amp; method.getParameterTypes().length == <span class="number">0</span></span><br><span class="line"><span class="number">13</span>:                     &amp;&amp; isPrimitive(method.getReturnType())) &#123; <span class="comment">// 方法为获取基本类型，public 的 getting 方法。</span></span><br><span class="line"><span class="number">14</span>:                 Parameter parameter = method.getAnnotation(Parameter.class);</span><br><span class="line"><span class="number">15</span>:                 <span class="keyword">if</span> (parameter == <span class="keyword">null</span> || !parameter.attribute())</span><br><span class="line"><span class="number">16</span>:                     <span class="keyword">continue</span>;</span><br><span class="line"><span class="number">17</span>:                 <span class="comment">// 获得属性名</span></span><br><span class="line"><span class="number">18</span>:                 <span class="keyword">String</span> <span class="built_in">key</span>;</span><br><span class="line"><span class="number">19</span>:                 <span class="keyword">if</span> (parameter != <span class="keyword">null</span> &amp;&amp; parameter.<span class="built_in">key</span>() != <span class="keyword">null</span> &amp;&amp; parameter.<span class="built_in">key</span>().length() &gt; <span class="number">0</span>) &#123;</span><br><span class="line"><span class="number">20</span>:                     <span class="built_in">key</span> = parameter.<span class="built_in">key</span>();</span><br><span class="line"><span class="number">21</span>:                 &#125; <span class="keyword">else</span> &#123;</span><br><span class="line"><span class="number">22</span>:                     <span class="built_in">int</span> i = name.startsWith(<span class="string">"get"</span>) ? <span class="number">3</span> : <span class="number">2</span>;</span><br><span class="line"><span class="number">23</span>:                     <span class="built_in">key</span> = name.substring(i, i + <span class="number">1</span>).toLowerCase() + name.substring(i + <span class="number">1</span>);</span><br><span class="line"><span class="number">24</span>:                 &#125;</span><br><span class="line"><span class="number">25</span>:                 <span class="comment">// 获得属性值，存在则添加到 `parameters` 集合</span></span><br><span class="line"><span class="number">26</span>:                 <span class="keyword">Object</span> value = method.invoke(config, <span class="keyword">new</span> <span class="keyword">Object</span>[<span class="number">0</span>]);</span><br><span class="line"><span class="number">27</span>:                 <span class="keyword">if</span> (value != <span class="keyword">null</span>) &#123;</span><br><span class="line"><span class="number">28</span>:                     <span class="keyword">if</span> (prefix != <span class="keyword">null</span> &amp;&amp; prefix.length() &gt; <span class="number">0</span>) &#123;</span><br><span class="line"><span class="number">29</span>:                         <span class="built_in">key</span> = prefix + <span class="string">"."</span> + <span class="built_in">key</span>;</span><br><span class="line"><span class="number">30</span>:                     &#125;</span><br><span class="line"><span class="number">31</span>:                     parameters.put(<span class="built_in">key</span>, value);</span><br><span class="line"><span class="number">32</span>:                 &#125;</span><br><span class="line"><span class="number">33</span>:             &#125;</span><br><span class="line"><span class="number">34</span>:         &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line"><span class="number">35</span>:             <span class="keyword">throw</span> <span class="keyword">new</span> IllegalStateException(e.getMessage(), e);</span><br><span class="line"><span class="number">36</span>:         &#125;</span><br><span class="line"><span class="number">37</span>:     &#125;</span><br><span class="line"><span class="number">38</span>: &#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>不同于 <a href="https://github.com/YunaiV/dubbo/blob/9d38b6f9f95798755141d6140e311e8fd51fecc1/dubbo-config/dubbo-config-api/src/main/java/com/alibaba/dubbo/config/AbstractConfig.java#L326-L363" target="_blank" rel="external"><code>#appendAttributes(parameters, config, prefix)</code></a> 方法，主要用于 <a href="http://dubbo.apache.org/zh-cn/docs/user/demos/events-notify.html" target="_blank" rel="external">《Dubbo 用户指南 —— 事件通知》</a> ，注解 <code>@Parameter(attribute = true)</code> 的属性如下图：<img src="http://www.iocoder.cn/images/Dubbo/2018_01_07/05.png" alt="@Parameter(attribute = true)"></li>
+<li>第 9 至 13 行：方法为获得<strong>基本类型</strong> + <code>public</code> 的 getting 方法。</li>
+<li>第 14 至 16 行：<strong>需要</strong>( <a href="mailto:%60@Parameter.exclue" target="_blank" rel="external">`@Parameter.exclue</a>=true` )的配置项。</li>
+<li>第 17 至 24 行：获得配置项<strong>名</strong>。</li>
+<li>第 26 至 30 行：获得配置项<strong>值</strong>。</li>
+<li>第 31 行：添加配置项到 <code>parameters</code> 。</li>
+</ul>
+<hr>
+<p><a href="https://github.com/YunaiV/dubbo/blob/9d38b6f9f95798755141d6140e311e8fd51fecc1/dubbo-config/dubbo-config-api/src/main/java/com/alibaba/dubbo/config/AbstractConfig.java#L139-L212" target="_blank" rel="external"><code>#appendProperties(config)</code></a> 方法，读取环境变量和 properties 配置到配置对象。在 <a href="http://svip.iocoder.cn/Dubbo/configuration-properties/?self" target="_blank" rel="external">《精进 Dubbo 源码解析 —— 属性配置》</a> 详细解析。</p>
+<p><a href="https://github.com/YunaiV/dubbo/blob/9d38b6f9f95798755141d6140e311e8fd51fecc1/dubbo-config/dubbo-config-api/src/main/java/com/alibaba/dubbo/config/AbstractConfig.java#L505-L541" target="_blank" rel="external"><code>#appendAnnotation(annotationClass, annotation)</code></a> 方法，读取注解配置到配置对象。在 <a href="http://svip.iocoder.cn/Dubbo/configuration-api-1/TODO" target="_blank" rel="external">《精进 Dubbo 源码解析 —— 注解配置》</a> 详细解析。</p>
+<h2 id="3-2-ApplicationConfig"><a href="#3-2-ApplicationConfig" class="headerlink" title="3.2 ApplicationConfig"></a>3.2 ApplicationConfig</h2><p><a href="https://github.com/YunaiV/dubbo/blob/9d38b6f9f95798755141d6140e311e8fd51fecc1/dubbo-config/dubbo-config-api/src/main/java/com/alibaba/dubbo/config/ApplicationConfig.java" target="_blank" rel="external"><code>com.alibaba.dubbo.config.ApplicationConfig</code></a> ，应用配置。</p>
+<ul>
+<li>具体属性的解释，参见 <a href="http://dubbo.apache.org/zh-cn/docs/user/references/xml/dubbo-application.html" target="_blank" rel="external">《Dubbo 用户指南 —— dubbo:application》</a> 文档。</li>
+</ul>
+<h2 id="3-3-RegistryConfig"><a href="#3-3-RegistryConfig" class="headerlink" title="3.3 RegistryConfig"></a>3.3 RegistryConfig</h2><p><a href="https://github.com/YunaiV/dubbo/blob/9d38b6f9f95798755141d6140e311e8fd51fecc1/dubbo-config/dubbo-config-api/src/main/java/com/alibaba/dubbo/config/RegistryConfig.java" target="_blank" rel="external"><code>com.alibaba.dubbo.config.RegistryConfig</code></a> ，注册中心配置。</p>
+<ul>
+<li>具体属性的解释，参见 <a href="http://dubbo.apache.org/zh-cn/docs/user/references/xml/dubbo-registry.html" target="_blank" rel="external">《Dubbo 用户指南 —— dubbo:registry》</a> 文档。</li>
+</ul>
+<h2 id="3-4-ModuleConfig"><a href="#3-4-ModuleConfig" class="headerlink" title="3.4 ModuleConfig"></a>3.4 ModuleConfig</h2><p><a href="https://github.com/YunaiV/dubbo/blob/9d38b6f9f95798755141d6140e311e8fd51fecc1/dubbo-config/dubbo-config-api/src/main/java/com/alibaba/dubbo/config/ModuleConfig.java" target="_blank" rel="external"><code>com.alibaba.dubbo.config.ModuleConfig</code></a> ，模块信息配置。</p>
+<ul>
+<li>具体属性的解释，参见 <a href="http://dubbo.apache.org/zh-cn/docs/user/references/xml/dubbo-module.html" target="_blank" rel="external">《Dubbo 用户指南 —— dubbo:module》</a> 文档。</li>
+</ul>
+<h2 id="3-5-MonitorConfig"><a href="#3-5-MonitorConfig" class="headerlink" title="3.5 MonitorConfig"></a>3.5 MonitorConfig</h2><p><a href="https://github.com/YunaiV/dubbo/blob/9d38b6f9f95798755141d6140e311e8fd51fecc1/dubbo-config/dubbo-config-api/src/main/java/com/alibaba/dubbo/config/MonitorConfig.java" target="_blank" rel="external"><code>com.alibaba.dubbo.config.MonitorConfig</code></a> ，监控中心配置。</p>
+<ul>
+<li>具体属性的解释，参见 <a href="http://dubbo.apache.org/zh-cn/docs/user/references/xml/dubbo-monitor.html" target="_blank" rel="external">《Dubbo 用户指南 —— dubbo:monitor》</a> 文档。</li>
+</ul>
+<h2 id="3-6-ArgumentConfig"><a href="#3-6-ArgumentConfig" class="headerlink" title="3.6 ArgumentConfig"></a>3.6 ArgumentConfig</h2><p><a href="https://github.com/YunaiV/dubbo/blob/9d38b6f9f95798755141d6140e311e8fd51fecc1/dubbo-config/dubbo-config-api/src/main/java/com/alibaba/dubbo/config/ArgumentConfig.java" target="_blank" rel="external"><code>com.alibaba.dubbo.config.ArgumentConfig</code></a> ，方法参数配置。</p>
+<ul>
+<li>具体属性的解释，参见 <a href="http://dubbo.apache.org/zh-cn/docs/user/references/xml/dubbo-argument.html" target="_blank" rel="external">《Dubbo 用户指南 —— dubbo:argument》</a> 文档。</li>
+<li>该配置类设置到 MethodConfig 对象中，在 <a href="http://svip.iocoder.cn/Dubbo/configuration-api-2/?self" target="_blank" rel="external">《API 配置（二）之服务提供者》</a> 我们会看到。</li>
+<li>在 <a href="http://dubbo.apache.org/zh-cn/docs/user/demos/callback-parameter.html" target="_blank" rel="external">《Dubbo 用户指南 —— 参数回调》</a> 特性中使用。</li>
+</ul>
+<h1 id="4-URL"><a href="#4-URL" class="headerlink" title="4. URL"></a>4. URL</h1><p><a href="https://github.com/YunaiV/dubbo/blob/9d38b6f9f95798755141d6140e311e8fd51fecc1/dubbo-common/src/main/java/com/alibaba/dubbo/common/URL.java" target="_blank" rel="external"><code>com.alibaba.dubbo.common.URL</code></a> ，Dubbo URL 。代码如下：</p>
+<figure class="highlight processing"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">final</span> class URL implements Serializable &#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 协议名</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">String</span> protocol;</span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 用户名</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">String</span> username;</span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 密码</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">String</span> password;</span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * by default, host to registry</span></span><br><span class="line"><span class="comment">     * 地址</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">String</span> host;</span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * by default, port to registry</span></span><br><span class="line"><span class="comment">     * 端口</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> <span class="built_in">int</span> port;</span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 路径（服务名）</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">String</span> path;</span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 参数集合</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> Map&lt;<span class="keyword">String</span>, <span class="keyword">String</span>&gt; parameters;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// ... 省略其他代码</span></span><br><span class="line">    </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li><p>上文我们提到<strong>所有配置最终都将转换为 Dubbo URL 表示，并由服务提供方生成，经注册中心传递给消费方，各属性对应 URL 的参数，参见配置项一览表中的 “对应URL参数” 列</strong>。那么一个 Service 注册到注册中心的格式如下：</p>
+<figure class="highlight maxima"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">dubbo://<span class="number">192.168</span>.3.17:<span class="number">20880</span>/com.alibaba.dubbo.<span class="built_in">demo</span>.DemoService?anyhost=<span class="literal">true</span>&amp;application=<span class="built_in">demo</span>-provider&amp;default.<span class="built_in">delay</span>=-<span class="number">1</span>&amp;default.retries=<span class="number">0</span>&amp;default.service.filter=demoFilter&amp;<span class="built_in">delay</span>=-<span class="number">1</span>&amp;dubbo=<span class="number">2.0</span>.0&amp;generic=<span class="literal">false</span>&amp;interface=com.alibaba.dubbo.<span class="built_in">demo</span>.DemoService&amp;methods=sayHello&amp;pid=<span class="number">19031</span>&amp;side=provider&amp;timestamp=<span class="number">1519651641799</span></span><br></pre></td></tr></table></figure>
+<ul>
+<li>格式为 <code>protocol://username:password@host:port/path?key=value&amp;key=value</code> ，通过 <a href="https://github.com/YunaiV/dubbo/blob/9d38b6f9f95798755141d6140e311e8fd51fecc1/dubbo-common/src/main/java/com/alibaba/dubbo/common/URL.java#L1176-L1217" target="_blank" rel="external"><code>URL#buildString(...)</code></a> 方法生成。</li>
+</ul>
+</li>
+<li><p><code>parameters</code> 属性，参数集合。从上面的 Service URL 例子我们可以看到，里面的 <code>key=value</code> ，实际上就是 Service 对应的配置项。该属性，通过 <a href="https://github.com/YunaiV/dubbo/blob/9d38b6f9f95798755141d6140e311e8fd51fecc1/dubbo-config/dubbo-config-api/src/main/java/com/alibaba/dubbo/config/AbstractConfig.java#L244-L313" target="_blank" rel="external"><code>AbstractConfig#appendParameters(parameters, config, prefix)</code></a> 方法生成。</p>
+</li>
+<li><p>🙂 在后续的文章中，我们会发现 URL 作为一个<strong>通用模型</strong>，贯穿整个 RPC 流程。</p>
+</li>
+</ul>
+<h1 id="5-Parameter"><a href="#5-Parameter" class="headerlink" title="5. @Parameter"></a>5. @Parameter</h1><p><a href="https://github.com/YunaiV/dubbo/blob/9d38b6f9f95798755141d6140e311e8fd51fecc1/dubbo-config/dubbo-config-api/src/main/java/com/alibaba/dubbo/config/support/Parameter.java" target="_blank" rel="external"><code>com.alibaba.dubbo.config.support.@Parameter</code></a> ，Parameter 参数<strong>注解</strong>，用于 Dubbo URL 的 <code>parameters</code> 拼接。</p>
+<p>在配置对象的 getting 方法上，我们可以看到该注解的使用，例如下图：</p>
+<p><img src="http://www.iocoder.cn/images/Dubbo/2018_01_07/04.png" alt="@Parameter 使用场景"></p>
+<p>@Parameter 代码如下：</p>
+<figure class="highlight leaf"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br></pre></td><td class="code"><pre><span class="line">@Documented</span><br><span class="line">@Retention(RetentionPolicy.RUNTIME)</span><br><span class="line">@Target(&#123;ElementType.METHOD&#125;)</span><br><span class="line">public @interface Parameter &#123;</span><br><span class="line"></span><br><span class="line">    /**</span><br><span class="line">     * 键（别名）</span><br><span class="line">     */</span><br><span class="line">    String key() default "";</span><br><span class="line"></span><br><span class="line">    /**</span><br><span class="line">     * 是否必填</span><br><span class="line">     */</span><br><span class="line">    boolean required() default false;</span><br><span class="line"></span><br><span class="line">    /**</span><br><span class="line">     * 是否忽略</span><br><span class="line">     */</span><br><span class="line">    boolean excluded() default false;</span><br><span class="line"></span><br><span class="line">    /**</span><br><span class="line">     * 是否转义</span><br><span class="line">     */</span><br><span class="line">    boolean escaped() default false;</span><br><span class="line"></span><br><span class="line">    /**</span><br><span class="line">     * 是否为属性</span><br><span class="line">     *</span><br><span class="line">     * 目前用于《事件通知》http://dubbo.apache.org/zh-cn/docs/user/demos/events-notify.html</span><br><span class="line">     */</span><br><span class="line">    boolean attribute() default false;</span><br><span class="line"></span><br><span class="line">    /**</span><br><span class="line">     * 是否拼接默认属性，参见 &#123;@link com.alibaba.dubbo.config.AbstractConfig<span class="function"><span class="keyword">#</span><span class="title">appendParameters</span><span class="params">(<span class="variable">Map</span>, <span class="variable">Object</span>, <span class="variable">String</span>)</span></span>&#125; 方法。</span><br><span class="line">     *</span><br><span class="line">     * 我们来看看 `<span class="function"><span class="keyword">#</span><span class="title">append</span><span class="params">()</span></span> = true` 的属性，有如下四个：</span><br><span class="line">     *   + &#123;@link AbstractInterfaceConfig<span class="function"><span class="keyword">#</span><span class="title">getFilter</span><span class="params">()</span></span>&#125;</span><br><span class="line">     *   + &#123;@link AbstractInterfaceConfig<span class="function"><span class="keyword">#</span><span class="title">getListener</span><span class="params">()</span></span>&#125;</span><br><span class="line">     *   + &#123;@link AbstractReferenceConfig<span class="function"><span class="keyword">#</span><span class="title">getFilter</span><span class="params">()</span></span>&#125;</span><br><span class="line">     *   + &#123;@link AbstractReferenceConfig<span class="function"><span class="keyword">#</span><span class="title">getListener</span><span class="params">()</span></span>&#125;</span><br><span class="line">     *   + &#123;@link AbstractServiceConfig<span class="function"><span class="keyword">#</span><span class="title">getFilter</span><span class="params">()</span></span>&#125;</span><br><span class="line">     *   + &#123;@link AbstractServiceConfig<span class="function"><span class="keyword">#</span><span class="title">getListener</span><span class="params">()</span></span>&#125;</span><br><span class="line">     * 那么，以 AbstractServiceConfig 举例子。</span><br><span class="line">     *</span><br><span class="line">     * 我们知道 ProviderConfig 和 ServiceConfig 继承 AbstractServiceConfig 类，那么 `filter` , `listener` 对应的相同的键。</span><br><span class="line">     * 下面我们以 `filter` 举例子。</span><br><span class="line">     *</span><br><span class="line">     * 在 ServiceConfig 中，默认会&lt;b&gt;继承&lt;/b&gt; ProviderConfig 配置的 `filter` 和 `listener` 。</span><br><span class="line">     * 所以这个属性，就是用于，像 ServiceConfig 的这种情况，从 ProviderConfig 读取父属性。</span><br><span class="line">     *</span><br><span class="line">     * 举个例子，如果 `ProviderConfig.filter=aaaFilter` ，`ServiceConfig.filter=bbbFilter` ，最终暴露到 Dubbo URL 时，参数为 `service.filter=aaaFilter,bbbFilter` 。</span><br><span class="line">     */</span><br><span class="line">    boolean append() default false;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>胖友可以简单看下代码中的<strong>注释</strong>，结合具体使用的方法，在细细理解。</li>
+</ul>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">Dubbo</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+      
+
+      <div style="font-size: 12px;">
+        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
+      </div>
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2019/02/11/精尽-Dubbo-源码分析-——-01API-配置（一）之应用/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
+    <article id="post-精尽-Dubbo-源码分析-——-项目结构一览" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2019/02/11/精尽-Dubbo-源码分析-——-项目结构一览/">精尽 Dubbo 源码分析 —— 项目结构一览</a>
+    </h1>
+  
+
+        
+        <a href="/2019/02/11/精尽-Dubbo-源码分析-——-项目结构一览/" class="archive-article-date">
+  	<time datetime="2019-02-11T13:18:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2019-02-11</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="1-概述"><a href="#1-概述" class="headerlink" title="1. 概述"></a>1. 概述</h1><p>本文主要分享 <strong>Dubbo 的项目结构</strong>。<br>希望通过本文能让胖友对 Dubbo 的整体项目有个简单的了解。</p>
+<p>另外，笔者会相对大量引用 <a href="http://dubbo.apache.org/zh-cn/docs/user/" target="_blank" rel="external">《Dubbo 用户指南》</a> 和 <a href="http://dubbo.apache.org/zh-cn/docs/dev/" target="_blank" rel="external">《Dubbo 开发指南》</a> ，写的真的挺好的。🙂<br>ps：限于排版，部分地方引用会存在未标明的情况。</p>
+<p>在拉取 Dubbo 项目后，我们会发现拆分了<strong>好多</strong> Maven 项目。是不是内心一紧，产生了恐惧感？不要方，我们就是继续怼。</p>
+<p><img src="http://www.iocoder.cn/images/Dubbo/2018_01_04/01.png" alt="项目结构"></p>
+<h1 id="2-代码统计"><a href="#2-代码统计" class="headerlink" title="2. 代码统计"></a>2. 代码统计</h1><p>这里先分享一个小技巧。笔者在开始源码学习时，会首先了解项目的代码量。</p>
+<p><strong>第一种方式</strong>，使用 <a href="https://plugins.jetbrains.com/plugin/4509-statistic" target="_blank" rel="external">IDEA Statistic</a> 插件，统计整体代码量。</p>
+<p><img src="http://www.iocoder.cn/images/Dubbo/2018_01_04/02.png" alt="Statistic 统计代码量"></p>
+<p>我们可以粗略的看到，总的代码量在 98210 行。这其中还包括单元测试，示例等等代码。<br>所以，不慌。</p>
+<p><strong>第二种方式</strong>，使用 <a href="http://blog.csdn.net/yhhwatl/article/details/52623879" target="_blank" rel="external">Shell 脚本命令逐个 Maven 模块统计</a> 。</p>
+<p>一般情况下，笔者使用 <code>find . -name &quot;*.java&quot;|xargs cat|grep -v -e ^$ -e ^\s*\/\/.*$|wc -l</code> 。这个命令只过滤了<strong>部分注释</strong>，所以相比 <a href="https://plugins.jetbrains.com/plugin/4509-statistic" target="_blank" rel="external">IDEA Statistic</a> 会<strong>偏多</strong>。</p>
+<p>当然，考虑到准确性，胖友需要手动 <code>cd</code> 到每个 Maven 项目的 <code>src/main/java</code> 目录下，以达到排除单元测试的代码量。</p>
+<p><img src="http://www.iocoder.cn/images/Dubbo/2018_01_04/03.png" alt="Shell 脚本统计代码量"></p>
+<h1 id="3-项目一览"><a href="#3-项目一览" class="headerlink" title="3. 项目一览"></a>3. 项目一览</h1><p>如果胖友看过 <a href="http://dubbo.apache.org/zh-cn/docs/dev/design.html" target="_blank" rel="external">《Dubbo 框架设计》</a> ，就会发现有下面这张图。</p>
+<blockquote>
+<p><img src="http://www.iocoder.cn/images/Dubbo/2018_01_04/04.png" alt="模块分包"></p>
+</blockquote>
+<p>通过这图，我们可以很清晰的知道几个 Maven 模块的依赖关系。</p>
+<h2 id="3-1-dubbo-common"><a href="#3-1-dubbo-common" class="headerlink" title="3.1 dubbo-common"></a>3.1 dubbo-common</h2><blockquote>
+<p><a href="https://github.com/alibaba/dubbo/tree/4bbc0ddddacc915ddc8ff292dd28745bbc0031fd/dubbo-common" target="_blank" rel="external"><code>dubbo-common</code></a> <strong>公共逻辑模块</strong>：提供工具类和通用模型。</p>
+</blockquote>
+<p><img src="http://www.iocoder.cn/images/Dubbo/2018_01_04/05.png" alt="dubbo-common 包结构"></p>
+<p>工具类比较好理解，<strong>通用模型</strong>是什么？举个例子，<a href="https://github.com/alibaba/dubbo/blob/4bbc0ddddacc915ddc8ff292dd28745bbc0031fd/dubbo-common/src/main/java/com/alibaba/dubbo/common/URL.java" target="_blank" rel="external"><code>com.alibaba.dubbo.common.URL</code></a> ：</p>
+<blockquote>
+<p>FROM <a href="http://dubbo.apache.org/zh-cn/docs/dev/contract.html" target="_blank" rel="external">《Dubbo 开发指南 —— 公共契约》</a></p>
+<ul>
+<li>所有扩展点参数都包含 URL 参数，URL 作为上下文信息贯穿整个扩展点设计体系。</li>
+<li>URL 采用标准格式：<code>protocol://username:password@host:port/path?key=value&amp;key=value</code> 。</li>
+</ul>
+</blockquote>
+<p>那么 URL 有什么用呢？😈 请见后续文章。</p>
+<h2 id="3-2-dubbo-remoting"><a href="#3-2-dubbo-remoting" class="headerlink" title="3.2 dubbo-remoting"></a>3.2 dubbo-remoting</h2><blockquote>
+<p><a href="https://github.com/alibaba/dubbo/tree/4bbc0ddddacc915ddc8ff292dd28745bbc0031fd/dubbo-remoting" target="_blank" rel="external"><code>dubbo-remoting</code></a> <strong>远程通信模块</strong>：提供<strong>通用</strong>的客户端和服务端的通讯功能。</p>
+</blockquote>
+<p><img src="http://www.iocoder.cn/images/Dubbo/2018_01_04/06.png" alt="dubbo-remoting 包结构"></p>
+<ul>
+<li><p><code>dubbo-remoting-zookeeper</code> ，相当于 Zookeeper Client ，和 Zookeeper Server 通信。</p>
+</li>
+<li><p><code>dubbo-remoting-api</code> ， 定义了 Dubbo Client 和 Dubbo Server 的<strong>接口</strong>。</p>
+</li>
+<li><p>实现</p>
+</li>
+</ul>
+  <figure class="highlight ebnf"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">dubbo-remoting-api</span></span><br></pre></td></tr></table></figure>
+<ul>
+<li><code>dubbo-remoting-grizzly</code> ，基于 <a href="https://javaee.github.io/grizzly/" target="_blank" rel="external">Grizzly</a> 实现。</li>
+<li><code>dubbo-remoting-http</code> ，基于 <a href="https://www.eclipse.org/jetty/" target="_blank" rel="external">Jetty</a> 或 <a href="http://tomcat.apache.org/" target="_blank" rel="external">Tomcat</a> 实现。</li>
+<li><code>dubbo-remoting-mina</code> ，基于 <a href="https://mina.apache.org/" target="_blank" rel="external">Mina</a> 实现。</li>
+<li><code>dubbo-remoting-netty</code> ，基于 <a href="https://netty.io/" target="_blank" rel="external">Netty 3</a> 实现。</li>
+<li><code>dubbo-remoting-netty4</code> ，基于 <a href="https://netty.io/" target="_blank" rel="external">Netty 4</a> 实现。</li>
+<li><code>dubbo-remoting-p2p</code> ，P2P 服务器。注册中心 <code>dubbo-registry-multicast</code> 项目的使用该项目。</li>
+</ul>
+<p>从<strong>最小化</strong>的角度来看，我们只需要看：</p>
+<ul>
+<li><code>dubbo-remoting-api</code> + <code>dubbo-remoting-netty4</code></li>
+<li><code>dubbo-remoting-zookeeper</code></li>
+</ul>
+<h2 id="3-3-dubbo-rpc"><a href="#3-3-dubbo-rpc" class="headerlink" title="3.3 dubbo-rpc"></a>3.3 dubbo-rpc</h2><blockquote>
+<p><a href="https://github.com/alibaba/dubbo/tree/4bbc0ddddacc915ddc8ff292dd28745bbc0031fd/dubbo-rpc" target="_blank" rel="external"><code>dubbo-rpc</code></a> <strong>远程调用模块</strong>：抽象各种协议，以及动态代理，只包含一对一的调用，<strong>不关心集群的管理</strong>。</p>
+</blockquote>
+<ul>
+<li>集群相关的管理，由 <code>dubbo-cluster</code> 提供特性。</li>
+</ul>
+<p>在回过头看上面的图，我们会发现，<code>dubbo-rpc</code> 是整个 Dubbo 的<strong>中心</strong>。</p>
+<p><img src="http://www.iocoder.cn/images/Dubbo/2018_01_04/07.png" alt="dubbo-rpc 包结构"></p>
+<ul>
+<li><code>dubbo-rpc-api</code> ，<strong>抽象</strong>各种协议以及动态代理，<strong>实现</strong>了一对一的调用。</li>
+<li>其他模块，实现 <code>dubbo-rpc-api</code> ，提供对应的协议实现。在 <a href="http://dubbo.apache.org/zh-cn/docs/user/references/protocol/introduction.html" target="_blank" rel="external">《用户指南 —— 协议参考手册》</a> 中，可以看到每种协议的介绍。</li>
+<li>另外，<code>dubbo-rpc-default</code> 对应 <code>dubbo://</code> 协议。</li>
+<li>拓展参见 <a href="http://dubbo.apache.org/zh-cn/docs/dev/impls/protocol.html" target="_blank" rel="external">《Dubbo 开发指南 —— 协议扩展》</a> 文档。</li>
+</ul>
+<p>进一步的拆解，见 <a href="http://svip.iocoder.cn/Dubbo/implementation-intro/?self" target="_blank" rel="external">《精尽 Dubbo 源码分析 —— 核心流程一览》</a> 文章。</p>
+<h2 id="3-4-dubbo-cluster"><a href="#3-4-dubbo-cluster" class="headerlink" title="3.4 dubbo-cluster"></a>3.4 dubbo-cluster</h2><blockquote>
+<p><a href="https://github.com/alibaba/dubbo/tree/4bbc0ddddacc915ddc8ff292dd28745bbc0031fd/dubbo-cluster" target="_blank" rel="external"><code>dubbo-cluster</code></a> <strong>集群模块</strong>：将多个服务提供方伪装为一个提供方，包括：负载均衡, 集群容错，路由，分组聚合等。集群的地址列表可以是静态配置的，也可以是由注册中心下发。</p>
+</blockquote>
+<ul>
+<li>注册中心下发，由 <code>dubbo-registry</code> 提供特性。</li>
+</ul>
+<p><img src="http://www.iocoder.cn/images/Dubbo/2018_01_04/08.png" alt="dubbo-cluster 包结构"></p>
+<ul>
+<li>容错<ul>
+<li><a href="https://github.com/alibaba/dubbo/blob/4bbc0ddddacc915ddc8ff292dd28745bbc0031fd/dubbo-cluster/src/main/java/com/alibaba/dubbo/rpc/cluster/Cluster.java" target="_blank" rel="external"><code>com.alibaba.dubbo.rpc.cluster.Cluster</code></a> 接口 + <code>com.alibaba.dubbo.rpc.cluster.support</code> 包。</li>
+<li>Cluster 将 Directory 中的多个 Invoker 伪装成一个 Invoker，对上层透明，伪装过程包含了容错逻辑，调用失败后，重试另一个。</li>
+<li>拓展参见 <a href="http://dubbo.apache.org/zh-cn/docs/user/demos/fault-tolerent-strategy.html" target="_blank" rel="external">《Dubbo 用户指南 —— 集群容错》</a> 和 <a href="http://dubbo.apache.org/zh-cn/docs/dev/impls/cluster.html" target="_blank" rel="external">《Dubbo 开发指南 —— 集群扩展》</a> 文档。</li>
+</ul>
+</li>
+<li>目录<ul>
+<li><a href="https://github.com/alibaba/dubbo/blob/4bbc0ddddacc915ddc8ff292dd28745bbc0031fd/dubbo-cluster/src/main/java/com/alibaba/dubbo/rpc/cluster/Directory.java" target="_blank" rel="external"><code>com.alibaba.dubbo.rpc.cluster.Directory</code></a> 接口 + <code>com.alibaba.dubbo.rpc.cluster.directory</code> 包。</li>
+<li>Directory 代表了多个 Invoker ，可以把它看成 List ，但与 List 不同的是，它的值可能是动态变化的，比如注册中心推送变更。</li>
+</ul>
+</li>
+<li>路由<ul>
+<li><a href="https://github.com/alibaba/dubbo/blob/4bbc0ddddacc915ddc8ff292dd28745bbc0031fd/dubbo-cluster/src/main/java/com/alibaba/dubbo/rpc/cluster/Router.java" target="_blank" rel="external"><code>com.alibaba.dubbo.rpc.cluster.Router</code></a> 接口 + <code>com.alibaba.dubbo.rpc.cluster.router</code> 包。</li>
+<li>负责从多个 <code>Invoker</code> 中按路由规则选出子集，比如读写分离，应用隔离等。</li>
+<li>拓展参见 <a href="http://dubbo.apache.org/zh-cn/docs/user/demos/routing-rule.html" target="_blank" rel="external">《Dubbo 用户指南 —— 路由规则》</a> 和 <a href="http://dubbo.apache.org/zh-cn/docs/dev/impls/router.html" target="_blank" rel="external">《Dubbo 开发指南 —— 路由拓展》</a> 文档。</li>
+</ul>
+</li>
+<li>配置<ul>
+<li><a href="https://github.com/alibaba/dubbo/blob/4bbc0ddddacc915ddc8ff292dd28745bbc0031fd/dubbo-cluster/src/main/java/com/alibaba/dubbo/rpc/cluster/Configurator.java" target="_blank" rel="external"><code>com.alibaba.dubbo.rpc.cluster.Configurator</code></a> 接口 + <code>com.alibaba.dubbo.rpc.cluster.configurator</code> 包。</li>
+<li>拓展参见 <a href="http://dubbo.apache.org/zh-cn/docs/user/demos/config-rule.html" target="_blank" rel="external">《Dubbo 用户指南 —— 配置规则》</a> 文档。</li>
+</ul>
+</li>
+<li>负载均衡<ul>
+<li><a href="https://github.com/alibaba/dubbo/blob/4bbc0ddddacc915ddc8ff292dd28745bbc0031fd/dubbo-cluster/src/main/java/com/alibaba/dubbo/rpc/cluster/LoadBalance.java" target="_blank" rel="external"><code>com.alibaba.dubbo.rpc.cluster.LoadBalance</code></a> 接口 + <code>com.alibaba.dubbo.rpc.cluster.loadbalance</code> 包。</li>
+<li>LoadBalance 负责从多个 Invoker 中选出具体的一个用于本次调用，选的过程包含了负载均衡算法，调用失败后，需要重选。</li>
+<li>拓展参见 <a href="http://dubbo.apache.org/zh-cn/docs/user/demos/loadbalance.html" target="_blank" rel="external">《Dubbo 用户指南 —— 负载均衡》</a> 和 <a href="http://dubbo.apache.org/zh-cn/docs/dev/impls/load-balance.html" target="_blank" rel="external">《Dubbo 开发指南 —— 负载均衡拓展》</a> 文档。</li>
+</ul>
+</li>
+<li>合并结果<ul>
+<li><a href="https://github.com/alibaba/dubbo/blob/4bbc0ddddacc915ddc8ff292dd28745bbc0031fd/dubbo-cluster/src/main/java/com/alibaba/dubbo/rpc/cluster/Merger.java" target="_blank" rel="external"><code>com.alibaba.dubbo.rpc.cluster.Merger</code></a> 接口 + <code>com.alibaba.dubbo.rpc.cluster.merger</code> 包。</li>
+<li>合并返回结果，用于分组聚合。</li>
+<li>拓展参见 <a href="http://dubbo.apache.org/zh-cn/docs/user/demos/group-merger.html" target="_blank" rel="external">《Dubbo 用户指南 —— 分组聚合》</a> 和 <a href="http://dubbo.apache.org/zh-cn/docs/dev/impls/merger.html" target="_blank" rel="external">《Dubbo 开发指南 —— 合并结果扩展》</a> 文档。</li>
+</ul>
+</li>
+</ul>
+<p>整体流程如下：</p>
+<blockquote>
+<p><img src="http://www.iocoder.cn/images/Dubbo/2018_01_04/09.png" alt="集群容错"></p>
+</blockquote>
+<h2 id="3-5-dubbo-registry"><a href="#3-5-dubbo-registry" class="headerlink" title="3.5 dubbo-registry"></a>3.5 dubbo-registry</h2><blockquote>
+<p><a href="https://github.com/alibaba/dubbo/tree/4bbc0ddddacc915ddc8ff292dd28745bbc0031fd/dubbo-registry" target="_blank" rel="external"><code>dubbo-registry</code></a> <strong>注册中心模块</strong>：基于注册中心下发地址的集群方式，以及对各种注册中心的抽象。</p>
+</blockquote>
+<p><img src="http://www.iocoder.cn/images/Dubbo/2018_01_04/10.png" alt="dubbo-registry 包结构"></p>
+<ul>
+<li><code>dubbo-registry-api</code> ，<strong>抽象</strong>注册中心的注册与发现接口。</li>
+<li>其他模块，实现 <code>dubbo-registry-api</code> ，提供对应的注册中心实现。在 <a href="http://dubbo.apache.org/zh-cn/docs/user/references/registry/introduction.html" target="_blank" rel="external">《用户指南 —— 注册中心参考手册》</a> 中，可以看到每种注册中心的介绍。</li>
+<li>另外，<code>dubbo-registry-default</code> 对应 Simple 注册中心。</li>
+<li>拓展参见 <a href="http://dubbo.apache.org/zh-cn/docs/dev/impls/registry.html" target="_blank" rel="external">《Dubbo 开发指南 —— 注册中心扩展》</a> 文档。</li>
+</ul>
+<h2 id="3-6-dubbo-monitor"><a href="#3-6-dubbo-monitor" class="headerlink" title="3.6 dubbo-monitor"></a>3.6 dubbo-monitor</h2><blockquote>
+<p><a href="https://github.com/alibaba/dubbo/tree/4bbc0ddddacc915ddc8ff292dd28745bbc0031fd/dubbo-monitor" target="_blank" rel="external"><code>dubbo-monitor</code></a> <strong>监控模块</strong>：统计服务调用次数，调用时间的，调用链跟踪的服务。</p>
+</blockquote>
+<p><img src="http://www.iocoder.cn/images/Dubbo/2018_01_04/11.png" alt="dubbo-monitor 包结构"></p>
+<ul>
+<li>拓展参见 <a href="http://dubbo.apache.org/zh-cn/docs/dev/impls/monitor.html" target="_blank" rel="external">《Dubbo 开发指南 —— 监控中心扩展》</a> 。</li>
+</ul>
+<p>目前社区里，有对 Dubbo 监控中心进行重构的项目，例如 ：</p>
+<ul>
+<li><a href="https://github.com/handuyishe/dubbo-monitor" target="_blank" rel="external">https://github.com/handuyishe/dubbo-monitor</a></li>
+<li><a href="https://github.com/zhongxig/dubbo-d-monitor" target="_blank" rel="external">https://github.com/zhongxig/dubbo-d-monitor</a></li>
+</ul>
+<h2 id="3-7-dubbo-config"><a href="#3-7-dubbo-config" class="headerlink" title="3.7 dubbo-config"></a>3.7 dubbo-config</h2><blockquote>
+<p><a href="https://github.com/alibaba/dubbo/tree/4bbc0ddddacc915ddc8ff292dd28745bbc0031fd/dubbo-config" target="_blank" rel="external"><code>dubbo-config</code></a> <strong>配置模块</strong>：是 Dubbo 对外的 API，用户通过 Config 使用Dubbo，隐藏 Dubbo 所有细节。</p>
+</blockquote>
+<p><img src="http://www.iocoder.cn/images/Dubbo/2018_01_04/12.png" alt="dubbo-config 包结构"></p>
+<ul>
+<li><code>dubbo-config-api</code> ，实现了 <a href="http://dubbo.apache.org/zh-cn/docs/user/configuration/api.html" target="_blank" rel="external">API 配置</a> 和 <a href="http://dubbo.apache.org/zh-cn/docs/user/configuration/properties.html" target="_blank" rel="external">属性配置</a> 功能。</li>
+<li><code>dubbo-config-spring</code> ，实现了 <a href="http://dubbo.apache.org/zh-cn/docs/user/configuration/xml.html" target="_blank" rel="external">XML 配置</a> 和 <a href="http://dubbo.apache.org/zh-cn/docs/user/configuration/annotation.html" target="_blank" rel="external">注解配置</a> 功能。</li>
+</ul>
+<p>推荐阅读 <a href="http://dubbo.apache.org/zh-cn/docs/dev/principals/configuration.html" target="_blank" rel="external">《Dubbo 开发指南 —— 配置设计》</a> 。</p>
+<h2 id="3-8-dubbo-container"><a href="#3-8-dubbo-container" class="headerlink" title="3.8 dubbo-container"></a>3.8 dubbo-container</h2><blockquote>
+<p><a href="https://github.com/alibaba/dubbo/tree/4bbc0ddddacc915ddc8ff292dd28745bbc0031fd/dubbo-container" target="_blank" rel="external"><code>dubbo-container</code></a> <strong>容器模块</strong>：是一个 Standlone 的容器，以简单的 Main 加载 Spring 启动，因为服务通常不需要 Tomcat/JBoss 等 Web 容器的特性，没必要用 Web 容器去加载服务。</p>
+</blockquote>
+<p><img src="http://www.iocoder.cn/images/Dubbo/2018_01_04/13.png" alt="dubbo-container 包结构"></p>
+<ul>
+<li><p><code>dubbo-container-api</code> ：定义了 <a href="https://github.com/alibaba/dubbo/blob/4bbc0ddddacc915ddc8ff292dd28745bbc0031fd/dubbo-container/dubbo-container-api/src/main/java/com/alibaba/dubbo/container/Container.java" target="_blank" rel="external"><code>com.alibaba.dubbo.container.Container</code></a> 接口，并提供 加载所有容器启动的 Main 类。</p>
+</li>
+<li><p>实现</p>
+</li>
+</ul>
+  <figure class="highlight axapta"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">dubbo-<span class="keyword">container</span>-api</span><br></pre></td></tr></table></figure>
+<ul>
+<li><code>dubbo-container-spring</code> ，提供了 <code>com.alibaba.dubbo.container.spring.SpringContainer</code> 。</li>
+<li><code>dubbo-container-log4j</code> ，提供了 <code>com.alibaba.dubbo.container.log4j.Log4jContainer</code> 。</li>
+<li><code>dubbo-container-logback</code> ，提供了 <code>com.alibaba.dubbo.container.logback.LogbackContainer</code> 。</li>
+</ul>
+<ul>
+<li>拓展参考 <a href="http://dubbo.apache.org/zh-cn/docs/user/demos/service-container.html" target="_blank" rel="external">《Dubbo 用户指南 —— 服务容器》</a> 和 <a href="http://dubbo.apache.org/zh-cn/docs/dev/impls/container.html" target="_blank" rel="external">《Dubbo 开发指南 —— 容器扩展》</a> 文档。</li>
+</ul>
+<h2 id="3-9-dubbo-filter"><a href="#3-9-dubbo-filter" class="headerlink" title="3.9 dubbo-filter"></a>3.9 dubbo-filter</h2><p><a href="https://github.com/alibaba/dubbo/tree/4bbc0ddddacc915ddc8ff292dd28745bbc0031fd/dubbo-filter" target="_blank" rel="external"><code>dubbo-filter</code></a> <strong>过滤器模块</strong>：提供了<strong>内置</strong>的过滤器。</p>
+<p><img src="http://www.iocoder.cn/images/Dubbo/2018_01_04/14.png" alt="dubbo-filter 包结构"></p>
+<ul>
+<li><figure class="highlight ebnf"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">dubbo-filter-cache</span></span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<p>  ，缓存过滤器。</p>
+<ul>
+<li>拓展参考 <a href="http://dubbo.apache.org/zh-cn/docs/user/demos/result-cache.html" target="_blank" rel="external">《Dubbo 用户指南 —— 结果缓存》</a> 和 <a href="http://dubbo.apache.org/zh-cn/docs/dev/impls/cache.html" target="_blank" rel="external">《Dubbo 开发指南 —— 缓存拓展》</a> 文档。</li>
+</ul>
+<ul>
+<li><figure class="highlight ebnf"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">dubbo-filter-validation</span></span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<p>  ，参数验证过滤器。</p>
+<ul>
+<li>拓展参考 <a href="http://dubbo.apache.org/zh-cn/docs/user/demos/parameter-validation.html" target="_blank" rel="external">《Dubbo 用户指南 —— 参数验证》</a> 和 <a href="http://dubbo.apache.org/zh-cn/docs/dev/impls/validation.html" target="_blank" rel="external">《Dubbo 开发指南 —— 验证扩展》</a> 文档。</li>
+</ul>
+<h2 id="3-10-dubbo-plugin"><a href="#3-10-dubbo-plugin" class="headerlink" title="3.10 dubbo-plugin"></a>3.10 dubbo-plugin</h2><p><a href="https://github.com/alibaba/dubbo/tree/4bbc0ddddacc915ddc8ff292dd28745bbc0031fd/dubbo-plugin" target="_blank" rel="external"><code>dubbo-plugin</code></a> <strong>插件模块</strong>：提供了<strong>内置</strong>的插件。</p>
+<p><img src="http://www.iocoder.cn/images/Dubbo/2018_01_04/15.png" alt="dubbo-plugin 包结构"></p>
+<ul>
+<li><figure class="highlight ebnf"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">dubbo-qos</span></span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<p>  ，提供在线运维命令。</p>
+<ul>
+<li>拓展参考 <a href="http://dubbo.apache.org/zh-cn/docs/user/references/qos.html" target="_blank" rel="external">《Dubbo 用户指南 —— 新版本 telnet 命令使用说明》</a> 和 <a href="http://dubbo.apache.org/zh-cn/docs/dev/impls/telnet-handler.html" target="_blank" rel="external">《Dubbo 开发指南 —— Telnet 命令扩展》</a> 文档。</li>
+</ul>
+<h2 id="3-11-hessian-lite"><a href="#3-11-hessian-lite" class="headerlink" title="3.11 hessian-lite"></a>3.11 hessian-lite</h2><p><a href="https://github.com/alibaba/dubbo/tree/4bbc0ddddacc915ddc8ff292dd28745bbc0031fd/hessian-lite" target="_blank" rel="external"><code>hessian-lite</code></a> ：Dubbo 对 <a href="http://hessian.caucho.com/" target="_blank" rel="external">Hessian 2</a> 的 <strong>序列化</strong> 部分的精简、改进、BugFix 。</p>
+<p>提交历史如下：</p>
+<p><img src="http://www.iocoder.cn/images/Dubbo/2018_01_04/23.png" alt="hessian-lite 提交历史"></p>
+<h2 id="3-12-dubbo-demo"><a href="#3-12-dubbo-demo" class="headerlink" title="3.12 dubbo-demo"></a>3.12 dubbo-demo</h2><p><a href="https://github.com/alibaba/dubbo/tree/4bbc0ddddacc915ddc8ff292dd28745bbc0031fd/dubbo-plugin" target="_blank" rel="external"><code>dubbo-demo</code></a> <strong>快速启动示例</strong>。</p>
+<p>参见 <a href="http://dubbo.apache.org/zh-cn/docs/user/quick-start.html" target="_blank" rel="external">《Dubbo 用户指南 —— 快速启动》</a> 文档。</p>
+<h2 id="3-13-dubbo-test"><a href="#3-13-dubbo-test" class="headerlink" title="3.13 dubbo-test"></a>3.13 dubbo-test</h2><p><a href="https://github.com/alibaba/dubbo/tree/4bbc0ddddacc915ddc8ff292dd28745bbc0031fd/dubbo-test" target="_blank" rel="external"><code>dubbo-test</code></a> <strong>测试模块</strong>。</p>
+<p><img src="http://www.iocoder.cn/images/Dubbo/2018_01_04/16.png" alt="dubbo-test 包结构"></p>
+<ul>
+<li><figure class="highlight ebnf"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">dubbo-test-benchmark</span></span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<p>  ，性能测试。</p>
+<ul>
+<li>参考 <a href="http://dubbo.apache.org/zh-cn/docs/user/perf-test.html" target="_blank" rel="external">《Dubbo 用户指南 —— 性能测试报告》</a> 文档。</li>
+</ul>
+<ul>
+<li><figure class="highlight ebnf"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">dubbo-test-compatibility</span></span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<p>  ，兼容性测试。</p>
+<ul>
+<li><code>dubbo-test-spring3</code> ，测试对 Spring 3 的兼容性。</li>
+</ul>
+<ul>
+<li><code>dubbo-test-example</code> ，<strong>使用示例</strong>。</li>
+</ul>
+<h2 id="3-14-Maven-POM"><a href="#3-14-Maven-POM" class="headerlink" title="3.14 Maven POM"></a>3.14 Maven POM</h2><h3 id="3-14-1-dubbo-dependencies-bom"><a href="#3-14-1-dubbo-dependencies-bom" class="headerlink" title="3.14.1 dubbo-dependencies-bom"></a>3.14.1 dubbo-dependencies-bom</h3><p><a href="https://github.com/alibaba/dubbo/blob/4bbc0ddddacc915ddc8ff292dd28745bbc0031fd/dependencies-bom/pom.xml" target="_blank" rel="external"><code>dubbo-dependencies-bom/pom.xml</code></a> ，Maven BOM(Bill Of Materials) ，<strong>统一</strong>定义了 Dubbo 依赖的三方库的版本号：</p>
+<p><img src="http://www.iocoder.cn/images/Dubbo/2018_01_04/17.png" alt="dubbo-dependencies-bom 文件"></p>
+<hr>
+<p><code>dubbo-parent</code> 会引入该 BOM ：</p>
+<p><img src="http://www.iocoder.cn/images/Dubbo/2018_01_04/18.png" alt="引入 dubbo-dependencies-bom 文件"></p>
+<hr>
+<p>更多 Maven BOM 的知识，可以看下 <a href="http://blog.csdn.net/fanxiaobin577328725/article/details/66974896" target="_blank" rel="external">《Maven 与Spring BOM(Bill Of Materials)简化Spring版本控制》</a> 文档：</p>
+<blockquote>
+<p>通俗解说：<br>为了防止用 Maven 管理 Spring 项目时，不同的项目依赖了不同版本的 Spring ，可以使用 Maven BOM 来解决者一问题。</p>
+</blockquote>
+<h3 id="3-14-2-dubbo-bom"><a href="#3-14-2-dubbo-bom" class="headerlink" title="3.14.2 dubbo-bom"></a>3.14.2 dubbo-bom</h3><p><a href="https://github.com/alibaba/dubbo/blob/4bbc0ddddacc915ddc8ff292dd28745bbc0031fd/bom/pom.xml" target="_blank" rel="external"><code>dubbo-bom/pom.xml</code></a> ，Maven BOM(Bill Of Materials) ，<strong>统一</strong>定义了 Dubbo 的版本号：</p>
+<p><img src="http://www.iocoder.cn/images/Dubbo/2018_01_04/19.png" alt="dubbo-bom 文件"></p>
+<hr>
+<p><code>dubbo-demo</code> 和 <code>dubbo-test</code> 会引入该 BOM 。以 <code>dubbo-demo</code> 举例子：</p>
+<p><img src="http://www.iocoder.cn/images/Dubbo/2018_01_04/20.png" alt="引入 dubbo-bom 文件"></p>
+<h3 id="3-14-3-dubbo-parent"><a href="#3-14-3-dubbo-parent" class="headerlink" title="3.14.3 dubbo-parent"></a>3.14.3 dubbo-parent</h3><p><a href="https://github.com/alibaba/dubbo/blob/4bbc0ddddacc915ddc8ff292dd28745bbc0031fd/pom.xml" target="_blank" rel="external"><code>dubbo/pom.xml</code></a> ，Dubbo Parent Pom 。</p>
+<p>Dubbo 的 Maven 模块，都会引入该 pom 文件。以 <code>dubbo-cluster</code> 举例子：</p>
+<p><img src="http://www.iocoder.cn/images/Dubbo/2018_01_04/21.png" alt="引入 dubbo-parent 文件"></p>
+<hr>
+<p>我们整理下上面的 pom 文件：</p>
+<p><img src="http://www.iocoder.cn/images/Dubbo/2018_01_04/22.png" alt="引入关系"></p>
+<h3 id="3-14-4-dubbo-all"><a href="#3-14-4-dubbo-all" class="headerlink" title="3.14.4 dubbo-all"></a>3.14.4 dubbo-all</h3><p><a href="https://github.com/alibaba/dubbo/blob/4bbc0ddddacc915ddc8ff292dd28745bbc0031fd/all/pom.xml" target="_blank" rel="external"><code>dubbo/all/pom.xml</code></a> ，Dubbo All Pom ，定义了 Dubbo 的<strong>打包脚本</strong>。</p>
+<p>我们在使用 Dubbo 库时，引入该 pom 文件。</p>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">Dubbo</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+      
+
+      <div style="font-size: 12px;">
+        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
+      </div>
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2019/02/11/精尽-Dubbo-源码分析-——-项目结构一览/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
     <article id="post-精尽-Dubbo-面试题" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
@@ -1765,380 +2499,6 @@
 
 
   
-    <article id="post-策略模式与Spring结合使用" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2019/01/17/策略模式与Spring结合使用/">策略模式与Spring结合使用</a>
-    </h1>
-  
-
-        
-        <a href="/2019/01/17/策略模式与Spring结合使用/" class="archive-article-date">
-  	<time datetime="2019-01-17T08:12:28.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2019-01-17</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <blockquote>
-<p>IOC是Spring的核心之一，利用Spring使用设计模式中的策略模式，可以把具体策略的创建交给Spring容器来管理。</p>
-</blockquote>
-<h2 id="策略模式接口的定义"><a href="#策略模式接口的定义" class="headerlink" title="策略模式接口的定义"></a>策略模式接口的定义</h2><blockquote>
-<p>需求：设计一个统计报表接口，暂定有两种统计方式：统计订单总数,统计新增用户数。</p>
-</blockquote>
-<p>首先定义统计接口。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment">- 策略模式的使用:选择统计算法,分离实现</span></span><br><span class="line"><span class="comment">- 统计策略接口:定义统一的调用方法</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">StatStrategy</span> </span>&#123;</span><br><span class="line">	<span class="function"><span class="keyword">void</span> <span class="title">getStatData</span><span class="params">()</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>具体的统计算法：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">OrderStrategyImpl</span> <span class="keyword">implements</span> <span class="title">StatStrategy</span> </span>&#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">getStatData</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"统计订单总数"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">UserStrategyImpl</span> <span class="keyword">implements</span> <span class="title">StatStrategy</span> </span>&#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">getStatData</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"统计新增用户数"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>利用@Component 注解将算法的实现交由Spring容器管理。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 统计策略的上下文</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">StatContext</span> </span>&#123;</span><br><span class="line">    <span class="comment">//装载策略对象的集合,其中key:Statistics类型为自定义的枚举类型</span></span><br><span class="line">    <span class="keyword">private</span> Map&lt;Statistics, StatStrategy&gt; statStrategy = <span class="keyword">new</span> HashMap&lt;&gt;();</span><br><span class="line"></span><br><span class="line">    <span class="comment">//提供给客户端使用的方法</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">loadDetailData</span><span class="params">(Integer strategyId)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">for</span> (Map.Entry&lt;Statistics,StatStrategy&gt; entry : statStrategy.entrySet()) &#123;</span><br><span class="line">            <span class="keyword">if</span> (entry.getKey().getId()==strategyId.intValue()) &#123;</span><br><span class="line">                statStrategy.get(entry.getKey()).getStatData();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Map&lt;Statistics, StatStrategy&gt; <span class="title">getStatStrategy</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> statStrategy;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setStatStrategy</span><span class="params">(Map&lt;Statistics, StatStrategy&gt; statStrategy)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.statStrategy = statStrategy;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>自定义的枚举类型Statistics ：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">enum</span>  Statistics &#123;</span><br><span class="line"></span><br><span class="line">    订单_总数统计(<span class="number">101</span>, <span class="string">"【订单】总数统计"</span>),</span><br><span class="line">    用户_新增用户数统计(<span class="number">201</span>, <span class="string">"【用户】新增用户数统计"</span>);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> id;</span><br><span class="line">    <span class="keyword">private</span> String name;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">getId</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> id;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">getName</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> name;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    Statistics(<span class="keyword">int</span> id, String name) &#123;</span><br><span class="line">        <span class="keyword">this</span>.id = id;</span><br><span class="line">        <span class="keyword">this</span>.name = name;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>策略模式结合Spring来使用<br>接下来，就是把交由Spring管理的具体算法注入到StatContext 中，用xml文件的形式来实现，Bean的定义写在<code>applicationContext.xml</code>中：</p>
-<p>策略放到map中</p>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">"statContext"</span> <span class="attr">class</span>=<span class="string">"StatContext"</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"statStrategy"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">map</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">entry</span> <span class="attr">key-ref</span>=<span class="string">"statOrder"</span> <span class="attr">value-ref</span>=<span class="string">"orderStrategyImpl "</span>&gt;</span><span class="tag">&lt;/<span class="name">entry</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">entry</span> <span class="attr">key-ref</span>=<span class="string">"statUser"</span> <span class="attr">value-ref</span>=<span class="string">"userStrategyImpl "</span>&gt;</span><span class="tag">&lt;/<span class="name">entry</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">map</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">bean</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">&lt;!--枚举类型要想注入到类中，一定要先使用org.springframework.beans.factory.config.FieldRetrievingFactoryBean类将枚举类型进行转换--&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">"statOrder"</span> <span class="attr">class</span>=<span class="string">"org.springframework.beans.factory.config.FieldRetrievingFactoryBean"</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"staticField"</span> <span class="attr">value</span>=<span class="string">"Statistics.订单_总数统计"</span> /&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">bean</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">"statUser"</span> <span class="attr">class</span>=<span class="string">"org.springframework.beans.factory.config.FieldRetrievingFactoryBean"</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"staticField"</span> <span class="attr">value</span>=<span class="string">"Statistics.用户_新增用户数统计"</span> /&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">bean</span>&gt;</span></span><br></pre></td></tr></table></figure>
-<p>策略模式的相关定义已经写好，接下来使用就很简单了，按照MVC的架构，我们是在Service层来调用相关的策略算法，首先定义Service接口。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">StatService</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">loadDetailData</span><span class="params">(Integer strategyId)</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>接口实现。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Service</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">StatServiceImpl</span> <span class="keyword">implements</span> <span class="title">StatService</span> </span>&#123;</span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="keyword">private</span> StatContext statContext;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">loadDetailData</span><span class="params">(Integer strategyId)</span> </span>&#123;</span><br><span class="line">        <span class="comment">//策略模式结合Spring使用,使代码结构更清晰,避免多重if-else判断</span></span><br><span class="line">        statContext.loadDetailData(strategyId);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>策略模式结合Spring使用就是这么简单，具体细节再结合项目的使用来修改，完毕。</p>
-
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color2">Spring</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-      
-
-      <div style="font-size: 12px;">
-        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
-      </div>
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2019/01/17/策略模式与Spring结合使用/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
-    <article id="post-tomcat架构解析" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2019/01/17/tomcat架构解析/">Tomcat架构解析及部署方式</a>
-    </h1>
-  
-
-        
-        <a href="/2019/01/17/tomcat架构解析/" class="archive-article-date">
-  	<time datetime="2019-01-17T02:33:48.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2019-01-17</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h2 id="目录结构"><a href="#目录结构" class="headerlink" title="目录结构"></a>目录结构</h2><h3 id="conf-目录"><a href="#conf-目录" class="headerlink" title="conf 目录"></a>conf 目录</h3><p><code>catalina.policy</code> :  Tomcat 安全策略文件，控制 JVM 相关权限，具体可以参考<code>java.security.Permission</code></p>
-<p><code>catalina.properties</code> : Tomcat Catalina 行为控制配置文件，比如 Common ClassLoader</p>
-<p><code>logging.properties</code>  : Tomcat 日志配置文件，JDK Logging</p>
-<p><code>server.xml</code>  :  Tomcat Server 配置文件</p>
-<ul>
-<li><code>GlobalNamingResources</code> : 全局 JNDI 资源</li>
-</ul>
-<p><code>context.xml</code> : 全局 Context 配置文件</p>
-<p><code>tomcat-users.xml</code> : Tomcat 角色配置文件，（Realm 文件实现方式）、</p>
-<p><code>web.xml</code> : Servlet 标准的 web.xml 部署文件，Tomcat 默认实现部分配置入内：</p>
-<ul>
-<li><code>org.apache.catalina.servlets.DefaultServlet</code></li>
-<li><code>org.apache.jasper.servlet.JspServlet</code></li>
-</ul>
-        
-          <a class="article-more-a" href="/2019/01/17/tomcat架构解析/#more">more >></a>
-        
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color2">tomcat</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-      
-
-      <div style="font-size: 12px;">
-        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
-      </div>
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2019/01/17/tomcat架构解析/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
-    <article id="post-Expires、Last-Modified、Etag缓存控制" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2019/01/08/Expires、Last-Modified、Etag缓存控制/">Expires、Last-Modified、Etag缓存控制</a>
-    </h1>
-  
-
-        
-        <a href="/2019/01/08/Expires、Last-Modified、Etag缓存控制/" class="archive-article-date">
-  	<time datetime="2019-01-08T02:02:25.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2019-01-08</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>当请求一个页面时，如果浏览器使用本地缓存，因此我们经常会看到一个HTTP请求为304状态。或者显示200状态，在chrome下标注是from cache，在火狐下会标注BFCache；</p>
-<p>我们希望在服务器端更新了静态文件（如css、js、图片），能够在客户端得到及时的更新，但又不想让浏览器每次请求都从服务器端获取静态资源。那么就需要了解一些下面的知识：</p>
-<h3 id="Last-Modified-If-Modified-Since"><a href="#Last-Modified-If-Modified-Since" class="headerlink" title="Last-Modified / If-Modified-Since"></a>Last-Modified / If-Modified-Since</h3><p>当浏览器第一次请求一个url时，服务器端的返回状态码为200，同时HTTP响应头会有一个Last-Modified标记着文件在服务器端最后被修改的时间。</p>
-<p><img src="/2019/01/08/Expires、Last-Modified、Etag缓存控制/221003436286349.jpg" alt="last-modifed"></p>
-<p><img src="/2019/01/08/Expires、Last-Modified、Etag缓存控制/221003436286349.jpg" alt=""></p>
-<p>浏览器第二次请求上次请求过的url时，浏览器会在HTTP请求头添加一个If-Modified-Since的标记，用来询问服务器该时间之后文件是否被修改过。</p>
-<p><img src="https://images0.cnblogs.com/blog/648334/201408/221005550499434.jpg" alt="img"></p>
-<p>如果服务器端的资源没有变化，则自动返回304状态，使用浏览器缓存，从而保证了浏览器不会重复从服务器端获取资源，也保证了服务器有变化是，客户端能够及时得到最新的资源。</p>
-<h3 id="Etag-If-None-Match"><a href="#Etag-If-None-Match" class="headerlink" title="Etag / If-None-Match"></a>Etag / If-None-Match</h3><p>当浏览器第一次请求一个url时，服务器端的返回状态码为200，同时HTTP响应头会有一个Etag，存放着服务器端生成的一个序列值。</p>
-<p><img src="https://images0.cnblogs.com/blog/648334/201408/221003436286349.jpg" alt="img"></p>
-<p>浏览器第二次请求上次请求过的url时，浏览器会在HTTP请求头添加一个If-None-Match的标记，用来询问服务器该文件有没有被修改。</p>
-<p> <img src="https://images0.cnblogs.com/blog/648334/201408/221005550499434.jpg" alt="img"></p>
-<p>Etag 主要为了解决 Last-Modified 无法解决的一些问题:</p>
-<p>1、一些文件也许会周期性的更改，但是他的内容并不改变(仅仅改变的修改时间)，这个时候我们并不希望客户端认为这个文件被修改了，而重新GET;</p>
-<p>2、某些文件修改非常频繁，比如在秒以下的时间内进行修改，(比方说1s内修改了N次)，If-Modified-Since能检查到的粒度是s级的，这种修改无法判断(或者说UNIX记录MTIME只能精确到秒)</p>
-<p>3、某些服务器不能精确的得到文件的最后修改时间；</p>
-<h3 id="Expires"><a href="#Expires" class="headerlink" title="Expires"></a>Expires</h3><figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;meta <span class="attribute">http-equiv</span>=<span class="string">"expires"</span> <span class="attribute">content</span>=<span class="string">"Fri, 22 Aug 2014 00:52:49 GMT"</span> /&gt;</span><br></pre></td></tr></table></figure>
-<p>HTTP 1.0，设置缓存的截止时间，在此之前，浏览器对缓存的数据不重新发请求。它与Last-Modified/Etag结合使用，用来控制请求文件的有效时间，当请求数据在有效期内，浏览器从缓存获得数据。Last-Modifed/Etag能够节省一点宽带，但是还会发一个HTTP请求。</p>
-<h3 id="Catch-Control"><a href="#Catch-Control" class="headerlink" title="Catch-Control"></a>Catch-Control</h3><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!--Cache-Control: max-age=秒 --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">meta</span> <span class="attr">http-equiv</span>=<span class="string">"Cache-Control"</span> <span class="attr">content</span>=<span class="string">"max-age=120"</span>/&gt;</span></span><br></pre></td></tr></table></figure>
-<p>HTTP 1.1，设置资源在本地缓存多长时间。</p>
-<p>如果Cache-Control与expires同时存在，Cache-Control生效。expires 的一个缺点就是，返回的到期时间是服务器端的时间，这样存在一个问题，如果客户端的时间与服务器的时间相差很大，那么误差就很大，所以在HTTP 1.1版开始，使用Cache-Control: max-age=秒替代。</p>
-<h3 id="用户操作与缓存"><a href="#用户操作与缓存" class="headerlink" title="用户操作与缓存"></a>用户操作与缓存</h3><p><img src="https://images0.cnblogs.com/blog/648334/201408/221016051591259.png" alt="img"></p>
-<h3 id="禁止缓存"><a href="#禁止缓存" class="headerlink" title="禁止缓存"></a>禁止缓存</h3><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!--禁止浏览器本地缓存 --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">meta</span> <span class="attr">http-equiv</span>=<span class="string">"Cache-Control"</span> <span class="attr">content</span>=<span class="string">"no-cache"</span>/&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">&lt;!-- 或者 --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">meta</span> <span class="attr">http-equiv</span>=<span class="string">"Cache-Control"</span> <span class="attr">content</span>=<span class="string">"max-age=0"</span>/&gt;</span></span><br></pre></td></tr></table></figure>
-<p>还有POST请求不使用缓存，HTTP响应头不包含Last-Modified/Etag，也不包含Cache-Control/Expires不会使用缓存。</p>
-<p>除非有特殊需求，最好还是不要禁用缓存，毕竟是用缓存能节省宽带，节省服务器资源，节省money…</p>
-<h3 id="浏览器第一次请求过程"><a href="#浏览器第一次请求过程" class="headerlink" title="浏览器第一次请求过程"></a>浏览器第一次请求过程</h3><p><img src="https://images0.cnblogs.com/blog/648334/201408/221537307378944.jpg" alt="img"></p>
-<h3 id="浏览器第二次请求过程"><a href="#浏览器第二次请求过程" class="headerlink" title="浏览器第二次请求过程"></a>浏览器第二次请求过程</h3><p><img src="https://images0.cnblogs.com/blog/648334/201408/221538345655678.jpg" alt="img"></p>
-<p>我们希望服务器端更新了文件，客户端可以及时的更新文件，根具上面流程，我们需要针对静态文件的响应头添加expires，设置为永久过期，浏览器每次请求静态文件，就会询问服务器文件有没有做过更改，如果更改了就从服务器端获取资源，否则直接使用缓存。  </p>
-<h3 id="apache的配置："><a href="#apache的配置：" class="headerlink" title="apache的配置："></a>apache的配置：</h3><p><a href="javascript:void(0" target="_blank" rel="external"><img src="https://common.cnblogs.com/images/copycode.gif" alt="复制代码"></a>;)</p>
-<figure class="highlight apache"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#开启mod_expires模块</span></span><br><span class="line"><span class="attribute"><span class="nomarkup">LoadModule</span></span> expires_module modules/mod_expires.so</span><br><span class="line"></span><br><span class="line"><span class="attribute">ExpiresActive</span> <span class="literal">On</span></span><br><span class="line"><span class="attribute">ExpiresDefault</span> <span class="string">"access plus 0 seconds"</span> #默认缓存0s</span><br><span class="line"><span class="section">&lt;Directory  "根目录"&gt;</span></span><br><span class="line">    <span class="comment">#Options FollowSymLinks</span></span><br><span class="line">    <span class="comment">#AllowOverride all</span></span><br><span class="line">    <span class="attribute"><span class="nomarkup">Order</span></span> deny,allow</span><br><span class="line">    <span class="attribute"><span class="nomarkup">Allow</span></span> from <span class="literal">all</span></span><br><span class="line">    <span class="comment">#ExpiresByType application/* "access plus 0 seconds"</span></span><br><span class="line">    <span class="comment">#ExpiresByType image/* "access plus 0 seconds"</span></span><br><span class="line">    <span class="comment">#ExpiresByType text/css "access plus 0 seconds"</span></span><br><span class="line"><span class="section">&lt;/Directory&gt;</span></span><br></pre></td></tr></table></figure>
-<p><a href="javascript:void(0" target="_blank" rel="external"><img src="https://common.cnblogs.com/images/copycode.gif" alt="复制代码"></a>;)</p>
-<p>这样的做法有个弊端，就是每次请求都会询问服务器端资源是否过期，当然还有更好的办法。</p>
-<h3 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h3><p><a href="https://www.cnblogs.com/zhouwenhong/p/3928645.html" target="_blank" rel="external">Expires、Last-Modified、Etag缓存控制</a></p>
-<p><a href="https://www.cnblogs.com/guojiao1600/p/5110971.html" target="_blank" rel="external">浏览器缓存之Expires Etag Last-Modified max-age详解</a></p>
-
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-      
-
-      <div style="font-size: 12px;">
-        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
-      </div>
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2019/01/08/Expires、Last-Modified、Etag缓存控制/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
-    <article id="post-序列化之serialVersionUID" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2018/12/25/序列化之serialVersionUID/">序列化之serialVersionUID</a>
-    </h1>
-  
-
-        
-        <a href="/2018/12/25/序列化之serialVersionUID/" class="archive-article-date">
-  	<time datetime="2018-12-25T03:28:51.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-12-25</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h1 id="serialVersionUID"><a href="#serialVersionUID" class="headerlink" title="serialVersionUID"></a>serialVersionUID</h1><p><code>serialVersionUID</code>是用来验证版本一致性的。所以<strong>在做兼容性升级的时候，不要改变类中serialVersionUID的值。</strong></p>
-<p>强调一下：serialVersionUID <strong>既然是验证版本一致性的，在做版本升级的时候（非兼容性升级），记得要修改这个字段的值哦，这样可以避免序列化混乱。</strong></p>
-        
-          <a class="article-more-a" href="/2018/12/25/序列化之serialVersionUID/#more">more >></a>
-        
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">java</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">序列化</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-      
-
-      <div style="font-size: 12px;">
-        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
-      </div>
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2018/12/25/序列化之serialVersionUID/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
   
     <nav id="page-nav">
       <a class="extend prev" rel="prev" href="/page/2/">&laquo; Prev</a><a class="page-number" href="/">1</a><a class="page-number" href="/page/2/">2</a><span class="page-number current">3</span><a class="page-number" href="/page/4/">4</a><a class="page-number" href="/page/5/">5</a><span class="space">&hellip;</span><a class="page-number" href="/page/18/">18</a><a class="extend next" rel="next" href="/page/4/">Next &raquo;</a>
@@ -2248,19 +2608,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">ops</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">git</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">Maven</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">JVM</a>
+                <a href="javascript:void(0)" class="js-tag color4">ops</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -2268,7 +2620,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">redis</a>
+                <a href="javascript:void(0)" class="js-tag color4">JVM</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">Maven</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -2276,11 +2632,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">linux</a>
+                <a href="javascript:void(0)" class="js-tag color1">redis</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">快捷键</a>
+                <a href="javascript:void(0)" class="js-tag color1">linux</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -2288,11 +2644,15 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">MySQL</a>
+                <a href="javascript:void(0)" class="js-tag color5">test</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">Python</a>
+                <a href="javascript:void(0)" class="js-tag color4">快捷键</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">MySQL</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -2300,19 +2660,19 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">Python</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">限流</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">RxJava</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">test</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">react</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">RxJava</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -2332,19 +2692,15 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">elastic-job</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">guava</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">大数据</a>
+                <a href="javascript:void(0)" class="js-tag color2">elastic-job</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">nio</a>
+                <a href="javascript:void(0)" class="js-tag color4">大数据</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -2356,19 +2712,19 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">nio</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">rest</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">Mac</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">maven</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">mybatis</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">Mac</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -2392,19 +2748,19 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">前端指南</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">后端</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">分布式</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">事务</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">前端指南</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">后端</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -2428,15 +2784,15 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">HashMap</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">前端跨域</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">单例</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">HashMap</a>
               </li>
              
               <li class="article-tag-list-item">
