@@ -150,6 +150,645 @@
           <div id="js-content" class="content-ll">
             
   
+    <article id="post-Spark原理案例及搭建" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2019/08/02/Spark原理案例及搭建/">Spark原理案例及搭建</a>
+    </h1>
+  
+
+        
+        <a href="/2019/08/02/Spark原理案例及搭建/" class="archive-article-date">
+  	<time datetime="2019-08-02T01:58:44.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2019-08-02</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>本文基于Spark 2.3.1    scala 2.11</p>
+<h1 id="RDD算子"><a href="#RDD算子" class="headerlink" title="RDD算子"></a>RDD算子</h1><p>a <em>resilient distributed dataset</em> (RDD), which is a collection of elements partitioned across the nodes of the cluster that can be operated on in parallel</p>
+<p><img src="/2019/08/02/Spark原理案例及搭建/01.jpg" alt=""></p>
+<h2 id="Transformation算子"><a href="#Transformation算子" class="headerlink" title="Transformation算子"></a>Transformation算子</h2><p><a href="http://spark.apache.org/docs/latest/rdd-programming-guide.html#transformations" target="_blank" rel="external">http://spark.apache.org/docs/latest/rdd-programming-guide.html#transformations</a></p>
+<p>懒执行，返回值依然是RDD</p>
+<ul>
+<li>map </li>
+<li>filter</li>
+<li>flatMap</li>
+<li>groupByKey</li>
+<li>reduceByKey</li>
+<li>mapValues</li>
+<li>sort</li>
+</ul>
+<h2 id="Action算子"><a href="#Action算子" class="headerlink" title="Action算子"></a>Action算子</h2><p><a href="http://spark.apache.org/docs/latest/rdd-programming-guide.html#actions" target="_blank" rel="external">http://spark.apache.org/docs/latest/rdd-programming-guide.html#actions</a></p>
+<p>触发真正执行，返回值不再是RDD</p>
+<h3 id="reduce"><a href="#reduce" class="headerlink" title="reduce"></a>reduce</h3><p>不需要根据key分组，直接进行聚合，reduce双子没必要必须作用在KV格式的RDD上</p>
+<h3 id="collect"><a href="#collect" class="headerlink" title="collect"></a>collect</h3><p>将RDD的元素收集回来，收集到一个集合中。<strong>慎用，一般在测试环境使用</strong></p>
+<p><img src="/2019/08/02/Spark原理案例及搭建/02.jpg" alt=""></p>
+<h3 id="count"><a href="#count" class="headerlink" title="count"></a>count</h3><h1 id="RDD持久化"><a href="#RDD持久化" class="headerlink" title="RDD持久化"></a>RDD持久化</h1><p><a href="http://spark.apache.org/docs/latest/rdd-programming-guide.html#rdd-persistence" target="_blank" rel="external">http://spark.apache.org/docs/latest/rdd-programming-guide.html#rdd-persistence</a></p>
+<h3 id="cache"><a href="#cache" class="headerlink" title="cache"></a>cache</h3><ul>
+<li>cache算子将数据保存到内存中</li>
+<li><p>cache算子是懒加载算子，需要Action算子触发执行</p>
+</li>
+<li><p>cache 是 persist简化版</p>
+</li>
+</ul>
+<p><code>StorageLevel</code> 半生对象</p>
+<p>deseriliezd 不序列化的意思，</p>
+<p>序列化，占用空间小</p>
+<h3 id="persist"><a href="#persist" class="headerlink" title="persist"></a>persist</h3><h4 id="StorageLevel"><a href="#StorageLevel" class="headerlink" title="StorageLevel"></a>StorageLevel</h4><p>优先级</p>
+<ul>
+<li>MEMORY_ONLY   只放内存，不够放弃。释放：1.自动ttl，2.手动释放内存 unpersist。</li>
+<li>MEMORY_ONLY_SER</li>
+<li>MEMORY_AND_DISK_SER  内存放不了，再放磁盘</li>
+<li>DISK_ONLY 不建议使用</li>
+</ul>
+<p>一个action算子，就是一个Job</p>
+<h1 id="standlone部署"><a href="#standlone部署" class="headerlink" title="standlone部署"></a>standlone部署</h1><h2 id="spark-env-sh-修改"><a href="#spark-env-sh-修改" class="headerlink" title="spark-env.sh 修改"></a>spark-env.sh 修改</h2><figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># masterIP</span></span><br><span class="line"><span class="attr">SPARK_MASTER_HOST</span>=node01</span><br><span class="line"><span class="comment"># master通信端口</span></span><br><span class="line"><span class="attr">SPARK_MASTER_PORT</span>=<span class="number">7077</span></span><br><span class="line"><span class="comment"># 心跳超时时间</span></span><br><span class="line"><span class="attr">SPARK_MASTER_OPTS</span>=<span class="string">"-Dspark.worker.timeout=100"</span></span><br><span class="line"><span class="comment"># webUI端口</span></span><br><span class="line"><span class="attr">SPARK_MASTER_WEBUI_PORT</span>=<span class="number">8888</span></span><br><span class="line"><span class="comment"># 日志存放位置</span></span><br><span class="line"><span class="attr">SPARK_LOCAL_DIRS</span>=<span class="string">"/var/zfg/spark"</span></span><br><span class="line"><span class="comment"># worker进程所管理的核心数</span></span><br><span class="line"><span class="attr">SPARK_WORKER_CORES</span>=<span class="number">2</span></span><br><span class="line"><span class="comment"># worker进程所管理的内存数</span></span><br><span class="line"><span class="attr">SPARK_WORKER_MEMORY</span>=<span class="number">3</span>G</span><br><span class="line"><span class="comment"># 计算工作区</span></span><br><span class="line"><span class="attr">SPARK_WORKER_DIR</span>=<span class="string">"/var/zfg/spark/work"</span></span><br><span class="line"><span class="comment"># 工作区文件的有效期</span></span><br><span class="line"><span class="attr">SPARK_WORKER_OPTS</span>=<span class="string">"-Dspark.worker.cleanup.enabled=true -Dspark.worker.cleanup.appDataTtl=259200"</span></span><br></pre></td></tr></table></figure>
+<h2 id="slave修改"><a href="#slave修改" class="headerlink" title="slave修改"></a>slave修改</h2><figure class="highlight gcode"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="symbol">node02</span></span><br><span class="line"><span class="symbol">node03</span></span><br><span class="line"><span class="symbol">node04</span></span><br></pre></td></tr></table></figure>
+<h2 id="环境变量"><a href="#环境变量" class="headerlink" title="环境变量"></a>环境变量</h2><p>配置环境变量，sbin bin添加到path</p>
+<p>start-all.sh  改名start-spark.sh</p>
+<h2 id="scp到node02-node03-node04"><a href="#scp到node02-node03-node04" class="headerlink" title="scp到node02 node03 node04"></a>scp到node02 node03 node04</h2><h2 id="启动"><a href="#启动" class="headerlink" title="启动"></a>启动</h2><p>启动 start-spark.sh</p>
+<p>访问 <a href="http://node01:8888" target="_blank" rel="external">http://node01:8888</a></p>
+<h2 id="动态添加worker"><a href="#动态添加worker" class="headerlink" title="动态添加worker"></a>动态添加worker</h2><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">./sbin/<span class="keyword">start</span>-slave.sh &lt;<span class="keyword">master</span>-spark-<span class="keyword">URL</span>&gt;</span><br></pre></td></tr></table></figure>
+<h1 id="spark-shell"><a href="#spark-shell" class="headerlink" title="spark shell"></a>spark shell</h1><p>集群方式</p>
+<figure class="highlight crmsh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">./bin/spark-shell --<span class="keyword">master</span> <span class="title">spark</span>://IP:PORT</span><br></pre></td></tr></table></figure>
+<p>本地方式</p>
+<figure class="highlight dockerfile"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">./bin/spark-<span class="keyword">shell</span><span class="bash"></span></span><br></pre></td></tr></table></figure>
+<h2 id="REPL"><a href="#REPL" class="headerlink" title="REPL"></a>REPL</h2><p>读、执行、打印、循环</p>
+<h1 id="standalone-HA部署"><a href="#standalone-HA部署" class="headerlink" title="standalone HA部署"></a>standalone HA部署</h1><p><a href="http://spark.apache.org/docs/latest/spark-standalone.html#high-availability" target="_blank" rel="external">Spark Standalone Mode - Spark 2.4.3 Documentation</a></p>
+<p><a href="http://spark.apache.org/docs/latest/configuration.html#deploy" target="_blank" rel="external">Configuration - Spark 2.4.3 Documentation</a></p>
+<p><img src="/2019/08/02/Spark原理案例及搭建/03.jpg" alt=""></p>
+<ul>
+<li>处于active状态的master，会将收集的元信息放到zookeeper，包括worker个数，地址。</li>
+<li>备用master监听zk，通知active挂了。备用master会从zk中读取元数据到内存，通知worker以后的主、心跳发送</li>
+</ul>
+<h2 id="配置"><a href="#配置" class="headerlink" title="配置"></a>配置</h2><p>SPARK_DAEMON_JAVA_OPTS in spark-env by configuring <code>spark.deploy.recoveryMode</code> and related spark.deploy.zookeeper.* configurations. </p>
+<figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">SPARK_DAEMON_JAVA_OPTS</span>=<span class="string">"-Dspark.deploy.recoveryMode=ZOOKEEPER spark.deploy.zookeeper.url=node02:2181,node03:2181,node04:2181 -Dspark.deploy.zookeeper.dir=spark201908"</span></span><br></pre></td></tr></table></figure>
+<ul>
+<li>将spark-env.sh 同步到其他节点</li>
+<li>启动start-spark.sh，发现只有一个master</li>
+<li>在node02中，修改<code>SPARK_MASTER_HOST=node02</code>，再 start-master启动</li>
+</ul>
+<p>备用 node02 start-master.sh<br>Master=node02</p>
+<p>RECAVering 准备切换状态</p>
+<h1 id="术语"><a href="#术语" class="headerlink" title="术语"></a>术语</h1><ul>
+<li>Master(standalone)：资源管理的主节点(进程)</li>
+<li>Cluster Manager：在集群上获取资源的外部服务(例如standalone,Mesos,Yarn )</li>
+<li>Worker Node(standalone)：资源管理的从节点(进程) 或者说管理本机资源的进程</li>
+<li><p>Application：基于Spark的⽤用户程序，包含了driver程序和运行在集群上的executor程序</p>
+</li>
+<li><p>Driver Program：用来连接工作进程（Worker）的程序</p>
+</li>
+<li><p>Executor：是在一个worker进程所管理的节点上为某Application启动的⼀一个进程，该进</p>
+</li>
+</ul>
+<p>程负责运行任务，并且负责将数据存在内存或者磁盘上。每个应⽤用都有各自独⽴立的</p>
+<p>executors</p>
+<ul>
+<li><p>Task：被送到某个executor上的工作单元</p>
+</li>
+<li><p>Job：包含很多任务(Task)的并行计算，可以看做和action对Job：包含很多任务(Task)的并行计算，可以看做和action对v应</p>
+</li>
+<li><p>Stage：⼀个Job会被拆分很多组任务，每组任务被称为Stage(就像Mapreduce分map task</p>
+</li>
+</ul>
+<p>和reduce task一样)</p>
+<h1 id="宽依赖"><a href="#宽依赖" class="headerlink" title="宽依赖"></a>宽依赖</h1><p><img src="/2019/08/02/Spark原理案例及搭建/04.jpg" alt=""></p>
+<ul>
+<li><p>宽依赖：父RDD的分区：子RDD的分区，1对多</p>
+</li>
+<li><p>导致宽依赖的算子: groupByKey</p>
+</li>
+<li>宽依赖和shuffle是一一对应的</li>
+</ul>
+<h1 id="窄依赖"><a href="#窄依赖" class="headerlink" title="窄依赖"></a>窄依赖</h1><ul>
+<li>map fitler</li>
+<li>union 不会导致宽依赖</li>
+<li>窄依赖一般不会发生shuffle</li>
+</ul>
+<h1 id="Stage切割规则"><a href="#Stage切割规则" class="headerlink" title="Stage切割规则"></a>Stage切割规则</h1><p><img src="/2019/08/02/Spark原理案例及搭建/05.jpg" alt=""></p>
+<ul>
+<li>按宽依赖进行划分，连着的窄依赖为一个stage</li>
+<li>正是有了宽窄依赖，才能将job切分成一个个stage</li>
+<li>一个stage的task个数（并发数），以最后一个RDD的分区数为准</li>
+</ul>
+<h1 id="pipeline操作"><a href="#pipeline操作" class="headerlink" title="pipeline操作"></a>pipeline操作</h1><p><img src="/2019/08/02/Spark原理案例及搭建/06.jpg" alt=""></p>
+<ul>
+<li>一个stage内（都是窄依赖）进行pipeline操作</li>
+<li>计算向数据移动，C、D、F的计算都可以移动到C操作</li>
+<li>为什么有懒执行算子，就是为了构建pipeline，增加并行度</li>
+</ul>
+<h2 id="举例"><a href="#举例" class="headerlink" title="举例"></a>举例</h2><figure class="highlight nix"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">val <span class="attr">RDD</span> = sc.textFile(hdfs)</span><br><span class="line">val <span class="attr">filterRDD</span> = RDD.filter(<span class="attr">x</span> =&gt; x.contains(<span class="string">"Ab"</span>))</span><br><span class="line">val <span class="attr">mapRDD</span> = filterRDD.<span class="built_in">map</span>(<span class="attr">x</span> =&gt; x+<span class="string">"~"</span>)</span><br><span class="line">val <span class="attr">flatMapRDD</span> = mapRDD.flatMap(<span class="attr">x</span> =&gt; x.split(<span class="string">" "</span>))</span><br><span class="line">flatMapRDD.collect</span><br></pre></td></tr></table></figure>
+<p><img src="/2019/08/02/Spark原理案例及搭建/07.jpg" alt=""></p>
+<ul>
+<li>task1最好在B1执行</li>
+<li>task2最好在B2执行</li>
+</ul>
+<h2 id="持久化"><a href="#持久化" class="headerlink" title="持久化"></a>持久化</h2><p>管道中的数据什么时候持久化到磁盘</p>
+<ol>
+<li>shuttle 的write的阶段（stage和stage之间，shuttfle write 和 shuttfle read）</li>
+<li>对一个RDD执行了持久化算子(persist)</li>
+</ol>
+<h1 id="任务调度"><a href="#任务调度" class="headerlink" title="任务调度"></a>任务调度</h1><p><img src="/2019/08/02/Spark原理案例及搭建/09.png" alt=""></p>
+<h2 id="任务重试"><a href="#任务重试" class="headerlink" title="任务重试"></a>任务重试</h2><ul>
+<li>默认值重试3次 ， 加上1次，一共4次。重试次数为4-1=3</li>
+</ul>
+<p><a href="http://spark.apache.org/docs/latest/configuration.html#scheduling" target="_blank" rel="external">http://spark.apache.org/docs/latest/configuration.html#scheduling</a></p>
+<table>
+<thead>
+<tr>
+<th>spark.task.maxFailures</th>
+<th>4</th>
+<th>Number of failures of any particular task before giving up on the job. The total number of failures spread across different tasks will not cause the job to fail; a particular task has to fail this number of attempts. Should be greater than or equal to 1. Number of allowed retries = this value - 1.</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>1.代码配置</p>
+<p>2.spark-default.xml配置文件</p>
+<p>3.提交Application的时候，<strong>常用</strong></p>
+<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">spark-submit --conf spark<span class="selector-class">.task</span><span class="selector-class">.maxFailures</span>=<span class="number">10</span></span><br></pre></td></tr></table></figure>
+<h3 id="挣扎的任务"><a href="#挣扎的任务" class="headerlink" title="挣扎的任务"></a>挣扎的任务</h3><p>TaskScheduler负责任务的重试，和挣扎的任务(推测执行)</p>
+<ul>
+<li>推测过程</li>
+</ul>
+<p>75%的任务都执行完成后，会每隔100ms来鉴定一次剩余的task是否是挣扎的task。鉴定过程：25task的执行时间，按照执行时间来排序，取中位数10s，10s*1.5倍数=15s。25task中大于这个15s的任务就是挣扎的任务。</p>
+<table>
+<thead>
+<tr>
+<th><code>spark.speculation</code></th>
+<th>false</th>
+<th>If set to “true”, performs speculative execution of tasks. This means if one or more tasks are running slowly in a stage, they will be re-launched.</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>spark.speculation.interval</code></td>
+<td>100ms</td>
+<td>How often Spark will check for tasks to speculate.</td>
+</tr>
+<tr>
+<td><code>spark.speculation.multiplier</code></td>
+<td>1.5</td>
+<td>How many times slower a task is than the median to be considered for speculation.</td>
+</tr>
+<tr>
+<td><code>spark.speculation.quantile</code></td>
+<td>0.75</td>
+<td>Fraction of tasks which must be complete before speculation is enabled for a particular stage.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="stage重试"><a href="#stage重试" class="headerlink" title="stage重试"></a>stage重试</h2><p>DAGScheduler负责重试stage，默认重试次数为4</p>
+<table>
+<thead>
+<tr>
+<th><code>spark.stage.maxConsecutiveAttempts</code></th>
+<th>4</th>
+<th>Number of consecutive stage attempts allowed before a stage is aborted.</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h2 id="单机执行3h，Spark并行执行却要12h？？"><a href="#单机执行3h，Spark并行执行却要12h？？" class="headerlink" title="单机执行3h，Spark并行执行却要12h？？"></a>单机执行3h，Spark并行执行却要12h？？</h2><ul>
+<li>可能发生数据倾斜，99task 100M，1task 1T-100M</li>
+<li>可能开启了推测执行，那么很有可能1task为挣扎的task，那么TaskScheduler会新起一个task和挣扎的task比赛执行</li>
+</ul>
+<p>解决方案：</p>
+<ol>
+<li>关闭推测执行</li>
+<li>解决数据倾斜问题</li>
+</ol>
+<h1 id="资源调度"><a href="#资源调度" class="headerlink" title="资源调度"></a>资源调度</h1><p><img src="/2019/08/02/Spark原理案例及搭建/08.png" alt=""></p>
+<p>DAGScheduler taskshceduler  存在于driver中</p>
+<ul>
+<li><p>为了防止master压力过大，都要增加client</p>
+</li>
+<li><p>client spark-submit  通过执行Main函数，启动一个driver进程。创建sparkContext，同时创建两个对象，DAGScheduler,TaskScheduler。</p>
+</li>
+</ul>
+<h2 id="资源调度过程"><a href="#资源调度过程" class="headerlink" title="资源调度过程"></a>资源调度过程</h2><ol>
+<li><p>TaskScheduler创建成功后，会找master，给当前application申请资源。</p>
+</li>
+<li><p>master会查看自己的资源情况，告诉worker节点，启动一个executor进程。<strong>默认使用1G内存，所有核。</strong></p>
+</li>
+<li>excutor启动成功后，会反向注册给TaskScheduler</li>
+<li><p>DAGScheduler，根据RDD的宽窄依赖切分stage，将一个个stage提交给taskSehduler</p>
+</li>
+<li><p>TaskScheduler，接收到stage之后，遍历拿到每个task，调用HDFS的方法，得到block位置。将task分发到数据节点执行。</p>
+</li>
+</ol>
+<h3 id="备注"><a href="#备注" class="headerlink" title="备注"></a>备注</h3><ul>
+<li><strong>完全一致部署，也不能避免数据移动。也有可能从其他节点拉取数据，在节点计算。</strong></li>
+<li><strong>启动Exetor或者申请资源，不会考虑数据的位置。</strong></li>
+</ul>
+<p>对比</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Spark</th>
+<th>MR on YARN</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>类型</td>
+<td>粗粒度的资源调度</td>
+<td>细粒度的资源调度</td>
+</tr>
+<tr>
+<td>过程</td>
+<td>在提交Application的时候，taskScheduler先去申请资源。然后taskScheduler分发任务，执行所有task执行完毕，才释放这部分资源。</td>
+<td>在提交Applicaiton的时候，先向数据节点分发task，task自己去申请资源。如果申请到了资源，立即执行。否则一直等待。当task执行完毕，立即释放资源。</td>
+</tr>
+<tr>
+<td>优点</td>
+<td>1. 每一个task的等待时间变短了 2.可以资源复用</td>
+<td>集群资源能充分利用</td>
+</tr>
+<tr>
+<td>缺点</td>
+<td>10000task  9999task 1task没执行完，无法充分利用集群资源</td>
+<td>task的等待时间太长</td>
+</tr>
+</tbody>
+</table>
+<h2 id="源码解读"><a href="#源码解读" class="headerlink" title="源码解读"></a>源码解读</h2><p><img src="/2019/08/02/Spark原理案例及搭建/10.png" alt=""></p>
+<ul>
+<li>worker进程启动成功后，会向master注册，发送worker的管理的资源信息</li>
+<li>当worker启动完毕后，会定期向master发送心跳，此时不会携带worker的资源信息，只会携带当前worker的id号。</li>
+<li>默认情况下，每一个worker节点为当前的Application指定启动一个1executor，这个executor默认使用1G 所有的core</li>
+</ul>
+<ol>
+<li><p>client指定driver不在本地执行，为Driver申请资源，1G 1core</p>
+</li>
+<li><p>master查询workers信息，随机指定worker2启动启动Driver进程。</p>
+</li>
+</ol>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+      
+
+      <div style="font-size: 12px;">
+        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
+      </div>
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2019/08/02/Spark原理案例及搭建/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
+    <article id="post-storm搭建及原理分析" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2019/06/23/storm搭建及原理分析/">storm搭建及原理分析</a>
+    </h1>
+  
+
+        
+        <a href="/2019/06/23/storm搭建及原理分析/" class="archive-article-date">
+  	<time datetime="2019-06-23T03:44:50.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2019-06-23</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <blockquote>
+<p><a href="http://storm.apache.org/" target="_blank" rel="external">http://storm.apache.org/</a></p>
+</blockquote>
+<h2 id="编程模型"><a href="#编程模型" class="headerlink" title="编程模型"></a>编程模型</h2><p><img src="/2019/06/23/storm搭建及原理分析/pic3.png" alt="pic1"></p>
+<h3 id="DAG-（Topology）有向无环图"><a href="#DAG-（Topology）有向无环图" class="headerlink" title="DAG （Topology）有向无环图"></a>DAG （Topology）有向无环图</h3><h3 id="Spout-–-数据源"><a href="#Spout-–-数据源" class="headerlink" title="Spout – 数据源"></a>Spout – 数据源</h3><ul>
+<li>nextTuple</li>
+</ul>
+<p>Spout中最核心的方法是nextTuple，该方法会被Storm线程不断调用、主动从数据源拉取数据，再通过emit方法将数据生成元组（Tuple）发送给之后的Bolt计算</p>
+<ul>
+<li>OutputFieldsDeclarer</li>
+</ul>
+<p>可先通过OutputFieldsDeclarer中的declare方法声明定义的不同数据流，发送数据时通过SpoutOutputCollector中的emit方法指定数据流Id（streamId）参数将数据发送出去</p>
+<h3 id="Bolt-–-数据流处理组件"><a href="#Bolt-–-数据流处理组件" class="headerlink" title="Bolt – 数据流处理组件"></a>Bolt – 数据流处理组件</h3><p>Bolt：处理者，可以有多个。多个bolt可以并行执行。</p>
+<p>一个Bolt可以发送多个数据流（Stream）</p>
+<ul>
+<li>OutputFieldsDeclarer</li>
+</ul>
+<p>可先通过OutputFieldsDeclarer中的declare方法声明定义的不同数据流，发送数据时通过SpoutOutputCollector中的emit方法指定数据流Id（streamId）参数将数据发送出去</p>
+<ul>
+<li>execute</li>
+</ul>
+<p>Bolt中最核心的方法是execute方法，该方法负责接收到一个元组（Tuple）数据、真正实现核心的业务逻辑</p>
+<h3 id="Stream-Grouping-–-数据流分组（即数据分发策略）"><a href="#Stream-Grouping-–-数据流分组（即数据分发策略）" class="headerlink" title="Stream Grouping – 数据流分组（即数据分发策略）"></a>Stream Grouping – 数据流分组（即数据分发策略）</h3><h2 id="高可靠性"><a href="#高可靠性" class="headerlink" title="高可靠性"></a>高可靠性</h2><p>异常处理</p>
+<p>消息可靠性保障机制(ACK)</p>
+<h2 id="流式处理"><a href="#流式处理" class="headerlink" title="流式处理"></a>流式处理</h2><h3 id="异步方式"><a href="#异步方式" class="headerlink" title="异步方式"></a>异步方式</h3><ul>
+<li>流式处理（异步 与 同步）</li>
+</ul>
+<p>客户端提交数据进行结算，并不会等待数据计算结果</p>
+<ul>
+<li>逐条处理</li>
+</ul>
+<p>例：ETL（数据清洗）extracted transform load</p>
+<ul>
+<li>统计分析</li>
+</ul>
+<p>例：计算PV、UV、访问热点 以及 某些数据的聚合、加和、平均等</p>
+<p>​       客户端提交数据之后，计算完成结果存储到Redis、HBase、MySQL或者其他MQ当中，</p>
+<p>​       客户端并不关心最终结果是多少。</p>
+<p><img src="/2019/06/23/storm搭建及原理分析/pic1.png" alt="pic1"></p>
+<h3 id="同步方式"><a href="#同步方式" class="headerlink" title="同步方式"></a>同步方式</h3><p>客户端提交数据请求之后，立刻取得计算结果并返回给客户端</p>
+<p><img src="/2019/06/23/storm搭建及原理分析/pic2.png" alt="pic1"></p>
+<p>客户端通过和DRPC server交互，立刻取得返回结果</p>
+<h2 id="和MapReduce比较"><a href="#和MapReduce比较" class="headerlink" title="和MapReduce比较"></a>和MapReduce比较</h2><ul>
+<li><p>Storm：进程、线程常驻内存运行，数据不进入磁盘，数据通过网络传递。</p>
+</li>
+<li><p>MapReduce：为TB、PB级别数据设计的批处理计算框架。</p>
+</li>
+</ul>
+<h2 id="和Spark-Streaming比较"><a href="#和Spark-Streaming比较" class="headerlink" title="和Spark Streaming比较"></a>和Spark Streaming比较</h2><ul>
+<li>Storm：纯流式处理，毫秒级</li>
+</ul>
+<p>专门为流式处理设计</p>
+<p>数据传输模式更为简单，很多地方也更为高效</p>
+<p>并不是不能做批处理，它也可以来做微批处理，来提高吞吐</p>
+<ul>
+<li>Spark Streaming：微批处理，秒级</li>
+</ul>
+<p>将RDD做的很小来用小的批处理来接近流式处理</p>
+<p>基于内存和DAG可以把处理任务做的很快</p>
+<h2 id="数据累加demo"><a href="#数据累加demo" class="headerlink" title="数据累加demo"></a>数据累加demo</h2><p>代码参考<code>eclipse-hadoop-workspace/ws</code></p>
+<h2 id="集群安装"><a href="#集群安装" class="headerlink" title="集群安装"></a>集群安装</h2><figure class="highlight ebnf"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">python -V</span></span><br></pre></td></tr></table></figure>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>nimbus</th>
+<th>supervisor</th>
+<th>zookeeper</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>node01</td>
+<td>*</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>node02</td>
+<td></td>
+<td>*</td>
+<td>*</td>
+</tr>
+<tr>
+<td>node03</td>
+<td></td>
+<td>*</td>
+<td>*</td>
+</tr>
+<tr>
+<td>node04</td>
+<td></td>
+<td></td>
+<td>*</td>
+</tr>
+</tbody>
+</table>
+<p>scp安装包到node01 <code>apache-storm-0.10.0.tar.gz</code>  </p>
+<figure class="highlight haml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">$ vim conf/storm.yaml</span><br><span class="line">storm.zookeeper.servers:</span><br><span class="line">  -<span class="ruby"> <span class="string">"node02"</span></span></span><br><span class="line"><span class="ruby">  - <span class="string">"node03"</span></span></span><br><span class="line"><span class="ruby">  - <span class="string">"node04"</span></span></span><br><span class="line"><span class="ruby">  </span></span><br><span class="line"><span class="ruby">storm.local.<span class="symbol">dir:</span> <span class="string">"/tmp/storm"</span></span></span><br><span class="line"><span class="ruby"></span></span><br><span class="line"><span class="ruby">nimbus.<span class="symbol">host:</span> <span class="string">"node01"</span></span></span><br><span class="line"><span class="ruby"></span></span><br><span class="line"><span class="ruby"><span class="comment"># slot 代表一个进程</span></span></span><br><span class="line"><span class="ruby">supervisor.slots.<span class="symbol">ports:</span></span></span><br><span class="line"><span class="ruby">    - <span class="number">6700</span></span></span><br><span class="line"><span class="ruby">    - <span class="number">6701</span></span></span><br><span class="line"><span class="ruby">    - <span class="number">6702</span></span></span><br><span class="line"><span class="ruby">    - <span class="number">6703</span></span></span><br></pre></td></tr></table></figure>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">scp -r apache-storm-<span class="number">0</span>.<span class="number">10.0</span> root<span class="variable">@node02</span><span class="symbol">:`pwd`</span></span><br><span class="line">scp -r apache-storm-<span class="number">0</span>.<span class="number">10.0</span> root<span class="variable">@node03</span><span class="symbol">:`pwd`</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">环境变量配置</span><br><span class="line"><span class="builtin-name">export</span> <span class="attribute">STORM_HOME</span>=/opt/sxt/storm</span><br><span class="line"><span class="builtin-name">export</span> <span class="attribute">PATH</span>=<span class="variable">$PATH</span>:$STORM_HOME/bin</span><br></pre></td></tr></table></figure>
+<p>在storm目录中创建logs目录<br><figure class="highlight stata"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">cd</span> <span class="variable">$STORM_HOME</span></span><br><span class="line"><span class="keyword">mkdir</span> logs</span><br></pre></td></tr></table></figure></p>
+<p>node01上启动Nimbus<br><figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">storm nimbus &gt;&gt; ./logs/nimbus<span class="selector-class">.out</span> <span class="number">2</span>&gt;&amp;<span class="number">1</span> &amp;</span><br><span class="line">tail -f logs/nimbus.log</span><br><span class="line">storm ui &gt;&gt; ./logs/ui<span class="selector-class">.out</span> <span class="number">2</span>&gt;&amp;<span class="number">1</span> &amp;</span><br><span class="line">tail -f logs/ui.log</span><br></pre></td></tr></table></figure></p>
+<p>节点node2和node3启动supervisor，按照配置，每启动一个supervisor就有了4个slots<br><figure class="highlight stata"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">cd</span> <span class="variable">$STORM_HOME</span></span><br><span class="line"><span class="keyword">mkdir</span> logs</span><br><span class="line">storm supervisor &gt;&gt; ./logs/supervisor.<span class="keyword">out</span> 2&gt;&amp;1 &amp;</span><br><span class="line">tail -f logs/supervisor.<span class="built_in">log</span></span><br></pre></td></tr></table></figure></p>
+<h3 id="帮助命令"><a href="#帮助命令" class="headerlink" title="帮助命令"></a>帮助命令</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">storm <span class="built_in">help</span></span><br><span class="line">storm <span class="built_in">help</span> jar</span><br></pre></td></tr></table></figure>
+<h3 id="kill"><a href="#kill" class="headerlink" title="kill"></a>kill</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">storm <span class="built_in">kill</span> <span class="built_in">test</span></span><br></pre></td></tr></table></figure>
+<h3 id="web运维页面"><a href="#web运维页面" class="headerlink" title="web运维页面"></a>web运维页面</h3><blockquote>
+<p><a href="http://node01:8080/" target="_blank" rel="external">http://node01:8080/</a></p>
+</blockquote>
+<h3 id="集群提交"><a href="#集群提交" class="headerlink" title="集群提交"></a>集群提交</h3><p>提交任务到Storm集群当中运行：代码参考(eclipse-hadoop-workspace/wordcount)</p>
+<p>src打包，test为参数表示集群方式运行，作为topology名称</p>
+<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">storm jar wordcount<span class="selector-class">.jar</span> com<span class="selector-class">.sxt</span><span class="selector-class">.storm</span><span class="selector-class">.test</span><span class="selector-class">.Test</span> test</span><br></pre></td></tr></table></figure>
+<figure class="highlight arduino"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">if</span> (args.length&gt;<span class="number">0</span>) &#123;</span><br><span class="line">	</span><br><span class="line">	<span class="built_in">try</span> &#123;</span><br><span class="line">		StormSubmitter.submitTopology(args[<span class="number">0</span>], <span class="built_in">config</span>, tb.createTopology());</span><br><span class="line">	&#125; <span class="built_in">catch</span> (AlreadyAliveException e) &#123;</span><br><span class="line">		e.printStackTrace();</span><br><span class="line">	&#125; <span class="built_in">catch</span> (InvalidTopologyException e) &#123;</span><br><span class="line">		e.printStackTrace();</span><br><span class="line">	&#125;</span><br><span class="line">	</span><br><span class="line">&#125; <span class="built_in">else</span> &#123;</span><br><span class="line"></span><br><span class="line">	LocalCluster lc = <span class="keyword">new</span> LocalCluster();</span><br><span class="line">	lc.submitTopology(<span class="string">"wordcount"</span>, <span class="built_in">config</span>, tb.createTopology());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>流程：</p>
+<p>spout —&gt; bolt(切分单词)—&gt; bolt(计数)</p>
+<h2 id="架构设计"><a href="#架构设计" class="headerlink" title="架构设计"></a>架构设计</h2><p><img src="/2019/06/23/storm搭建及原理分析/pic4.png" alt="pic4"></p>
+<h3 id="Nimbus"><a href="#Nimbus" class="headerlink" title="Nimbus"></a>Nimbus</h3><ul>
+<li><p>资源调度</p>
+</li>
+<li><p>任务分配</p>
+</li>
+<li><p>接收jar包</p>
+</li>
+</ul>
+<h3 id="Supervisor"><a href="#Supervisor" class="headerlink" title="Supervisor"></a>Supervisor</h3><ul>
+<li><p>接收nimbus分配的任务</p>
+</li>
+<li><p>启动、停止自己管理的worker进程（当前supervisor上worker数量由配置文件设定）</p>
+</li>
+</ul>
+<h3 id="Worker"><a href="#Worker" class="headerlink" title="Worker"></a>Worker</h3><ul>
+<li><p>运行具体处理运算组件的进程（每个Worker对应执行一个Topology的子集）</p>
+</li>
+<li><p>worker任务类型，即spout任务、bolt任务两种</p>
+</li>
+<li><p>启动executor</p>
+</li>
+</ul>
+<p>​    （executor即worker JVM进程中的一个java线程，一般默认每个executor负责执行一个task任务）</p>
+<h3 id="与hadoop-yarn对比"><a href="#与hadoop-yarn对比" class="headerlink" title="与hadoop yarn对比"></a>与hadoop yarn对比</h3><table>
+<thead>
+<tr>
+<th></th>
+<th>Hadoop</th>
+<th>Storm</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>主节点</td>
+<td>ResourceManager</td>
+<td>Nimbus</td>
+</tr>
+<tr>
+<td>从节点</td>
+<td>NodeManager</td>
+<td>Supervisor</td>
+</tr>
+<tr>
+<td>应用程序</td>
+<td>Job</td>
+<td>Topology</td>
+</tr>
+<tr>
+<td>工作进程</td>
+<td>Child</td>
+<td>Worker</td>
+</tr>
+<tr>
+<td>计算模型</td>
+<td>Map/Reduce(split,map,shuffle,reduce)</td>
+<td>Spout/Bolt</td>
+</tr>
+</tbody>
+</table>
+<h3 id="运行过程"><a href="#运行过程" class="headerlink" title="运行过程"></a>运行过程</h3><ul>
+<li>提交jar包到nimbus/inbox目录下</li>
+<li>对topology进行校验处理</li>
+<li>nimbus/stormdist/${topology-id}下，包含jar包、stormcode序列化方法、stormconf运行配置</li>
+<li>nimbus初始化spout/bolt的task，写到zookeeper的/tasks节点下</li>
+<li>nimbus创建/taskbeats的zk节点，监控task心跳</li>
+<li>将任务分配信息，写到zk assignment/${topology-id}节点中，此时认为任务提交完毕</li>
+<li>在zk的storms/${topology-id}下存放任务的运行时间、状态信息</li>
+</ul>
+<p><img src="/2019/06/23/storm搭建及原理分析/pic5.png" alt="pic4"></p>
+<h3 id="本地目录树"><a href="#本地目录树" class="headerlink" title="本地目录树"></a>本地目录树</h3><p><img src="/2019/06/23/storm搭建及原理分析/pic7.png" alt="pic4"></p>
+<h3 id="zookeeper目录树"><a href="#zookeeper目录树" class="headerlink" title="zookeeper目录树"></a>zookeeper目录树</h3><p><img src="/2019/06/23/storm搭建及原理分析/pic8.png" alt="pic4"></p>
+<h2 id="Storm-DRPC"><a href="#Storm-DRPC" class="headerlink" title="Storm DRPC"></a>Storm DRPC</h2><h3 id="原理"><a href="#原理" class="headerlink" title="原理"></a>原理</h3><ul>
+<li>DRPC (Distributed RPC)  remote procedure call</li>
+</ul>
+<p>分布式远程过程调用</p>
+<ul>
+<li>DRPC 是通过一个 DRPC 服务端(DRPC server)来实现分布式 RPC 功能的。</li>
+</ul>
+<p>DRPC Server 负责接收 RPC 请求，并将该请求发送到 Storm中运行的 Topology，等待接收 Topology 发送的处理结果，并将该结果返回给发送请求的客户端。</p>
+<p>（其实，从客户端的角度来说，DPRC 与普通的 RPC 调用并没有什么区别。）</p>
+<ul>
+<li>DRPC设计目的：</li>
+</ul>
+<p>为了充分利用Storm的计算能力实现高密度的并行实时计算。</p>
+<p>（Storm接收若干个数据流输入，数据在Topology当中运行完成，然后通过DRPC将结果进行输出。）</p>
+<h3 id="部署"><a href="#部署" class="headerlink" title="部署"></a>部署</h3><figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="selector-tag">vi</span> <span class="selector-tag">storm</span><span class="selector-class">.yaml</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">drpc<span class="selector-class">.servers</span>:</span><br><span class="line">    - <span class="string">"node01"</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">scp storm.yaml root<span class="variable">@node02</span><span class="symbol">:`pwd`</span></span><br><span class="line">scp storm.yaml root<span class="variable">@node03</span><span class="symbol">:`pwd`</span></span><br></pre></td></tr></table></figure>
+<p>node01执行</p>
+<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">nohup storm nimbus &gt;&gt; ./logs/nimbus<span class="selector-class">.out</span> <span class="number">2</span>&gt;&amp;<span class="number">1</span> &amp;</span><br><span class="line">tail -f logs/nimbus.log</span><br><span class="line">nohup storm drpc &gt;&gt; ./logs/drpc<span class="selector-class">.out</span> <span class="number">2</span>&gt;&amp;<span class="number">1</span> &amp;</span><br><span class="line">tail -f logs/drpc.log</span><br><span class="line">nohup storm ui &gt;&gt; ./logs/ui<span class="selector-class">.out</span> <span class="number">2</span>&gt;&amp;<span class="number">1</span> &amp;</span><br><span class="line">tail -f logs/ui.log</span><br></pre></td></tr></table></figure>
+<p>node02 node03执行</p>
+<figure class="highlight stata"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">cd</span> <span class="variable">$STORM_HOME</span></span><br><span class="line">nohup storm supervisor &gt;&gt; ./logs/supervisor.<span class="keyword">out</span> 2&gt;&amp;1 &amp;</span><br><span class="line">tail -f logs/supervisor.<span class="built_in">log</span></span><br></pre></td></tr></table></figure>
+<p>代码参考eclipse-hadoop-workspace/StormDemo</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">scp drpc.jar root<span class="variable">@node01</span><span class="symbol">:/root/</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">storm jar drpc<span class="selector-class">.jar</span> com<span class="selector-class">.sxt</span><span class="selector-class">.storm</span><span class="selector-class">.drpc</span><span class="selector-class">.BasicDRPCTopology</span> test</span><br></pre></td></tr></table></figure>
+<p>客户端执行结果</p>
+<figure class="highlight axapta"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MyDRPCclient</span> </span>&#123;</span><br><span class="line">	<span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> main(String[] args) &#123;</span><br><span class="line">		DRPCClient <span class="keyword">client</span> = <span class="keyword">new</span> DRPCClient(<span class="string">"node01"</span>, <span class="number">3772</span>);</span><br><span class="line">		</span><br><span class="line">		<span class="keyword">try</span> &#123;</span><br><span class="line">			String result = <span class="keyword">client</span>.execute(<span class="string">"exclamation"</span>, <span class="string">"11,22"</span>);</span><br><span class="line">			</span><br><span class="line">			System.out.println(result);</span><br><span class="line">		&#125; <span class="keyword">catch</span> (TException e) &#123;</span><br><span class="line">			e.printStackTrace();</span><br><span class="line">		&#125; <span class="keyword">catch</span> (DRPCExecutionException e) &#123;</span><br><span class="line">			e.printStackTrace();</span><br><span class="line">		&#125; </span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="Storm-容错机制"><a href="#Storm-容错机制" class="headerlink" title="Storm 容错机制"></a>Storm 容错机制</h2><h3 id="集群节点宕机"><a href="#集群节点宕机" class="headerlink" title="集群节点宕机"></a>集群节点宕机</h3><ul>
+<li>Nimbus服务器</li>
+</ul>
+<p>单点故障<strong>？</strong></p>
+<ul>
+<li>非Nimbus服务器</li>
+</ul>
+<p>故障时，该节点上所有Task任务都会超时，Nimbus会将这些Task任务重新分配到其他服务器上运行</p>
+<h3 id="进程挂掉"><a href="#进程挂掉" class="headerlink" title="进程挂掉"></a>进程挂掉</h3><h4 id="Worker-1"><a href="#Worker-1" class="headerlink" title="Worker"></a>Worker</h4><p>挂掉时，Supervisor会重新启动这个进程。如果启动过程中仍然一直失败，并且无法向Nimbus发送心跳，Nimbus会将该Worker重新分配到其他服务器上</p>
+<h4 id="Supervisor-1"><a href="#Supervisor-1" class="headerlink" title="Supervisor"></a>Supervisor</h4><p>无状态（所有的状态信息都存放在Zookeeper中来管理）</p>
+<p>快速失败（每当遇到任何异常情况，都会自动毁灭）</p>
+<h4 id="Nimbus-1"><a href="#Nimbus-1" class="headerlink" title="Nimbus"></a>Nimbus</h4><p>无状态（所有的状态信息都存放在Zookeeper中来管理）</p>
+<p>快速失败（每当遇到任何异常情况，都会自动毁灭）</p>
+<h3 id="消息的完整性"><a href="#消息的完整性" class="headerlink" title="消息的完整性"></a>消息的完整性</h3><ul>
+<li><p>从Spout中发出的Tuple，以及基于他所产生Tuple（例如上个例子当中Spout发出的句子，以及句子当中单词的tuple等）</p>
+</li>
+<li><p>由这些消息就构成了一棵tuple树</p>
+</li>
+<li><p>当这棵tuple树发送完成，并且树当中每一条消息都被正确处理，就表明spout发送消息被“完整处理”，即消息的完整性</p>
+</li>
+</ul>
+<p><img src="/2019/06/23/storm搭建及原理分析/pic9.png" alt="pic4"></p>
+<h2 id="中国移动项目"><a href="#中国移动项目" class="headerlink" title="中国移动项目"></a>中国移动项目</h2><p>代码参考<code>cmccstormjk02</code>  和<code>cmcc02_hbase</code></p>
+<h3 id="hbase"><a href="#hbase" class="headerlink" title="hbase"></a>hbase</h3><figure class="highlight livecodeserver"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">create</span> <span class="string">'cell_monitor_table'</span>,<span class="string">'cf'</span></span><br></pre></td></tr></table></figure>
+<p><img src="/2019/06/23/storm搭建及原理分析/中国移动项目架构图.jpg" alt="pic4"></p>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+      
+
+      <div style="font-size: 12px;">
+        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
+      </div>
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2019/06/23/storm搭建及原理分析/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
     <article id="post-hadoop日志分析实战项目搭建及分析" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
@@ -987,7 +1626,7 @@ mv aa logs/
     <div class="article-entry" itemprop="articleBody">
       
         <h1 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h1><h2 id="手动安装推荐"><a href="#手动安装推荐" class="headerlink" title="手动安装推荐"></a>手动安装推荐</h2><p><a href="https://alibaba.github.io/arthas/manual-install.html" target="_blank" rel="external">https://alibaba.github.io/arthas/manual-install.html</a></p>
-<h1 id="使用命令"><a href="#使用命令" class="headerlink" title="使用命令"></a>使用命令</h1><h2 id="watch-查看方法的返回值"><a href="#watch-查看方法的返回值" class="headerlink" title="watch 查看方法的返回值"></a>watch 查看方法的返回值</h2><figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">watch demo<span class="selector-class">.MathGame</span> primeFactors returnObj</span><br></pre></td></tr></table></figure>
+<h1 id="使用命令"><a href="#使用命令" class="headerlink" title="使用命令"></a>使用命令</h1><h2 id="watch-查看方法的返回值"><a href="#watch-查看方法的返回值" class="headerlink" title="watch 查看方法的返回值"></a>watch 查看方法的返回值</h2><figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">watch demo<span class="selector-class">.MathGame</span> primeFactors returnObj</span><br><span class="line">watch</span><br></pre></td></tr></table></figure>
 <h2 id="stack-查看方法调用栈"><a href="#stack-查看方法调用栈" class="headerlink" title="stack 查看方法调用栈"></a>stack 查看方法调用栈</h2><p>参考</p>
 <blockquote>
 <p><a href="https://alibaba.github.io/arthas/stack.html" target="_blank" rel="external">https://alibaba.github.io/arthas/stack.html</a></p>
@@ -1306,6 +1945,9 @@ mv aa logs/
 <h2 id="查询"><a href="#查询" class="headerlink" title="查询"></a>查询</h2><figure class="highlight processing"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line">	<span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">void</span> getTable() &#123;</span><br><span class="line">		</span><br><span class="line">		<span class="keyword">try</span> &#123;</span><br><span class="line">			Configuration conf = <span class="keyword">new</span> Configuration();</span><br><span class="line">			conf.<span class="built_in">set</span>(<span class="string">"hbase.zookeeper.quorum"</span>, <span class="string">"node02,node03,node04"</span>);</span><br><span class="line">			</span><br><span class="line">			HTable hTable = <span class="keyword">new</span> HTable(conf, tableName);</span><br><span class="line">			</span><br><span class="line">			Get <span class="built_in">get</span> = <span class="keyword">new</span> Get(<span class="string">"1111"</span>.getBytes());</span><br><span class="line">			<span class="comment">// define return columns in family</span></span><br><span class="line">			<span class="built_in">get</span>.addColumn(<span class="string">"cf"</span>.getBytes(), <span class="string">"name"</span>.getBytes());</span><br><span class="line">			<span class="built_in">get</span>.addColumn(<span class="string">"cf"</span>.getBytes(), <span class="string">"age"</span>.getBytes());</span><br><span class="line">			<span class="built_in">get</span>.addColumn(<span class="string">"cf"</span>.getBytes(), <span class="string">"sex"</span>.getBytes());</span><br><span class="line"></span><br><span class="line">			Result result = hTable.<span class="built_in">get</span>(<span class="built_in">get</span>);</span><br><span class="line">			Cell cell = result.getColumnLatestCell(<span class="string">"cf"</span>.getBytes(), <span class="string">"name"</span>.getBytes());</span><br><span class="line">			Cell cell2 = result.getColumnLatestCell(<span class="string">"cf"</span>.getBytes(), <span class="string">"age"</span>.getBytes());</span><br><span class="line">			Cell cell3 = result.getColumnLatestCell(<span class="string">"cf"</span>.getBytes(), <span class="string">"sex"</span>.getBytes());</span><br><span class="line"><span class="comment">//			System.out.println(new String( cell.getValue()));</span></span><br><span class="line">			System.out.<span class="built_in">println</span>(<span class="keyword">new</span> <span class="keyword">String</span>(CellUtil.cloneValue(cell)));</span><br><span class="line">			System.out.<span class="built_in">println</span>(<span class="keyword">new</span> <span class="keyword">String</span>(CellUtil.cloneValue(cell2)));</span><br><span class="line">			System.out.<span class="built_in">println</span>(<span class="keyword">new</span> <span class="keyword">String</span>(CellUtil.cloneValue(cell3)));</span><br><span class="line">			</span><br><span class="line">			<span class="keyword">if</span> (admin != <span class="keyword">null</span>) &#123;</span><br><span class="line">				admin.close();</span><br><span class="line">			&#125;</span><br><span class="line">			</span><br><span class="line">		&#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">			<span class="comment">// <span class="doctag">TODO:</span> handle exception</span></span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br></pre></td></tr></table></figure>
 <h1 id="Hbase出现ServerNotRunningYetException的解决方案"><a href="#Hbase出现ServerNotRunningYetException的解决方案" class="headerlink" title="Hbase出现ServerNotRunningYetException的解决方案"></a>Hbase出现ServerNotRunningYetException的解决方案</h1><p>因为hadoop处在安全模式下。所以hbase的操作会出现异常。</p>
 <figure class="highlight ebnf"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">hadoop dfsadmin -safemode leave</span></span><br></pre></td></tr></table></figure>
+<h1 id="hbase-shell中使用list命令报错"><a href="#hbase-shell中使用list命令报错" class="headerlink" title="hbase shell中使用list命令报错"></a>hbase shell中使用list命令报错</h1><blockquote>
+<p><a href="https://blog.csdn.net/hll19950830/article/details/80022676" target="_blank" rel="external">https://blog.csdn.net/hll19950830/article/details/80022676</a></p>
+</blockquote>
 
       
 
@@ -1623,187 +2265,6 @@ mv aa logs/
 
 
   
-    <article id="post-Spring-framwork技术体系目录" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2019/05/15/Spring-framwork技术体系目录/">Spring framwork技术体系目录</a>
-    </h1>
-  
-
-        
-        <a href="/2019/05/15/Spring-framwork技术体系目录/" class="archive-article-date">
-  	<time datetime="2019-05-15T04:58:56.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2019-05-15</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h2 id="异常处理"><a href="#异常处理" class="headerlink" title="异常处理"></a>异常处理</h2><p>在Spring中常见的全局异常处理，主要有三种：</p>
-<ul>
-<li>注解 @ExceptionHandler</li>
-</ul>
-<blockquote>
-<p>在 Controller 内部，用 <code>@ExceptionHandler</code>注解的方法，就会作为该Controller内部的异常处理方法。</p>
-<p>该方式需要在每个类中处理异常，不适合全局异常处理。</p>
-</blockquote>
-<ul>
-<li>继承HandlerExceptionResolver接口</li>
-</ul>
-<figure class="highlight aspectj"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="meta">@Slf</span>4j</span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">CustomHandlerExceptionResolver</span> <span class="keyword">implements</span> <span class="title">HandlerExceptionResolver</span> </span>&#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="function">ModelAndView <span class="title">resolveException</span><span class="params">(HttpServletRequest request, HttpServletResponse response, Object <span class="keyword">handler</span>, Exception ex)</span> </span>&#123;</span><br><span class="line">        Method method = <span class="keyword">null</span>;</span><br><span class="line">        <span class="keyword">if</span> (<span class="keyword">handler</span> != <span class="keyword">null</span> &amp;&amp; <span class="keyword">handler</span> <span class="keyword">instanceof</span> HandlerMethod) &#123;</span><br><span class="line">            method = ((HandlerMethod) <span class="keyword">handler</span>).getMethod();</span><br><span class="line">        &#125;</span><br><span class="line">        log.<span class="keyword">error</span>(<span class="string">"[&#123;&#125;] system error"</span>, method, ex);</span><br><span class="line">        ResponseDTO response = ResponseDTO.builder()</span><br><span class="line">        .errorCode(ErrorCode.SYSTEM_ERROR)</span><br><span class="line">        .build();</span><br><span class="line">        <span class="keyword">byte</span>[] bytes = JSON.toJSONString(response).getBytes(StandardCharsets.UTF_8));</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            FileCopyUtils.copy(bytes, response.getOutputStream());</span><br><span class="line">        &#125; <span class="keyword">catch</span> (IOException e) &#123;</span><br><span class="line">            log.<span class="keyword">error</span>(<span class="string">"error"</span>, e);</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> RuntimeException(e);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> ModelAndView();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<blockquote>
-<p>函数还可以返回一个 ModelAndView 对象，表示渲染一个视图，比方说错误页面。不过，在前后端分离为主流架构的今天，这个很少用了。如果函数返回的视图为空，则表示不需要视图。</p>
-</blockquote>
-<ul>
-<li>注解 @ControllerAdvice</li>
-</ul>
-<figure class="highlight less"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">@ControllerAdvice</span>(assignableTypes = &#123;GlobalExceptionHandlerMixin.class&#125;)</span><br><span class="line">public class ExceptionAdvice &#123;</span><br><span class="line">    <span class="variable">@ExceptionHandler</span>(ErrorCodeWrapperException.class)</span><br><span class="line">    <span class="variable">@ResponseBody</span></span><br><span class="line">    public ResponseDTO&lt;?&gt; exceptionHandler(ErrorCodeWrapperException e) &#123;</span><br><span class="line">        <span class="selector-tag">if</span> ((errCodeException.getErrorCode().equals(ErrorCode.SYSTEM_ERROR))) &#123;</span><br><span class="line">            <span class="selector-tag">log</span><span class="selector-class">.error</span>(e);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="selector-tag">return</span> <span class="selector-tag">ResponseDTO</span><span class="selector-class">.ofErroCodeWrapperException</span>(errCodeException);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<blockquote>
-<p>ControllerAdvice 支持的限定范围</p>
-<ol>
-<li>按注解：<code>@ControllerAdvice(annotations = RestController.class)</code></li>
-<li>按包名：<code>@ControllerAdvice(&quot;org.example.controllers&quot;)</code></li>
-<li>按类型：<code>@ControllerAdvice(assignableTypes = {ControllerInterface.class, AbstractController.class})</code></li>
-</ol>
-</blockquote>
-<h3 id="源码对应"><a href="#源码对应" class="headerlink" title="源码对应"></a>源码对应</h3><ul>
-<li>ExceptionHandlerExceptionResolver<ul>
-<li>@ExceptionHandler <ul>
-<li>@ControllerAdvice</li>
-</ul>
-</li>
-</ul>
-</li>
-<li>ResponseStatusExceptionResolver  </li>
-<li>DefaultHandlerExceptionResolver</li>
-<li>MyHandlerExceptionResolver</li>
-</ul>
-<h3 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h3><blockquote>
-<p>常见的Spring异常分析及处理 <a href="https://my.oschina.net/u/4007037/blog/3049044" target="_blank" rel="external">https://my.oschina.net/u/4007037/blog/3049044</a></p>
-<p>Spring中的统一异常处理  <a href="http://www.importnew.com/29962.html" target="_blank" rel="external">http://www.importnew.com/29962.html</a></p>
-<p>Spring全局异常处理的三种方式  <a href="https://www.jianshu.com/p/f968b8dcf95a" target="_blank" rel="external">https://www.jianshu.com/p/f968b8dcf95a</a></p>
-<p>Spring RestFul API统一异常处理 <a href="http://daobin.wang/2017/05/spring-restful-api/" target="_blank" rel="external">http://daobin.wang/2017/05/spring-restful-api/</a></p>
-</blockquote>
-
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-      
-
-      <div style="font-size: 12px;">
-        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
-      </div>
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2019/05/15/Spring-framwork技术体系目录/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
-    <article id="post-单点登录实现——基于OAuth2-0协议的接入方案" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2019/04/16/单点登录实现——基于OAuth2-0协议的接入方案/">单点登录实现——基于OAuth2.0协议的接入方案</a>
-    </h1>
-  
-
-        
-        <a href="/2019/04/16/单点登录实现——基于OAuth2-0协议的接入方案/" class="archive-article-date">
-  	<time datetime="2019-04-16T03:49:04.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2019-04-16</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h3 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h3><ul>
-<li><p><a href="https://m635674608.iteye.com/blog/2313142" target="_blank" rel="external">单点登录实现——基于OAuth2.0协议的接入方案</a></p>
-</li>
-<li><p><a href="https://www.cnblogs.com/xifengxiaoma/p/10043173.html" target="_blank" rel="external">Spring Security Oauth2 单点登录案例实现和执行流程剖析</a></p>
-</li>
-</ul>
-
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-      
-
-      <div style="font-size: 12px;">
-        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
-      </div>
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2019/04/16/单点登录实现——基于OAuth2-0协议的接入方案/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
   
     <nav id="page-nav">
       <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="page-number" href="/page/3/">3</a><span class="space">&hellip;</span><a class="page-number" href="/page/18/">18</a><a class="extend next" rel="next" href="/page/2/">Next &raquo;</a>
@@ -1937,15 +2398,15 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">redis</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">linux</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">mysql</a>
+                <a href="javascript:void(0)" class="js-tag color4">快捷键</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">redis</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1953,7 +2414,7 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">快捷键</a>
+                <a href="javascript:void(0)" class="js-tag color1">mysql</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1997,11 +2458,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">guava</a>
+                <a href="javascript:void(0)" class="js-tag color2">elastic-job</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">elastic-job</a>
+                <a href="javascript:void(0)" class="js-tag color1">guava</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -2025,11 +2486,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">mybatis</a>
+                <a href="javascript:void(0)" class="js-tag color4">Mac</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">Mac</a>
+                <a href="javascript:void(0)" class="js-tag color3">mybatis</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -2041,15 +2502,15 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">分布式锁</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Spring</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">SSE</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">分布式锁</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -2089,15 +2550,15 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">HashMap</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">前端跨域</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">单例</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">HashMap</a>
               </li>
              
               <li class="article-tag-list-item">

@@ -150,6 +150,147 @@
           <div id="js-content" class="content-ll">
             
   
+    <article id="post-自定义服务端口存活监控" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2017/08/03/自定义服务端口存活监控/">自定义服务端口存活监控</a>
+    </h1>
+  
+
+        
+        <a href="/2017/08/03/自定义服务端口存活监控/" class="archive-article-date">
+  	<time datetime="2017-08-03T08:18:41.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2017-08-03</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <blockquote><p>content</p>
+<footer><strong>[author[</strong><cite>source]] [link] [source_link_title]</cite></footer></blockquote>
+<p>目前zabbix停用，使用自定义脚本监控端口存活，使用mutt+msmtp发送告警信息，稍后将短信通道也接入进来</p>
+<p>monitor.sh脚本如下,读取的服务文件为server.list</p>
+<p>变更记录</p>
+<figure class="highlight lsl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">1.</span>一次轮循监听时间由<span class="number">60</span>s改为<span class="number">5</span>s</span><br><span class="line"><span class="number">2.</span>监听异常连续三次才定义为告警，同时监听连续成功三次才定义为恢复。</span><br><span class="line"><span class="number">3.</span>nc替换为nmap</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#!/bin/bash</span></span><br><span class="line"><span class="comment">#this script test UP to other host.</span></span><br><span class="line">LOGFILE=<span class="string">"/root/nz/nz.log"</span></span><br><span class="line">count=0</span><br><span class="line">n=0</span><br><span class="line"><span class="keyword">while</span> <span class="literal">true</span></span><br><span class="line"><span class="keyword">do</span></span><br><span class="line"><span class="keyword">while</span> <span class="built_in">read</span> server ip port</span><br><span class="line"><span class="keyword">do</span></span><br><span class="line"><span class="keyword">if</span> [ <span class="variable">$&#123;count&#125;</span> -eq 0 ]</span><br><span class="line"><span class="keyword">then</span></span><br><span class="line">    norepeat[<span class="variable">$n</span>]=1</span><br><span class="line">    unusual[<span class="variable">$n</span>]=0</span><br><span class="line"><span class="keyword">else</span></span><br><span class="line">    <span class="built_in">echo</span> <span class="variable">$&#123;norepeat[$n]&#125;</span></span><br><span class="line"><span class="keyword">fi</span></span><br><span class="line">nmap -Pn -p<span class="variable">$port</span> <span class="variable">$ip</span> | awk <span class="string">"\$1 ~ /<span class="variable">$port</span>/ &#123;print \$2&#125;"</span> | grep open &gt;/dev/null 2&gt;&amp;1</span><br><span class="line"><span class="keyword">if</span> [ $? -eq 0 ]</span><br><span class="line"><span class="keyword">then</span></span><br><span class="line">    <span class="keyword">if</span> [ <span class="variable">$&#123;norepeat[$n]&#125;</span> -eq 0 ]</span><br><span class="line">    <span class="keyword">then</span></span><br><span class="line">        <span class="keyword">if</span> [ <span class="variable">$&#123;unusual[$n]&#125;</span> -eq 0 ]</span><br><span class="line">        <span class="keyword">then</span></span><br><span class="line">            NOWOK=`date <span class="string">'+%G-%m-%d %H:%M:%S'</span>`</span><br><span class="line">            <span class="built_in">echo</span> <span class="variable">$NOWOK</span>\|ok\|<span class="variable">$server</span>\|<span class="variable">$ip</span>\|<span class="variable">$port</span> &gt;&gt; <span class="variable">$LOGFILE</span> 2&gt;&amp;1 &amp;</span><br><span class="line">            <span class="built_in">echo</span> <span class="variable">$NOWOK</span>\|ok\|<span class="variable">$server</span>\|<span class="variable">$ip</span>\|<span class="variable">$port</span> |mutt -s <span class="string">"服务端口监听异常恢复"</span> op@zenzet.com</span><br><span class="line">            norepeat[<span class="variable">$n</span>]=1</span><br><span class="line">            <span class="comment">#echo "aaa" &gt;&gt; $LOGFILE 2&gt;&amp;1 &amp;</span></span><br><span class="line">        <span class="keyword">else</span>   </span><br><span class="line">            <span class="built_in">echo</span> <span class="variable">$server</span>:ok &gt; /dev/null 2&gt;&amp;1 &amp;</span><br><span class="line">            ((unusual[<span class="variable">$n</span>]--))</span><br><span class="line">            <span class="comment">#echo "bbb" &gt;&gt; $LOGFILE 2&gt;&amp;1 &amp;</span></span><br><span class="line">        <span class="keyword">fi</span></span><br><span class="line">    <span class="keyword">else</span>   </span><br><span class="line">        <span class="built_in">echo</span> <span class="variable">$server</span>:ok &gt; /dev/null 2&gt;&amp;1 &amp;</span><br><span class="line">        <span class="comment">#echo "ccc" &gt;&gt; $LOGFILE 2&gt;&amp;1 &amp;</span></span><br><span class="line">    <span class="keyword">fi</span></span><br><span class="line"><span class="keyword">else</span></span><br><span class="line">    <span class="keyword">if</span> [ <span class="variable">$&#123;norepeat[$n]&#125;</span> -eq 0 ]</span><br><span class="line">    <span class="keyword">then</span></span><br><span class="line">        <span class="built_in">echo</span> <span class="variable">$server</span>:fail &gt; /dev/null 2&gt;&amp;1 &amp;</span><br><span class="line">        <span class="comment">#echo "ddd" &gt;&gt; $LOGFILE 2&gt;&amp;1 &amp;</span></span><br><span class="line">    <span class="keyword">else</span>   </span><br><span class="line">        <span class="keyword">if</span> [ <span class="variable">$&#123;unusual[$n]&#125;</span> -eq 3 ]</span><br><span class="line">        <span class="keyword">then</span></span><br><span class="line">            NOWFAIL=`date <span class="string">'+%G-%m-%d %H:%M:%S'</span>`</span><br><span class="line">            <span class="built_in">echo</span> <span class="variable">$NOWFAIL</span>\|fail\|<span class="variable">$server</span>\|<span class="variable">$ip</span>\|<span class="variable">$port</span>\|<span class="variable">$&#123;unusual[$n]&#125;</span> &gt;&gt; <span class="variable">$LOGFILE</span> 2&gt;&amp;1 &amp;</span><br><span class="line">            <span class="built_in">echo</span> <span class="variable">$NOWFAIL</span>\|fail\|<span class="variable">$server</span>\|<span class="variable">$ip</span>\|<span class="variable">$port</span> |mutt -s <span class="string">"服务端口监听异常告警"</span> op@zenzet.com</span><br><span class="line">            norepeat[<span class="variable">$n</span>]=0</span><br><span class="line">            <span class="comment">#echo "eee" &gt;&gt; $LOGFILE 2&gt;&amp;1 &amp;</span></span><br><span class="line">        <span class="keyword">else</span>   </span><br><span class="line">            <span class="built_in">echo</span> <span class="variable">$server</span>:fail &gt; /dev/null 2&gt;&amp;1 &amp;</span><br><span class="line">            ((unusual[<span class="variable">$n</span>]++))</span><br><span class="line">            <span class="comment">#echo "fff" &gt;&gt; $LOGFILE 2&gt;&amp;1 &amp;</span></span><br><span class="line">        <span class="keyword">fi</span></span><br><span class="line">    <span class="keyword">fi</span></span><br><span class="line"><span class="keyword">fi</span></span><br><span class="line">((n++))</span><br><span class="line"><span class="keyword">done</span> &lt; server.list</span><br><span class="line">n=0</span><br><span class="line">count=1</span><br><span class="line">sleep 5</span><br><span class="line"><span class="keyword">done</span></span><br></pre></td></tr></table></figure>
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">shell</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+      
+
+      <div style="font-size: 12px;">
+        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
+      </div>
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2017/08/03/自定义服务端口存活监控/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
+    <article id="post-服务配置集中管理" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>###目前适用于Java服务</p>
+<p>TODO:</p>
+<figure class="highlight dockerfile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">内网etcd cluster</span><br><span class="line">etcd <span class="keyword">shell</span><span class="bash"></span></span><br><span class="line"><span class="bash">阿里云环境etcd</span></span><br></pre></td></tr></table></figure>
+<p>OP-32 - 配置服务集中管理shell接入 关闭</p>
+<p>脚本已在centos上验证通过，以lss-access服务为例子, 目前lss-access的开发、测试和UAT环境已生效此配置</p>
+<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">1.设置/etc<span class="built_in">/profile </span>环境变量<span class="attribute">LSS_ENV</span>=dev或qa或uat或prod</span><br><span class="line">2.服务器需要root下安装jq，centos6的代码如下(centos7将代码块中的6改成7)</span><br></pre></td></tr></table></figure>
+<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">wget http:<span class="comment">//dl.fedoraproject.org/pub/epel/epel-release-latest-6.noarch.rpm</span></span><br><span class="line">rpm -ivh epel-release-latest-<span class="number">6</span><span class="selector-class">.noarch</span><span class="selector-class">.rpm</span></span><br><span class="line">yum install jq -y</span><br></pre></td></tr></table></figure>
+<p>3.启动脚本startServer.sh最前部分加入，将原有的一个SERVER_NAME=lss-access删除<br>启动参数加入第二个可选项 remote_conf ，加入此参数时候会走远程配置流程，不加入此参数会走原先流程读取本地配置</p>
+<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">./startServer<span class="selector-class">.sh</span> restart remote_conf</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line">SERVER_NAME=lss-access</span><br><span class="line">RELOAD_CONF=<span class="variable">$2</span></span><br><span class="line"><span class="keyword">if</span> [ <span class="string">"<span class="variable">$RELOAD_CONF</span>"</span> = <span class="string">"remote_conf"</span> ];<span class="keyword">then</span></span><br><span class="line">    <span class="built_in">source</span> /etc/profile</span><br><span class="line">    APP_PATH=$(<span class="built_in">echo</span> <span class="variable">$PWD</span>)</span><br><span class="line">    APP_ENV=$(<span class="built_in">echo</span> <span class="variable">$LSS_ENV</span>)</span><br><span class="line">    CONF_ARR=(<span class="string">"app"</span> <span class="string">"log4j"</span>)</span><br><span class="line">    <span class="keyword">for</span> CONF_I <span class="keyword">in</span> <span class="variable">$&#123;CONF_ARR[@]&#125;</span></span><br><span class="line">    <span class="keyword">do</span></span><br><span class="line">            CONF_FILE=<span class="variable">$&#123;APP_PATH&#125;</span><span class="string">"/conf/"</span><span class="variable">$&#123;CONF_I&#125;</span><span class="string">".properties"</span></span><br><span class="line">            CONF_KEY=<span class="variable">$&#123;APP_ENV&#125;</span><span class="string">"."</span><span class="variable">$SERVER_NAME</span><span class="string">"."</span><span class="variable">$&#123;CONF_I&#125;</span></span><br><span class="line">            CONF_URL=<span class="string">"http://conf.zenzet.com:2379/v2/keys/"</span><span class="variable">$CONF_KEY</span></span><br><span class="line">            REMOTE_CONF=<span class="string">"<span class="variable">$(curl -sf $CONF_URL \ | jq -r '.node.value')</span>"</span></span><br><span class="line">            <span class="keyword">if</span> [ ! <span class="string">"<span class="variable">$REMOTE_CONF</span>"</span> ]; <span class="keyword">then</span></span><br><span class="line">                <span class="built_in">echo</span> <span class="string">"REMOTE_CONF is NULL,Use local config"</span></span><br><span class="line">            <span class="keyword">else</span></span><br><span class="line">                OLD_CONF_MD5SUM=`md5sum <span class="variable">$CONF_FILE</span> | sed <span class="string">'s/ /\n/g'</span>| sed -n 1p`</span><br><span class="line">                NEW_CONF_MD5SUM=`<span class="built_in">echo</span> <span class="string">"<span class="variable">$REMOTE_CONF</span>"</span> | md5sum | sed <span class="string">'s/ /\n/g'</span>| sed -n 1p`</span><br><span class="line">                <span class="keyword">if</span> [ <span class="string">"<span class="variable">$NEW_CONF_MD5SUM</span>"</span> != <span class="string">"<span class="variable">$OLD_CONF_MD5SUM</span>"</span> ]; <span class="keyword">then</span></span><br><span class="line">                        <span class="built_in">echo</span> $(date)<span class="string">":MD5("</span><span class="variable">$&#123;CONF_I&#125;</span><span class="string">".properties) Version is not same,updated"</span></span><br><span class="line">                        <span class="built_in">echo</span> <span class="string">"<span class="variable">$REMOTE_CONF</span>"</span> &gt; <span class="variable">$CONF_FILE</span> 2&gt;&amp;1 &amp;</span><br><span class="line">                <span class="keyword">else</span></span><br><span class="line">                        <span class="built_in">echo</span> $(date)<span class="string">":MD5("</span><span class="variable">$&#123;CONF_I&#125;</span><span class="string">".properties) Version is same"</span></span><br><span class="line">                <span class="keyword">fi</span></span><br><span class="line">            <span class="keyword">fi</span></span><br><span class="line"> </span><br><span class="line">    <span class="keyword">done</span></span><br><span class="line"><span class="keyword">fi</span></span><br></pre></td></tr></table></figure>
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+      
+
+      <div style="font-size: 12px;">
+        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
+      </div>
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2017/08/03/服务配置集中管理/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
     <article id="post-实例启停自动化示例" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
@@ -915,211 +1056,6 @@
 
 
   
-    <article id="post-科学上网 ShadowSocks(免费)" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2016/11/19/科学上网 ShadowSocks(免费)/">科学上网 ShadowSocks(免费)</a>
-    </h1>
-  
-
-        
-        <a href="/2016/11/19/科学上网 ShadowSocks(免费)/" class="archive-article-date">
-  	<time datetime="2016-11-18T16:00:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2016-11-19</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h1 id="客户端下载"><a href="#客户端下载" class="headerlink" title="客户端下载"></a>客户端下载</h1><p><code>地址</code>  <a href="https://www.mianvpn.com/client.html" target="_blank" rel="external">https://www.mianvpn.com/client.html</a><br> <img src="http://7xnbs3.com1.z0.glb.clouddn.com/public/16-11-19/58373972.jpg" alt=""></p>
-<h1 id="使用"><a href="#使用" class="headerlink" title="使用"></a>使用</h1><ul>
-<li>打开互联网提供的免费ss<br><a href="https://www.mianvpn.com/index.html#free" target="_blank" rel="external">https://www.mianvpn.com/index.html#free</a></li>
-</ul>
-<p><img src="http://7xnbs3.com1.z0.glb.clouddn.com/public/16-11-19/34802253.jpg" alt=""></p>
-<p>注意 <code>免费试用节点6小时更换一次密码与端口，请勿用于商业用途</code></p>
-<ul>
-<li>查看配置<br><img src="http://7xnbs3.com1.z0.glb.clouddn.com/public/16-11-19/17683825.jpg" alt=""></li>
-</ul>
-<ul>
-<li><code>方式一</code>二维码扫码<br><img src="http://7xnbs3.com1.z0.glb.clouddn.com/public/16-11-19/40930419.jpg" alt=""></li>
-</ul>
-<ul>
-<li><code>方式二</code>手动填写<br><img src="http://7xnbs3.com1.z0.glb.clouddn.com/public/16-11-19/72174072.jpg" alt=""></li>
-</ul>
-<ul>
-<li>开启全局代理<br><img src="http://7xnbs3.com1.z0.glb.clouddn.com/public/16-11-19/17445067.jpg" alt=""></li>
-</ul>
-<h1 id="验证"><a href="#验证" class="headerlink" title="验证"></a>验证</h1><p><img src="http://7xnbs3.com1.z0.glb.clouddn.com/public/16-11-19/51446865.jpg" alt=""></p>
-<hr>
-<p>Windows C#版下载： <a href="https://github.com/shadowsocksr/shadowsocksr-csharp/releases" target="_blank" rel="external">https://github.com/shadowsocksr/shadowsocksr-csharp/releases</a><br>项目地址：<a href="https://github.com/shadowsocksr" target="_blank" rel="external">https://github.com/shadowsocksr</a></p>
-<p>更新记录及详细说明链接 ： <a href="https://github.com/breakwa11/shadowsocks-rss" target="_blank" rel="external">https://github.com/breakwa11/shadowsocks-rss</a></p>
-<hr>
-<h1 id="手机客户端"><a href="#手机客户端" class="headerlink" title="手机客户端"></a>手机客户端</h1><p><img src="http://7xnbs3.com1.z0.glb.clouddn.com/public/16-11-19/6264520.jpg" alt=""></p>
-<p>中文名: 影梭<br>源地址: <a href="https://github.com/shadowsocks/shadowsocks-android/releases" target="_blank" rel="external">https://github.com/shadowsocks/shadowsocks-android/releases</a></p>
-<ul>
-<li>效果<br><img src="http://7xnbs3.com1.z0.glb.clouddn.com/public/16-11-19/5282729.jpg" alt=""></li>
-</ul>
-<hr>
-<h1 id="浏览器插件-推荐另一款快速安全通道"><a href="#浏览器插件-推荐另一款快速安全通道" class="headerlink" title="浏览器插件,推荐另一款快速安全通道"></a>浏览器插件,推荐另一款<code>快速安全通道</code></h1><p><a href="https://faststunnel.cc/" target="_blank" rel="external">https://faststunnel.cc/</a><br><img src="http://7xnbs3.com1.z0.glb.clouddn.com/public/16-11-19/66641490.jpg" alt=""></p>
-<ul>
-<li>使用 &amp; 效果<br><img src="http://7xnbs3.com1.z0.glb.clouddn.com/public/16-11-19/15101991.jpg" alt=""></li>
-</ul>
-
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">科学上网</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-      
-
-      <div style="font-size: 12px;">
-        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
-      </div>
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2016/11/19/科学上网 ShadowSocks(免费)/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
-    <article id="post-后端文集" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2016/06/06/后端文集/">后端文集</a>
-    </h1>
-  
-
-        
-        <a href="/2016/06/06/后端文集/" class="archive-article-date">
-  	<time datetime="2016-06-05T16:00:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2016-06-06</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>兄弟- <code>前端文集</code><br><a href="http://liuxiang.github.io/2015/12/18/%E5%89%8D%E7%AB%AF%E6%96%87%E9%9B%86/" target="_blank" rel="external">http://liuxiang.github.io/2015/12/18/%E5%89%8D%E7%AB%AF%E6%96%87%E9%9B%86/</a></p>
-<h1 id="RESTful"><a href="#RESTful" class="headerlink" title="RESTful"></a>RESTful</h1><p><code>RESTful API 规范 v1.0-imweb社区</code><br><a href="http://imweb.io/topic/5707561f06f2400432c139a5?utm_source=tuicool&amp;utm_medium=referral" target="_blank" rel="external">http://imweb.io/topic/5707561f06f2400432c139a5?utm_source=tuicool&amp;utm_medium=referral</a></p>
-<p><code>RESTful API 编写指南- 微服务</code><br><a href="http://blog.igevin.info/posts/restful-api-get-started-to-write/" target="_blank" rel="external">http://blog.igevin.info/posts/restful-api-get-started-to-write/</a></p>
-<p><code>RESTful API 设计指南-阮一峰</code><br><a href="http://www.ruanyifeng.com/blog/2014/05/restful_api.html" target="_blank" rel="external">http://www.ruanyifeng.com/blog/2014/05/restful_api.html</a></p>
-<p><code>RESTful API 设计最佳实践</code><br><a href="http://www.tuicool.com/articles/RR7VzeN" target="_blank" rel="external">http://www.tuicool.com/articles/RR7VzeN</a></p>
-<p><code>Restful api 错误提示返回实现思路</code><br><a href="http://www.tuicool.com/articles/MZJvm2a" target="_blank" rel="external">http://www.tuicool.com/articles/MZJvm2a</a></p>
-<h1 id="后端教学"><a href="#后端教学" class="headerlink" title="后端教学"></a>后端教学</h1><p><code>free-programming-books.md</code><br><a href="https://github.com/vhf/free-programming-books/blob/master/free-programming-books.md" target="_blank" rel="external">https://github.com/vhf/free-programming-books/blob/master/free-programming-books.md</a></p>
-        
-          <a class="article-more-a" href="/2016/06/06/后端文集/#more">more >></a>
-        
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">后端</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-      
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/后端//" class="article-tag-list-link color3">后端</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-
-      <div style="font-size: 12px;">
-        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
-      </div>
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2016/06/06/后端文集/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
   
     <nav id="page-nav">
       <a class="extend prev" rel="prev" href="/page/16/">&laquo; Prev</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/15/">15</a><a class="page-number" href="/page/16/">16</a><span class="page-number current">17</span><a class="page-number" href="/page/18/">18</a><a class="extend next" rel="next" href="/page/18/">Next &raquo;</a>
@@ -1253,15 +1189,15 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">redis</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">linux</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">mysql</a>
+                <a href="javascript:void(0)" class="js-tag color4">快捷键</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">redis</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1269,7 +1205,7 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">快捷键</a>
+                <a href="javascript:void(0)" class="js-tag color1">mysql</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1313,11 +1249,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">guava</a>
+                <a href="javascript:void(0)" class="js-tag color2">elastic-job</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">elastic-job</a>
+                <a href="javascript:void(0)" class="js-tag color1">guava</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1341,11 +1277,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">mybatis</a>
+                <a href="javascript:void(0)" class="js-tag color4">Mac</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">Mac</a>
+                <a href="javascript:void(0)" class="js-tag color3">mybatis</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1357,15 +1293,15 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">分布式锁</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Spring</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">SSE</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">分布式锁</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1405,15 +1341,15 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">HashMap</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">前端跨域</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">单例</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">HashMap</a>
               </li>
              
               <li class="article-tag-list-item">

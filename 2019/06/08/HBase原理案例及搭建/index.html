@@ -18,7 +18,7 @@
 <meta property="og:image" content="http://yoursite.com/2019/06/08/HBase原理案例及搭建/01.png">
 <meta property="og:image" content="http://yoursite.com/2019/06/08/HBase原理案例及搭建/02.png">
 <meta property="og:image" content="http://yoursite.com/2019/06/08/HBase原理案例及搭建/03.png">
-<meta property="og:updated_time" content="2019-06-22T14:12:14.000Z">
+<meta property="og:updated_time" content="2019-07-01T02:26:45.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="HBase原理案例及搭建">
 <meta name="twitter:description" content="HBase 数据模型   Row   Key Time   Stamp CF1 CF2 CF3     11248112 t6  CF2:q1=val1 CF3:q3=val3    t3       t2 CF1:q2=val2     ROW  KEY 决定一行数据 按照字典顺序排序的。 Row key只能存储64k的字节数据  Column Family列族 HBase表中的每个列都归属于某">
@@ -418,6 +418,9 @@
 <h2 id="查询"><a href="#查询" class="headerlink" title="查询"></a>查询</h2><figure class="highlight processing"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line">	<span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">void</span> getTable() &#123;</span><br><span class="line">		</span><br><span class="line">		<span class="keyword">try</span> &#123;</span><br><span class="line">			Configuration conf = <span class="keyword">new</span> Configuration();</span><br><span class="line">			conf.<span class="built_in">set</span>(<span class="string">"hbase.zookeeper.quorum"</span>, <span class="string">"node02,node03,node04"</span>);</span><br><span class="line">			</span><br><span class="line">			HTable hTable = <span class="keyword">new</span> HTable(conf, tableName);</span><br><span class="line">			</span><br><span class="line">			Get <span class="built_in">get</span> = <span class="keyword">new</span> Get(<span class="string">"1111"</span>.getBytes());</span><br><span class="line">			<span class="comment">// define return columns in family</span></span><br><span class="line">			<span class="built_in">get</span>.addColumn(<span class="string">"cf"</span>.getBytes(), <span class="string">"name"</span>.getBytes());</span><br><span class="line">			<span class="built_in">get</span>.addColumn(<span class="string">"cf"</span>.getBytes(), <span class="string">"age"</span>.getBytes());</span><br><span class="line">			<span class="built_in">get</span>.addColumn(<span class="string">"cf"</span>.getBytes(), <span class="string">"sex"</span>.getBytes());</span><br><span class="line"></span><br><span class="line">			Result result = hTable.<span class="built_in">get</span>(<span class="built_in">get</span>);</span><br><span class="line">			Cell cell = result.getColumnLatestCell(<span class="string">"cf"</span>.getBytes(), <span class="string">"name"</span>.getBytes());</span><br><span class="line">			Cell cell2 = result.getColumnLatestCell(<span class="string">"cf"</span>.getBytes(), <span class="string">"age"</span>.getBytes());</span><br><span class="line">			Cell cell3 = result.getColumnLatestCell(<span class="string">"cf"</span>.getBytes(), <span class="string">"sex"</span>.getBytes());</span><br><span class="line"><span class="comment">//			System.out.println(new String( cell.getValue()));</span></span><br><span class="line">			System.out.<span class="built_in">println</span>(<span class="keyword">new</span> <span class="keyword">String</span>(CellUtil.cloneValue(cell)));</span><br><span class="line">			System.out.<span class="built_in">println</span>(<span class="keyword">new</span> <span class="keyword">String</span>(CellUtil.cloneValue(cell2)));</span><br><span class="line">			System.out.<span class="built_in">println</span>(<span class="keyword">new</span> <span class="keyword">String</span>(CellUtil.cloneValue(cell3)));</span><br><span class="line">			</span><br><span class="line">			<span class="keyword">if</span> (admin != <span class="keyword">null</span>) &#123;</span><br><span class="line">				admin.close();</span><br><span class="line">			&#125;</span><br><span class="line">			</span><br><span class="line">		&#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">			<span class="comment">// <span class="doctag">TODO:</span> handle exception</span></span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br></pre></td></tr></table></figure>
 <h1 id="Hbase出现ServerNotRunningYetException的解决方案"><a href="#Hbase出现ServerNotRunningYetException的解决方案" class="headerlink" title="Hbase出现ServerNotRunningYetException的解决方案"></a>Hbase出现ServerNotRunningYetException的解决方案</h1><p>因为hadoop处在安全模式下。所以hbase的操作会出现异常。</p>
 <figure class="highlight ebnf"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">hadoop dfsadmin -safemode leave</span></span><br></pre></td></tr></table></figure>
+<h1 id="hbase-shell中使用list命令报错"><a href="#hbase-shell中使用list命令报错" class="headerlink" title="hbase shell中使用list命令报错"></a>hbase shell中使用list命令报错</h1><blockquote>
+<p><a href="https://blog.csdn.net/hll19950830/article/details/80022676" target="_blank" rel="external">https://blog.csdn.net/hll19950830/article/details/80022676</a></p>
+</blockquote>
 
       
 
@@ -687,15 +690,15 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">redis</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">linux</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">mysql</a>
+                <a href="javascript:void(0)" class="js-tag color4">快捷键</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">redis</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -703,7 +706,7 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">快捷键</a>
+                <a href="javascript:void(0)" class="js-tag color1">mysql</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -747,11 +750,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">guava</a>
+                <a href="javascript:void(0)" class="js-tag color2">elastic-job</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">elastic-job</a>
+                <a href="javascript:void(0)" class="js-tag color1">guava</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -775,11 +778,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">mybatis</a>
+                <a href="javascript:void(0)" class="js-tag color4">Mac</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">Mac</a>
+                <a href="javascript:void(0)" class="js-tag color3">mybatis</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -791,15 +794,15 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">分布式锁</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Spring</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">SSE</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">分布式锁</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -839,15 +842,15 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">HashMap</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">前端跨域</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">单例</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">HashMap</a>
               </li>
              
               <li class="article-tag-list-item">

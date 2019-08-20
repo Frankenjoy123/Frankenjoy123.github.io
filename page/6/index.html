@@ -150,6 +150,175 @@
           <div id="js-content" class="content-ll">
             
   
+    <article id="post-kafka原理详解" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2018/09/06/kafka原理详解/">kafka原理详解</a>
+    </h1>
+  
+
+        
+        <a href="/2018/09/06/kafka原理详解/" class="archive-article-date">
+  	<time datetime="2018-09-06T13:54:39.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-09-06</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="kafka提供的基本脚本"><a href="#kafka提供的基本脚本" class="headerlink" title="kafka提供的基本脚本"></a>kafka提供的基本脚本</h2><h3 id="启动broker-server"><a href="#启动broker-server" class="headerlink" title="启动broker server"></a>启动broker server</h3><figure class="highlight axapta"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">bin/kafka-<span class="keyword">server</span>-start.sh config/<span class="keyword">server</span>.properties</span><br></pre></td></tr></table></figure>
+<h3 id="创建topic"><a href="#创建topic" class="headerlink" title="创建topic"></a>创建topic</h3><figure class="highlight brainfuck"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">bin/kafka</span><span class="literal">-</span><span class="comment">topics</span><span class="string">.</span><span class="comment">sh</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">create</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">zookeeper</span> <span class="comment">localhost:2181</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">replication</span><span class="literal">-</span><span class="comment">factor</span> <span class="comment">2</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">partitions</span> <span class="comment">3</span> <span class="literal">-</span><span class="literal">-</span> <span class="comment">topic</span> <span class="comment">testReplicaTopic</span></span><br></pre></td></tr></table></figure>
+<p>当broker节点本身只有1个，少于副本数2时，报错</p>
+<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[<span class="number">2018</span>-<span class="number">09</span>-<span class="number">06</span> <span class="number">23</span>:<span class="number">13</span>:<span class="number">38</span>,<span class="number">288</span>] ERROR org<span class="selector-class">.apache</span><span class="selector-class">.kafka</span><span class="selector-class">.common</span><span class="selector-class">.errors</span><span class="selector-class">.InvalidReplicationFactorException</span>: Replication factor: <span class="number">2</span> larger than available brokers: <span class="number">1</span>.</span><br><span class="line"> (kafka<span class="selector-class">.admin</span><span class="selector-class">.TopicCommand</span>$)</span><br></pre></td></tr></table></figure>
+<h3 id="查看某个topic的信息"><a href="#查看某个topic的信息" class="headerlink" title="查看某个topic的信息"></a>查看某个topic的信息</h3><figure class="highlight brainfuck"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">bin/kafka</span><span class="literal">-</span><span class="comment">topics</span><span class="string">.</span><span class="comment">sh</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">describe</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">zookeeper</span> <span class="comment">localhost:2181</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">topic</span> <span class="comment">xiaowu</span><span class="literal">-</span><span class="comment">topic</span></span><br></pre></td></tr></table></figure>
+<h3 id="生产者发送消息"><a href="#生产者发送消息" class="headerlink" title="生产者发送消息"></a>生产者发送消息</h3><figure class="highlight vim"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">bin/kafka-console-producer.<span class="keyword">sh</span> --broker-<span class="keyword">list</span> localhos<span class="variable">t:9092</span> --topic xiaowu-topic</span><br></pre></td></tr></table></figure>
+<h3 id="消费者消费消息"><a href="#消费者消费消息" class="headerlink" title="消费者消费消息"></a>消费者消费消息</h3><figure class="highlight brainfuck"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">bin/kafka</span><span class="literal">-</span><span class="comment">console</span><span class="literal">-</span><span class="comment">consumer</span><span class="string">.</span><span class="comment">sh</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">bootstrap</span><span class="literal">-</span><span class="comment">server</span> <span class="comment">localhost:9092</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">topic</span> <span class="comment">xiaowu</span><span class="literal">-</span><span class="comment">topic</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">from</span><span class="literal">-</span><span class="comment">beginning</span></span><br></pre></td></tr></table></figure>
+<h3 id="查看消息日志文件"><a href="#查看消息日志文件" class="headerlink" title="查看消息日志文件"></a>查看消息日志文件</h3><figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">bin/kafka-run-class<span class="selector-class">.sh</span> kafka<span class="selector-class">.tools</span><span class="selector-class">.DumpLogSegments</span> --files /Users/zhouxiaowu/install/kafka/kafka-data/xiaowu-topic-<span class="number">0</span>/<span class="number">00000000000000000000</span><span class="selector-class">.log</span> --print-data-log</span><br></pre></td></tr></table></figure>
+<h3 id="查看索引文件内容"><a href="#查看索引文件内容" class="headerlink" title="查看索引文件内容"></a>查看索引文件内容</h3><figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">bin/kafka-run-class<span class="selector-class">.sh</span> kafka<span class="selector-class">.tools</span><span class="selector-class">.DumpLogSegments</span> --files /Users/zhouxiaowu/install/kafka/kafka-data/xiaowu-topic-<span class="number">0</span>/<span class="number">00000000000000000000</span><span class="selector-class">.index</span> --print-data-log</span><br></pre></td></tr></table></figure>
+<h2 id="zookeeper状态"><a href="#zookeeper状态" class="headerlink" title="zookeeper状态"></a>zookeeper状态</h2><h3 id="查看某个topic的某个分区的状态"><a href="#查看某个topic的某个分区的状态" class="headerlink" title="查看某个topic的某个分区的状态"></a>查看某个topic的某个分区的状态</h3><figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[<span class="string">zk:</span> <span class="string">localhost:</span><span class="number">2181</span>(CONNECTED) <span class="number">16</span>] get  <span class="regexp">/brokers/</span>topics<span class="regexp">/xiaowu-topic/</span>partitions<span class="regexp">/0/</span>state</span><br><span class="line">&#123;<span class="string">"controller_epoch"</span>:<span class="number">4</span>,<span class="string">"leader"</span>:<span class="number">0</span>,<span class="string">"version"</span>:<span class="number">1</span>,<span class="string">"leader_epoch"</span>:<span class="number">0</span>,<span class="string">"isr"</span>:[<span class="number">0</span>]&#125;</span><br></pre></td></tr></table></figure>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+      
+
+      <div style="font-size: 12px;">
+        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
+      </div>
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2018/09/06/kafka原理详解/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
+    <article id="post-Spring-Boot-Web篇" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2018/08/13/Spring-Boot-Web篇/">Spring Boot Web篇</a>
+    </h1>
+  
+
+        
+        <a href="/2018/08/13/Spring-Boot-Web篇/" class="archive-article-date">
+  	<time datetime="2018-08-13T01:38:25.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-08-13</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <ul>
+<li><p>标准优化技术</p>
+<ul>
+<li><p>资源变化</p>
+<p>响应头：Last-Modified</p>
+<p>请求头：If-Modified-Since</p>
+</li>
+<li><p>资源缓存</p>
+<p>响应头：ETag</p>
+<p> 请求头：If-None-Match</p>
+</li>
+</ul>
+</li>
+</ul>
+<h2 id="Spring-Boot-Actuator"><a href="#Spring-Boot-Actuator" class="headerlink" title="Spring Boot Actuator"></a>Spring Boot Actuator</h2><p>引用包</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-starter-actuator<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<ul>
+<li>/beans 查看bean的情况</li>
+<li><code>ManagementServerProperties</code>类查看配置内容</li>
+</ul>
+<p>如： <code>management.security.enabled = false</code>关闭安全检查</p>
+<ul>
+<li>localhost:8080/autoconfig 查看匹配方式，negtive匹配不成功</li>
+</ul>
+<h2 id="Spring-Framwork-Transaction"><a href="#Spring-Framwork-Transaction" class="headerlink" title="Spring Framwork Transaction"></a>Spring Framwork Transaction</h2><ul>
+<li><code>@EnableTransactionManagement</code>注解启用事务管理</li>
+<li><code>proxyTargetClass = true</code>选择使用cglib动态代理，这样service类可以不用实现接口。</li>
+</ul>
+<figure class="highlight aspectj"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@EnableTransactionManagement</span>(proxyTargetClass = <span class="keyword">true</span>)</span><br></pre></td></tr></table></figure>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+      
+
+      <div style="font-size: 12px;">
+        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
+      </div>
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2018/08/13/Spring-Boot-Web篇/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
     <article id="post-Spring-boot体系" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
@@ -1102,410 +1271,6 @@
 
 
   
-    <article id="post-XMind快捷键指南" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2018/07/20/XMind快捷键指南/">XMind快捷键指南</a>
-    </h1>
-  
-
-        
-        <a href="/2018/07/20/XMind快捷键指南/" class="archive-article-date">
-  	<time datetime="2018-07-20T03:11:08.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-07-20</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <table>
-<thead>
-<tr>
-<th><strong>快捷鍵（Windows）</strong></th>
-<th><strong>快捷鍵（Mac）</strong></th>
-<th><strong>描述</strong></th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><strong>Ctrl+N</strong></td>
-<td><strong>Command+N</strong></td>
-<td><strong>建立新工作簿</strong></td>
-</tr>
-<tr>
-<td><strong>Ctrl+O</strong></td>
-<td><strong>Command+O</strong></td>
-<td><strong>开启工作簿</strong></td>
-</tr>
-<tr>
-<td><strong>Ctrl+S</strong></td>
-<td><strong>Command+S</strong></td>
-<td><strong>储存目前工作簿</strong></td>
-</tr>
-<tr>
-<td><strong>Ctrl+Shift+S</strong></td>
-<td><strong>Command+Shift+S</strong></td>
-<td><strong>储存全部工作簿</strong></td>
-</tr>
-<tr>
-<td><strong>Ctrl+W</strong></td>
-<td><strong>Command+W</strong></td>
-<td><strong>关闭目前工作簿</strong></td>
-</tr>
-<tr>
-<td><strong>Ctrl+Shift+W</strong></td>
-<td><strong>Command+Shift+W</strong></td>
-<td><strong>关闭全部工作簿</strong></td>
-</tr>
-<tr>
-<td><strong>Ctrl+P</strong></td>
-<td><strong>Command+P</strong></td>
-<td><strong>列印</strong></td>
-</tr>
-<tr>
-<td><strong>Ctrl+Z</strong></td>
-<td><strong>Command+Z</strong></td>
-<td><strong>复原</strong></td>
-</tr>
-<tr>
-<td><strong>Ctrl+Y</strong></td>
-<td><strong>Command+Y</strong></td>
-<td><strong>重做</strong></td>
-</tr>
-<tr>
-<td><strong>Ctrl+X</strong></td>
-<td><strong>Command+X</strong></td>
-<td><strong>剪切</strong></td>
-</tr>
-<tr>
-<td><strong>Ctrl+C</strong></td>
-<td><strong>Command+C</strong></td>
-<td><strong>复制</strong></td>
-</tr>
-<tr>
-<td><strong>Ctrl+V</strong></td>
-<td><strong>Command+V</strong></td>
-<td><strong>贴上</strong></td>
-</tr>
-<tr>
-<td><strong>Delete</strong></td>
-<td><strong>Delete</strong></td>
-<td><strong>删除</strong></td>
-</tr>
-<tr>
-<td><strong>Ctrl+Home</strong></td>
-<td><strong>Command+Home</strong></td>
-<td><strong>返回中心主題</strong></td>
-</tr>
-<tr>
-<td><strong>Ctrl+A</strong></td>
-<td><strong>Command+A</strong></td>
-<td><strong>选择全部主題</strong></td>
-</tr>
-<tr>
-<td><strong>Ctrl+Shift+A</strong></td>
-<td><strong>Command+Shift+A</strong></td>
-<td><strong>选择同層級主題</strong></td>
-</tr>
-<tr>
-<td><strong>Ctrl+Alt+A</strong></td>
-<td><strong>Command+Alt+A</strong></td>
-<td><strong>选择子主題</strong></td>
-</tr>
-<tr>
-<td><strong>Ctrl+F</strong></td>
-<td><strong>Command+F</strong></td>
-<td><strong>寻找/取代</strong></td>
-</tr>
-<tr>
-<td><strong>Ctrl++</strong></td>
-<td><strong>Command++</strong></td>
-<td><strong>放大</strong></td>
-</tr>
-<tr>
-<td><strong>Ctrl+-</strong></td>
-<td><strong>Command+-</strong></td>
-<td><strong>缩小</strong></td>
-</tr>
-<tr>
-<td><strong>Ctrl+=</strong></td>
-<td><strong>Command+=</strong></td>
-<td><strong>正常大小</strong></td>
-</tr>
-<tr>
-<td><strong>Ctrl+]</strong></td>
-<td><strong>Command+]</strong></td>
-<td><strong>插入摘要</strong></td>
-</tr>
-<tr>
-<td><strong>Alt+Enter</strong></td>
-<td><strong>Alt+Enter</strong></td>
-<td><strong>属性内容內容</strong></td>
-</tr>
-<tr>
-<td><strong>Enter</strong></td>
-<td><strong>Enter</strong></td>
-<td><strong>插入主题</strong></td>
-</tr>
-<tr>
-<td><strong>Tab</strong></td>
-<td><strong>Tab</strong></td>
-<td><strong>插入子主题</strong></td>
-</tr>
-<tr>
-<td><strong>Shift+Enter</strong></td>
-<td><strong>Shift+Enter</strong></td>
-<td><strong>在目前主题前插入主题</strong></td>
-</tr>
-<tr>
-<td><strong>Ctrl+Enter</strong></td>
-<td><strong>Command+Enter</strong></td>
-<td><strong>插入目前主题父主题</strong></td>
-</tr>
-<tr>
-<td><strong>Ctrl+Shift+L</strong></td>
-<td><strong>Command+Shift+L</strong></td>
-<td><strong>快捷鍵助手</strong></td>
-</tr>
-<tr>
-<td><strong>Ctrl+I</strong></td>
-<td><strong>Ctrl+I</strong></td>
-<td><strong>插入图片</strong></td>
-</tr>
-<tr>
-<td><strong>Ctrl+Shift+H</strong></td>
-<td><strong>Command+Shift+H</strong></td>
-<td><strong>插入超链接</strong></td>
-</tr>
-<tr>
-<td><strong>Ctrl+B</strong></td>
-<td><strong>Command+B</strong></td>
-<td><strong>添加外框</strong></td>
-</tr>
-<tr>
-<td><strong>Ctrl+L</strong></td>
-<td><strong>Command+L</strong></td>
-<td><strong>添加关联</strong></td>
-</tr>
-<tr>
-<td><strong>F2</strong></td>
-<td><strong>F2</strong></td>
-<td><strong>编辑主题</strong></td>
-</tr>
-<tr>
-<td><strong>F3</strong></td>
-<td><strong>F3</strong></td>
-<td><strong>添加/编辑标签</strong></td>
-</tr>
-<tr>
-<td><strong>F4</strong></td>
-<td><strong>F4</strong></td>
-<td><strong>添加/编辑备注</strong></td>
-</tr>
-<tr>
-<td><strong>F5</strong></td>
-<td><strong>F5</strong></td>
-<td><strong>简报演示</strong></td>
-</tr>
-<tr>
-<td><strong>F6</strong></td>
-<td><strong>F6</strong></td>
-<td><strong>下钻</strong></td>
-</tr>
-<tr>
-<td><strong>Shift+F6</strong></td>
-<td><strong>Shift+F6</strong></td>
-<td><strong>上钻</strong></td>
-</tr>
-<tr>
-<td><strong>F7</strong></td>
-<td><strong>F7</strong></td>
-<td><strong>智慧截取图面</strong></td>
-</tr>
-<tr>
-<td><strong>+</strong></td>
-<td><strong>+</strong></td>
-<td><strong>展开目前分支</strong></td>
-</tr>
-<tr>
-<td><strong>-</strong></td>
-<td><strong>-</strong></td>
-<td><strong>收缩目前分支</strong></td>
-</tr>
-<tr>
-<td><strong>*</strong></td>
-<td><strong>*</strong></td>
-<td><strong>展开所有分支</strong></td>
-</tr>
-<tr>
-<td><strong>/</strong></td>
-<td><strong>/</strong></td>
-<td><strong>收缩所有分支</strong></td>
-</tr>
-<tr>
-<td><strong>Alt+Up</strong></td>
-<td><strong>Alt+Up</strong></td>
-<td><strong>向前移动</strong></td>
-</tr>
-<tr>
-<td><strong>Alt+Down</strong></td>
-<td><strong>Alt+Down</strong></td>
-<td><strong>向后移动</strong></td>
-</tr>
-<tr>
-<td><strong>Ctrl+T</strong></td>
-<td><strong>Command+T</strong></td>
-<td><strong>建立新心智图</strong></td>
-</tr>
-<tr>
-<td><strong>Ctrl+1,2,3,4,5,6</strong></td>
-<td><strong>Command+1,2,3,4,5,6</strong></td>
-<td><strong>快速添加优先等级图标</strong></td>
-</tr>
-<tr>
-<td><strong>Esc</strong></td>
-<td><strong>Esc</strong></td>
-<td><strong>关闭跳出的备注对话框 / 取消截图</strong></td>
-</tr>
-<tr>
-<td><strong>Ctrl+滑鼠滚轮</strong></td>
-<td><strong>Command+滑鼠滚轮</strong></td>
-<td><strong>放大缩小目前的画面</strong></td>
-</tr>
-</tbody>
-</table>
-
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-      
-
-      <div style="font-size: 12px;">
-        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
-      </div>
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2018/07/20/XMind快捷键指南/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
-    <article id="post-理解spring中的BeanFactory与FactoryBean区别" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2018/07/19/理解spring中的BeanFactory与FactoryBean区别/">理解spring中的BeanFactory与FactoryBean区别</a>
-    </h1>
-  
-
-        
-        <a href="/2018/07/19/理解spring中的BeanFactory与FactoryBean区别/" class="archive-article-date">
-  	<time datetime="2018-07-18T23:58:05.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-07-19</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>实现 <code>BeanFactory</code> 接口的类表明此类事一个工厂，作用就是配置、新建、管理 各种Bean。<code>DefaultListBeanFacory</code>等都实现这个接口，IOC容器，管理bean。</p>
-<p>而 实现 <code>FactoryBean</code> 的类表明此类也是一个Bean，类型为工厂Bean（Spring中共有两种bean，一种为普通bean，另一种则为工厂bean）。顾名思义，它也是用来管理Bean的，而它本身由spring管理。</p>
-<p>一个Bean想要实现 <code>FactoryBean</code> ，必须实现以下三个接口：</p>
-<figure class="highlight armasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">1</span>. Object getObject():返回由FactoryBean创建的<span class="keyword">Bean的实例</span></span><br><span class="line"><span class="keyword"></span></span><br><span class="line"><span class="keyword">2. </span><span class="keyword">boolean </span>isSingleton():确定由FactoryBean创建的<span class="keyword">Bean的作用域是singleton还是prototype；</span></span><br><span class="line"><span class="keyword"></span></span><br><span class="line"><span class="keyword">3. </span>getObjectType():返回FactoryBean创建的<span class="keyword">Bean的类型。12345</span></span><br></pre></td></tr></table></figure>
-<p>有一点需要注意，如果将一个实现了FactoryBean的类成功配置到了spring上下文中，那么通过该类对象的名称（比如appleFactoryBean）从spring的applicationContext或者beanFactory获取bean时，获取到的是appleFactoryBean创建的apple实例，而不是appleFactoryBean自己，如果想通过spring拿到appleFactoryBean，需要在名称前加 <code>&amp;</code> 符号 ：</p>
-<figure class="highlight ada"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">out</span>.println(applicationContext.getBean(<span class="string">"&amp;appleFactoryBean"</span>))<span class="number">1</span></span><br></pre></td></tr></table></figure>
-<p>这个prefix在BeanFactory接口源码中有提到：</p>
-<figure class="highlight smali"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">/**</span><br><span class="line">* Used to dereference a &#123;@link FactoryBean&#125;<span class="built_in"> instance </span>and distinguish it from</span><br><span class="line">* beans &lt;i&gt;created&lt;/i&gt; by the FactoryBean. For example,<span class="built_in"> if </span>the bean named</span><br><span class="line">* &#123;@code myJndiObject&#125; is a FactoryBean, getting &#123;@code &amp;myJndiObject&#125;</span><br><span class="line">* will<span class="built_in"> return </span>the factory,<span class="built_in"> not </span>the<span class="built_in"> instance </span>returned by the factory.</span><br><span class="line">*/</span><br><span class="line">    String FACTORY_BEAN_PREFIX = <span class="string">"&amp;"</span>;1234567</span><br></pre></td></tr></table></figure>
-<p>还有一点需要注意，FactoryBean管理的bean实际上也是由spring进行配置、实例化、管理，因此由FactoryBean管理的bean不能再次配置到spring配置文件中（xml、java类配置、注解均不可以），否则会报如下异常：</p>
-<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">Exception <span class="keyword">in</span> thread <span class="string">"main"</span> org<span class="selector-class">.springframework</span><span class="selector-class">.beans</span><span class="selector-class">.factory</span><span class="selector-class">.BeanIsNotAFactoryException</span>: Bean named <span class="string">'appleFactoryBean'</span> is expected to be of type <span class="string">'org.springframework.beans.factory.FactoryBean'</span> but was actually of type <span class="string">'java.lang.Object'</span></span><br><span class="line">    at org<span class="selector-class">.springframework</span><span class="selector-class">.beans</span><span class="selector-class">.factory</span><span class="selector-class">.support</span><span class="selector-class">.AbstractBeanFactory</span><span class="selector-class">.getObjectForBeanInstance</span>(AbstractBeanFactory<span class="selector-class">.java</span>:<span class="number">1612</span>)</span><br><span class="line">    at org<span class="selector-class">.springframework</span><span class="selector-class">.beans</span><span class="selector-class">.factory</span><span class="selector-class">.support</span><span class="selector-class">.AbstractBeanFactory</span><span class="selector-class">.doGetBean</span>(AbstractBeanFactory<span class="selector-class">.java</span>:<span class="number">317</span>)</span><br><span class="line">    at org<span class="selector-class">.springframework</span><span class="selector-class">.beans</span><span class="selector-class">.factory</span><span class="selector-class">.support</span><span class="selector-class">.AbstractBeanFactory</span><span class="selector-class">.getBean</span>(AbstractBeanFactory<span class="selector-class">.java</span>:<span class="number">197</span>)</span><br><span class="line">    at org<span class="selector-class">.springframework</span><span class="selector-class">.beans</span><span class="selector-class">.factory</span><span class="selector-class">.support</span><span class="selector-class">.DefaultListableBeanFactory</span><span class="selector-class">.preInstantiateSingletons</span>(DefaultListableBeanFactory<span class="selector-class">.java</span>:<span class="number">742</span>)</span><br><span class="line">    at org<span class="selector-class">.springframework</span><span class="selector-class">.context</span><span class="selector-class">.support</span><span class="selector-class">.AbstractApplicationContext</span><span class="selector-class">.finishBeanFactoryInitialization</span>(AbstractApplicationContext<span class="selector-class">.java</span>:<span class="number">866</span>)</span><br><span class="line">    at org<span class="selector-class">.springframework</span><span class="selector-class">.context</span><span class="selector-class">.support</span><span class="selector-class">.AbstractApplicationContext</span><span class="selector-class">.refresh</span>(AbstractApplicationContext<span class="selector-class">.java</span>:<span class="number">542</span>)</span><br><span class="line">    at org<span class="selector-class">.springframework</span><span class="selector-class">.context</span><span class="selector-class">.annotation</span><span class="selector-class">.AnnotationConfigApplicationContext</span>.&lt;init&gt;(AnnotationConfigApplicationContext<span class="selector-class">.java</span>:<span class="number">84</span>)</span><br><span class="line">    at com<span class="selector-class">.joen</span><span class="selector-class">.testspringcontainer</span><span class="selector-class">.Start</span><span class="selector-class">.main</span>(Start<span class="selector-class">.java</span>:<span class="number">11</span>)</span><br><span class="line">    at sun<span class="selector-class">.reflect</span><span class="selector-class">.NativeMethodAccessorImpl</span><span class="selector-class">.invoke0</span>(Native Method)</span><br><span class="line">    at sun<span class="selector-class">.reflect</span><span class="selector-class">.NativeMethodAccessorImpl</span><span class="selector-class">.invoke</span>(NativeMethodAccessorImpl<span class="selector-class">.java</span>:<span class="number">62</span>)</span><br><span class="line">    at sun<span class="selector-class">.reflect</span><span class="selector-class">.DelegatingMethodAccessorImpl</span><span class="selector-class">.invoke</span>(DelegatingMethodAccessorImpl<span class="selector-class">.java</span>:<span class="number">43</span>)</span><br><span class="line">    at java<span class="selector-class">.lang</span><span class="selector-class">.reflect</span><span class="selector-class">.Method</span><span class="selector-class">.invoke</span>(Method<span class="selector-class">.java</span>:<span class="number">498</span>)</span><br><span class="line">    at com<span class="selector-class">.intellij</span><span class="selector-class">.rt</span><span class="selector-class">.execution</span><span class="selector-class">.application</span><span class="selector-class">.AppMain</span><span class="selector-class">.main</span>(AppMain<span class="selector-class">.java</span>:<span class="number">147</span>)<span class="number">1234567891011121314</span></span><br></pre></td></tr></table></figure>
-<p>附上一个例子：</p>
-<p>spring配置类：</p>
-<figure class="highlight less"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">@Configuration</span></span><br><span class="line"><span class="variable">@ComponentScan</span></span><br><span class="line">public class Configurations &#123;</span><br><span class="line">&#125;<span class="number">1234</span></span><br></pre></td></tr></table></figure>
-<p>AppleBean :</p>
-<figure class="highlight actionscript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//@Component  这里不可以加注解 ！！！！！！</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">AppleBean</span></span>&#123;</span><br><span class="line"></span><br><span class="line">&#125;<span class="number">1234</span></span><br></pre></td></tr></table></figure>
-<p>AppleFactoryBean :</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">AppleFactoryBean</span> <span class="keyword">implements</span> <span class="title">FactoryBean</span></span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Object <span class="title">getObject</span><span class="params">()</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> AppleBean();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> Class&lt;?&gt; getObjectType() &#123;</span><br><span class="line">        <span class="keyword">return</span> AppleBean.class;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">isSingleton</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;<span class="number">123456789101112131415</span></span><br></pre></td></tr></table></figure>
-<p>启动类 :</p>
-<figure class="highlight cs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">Start</span> &#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span>(<span class="params">String[] args</span>)</span>&#123;</span><br><span class="line">        ApplicationContext applicationContext = <span class="keyword">new</span> AnnotationConfigApplicationContext(Configurations.class);</span><br><span class="line">                 <span class="keyword">out</span>.println(applicationContext.getBean(<span class="string">"appleFactoryBean"</span>));<span class="comment">//得到的是apple</span></span><br><span class="line">                 <span class="keyword">out</span>.println(applicationContext.getBean(<span class="string">"&amp;appleFactoryBean"</span>));<span class="comment">//得到的是apple工厂</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-      
-
-      <div style="font-size: 12px;">
-        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
-      </div>
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2018/07/19/理解spring中的BeanFactory与FactoryBean区别/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
   
     <nav id="page-nav">
       <a class="extend prev" rel="prev" href="/page/5/">&laquo; Prev</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/4/">4</a><a class="page-number" href="/page/5/">5</a><span class="page-number current">6</span><a class="page-number" href="/page/7/">7</a><a class="page-number" href="/page/8/">8</a><span class="space">&hellip;</span><a class="page-number" href="/page/18/">18</a><a class="extend next" rel="next" href="/page/7/">Next &raquo;</a>
@@ -1639,15 +1404,15 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">redis</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">linux</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">mysql</a>
+                <a href="javascript:void(0)" class="js-tag color4">快捷键</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">redis</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1655,7 +1420,7 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">快捷键</a>
+                <a href="javascript:void(0)" class="js-tag color1">mysql</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1699,11 +1464,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">guava</a>
+                <a href="javascript:void(0)" class="js-tag color2">elastic-job</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">elastic-job</a>
+                <a href="javascript:void(0)" class="js-tag color1">guava</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1727,11 +1492,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">mybatis</a>
+                <a href="javascript:void(0)" class="js-tag color4">Mac</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">Mac</a>
+                <a href="javascript:void(0)" class="js-tag color3">mybatis</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1743,15 +1508,15 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">分布式锁</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Spring</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">SSE</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">分布式锁</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1791,15 +1556,15 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">HashMap</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">前端跨域</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">单例</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">HashMap</a>
               </li>
              
               <li class="article-tag-list-item">

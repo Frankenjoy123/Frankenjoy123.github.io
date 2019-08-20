@@ -150,6 +150,289 @@
           <div id="js-content" class="content-ll">
             
   
+    <article id="post-Java内存模型" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2018/03/06/Java内存模型/">Java内存模型FAQ</a>
+    </h1>
+  
+
+        
+        <a href="/2018/03/06/Java内存模型/" class="archive-article-date">
+  	<time datetime="2018-03-06T07:22:44.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-03-06</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="什么是内存模型"><a href="#什么是内存模型" class="headerlink" title="什么是内存模型"></a>什么是内存模型</h1><p><a href="http://www.cs.umd.edu/~pugh/java/memoryModel/jsr-133-faq.html" target="_blank" rel="external">http://www.cs.umd.edu/~pugh/java/memoryModel/jsr-133-faq.html</a></p>
+<p>在多核系统中，处理器一般有一层或者多层的缓存，这些的缓存通过加速数据访问（因为数据距离处理器更近）和降低共享内存在总线上的通讯（因为本地缓存能够满足许多内存操作）来提高CPU性能。缓存能够大大提升性能，但是它们也带来了许多挑战。例如，当两个CPU同时检查相同的内存地址时会发生什么？在什么样的条件下它们会看到相同的值？</p>
+<p>在处理器层面上，内存模型定义了一个充要条件，<strong>“让当前的处理器可以看到其他处理器写入到内存的数据”以及其他处理器可以看到当前处理器写入到内存的数据”</strong>。有些处理器有<strong>很强的内存模型(strong memory model)</strong>，能够让所有的处理器在任何时候任何指定的内存地址上都可以看到完全相同的值。而另外一些处理器则<strong>有较弱的内存模型（weaker memory model）</strong>，在这种处理器中，必须使用<strong>内存屏障（一种特殊的指令）</strong>来<u>刷新本地处理器缓存并使本地处理器缓存无效</u>，目的是为了让当前处理器能够看到其他处理器的写操作或者让其他处理器能看到当前处理器的写操作。这些内存屏障通常在lock和unlock操作的时候完成。内存屏障在高级语言中对程序员是不可见的。</p>
+<p>在强内存模型下，有时候编写程序可能会更容易，因为减少了对内存屏障的依赖。但是即使在一些最强的内存模型下，内存屏障仍然是必须的。设置内存屏障往往与我们的直觉并不一致。<u>近来处理器设计的趋势更倾向于弱的内存模型，因为弱内存模型削弱了缓存一致性</u>，所以在多处理器平台和更大容量的内存下可以实现更好的可伸缩性</p>
+<p>“一个线程的写操作对其他线程可见”这个问题是因为编译器对代码进行重排序导致的。<strong>例如，只要代码移动不会改变程序的语义，当编译器认为程序中移动一个写操作到后面会更有效的时候，编译器就会对代码进行移动。</strong>如果编译器推迟执行一个操作，其他线程可能在这个操作执行完之前都不会看到该操作的结果，这反映了缓存的影响。</p>
+<p><strong>此外，写入内存的操作能够被移动到程序里更前的时候。在这种情况下，其他的线程在程序中可能看到一个比它实际发生更早的写操作。</strong>所有的这些灵活性的设计是为了通过给编译器，运行时或硬件灵活性使其能在最佳顺序的情况下来执行操作。在内存模型的限定之内，我们能够获取到更高的性能。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">Class Reordering &#123;</span><br><span class="line">  <span class="keyword">int</span> x = <span class="number">0</span>, y = <span class="number">0</span>;</span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">writer</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    x = <span class="number">1</span>;</span><br><span class="line">    y = <span class="number">2</span>;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">reader</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">int</span> r1 = y;</span><br><span class="line">    <span class="keyword">int</span> r2 = x;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>让我们看在两个并发线程中执行这段代码，读取<em>Y</em>变量将会得到2这个值。因为这个写入比写到<em>X</em>变量更晚一些，程序员可能认为读取<em>X</em>变量将肯定会得到1。<strong>但是，写入操作可能被重排序过。</strong>如果重排序发生了，那么，就能发生对<em>Y</em>变量的写入操作，读取两个变量的操作紧随其后，而且写入到X这个操作能发生。程序的结果可能是r1变量的值是2，但是r2变量的值为0。</p>
+<p>Java内存模型描述了在多线程代码中哪些行为是合法的，以及线程如何通过内存进行交互。它描述了“程序中的变量“ 和 ”从内存或者寄存器获取或存储它们的底层细节”之间的关系。Java内存模型通过使用各种各样的硬件和编译器的优化来正确实现以上事情。</p>
+<p>Java包含了几个语言级别的关键字，包括：<strong>volatile, final以及synchronized，目的是为了帮助程序员向编译器描述一个程序的并发需求</strong>。Java内存模型定义了volatile和synchronized的行为，更重要的是保证了同步的java程序在所有的处理器架构下面都能正确的运行。</p>
+<h1 id="其他语言，像C-，也有内存模型吗"><a href="#其他语言，像C-，也有内存模型吗" class="headerlink" title="其他语言，像C++，也有内存模型吗"></a>其他语言，像C++，也有内存模型吗</h1><p>大部分其他的语言，像C和C++，都没有被设计成直接支持多线程。这些语言对于发生在编译器和处理器平台架构的重排序行为的保护机制会严重的依赖于程序中所使用的线程库（例如pthreads），编译器，以及代码所运行的平台所提供的保障。</p>
+<p>#JSR133是什么</p>
+<p>从1997年以来，人们不断发现Java语言规范的17章定义的Java内存模型中的一些严重的缺陷。这些缺陷会导致一些使人迷惑的行为（例如final字段会被观察到值的改变）和破坏编译器常见的优化能力。</p>
+<p>Java内存模型是一个雄心勃勃的计划，它是编程语言规范第一次尝试合并一个能够在各种处理器架构中为并发提供一致语义的内存模型。不过，定义一个既一致又直观的内存模型远比想象要更难。JSR133为Java语言定义了一个新的内存模型，它修复了早期内存模型中的缺陷。为了实现JSR133，final和volatile的语义需要重新定义。</p>
+<p>完整的语义见：<a href="http://www.cs.umd.edu/users/pugh/java/memoryModel" target="_blank" rel="external">http://www.cs.umd.edu/users/pugh/java/memoryModel</a>，但是正式的语义不是小心翼翼的，它是令人惊讶和清醒的，目的是让人意识到一些看似简单的概念（如同步）其实有多复杂。幸运的是，你不需要懂得这些正式语义的细节——JSR133的目的是创建一组正式语义，这些正式语义提供了volatile、synchronzied和final如何工作的直观框架。</p>
+<p>JSR 133的目标包含了：</p>
+<ul>
+<li>保留已经存在的安全保证（像类型安全）以及强化其他的安全保证。例如，变量值不能凭空创建：线程观察到的每个变量的值必须是被其他线程合理的设置的。</li>
+</ul>
+<ul>
+<li>正确同步的程序的语义应该尽量简单和直观。</li>
+</ul>
+<ul>
+<li>应该定义未完成或者未正确同步的程序的语义，主要是为了把潜在的安全危害降到最低。</li>
+</ul>
+<ul>
+<li>程序员应该能够自信的推断多线程程序如何同内存进行交互的。</li>
+</ul>
+<ul>
+<li>能够在现在许多流行的硬件架构中设计正确以及高性能的JVM实现。</li>
+</ul>
+<ul>
+<li>应该能提供 <em>安全地初始化</em>的保证。如果一个对象正确的构建了（意思是它的引用没有在构建的时候逸出，那么所有能够看到这个对象的引用的线程，在不进行同步的情况下，也将能看到在构造方法中中设置的final字段的值。</li>
+</ul>
+<ul>
+<li>应该尽量不影响现有的代码</li>
+</ul>
+<h1 id="重排序意味着什么？"><a href="#重排序意味着什么？" class="headerlink" title="重排序意味着什么？"></a>重排序意味着什么？</h1><p>在很多情况下，访问一个程序变量（对象实例字段，类静态字段和数组元素）可能会使用不同的顺序执行，而不是程序语义所指定的顺序执行。编译器能够自由的以优化的名义去改变指令顺序。在特定的环境下，处理器可能会次序颠倒的执行指令。数据可能在寄存器，处理器缓冲区和主内存中以不同的次序移动，而不是按照程序指定的顺序。</p>
+<p>例如，<strong>如果一个线程写入值到字段a，然后写入值到字段b，而且b的值不依赖于a的值，那么，处理器就能够自由的调整它们的执行顺序，而且缓冲区能够在a之前刷新b的值到主内存。</strong>有许多潜在的重排序的来源，例如编译器，JIT以及缓冲区。</p>
+<p><strong>编译器，运行时和硬件被期望一起协力创建好像是顺序执行的语义的假象，这意味着在单线程的程序中，程序应该是不能够观察到重排序的影响的。</strong><u>但是，重排序在没有正确同步了的多线程程序中开始起作用，在这些多线程程序中，一个线程能够观察到其他线程的影响，也可能检测到其他线程将会以一种不同于程序语义所规定的执行顺序来访问变量。</u></p>
+<p>大部分情况下，一个线程不会关注其他线程正在做什么，<strong>但是当它需要关注的时候，这时候就需要同步了。</strong></p>
+<h1 id="旧的内存模型有什么问题"><a href="#旧的内存模型有什么问题" class="headerlink" title="旧的内存模型有什么问题"></a>旧的内存模型有什么问题</h1><p>旧的内存模型中有几个严重的问题。这些问题很难理解，因此被广泛的违背。例如，旧的存储模型在许多情况下，不允许JVM发生各种重排序行为。旧的内存模型中让人产生困惑的因素造就了JSR-133规范的诞生。</p>
+<p>例如，一个被广泛认可的概念就是，如果使用final字段，那么就没有必要在多个线程中使用同步来保证其他线程能够看到这个字段的值。尽管这是一个合理的假设和明显的行为，也是我们所期待的结果。实际上，在旧的内存模型中，我们想让程序正确运行起来却是不行的。<strong>在旧的内存模型中，final字段并没有同其他字段进行区别对待</strong>——这意味着同步是保证所有线程看到一个在构造方法中初始化的final字段的唯一方法。结果——如果没有正确同步的话，对一个线程来说，它可能看到一个字段的默认值，然后在稍后的时间里，又能够看到构造方法中设置的值。这意味着，一些不可变的对象，例如String，能够改变它们值——这实在很让人郁闷。</p>
+<p>旧的内存模型允许volatile变量的写操作和非volaitle变量的读写操作一起进行重排序，这和大多数的开发人员对于volatile变量的直观感受是不一致的，因此会造成迷惑。</p>
+<p>最后，我们将看到的是，程序员对于程序没有被正确同步的情况下将会发生什么的直观感受通常是错误的。JSR-133的目的之一就是要引起这方面的注意。</p>
+<p>There were several serious problems with the old memory model. It was difficult to understand, and therefore widely violated. For example, the old model did not, in many cases, allow the kinds of reorderings that took place in every JVM. This confusion about the implications of the old model was what compelled the formation of JSR-133.</p>
+<p>One widely held belief, for example, was that if final fields were used, then synchronization between threads was unnecessary to guarantee another thread would see the value of the field. While this is a reasonable assumption and a sensible behavior, and indeed how we would want things to work, under the old memory model, it was simply not true. <strong>Nothing in the old memory model treated final fields differently from any other field — meaning synchronization was the only way to ensure that all threads see the value of a final field that was written by the constructor.</strong> As a result, it was possible for a thread to see the default value of the field, and then at some later time see its constructed value. This means, for example, that immutable objects like String can appear to change their value — a disturbing prospect indeed.</p>
+<p>The old memory model allowed for volatile writes to be reordered with nonvolatile reads and writes, which was not consistent with most developers intuitions about volatile and therefore caused confusion.</p>
+<p>Finally, as we shall see, programmers’ intuitions about what can occur when their programs are incorrectly synchronized are often mistaken. One of the goals of JSR-133 is to call attention to this fact.</p>
+<h1 id="没有正确同步的含义是什么"><a href="#没有正确同步的含义是什么" class="headerlink" title="没有正确同步的含义是什么"></a>没有正确同步的含义是什么</h1><p>没有正确同步的代码对于不同的人来说可能会有不同的理解。在Java内存模型这个语义环境下，我们谈到“没有正确同步”，我们的意思是：</p>
+<ol>
+<li>一个线程中有一个对变量的写操作，</li>
+<li>另外一个线程对同一个变量有读操作，</li>
+<li>而且写操作和读操作没有通过同步来保证顺序。</li>
+</ol>
+<p>当这些规则被违反的时候，我们就说在这个变量上有一个“数据竞争”(data race)。一个有数据竞争的程序就是一个没有正确同步的程序。</p>
+<p>Incorrectly synchronized code can mean different things to different people. When we talk about incorrectly synchronized code in the context of the Java Memory Model, we mean any code where</p>
+<ol>
+<li>there is a write of a variable by one thread,</li>
+<li>there is a read of the same variable by another thread and</li>
+<li>the write and read are not ordered by synchronization</li>
+</ol>
+<p>When these rules are violated, we say we have a <em>data race</em> on that variable. <strong>A program with a data race is an incorrectly synchronized program.</strong></p>
+<h1 id="同步会干些什么呢"><a href="#同步会干些什么呢" class="headerlink" title="同步会干些什么呢"></a>同步会干些什么呢</h1><p>同步有几个方面的作用。最广为人知的就是互斥 ——一次只有一个线程能够获得一个监视器，因此，在一个监视器上面同步意味着一旦一个线程进入到监视器保护的同步块中，其他的线程都不能进入到同一个监视器保护的块中间，除非第一个线程退出了同步块。</p>
+<p>但是同步的含义比互斥更广。同步保证了一个线程在同步块之前或者在同步块中的一个内存写入操作以可预知的方式对其他有相同监视器的线程可见。当我们退出了同步块，我们就<strong>释放</strong>了这个监视器，这个监视器有刷新缓冲区到主内存的效果，因此该线程的写入操作能够为其他线程所见。<strong>在我们进入一个同步块之前，我们需要获取监视器，监视器有使本地处理器缓存失效的功能，因此变量会从主存重新加载，于是其它线程对共享变量的修改对当前线程来说就变得可见了。</strong></p>
+<p>依据缓存来讨论同步，可能听起来这些观点仅仅会影响到多处理器的系统。但是，重排序效果能够在单一处理器上面很容易见到。对编译器来说，在获取之前或者释放之后移动你的代码是不可能的。当我们谈到在缓冲区上面进行的获取和释放操作，我们使用了简述的方式来描述大量可能的影响。</p>
+<p>新的内存模型语义在内存操作（读取字段，写入字段，锁，解锁）以及其他线程的操作（start 和 join）中创建了一个部分排序，在这些操作中，一些操作被称为<em>happen before</em>其他操作。当一个操作在另外一个操作之前发生，第一个操作保证能够排到前面并且对第二个操作可见。这些排序的规则如下：</p>
+<ul>
+<li>线程中的每个操作<em>happens before</em>该线程中在程序顺序上后续的每个操作。</li>
+</ul>
+<ul>
+<li>解锁一个监视器的操作<em>happens before</em>随后对<strong>相同</strong>监视器进行锁的操作。</li>
+</ul>
+<ul>
+<li>对volatile字段的写操作<em>happens **before</em>后续对<strong>相同</strong>volatile字段的读取操作。</li>
+</ul>
+<ul>
+<li>线程上调用start()方法<em>happens **before</em>这个线程启动后的任何操作。</li>
+</ul>
+<ul>
+<li>一个线程中所有的操作都<em>happens before</em>从这个线程join()方法成功返回的任何其他线程。（注意思是其他线程等待一个线程的jion()方法完成，那么，这个线程中的所有操作<em>happens **before</em>其他线程中的所有操作）</li>
+</ul>
+<p>这意味着：任何内存操作，这个内存操作在退出一个同步块前对一个线程是可见的，对任何线程在它进入一个被相同的监视器保护的同步块后都是可见的，因为所有内存操作happens before释放监视器以及释放监视器happens before获取监视器。</p>
+<p>其他如下模式的实现被一些人用来强迫实现一个内存屏障的，不会生效：</p>
+<figure class="highlight processing"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">synchronized</span> (<span class="keyword">new</span> <span class="keyword">Object</span>()) &#123;&#125;</span><br></pre></td></tr></table></figure>
+<p>这段代码其实不会执行任何操作，你的编译器会把它完全移除掉，因为编译器知道没有其他的线程会使用相同的监视器进行同步。要看到其他线程的结果，你必须为一个线程建立happens before关系。</p>
+<p><strong>重点注意</strong>：对两个线程来说，为了正确建立happens before关系而在相同监视器上面进行同步是非常重要的。以下观点是错误的：当线程A在对象X上面同步的时候，所有东西对线程A可见，线程B在对象Y上面进行同步的时候，所有东西对线程B也是可见的。释放监视器和获取监视器必须匹配（也就是说要在相同的监视器上面完成这两个操作），否则，代码就会存在“数据竞争”。</p>
+<p>Synchronization has several aspects. The most well-understood is mutual exclusion — only one thread can hold a monitor at once, so synchronizing on a monitor means that once one thread enters a synchronized block protected by a monitor, no other thread can enter a block protected by that monitor until the first thread exits the synchronized block.</p>
+<p>But there is more to synchronization than mutual exclusion. Synchronization ensures that memory writes by a thread before or during a synchronized block are made visible in a predictable manner to other threads which synchronize on the same monitor. <u>After we exit a synchronized block, we <strong>release </strong>the monitor, which has the effect of flushing the cache to main memory, so that writes made by this thread can be visible to other threads.</u> <strong>Before we can enter a synchronized block, we acquire the monitor, which has the effect of invalidating the local processor cache so that variables will be reloaded from main memory.</strong> We will then be able to see all of the writes made visible by the previous release.</p>
+<p>Discussing this in terms of caches, it may sound as if these issues only affect multiprocessor machines. However, the reordering effects can be easily seen on a single processor. It is not possible, for example, for the compiler to move your code before an acquire or after a release. When we say that acquires and releases act on caches, we are using shorthand for a number of possible effects.</p>
+<p>The new memory model semantics create a partial ordering on memory operations (read field, write field, lock, unlock) and other thread operations (start and join), where some actions are said to <em>happen before</em> other operations. When one action happens before another, the first is guaranteed to be ordered before and visible to the second. The rules of this ordering are as follows:</p>
+<ul>
+<li>Each action in a thread happens before every action in that thread that comes later in the program’s order.</li>
+<li>An <strong>unlock</strong> on a monitor happens before every subsequent <strong>lock</strong> on <strong>that same</strong> monitor.</li>
+<li>A <strong>write to a volatile</strong> field happens before every subsequent <strong>read</strong> of <strong>that same</strong> volatile.</li>
+<li>A call to <code>start()</code> on a thread happens before any actions in the started thread.</li>
+<li>All actions in a thread happen before any other thread successfully returns from a <code>join()</code>on that thread.</li>
+</ul>
+<p>This means that any memory operations which were visible to a thread before exiting a synchronized block are visible to any thread after it enters a synchronized block protected by the same monitor, since all the memory operations happen before the release, and the release happens before the acquire.</p>
+<p>Another implication is that the following pattern, which some people use to force a memory barrier, doesn’t work:</p>
+<figure class="highlight processing"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">synchronized</span> (<span class="keyword">new</span> <span class="keyword">Object</span>()) &#123;&#125;</span><br></pre></td></tr></table></figure>
+<p>This is actually a no-op, and your compiler can remove it entirely, because the compiler knows that no other thread will synchronize on the same monitor. You have to set up a happens-before relationship for one thread to see the results of another.</p>
+<p><strong>Important Note:</strong> Note that it is important for both threads to synchronize on the same monitor in order to set up the happens-before relationship properly. It is not the case that everything visible to thread A when it synchronizes on object X becomes visible to thread B after it synchronizes on object Y. The release and acquire have to “match” (i.e., be performed on the same monitor) to have the right semantics. Otherwise, the code has a data race.</p>
+<h1 id="在新的Java内存模型中，final字段是如何工作的"><a href="#在新的Java内存模型中，final字段是如何工作的" class="headerlink" title="在新的Java内存模型中，final字段是如何工作的"></a>在新的Java内存模型中，final字段是如何工作的</h1><h1 id="How-can-final-fields-appear-to-change-their-values"><a href="#How-can-final-fields-appear-to-change-their-values" class="headerlink" title="How can final fields appear to change their values?"></a>How can final fields appear to change their values?</h1><p>One of the best examples of how final fields’ values can be seen to change involves one particular implementation of the <code>String</code> class.</p>
+<p>A <code>String</code> can be implemented as an object with three fields — a character array, an offset into that array, and a length. The rationale for implementing <code>String</code> this way, instead of having only the character array, is that it lets multiple <code>String</code> and <code>StringBuffer</code>objects share the same character array and avoid additional object allocation and copying. So, for example, the method <code>String.substring()</code> can be implemented by creating a new string which shares the same character array with the original <code>String</code> and merely differs in the length and offset fields. For a <code>String</code>, these fields are all final fields.</p>
+<figure class="highlight armasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">String </span><span class="built_in">s1</span> = <span class="string">"/usr/tmp"</span><span class="comment">;</span></span><br><span class="line"><span class="keyword">String </span><span class="built_in">s2</span> = <span class="built_in">s1</span>.<span class="keyword">substring(4);</span></span><br></pre></td></tr></table></figure>
+<p>The string <code>s2</code> will have an offset of 4 and a length of 4. But, under the old model, it was possible for another thread to see the offset as having the default value of 0, and then later see the correct value of 4, it will appear as if the string “/usr” changes to “/tmp”.</p>
+<p>The original Java Memory Model allowed this behavior; several JVMs have exhibited this behavior. The new Java Memory Model makes this illegal.</p>
+<p>一个对象的final字段值是在它的构造方法里面设置的。假设对象被正确的构造了，一旦对象被构造，在构造方法里面设置给final字段的的值在没有同步的情况下对所有其他的线程都会可见。另外，引用这些final字段的对象或数组都将会看到final字段的最新值。</p>
+<p>对一个对象来说，被正确的构造是什么意思呢？简单来说，它意味着这个正在构造的对象的引用在构造期间没有被允许逸出。（参见<a href="http://www.ibm.com/developerworks/java/library/j-jtp0618/index.html" target="_blank" rel="external">安全构造技术</a>）。换句话说，不要让其他线程在其他地方能够看见一个构造期间的对象引用。不要指派给一个静态字段，不要作为一个listener注册给其他对象等等。这些操作应该在构造方法之后完成，而不是构造方法中来完成。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">FinalFieldExample</span> </span>&#123;</span><br><span class="line">  <span class="keyword">final</span> <span class="keyword">int</span> x;</span><br><span class="line">  <span class="keyword">int</span> y;</span><br><span class="line">  <span class="keyword">static</span> FinalFieldExample f;</span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="title">FinalFieldExample</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    x = <span class="number">3</span>;</span><br><span class="line">    y = <span class="number">4</span>;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title">writer</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    f = <span class="keyword">new</span> FinalFieldExample();</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title">reader</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (f != <span class="keyword">null</span>) &#123;</span><br><span class="line">      <span class="keyword">int</span> i = f.x;</span><br><span class="line">      <span class="keyword">int</span> j = f.y;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>上面的类展示了final字段应该如何使用。一个正在执行reader方法的线程保证看到f.x的值为3，因为它是final字段。它不保证看到f.y的值为4，因为f.y不是final字段。如果FinalFieldExample的构造方法像这样：</p>
+<figure class="highlight cs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="title">FinalFieldExample</span>(<span class="params"></span>) </span>&#123; <span class="comment">// bad!</span></span><br><span class="line">  x = <span class="number">3</span>;</span><br><span class="line">  y = <span class="number">4</span>;</span><br><span class="line">  <span class="comment">// bad construction - allowing this to escape</span></span><br><span class="line">  <span class="keyword">global</span>.obj = <span class="keyword">this</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>那么，从global.obj中读取this的引用线程不会保证读取到的x的值为3。</p>
+<p>能够看到字段的正确的构造值固然不错，但是，如果字段本身就是一个引用，那么，你还是希望你的代码能够看到引用所指向的这个对象（或者数组）的最新值。如果你的字段是final字段，那么这是能够保证的。因此，当一个final指针指向一个数组，你不需要担心线程能够看到引用的最新值却看不到引用所指向的数组的最新值。重复一下，这儿的“正确的”的意思是“对象构造方法结尾的最新的值”而不是“最新可用的值”。</p>
+<p>现在，在讲了如上的这段之后，如果在一个线程构造了一个不可变对象之后（对象仅包含final字段），你希望保证这个对象被其他线程正确的查看，你仍然需要使用同步才行。例如，没有其他的方式可以保证不可变对象的引用将被第二个线程看到。使用final字段的程序应该仔细的调试，这需要深入而且仔细的理解并发在你的代码中是如何被管理的。</p>
+<p>如果你使用JNI来改变你的final字段，这方面的行为是没有定义的。</p>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">java内存模型</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+      
+
+      <div style="font-size: 12px;">
+        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
+      </div>
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2018/03/06/Java内存模型/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
+    <article id="post-mac-中文版man安装" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2018/03/05/mac-中文版man安装/">mac 中文版man安装</a>
+    </h1>
+  
+
+        
+        <a href="/2018/03/05/mac-中文版man安装/" class="archive-article-date">
+  	<time datetime="2018-03-05T02:23:19.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-03-05</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="Mac-10-13-安装中文版-man-命令"><a href="#Mac-10-13-安装中文版-man-命令" class="headerlink" title="Mac 10.13 安装中文版 man 命令"></a>Mac 10.13 安装中文版 man 命令</h1><p>本文参考于 《<a href="http://www.jianshu.com/p/5e35202fc59c" target="_blank" rel="external">Mac 安装man命令中文文档</a>》，但原文提供的链接以及安装的版本比较老旧。因此重新整理新版在这边提供给大家。</p>
+<h2 id="为什么需要-man-以及-man-怎么使用"><a href="#为什么需要-man-以及-man-怎么使用" class="headerlink" title="为什么需要 man 以及 man 怎么使用"></a>为什么需要 man 以及 man 怎么使用</h2><p><code>linux</code> 或者 <code>mac</code> 系统的命令行工具非常多，可是我们不能记住所有的这些命令，通常只能记住一些我们常用的。遇到不常用的我们需要来查询一下这个命令是怎么使用的。这时候我们就需要使用到 <code>man</code> 命令了。</p>
+<p>使用方法也非常简单，例如我们不清楚 <code>ls</code> 这个命令的使用方法，我们就可以在命令行中输入</p>
+<figure class="highlight inform7"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">man</span> ls1</span><br></pre></td></tr></table></figure>
+<p>来查看这个命令的详情。</p>
+<p>但是默认情况下，输出的内容是英文的。可能很多英文不好的朋友希望有中文版本的 <code>man</code> ，这篇博文就是告诉大家，如何在 <code>mac</code>上安装中文版本的的 <code>man</code>。</p>
+<p>至于 <code>linux</code> 系统则非常简单，查看 <a href="https://github.com/man-pages-zh/manpages-zh" target="_blank" rel="external">https://github.com/man-pages-zh/manpages-zh</a> 中对应的版本，即可用简单的命令安装。</p>
+<h2 id="下载-manpages-zh-编辑安装"><a href="#下载-manpages-zh-编辑安装" class="headerlink" title="下载 manpages-zh 编辑安装"></a>下载 manpages-zh 编辑安装</h2><p>首先，我们打开上面的 <code>github</code> 地址，点击 <code>releases</code> 下载最新版本的 <code>tar.gz</code> 源码包。目前我下载到的是 <code>1.6.3.2</code> 版本的。</p>
+<p>因为需要编译安装，所以你电脑上需要有编译工具，运行下面两个命令安装</p>
+<figure class="highlight mipsasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">brew </span><span class="keyword">install </span>automake</span><br><span class="line"><span class="keyword">brew </span><span class="keyword">install </span>opencc12</span><br></pre></td></tr></table></figure>
+<p>我这边是需要安装这两个编译工具，如果你下面编译出错，会提示你需要安装说明编辑工具的。利用 <code>brew</code> 安装即可。</p>
+<p>如果你电脑没有安装 <code>brew</code> 工具，请参考 <a href="http://blog.csdn.net/FungLeo/article/details/57567538" target="_blank" rel="external">http://blog.csdn.net/FungLeo/article/details/57567538</a> 这篇博文安装</p>
+<p>好，准备工作做好，我们接着来。</p>
+<figure class="highlight vala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta"># 进入下载目录</span></span><br><span class="line">cd ~/Downloads/</span><br><span class="line"><span class="meta"># 下载最新版本的源码包</span></span><br><span class="line">wget https:<span class="comment">//github.com/man-pages-zh/manpages-zh/archive/v1.6.3.2.tar.gz</span></span><br><span class="line"><span class="meta"># 解压源码包(atool命令，推荐安装这个工具，统一所有压缩文档的命令）</span></span><br><span class="line">atool -x v1<span class="number">.6</span><span class="number">.3</span><span class="number">.2</span>.tar.gz</span><br><span class="line"><span class="meta"># 或者使用这个命令解压</span></span><br><span class="line">tar zxvf v1<span class="number">.6</span><span class="number">.3</span><span class="number">.2</span>.tar.gz</span><br><span class="line"><span class="meta"># 进入源码包文件夹</span></span><br><span class="line">cd manpages-zh<span class="number">-1.6</span><span class="number">.3</span><span class="number">.2</span>/</span><br><span class="line"><span class="meta"># 编译安装 1</span></span><br><span class="line">autoreconf --install --force</span><br><span class="line"><span class="meta"># 编译安装 2</span></span><br><span class="line">./configure</span><br><span class="line"><span class="meta"># 编译安装 3</span></span><br><span class="line">make</span><br><span class="line"><span class="meta"># 编译安装 4</span></span><br><span class="line">sudo make install</span><br><span class="line"><span class="meta"># 配置别名</span></span><br><span class="line">echo <span class="string">"alias cman='man -M /usr/local/share/man/zh_CN'"</span> &gt;&gt; ~/.bash_profile</span><br><span class="line"><span class="meta"># 使别名生效</span></span><br><span class="line">. ~/.bash_profile12345678910111213141516171819202122</span><br></pre></td></tr></table></figure>
+<p>这样，我们就安装上了中文版本的 <code>man</code> 工具了。我们可以使用</p>
+<figure class="highlight jboss-cli"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cman <span class="keyword">ls</span>1</span><br></pre></td></tr></table></figure>
+<p>来查看中文版本的解释了。但是由于 <code>mac</code> 上的 <code>groff</code> 工具比较老，所以中文会出现乱码。我们来解决一下这个问题。</p>
+<h2 id="安装-groff-新版本解决中文乱码的问题"><a href="#安装-groff-新版本解决中文乱码的问题" class="headerlink" title="安装 groff 新版本解决中文乱码的问题"></a>安装 groff 新版本解决中文乱码的问题</h2><p>首先，我们到 <a href="http://git.savannah.gnu.org/cgit/groff.git" target="_blank" rel="external">http://git.savannah.gnu.org/cgit/groff.git</a> 这个页面下载 <code>1.22</code> 版本的 <code>groff</code> 安装包。我这边用命令行下载，你如果直接复制我的命令，不能下载，请到上面的地址去看看下载地址是否发生变化。</p>
+<figure class="highlight vala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta"># 进入下载目录</span></span><br><span class="line">cd ~/Downloads/</span><br><span class="line"><span class="meta"># 下载1.22版本的源码包</span></span><br><span class="line">wget http:<span class="comment">//git.savannah.gnu.org/cgit/groff.git/snapshot/groff-1.22.tar.gz</span></span><br><span class="line"><span class="meta"># 解压</span></span><br><span class="line">atool -x groff<span class="number">-1.22</span>.tar.gz</span><br><span class="line"><span class="meta"># 进入目录</span></span><br><span class="line">cd groff<span class="number">-1.22</span></span><br><span class="line"><span class="meta"># 编译安装</span></span><br><span class="line">./configure</span><br><span class="line">sudo make</span><br><span class="line">sudo make install</span><br><span class="line"><span class="meta"># 添加配置</span></span><br><span class="line">sudo vim /etc/man.conf1234567891011121314</span><br></pre></td></tr></table></figure>
+<p>进入编辑之后，在文件末尾添加</p>
+<figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">NROFF preconv -e UTF8 | <span class="regexp">/usr/</span>local<span class="regexp">/bin/</span>nroff -Tutf8 -mandoc -c1</span><br></pre></td></tr></table></figure>
+<p>最后 <code>:wq</code> 保存退出</p>
+<p>然后，我们在输入</p>
+<figure class="highlight jboss-cli"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cman <span class="keyword">ls</span>1</span><br></pre></td></tr></table></figure>
+<p>就可以看到中文版本的命令介绍了。</p>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+      
+
+      <div style="font-size: 12px;">
+        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
+      </div>
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2018/03/05/mac-中文版man安装/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
     <article id="post-jmc使用方法" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
@@ -1151,388 +1434,6 @@
 
 
   
-    <article id="post-JVM堆内存和非堆内存" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2018/01/02/JVM堆内存和非堆内存/">JVM堆内存和非堆内存</a>
-    </h1>
-  
-
-        
-        <a href="/2018/01/02/JVM堆内存和非堆内存/" class="archive-article-date">
-  	<time datetime="2018-01-02T03:04:25.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-01-02</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p><strong>堆和非堆内存</strong></p>
-<p>按照官方的说法：“Java 虚拟机具有一个堆(Heap)，堆是运行时数据区域，所有类实例和数组的内存均从此处分配。堆是在 Java 虚拟机启动时创建的。”“在JVM中堆之外的内存称为非堆内存(Non-heap memory)”。</p>
-<p>JVM主要管理两种类型的内存：堆和非堆。</p>
-<p>Heap memory Code Cache</p>
-<p>Eden Space</p>
-<p>Survivor Space</p>
-<p>Tenured Gen</p>
-<p>non-heap memory Perm Gen</p>
-<p>native heap?(I guess)</p>
-<p><strong>堆内存</strong></p>
-<p>Java 虚拟机具有一个堆，堆是运行时数据区域，所有类实例和数组的内存均从此处分配。堆是在 Java 虚拟机启动时创建的。对象的堆内存由称为垃圾回收器的自动内存管理系统回收。</p>
-<p>堆的大小可以固定，也可以扩大和缩小。堆的内存不需要是连续空间。</p>
-<p><strong>非堆内存</strong></p>
-<p>Java 虚拟机管理堆之外的内存（称为非堆内存）。</p>
-<p>Java 虚拟机具有一个由所有线程共享的方法区。方法区属于非堆内存。它存储每个类结构，如运行时常数池、字段和方法数据，以及方法和构造方法的代码。它是在 Java 虚拟机启动时创建的。</p>
-<p>方法区在逻辑上属于堆，但 Java 虚拟机实现可以选择不对其进行回收或压缩。与堆类似，方法区的大小可以固定，也可以扩大和缩小。方法区的内存不需要是连续空间。</p>
-<p>除了方法区外，Java 虚拟机实现可能需要用于内部处理或优化的内存，这种内存也是非堆内存。例如，JIT 编译器需要内存来存储从 Java 虚拟机代码转换而来的本机代码，从而获得高性能。</p>
-<p><strong>几个基本概念</strong></p>
-<p>PermGen space：全称是Permanent Generation space，即永久代。就是说是永久保存的区域,用于存放Class和Meta信息，Class在被Load的时候被放入该区域，GC(Garbage Collection)应该不会对PermGen space进行清理，所以如果你的APP会LOAD很多CLASS的话，就很可能出现PermGen space错误。</p>
-<p>Heap space：存放Instance。</p>
-<p>Java Heap分为3个区，Young即新生代，Old即老生代和Permanent。</p>
-<p>Young保存刚实例化的对象。当该区被填满时，GC会将对象移到Old区。Permanent区则负责保存反射对象。</p>
-<p><strong>堆内存分配</strong></p>
-<ul>
-<li>JVM初始分配的堆内存由-Xms指定，默认是物理内存的1/64；</li>
-<li>JVM最大分配的堆内存由-Xmx指定，默认是物理内存的1/4。</li>
-<li>默认空余堆内存小于40%时，JVM就会增大堆直到-Xmx的最大限制；</li>
-<li>空余堆内存大于70%时，JVM会减少堆直到-Xms的最小限制。</li>
-<li>因此服务器一般设置-Xms、-Xmx 相等以避免在每次GC 后调整堆的大小。</li>
-<li>说明：如果-Xmx 不指定或者指定偏小，应用可能会导致java.lang.OutOfMemory错误，此错误来自JVM，不是Throwable的，无法用try…catch捕捉。</li>
-</ul>
-<p><strong>非堆内存分配</strong></p>
-<p>\1. JVM使用-XX:PermSize设置非堆内存初始值，默认是物理内存的1/64；</p>
-<p>\2. 由XX:MaxPermSize设置最大非堆内存的大小，默认是物理内存的1/4。</p>
-<ul>
-<li>还有一说：MaxPermSize缺省值和-server -client选项相关，-server选项下默认MaxPermSize为64m，-client选项下默认MaxPermSize为32m。这个我没有实验。</li>
-</ul>
-<p>\3. XX:MaxPermSize设置过小会导致java.lang.OutOfMemoryError: PermGen space 就是内存益出。</p>
-<p>\4. 为什么会内存益出：</p>
-<ul>
-<li>这一部分内存用于存放Class和Meta的信息，Class在被 Load的时候被放入PermGen space区域，它和存放Instance的Heap区域不同。</li>
-<li>GC(Garbage Collection)不会在主程序运行期对PermGen space进行清理，所以如果你的APP会LOAD很多CLASS 的话,就很可能出现PermGen space错误。</li>
-</ul>
-<p>\5. 这种错误常见在web服务器对JSP进行pre compile的时候。</p>
-<p><strong>JVM内存限制(最大值)</strong></p>
-<p>\1. 首先JVM内存限制于实际的最大物理内存，假设物理内存无限大的话，JVM内存的最大值跟操作系统有很大的关系。简单的说就32位处理器虽然可控内存空间有4GB,但是具体的操作系统会给一个限制，这个限制一般是2GB-3GB（一般来说Windows系统下为1.5G-2G，Linux系统下为2G-3G），而64bit以上的处理器就不会有限制了。</p>
-<p>\2. 为什么有的机器我将-Xmx和-XX:MaxPermSize都设置为512M之后Eclipse可以启动，而有些机器无法启动？</p>
-<p>通过上面对JVM内存管理的介绍我们已经了解到JVM内存包含两种：堆内存和非堆内存，另外JVM最大内存首先取决于实际的物理内存和操作系统。所以说设置VM参数导致程序无法启动主要有以下几种原因：</p>
-<ul>
-<li>参数中-Xms的值大于-Xmx，或者-XX:PermSize的值大于-XX:MaxPermSize；</li>
-<li>-Xmx的值和-XX:MaxPermSize的总和超过了JVM内存的最大限制，比如当前操作系统最大内存限制，或者实际的物理内存等等。说到实际物理内存这里需要说明一点的是，如果你的内存是1024MB，但实际系统中用到的并不可能是1024MB，因为有一部分被硬件占用了。</li>
-</ul>
-<p>\3. 如果你有一个双核的CPU，也许可以尝试这个参数: -XX:+UseParallelGC 让GC可以更快的执行。（只是JDK 5里对GC新增加的参数）</p>
-<p>\4. 如果你的WEB APP下都用了大量的第三方jar，其大小超过了服务器jvm默认的大小，那么就会产生内存益出问题了。解决方法： 设置MaxPermSize大小。</p>
-<ul>
-<li>增加服务器启动的JVM参数设置： -Xms128m -Xmx256m -XX:PermSize=128M -XX:MaxNewSize=256m -XX:MaxPermSize=256m</li>
-<li>如tomcat，修改TOMCAT_HOME/bin/catalina.sh，在echo “Using CATALINA_BASE: $CATALINA_BASE”上面加入以下行：JAVA_OPTS=”-server -XX:PermSize=64M -XX:MaxPermSize=128m</li>
-</ul>
-<p>\5. 建议：将相同的第三方jar文件移置到tomcat/shared/lib目录下，这样可以减少jar 文档重复占用内存</p>
-<p><strong>JVM内存设置参数</strong></p>
-<ul>
-<li>内存设置参数</li>
-</ul>
-<p><img src="/2018/01/02/JVM堆内存和非堆内存/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" alt="img"></p>
-<ul>
-<li>说明：</li>
-</ul>
-<ol>
-<li>如果-Xmx不指定或者指定偏小，应用可能会导致java.lang.OutOfMemory错误，此错误来自JVM不是Throwable的，无法用try…catch捕捉。</li>
-<li>PermSize和MaxPermSize指明虚拟机为java永久生成对象（Permanate generation）如，class对象、方法对象这些可反射（reflective）对象分配内存限制，这些内存不包括在Heap（堆内存）区之中。</li>
-<li>-XX:MaxPermSize分配过小会导致：java.lang.OutOfMemoryError: PermGen space。</li>
-<li>MaxPermSize缺省值和-server -client选项相关：-server选项下默认MaxPermSize为64m、-client选项下默认MaxPermSize为32m。</li>
-</ol>
-<ul>
-<li>申请一块内存的过程</li>
-</ul>
-<ol>
-<li>JVM会试图为相关Java对象在Eden中初始化一块内存区域</li>
-<li>当Eden空间足够时，内存申请结束。否则到下一步</li>
-<li>JVM试图释放在Eden中所有不活跃的对象（这属于1或更高级的垃圾回收）；释放后若Eden空间仍然不足以放入新对象，则试图将部分Eden中活跃对象放入Survivor区/OLD区</li>
-<li>Survivor区被用来作为Eden及OLD的中间交换区域，当OLD区空间足够时，Survivor区的对象会被移到Old区，否则会被保留在Survivor区</li>
-<li>当OLD区空间不够时，JVM会在OLD区进行完全的垃圾收集（0级）</li>
-<li>完全垃圾收集后，若Survivor及OLD区仍然无法存放从Eden复制过来的部分对象，导致JVM无法在Eden区为新对象创建内存区域，则出现”out of memory错误”</li>
-</ol>
-<p>resin服务器典型的响应时间优先型的jvm配置：</p>
-<blockquote>
-<p>-Xmx2000M -Xms2000M -Xmn500M</p>
-<p>-XX:PermSize=250M -XX:MaxPermSize=250M</p>
-<p>-Xss256K</p>
-<p>-XX:+DisableExplicitGC</p>
-<p>-XX:SurvivorRatio=1</p>
-<p>-XX:+UseConcMarkSweepGC</p>
-<p>-XX:+UseParNewGC</p>
-<p>-XX:+CMSParallelRemarkEnabled</p>
-<p>-XX:+UseCMSCompactAtFullCollection</p>
-<p>-XX:CMSFullGCsBeforeCompaction=0</p>
-<p>-XX:+CMSClassUnloadingEnabled</p>
-<p>-XX:LargePageSizeInBytes=128M</p>
-<p>-XX:+UseFastAccessorMethods</p>
-<p>-XX:+UseCMSInitiatingOccupancyOnly</p>
-<p>-XX:CMSInitiatingOccupancyFraction=60</p>
-<p>-XX:SoftRefLRUPolicyMSPerMB=0</p>
-<p>-XX:+PrintClassHistogram</p>
-<p>-XX:+PrintGCDetails</p>
-<p>-XX:+PrintGCTimeStamps</p>
-<p>-XX:+PrintHeapAtGC</p>
-<p>-Xloggc:log/gc.log</p>
-</blockquote>
-<p><strong>内存回收算法</strong></p>
-<p>Java中有四种不同的回收算法，对应的启动参数为:</p>
-<blockquote>
-<p>–XX:+UseSerialGC</p>
-<p>–XX:+UseParallelGC</p>
-<p>–XX:+UseParallelOldGC</p>
-<p>–XX:+UseConcMarkSweepGC</p>
-</blockquote>
-<p><strong>Serial Collector</strong></p>
-<p>大部分平台或者强制 java -client 默认会使用这种。</p>
-<p>young generation算法 = serial</p>
-<p>old generation算法 = serial (mark-sweep-compact)</p>
-<p>这种方法的缺点很明显, stop-the-world, 速度慢。服务器应用不推荐使用。</p>
-<p><strong>Parallel Collector</strong></p>
-<p>在linux x64上默认是这种，其他平台要加 java -server 参数才会默认选用这种。</p>
-<p>young = parallel，多个thread同时copy</p>
-<p>old = mark-sweep-compact = 1</p>
-<p>优点：新生代回收更快。因为系统大部分时间做的gc都是新生代的，这样提高了throughput(cpu用于非gc时间)</p>
-<p>缺点：当运行在8G/16G server上old generation live object太多时候pause time过长</p>
-<p><strong>Parallel Compact Collector (ParallelOld)</strong></p>
-<p>young = parallel = 2</p>
-<p>old = parallel，分成多个独立的单元，如果单元中live object少则回收，多则跳过</p>
-<p>优点：old old generation上性能较 parallel 方式有提高</p>
-<p>缺点：大部分server系统old generation内存占用会达到60%-80%, 没有那么多理想的单元live object很少方便迅速回收，同时compact方面开销比起parallel并没明显减少。</p>
-<p><strong>Concurrent Mark-Sweep(CMS) Collector</strong></p>
-<p>young generation = parallel collector = 2</p>
-<p>old = cms</p>
-<p>同时不做 compact 操作。</p>
-<p>优点：pause time会降低, pause敏感但CPU有空闲的场景需要建议使用策略4.</p>
-<p>缺点：cpu占用过多，cpu密集型服务器不适合。另外碎片太多，每个object的存储都要通过链表连续跳n个地方，空间浪费问题也会增大。</p>
-<p><strong>内存监控方法</strong></p>
-<ul>
-<li>jmap -heap 查看java 堆（heap）使用情况</li>
-</ul>
-<blockquote>
-<p>jmap -heap pid </p>
-<p>using thread-local object allocation.</p>
-<p>Parallel GC with 4 thread(s)   #GC 方式</p>
-<p>Heap Configuration:  #堆内存初始化配置</p>
-<p>MinHeapFreeRatio=40  #对应jvm启动参数-XX:MinHeapFreeRatio设置JVM堆最小空闲比率(default 40)</p>
-<p>MaxHeapFreeRatio=70  #对应jvm启动参数 -XX:MaxHeapFreeRatio设置JVM堆最大空闲比率(default 70)</p>
-<p>MaxHeapSize=512.0MB  #对应jvm启动参数-XX:MaxHeapSize=设置JVM堆的最大大小</p>
-<p>NewSize  = 1.0MB     #对应jvm启动参数-XX:NewSize=设置JVM堆的‘新生代’的默认大小</p>
-<p>MaxNewSize =4095MB   #对应jvm启动参数-XX:MaxNewSize=设置JVM堆的‘新生代’的最大大小</p>
-<p>OldSize  = 4.0MB     #对应jvm启动参数-XX:OldSize=<value>:设置JVM堆的‘老生代’的大小</value></p>
-<p>NewRatio  = 8        #对应jvm启动参数-XX:NewRatio=:‘新生代’和‘老生代’的大小比率</p>
-<p>SurvivorRatio = 8    #对应jvm启动参数-XX:SurvivorRatio=设置年轻代中Eden区与Survivor区的大小比值</p>
-<p>PermSize= 16.0MB     #对应jvm启动参数-XX:PermSize=<value>:设置JVM堆的‘永生代’的初始大小</value></p>
-<p>MaxPermSize=64.0MB   #对应jvm启动参数-XX:MaxPermSize=<value>:设置JVM堆的‘永生代’的最大大小</value></p>
-<p>Heap Usage:          #堆内存分步</p>
-<p>PS Young Generation</p>
-<p>Eden Space:         #Eden区内存分布</p>
-<p>capacity = 20381696 (19.4375MB)             #Eden区总容量</p>
-<p>used     = 20370032 (19.426376342773438MB)  #Eden区已使用</p>
-<p>free     = 11664 (0.0111236572265625MB)     #Eden区剩余容量</p>
-<p>99.94277218147106% used                     #Eden区使用比率</p>
-<p>From Space:        #其中一个Survivor区的内存分布</p>
-<p>capacity = 8519680 (8.125MB)</p>
-<p>used     = 32768 (0.03125MB)</p>
-<p>free     = 8486912 (8.09375MB)</p>
-<p>0.38461538461538464% used</p>
-<p>To Space:          #另一个Survivor区的内存分布</p>
-<p>capacity = 9306112 (8.875MB)</p>
-<p>used     = 0 (0.0MB)</p>
-<p>free     = 9306112 (8.875MB)</p>
-<p>0.0% used</p>
-<p>PS Old Generation  #当前的Old区内存分布</p>
-<p>capacity = 366280704 (349.3125MB)</p>
-<p>used     = 322179848 (307.25464630126953MB)</p>
-<p>free     = 44100856 (42.05785369873047MB)</p>
-<p>87.95982001825573% used</p>
-<p>PS Perm Generation #当前的 “永生代” 内存分布</p>
-<p>capacity = 32243712 (30.75MB)</p>
-<p>used     = 28918584 (27.57891082763672MB)</p>
-<p>free     = 3325128 (3.1710891723632812MB)</p>
-<p>89.68751488662348% used</p>
-</blockquote>
-<ul>
-<li>JVM内存监控工具</li>
-</ul>
-<blockquote>
-<p>&lt;%@ page import=”java.lang.management.*” %&gt;</p>
-<p>&lt;%@ page import=”java.util.*” %&gt;</p>
-<html><br><br><head><br><br>  <title>JVM Memory Monitor</title><br><br></head><br><br><body><br><br><table border="0" width="100%"><br><br>​    <tr><td colspan="2" align="center"><h3>Memory MXBean</h3></td></tr><br><br>​    <tr><td width="200">Heap Memory Usage</td><td>&lt;%=ManagementFactory.getMemoryMXBean().getHeapMemoryUsage()%&gt;</td></tr><br><br>​    <tr><td>Non-Heap Memory Usage</td><td>&lt;%=ManagementFactory.getMemoryMXBean().getNonHeapMemoryUsage()%&gt;</td></tr><br><br>​    <tr><td colspan="2"> </td></tr><br><br>​    <tr><td colspan="2" align="center"><h3>Memory Pool MXBeans</h3></td></tr><br><br>&lt;%<br><br>​        Iterator iter = ManagementFactory.getMemoryPoolMXBeans().iterator();<br><br>​        while (iter.hasNext()) {<br><br>​            MemoryPoolMXBean item = (MemoryPoolMXBean) iter.next();<br><br>%&gt;<br><br><tr><td colspan="2"><br><br>​    <table border="0" width="100%" style="border: 1px #98AAB1 solid;"><br><br>​        <tr><td colspan="2" align="center"><b>&lt;%= item.getName() %&gt;</b></td></tr><br><br>​        <tr><td width="200">Type</td><td>&lt;%= item.getType() %&gt;</td></tr><br><br>​        <tr><td>Usage</td><td>&lt;%= item.getUsage() %&gt;</td></tr><br><br>​        <tr><td>Peak Usage</td><td>&lt;%= item.getPeakUsage() %&gt;</td></tr><br><br>​        <tr><td>Collection Usage</td><td>&lt;%= item.getCollectionUsage() %&gt;</td></tr><br><br>​    </table><br><br></td></tr><br><br><tr><td colspan="2"> </td></tr><br><br>&lt;%} %&gt;<br><br></table><br><br></body><br><br></html></blockquote>
-
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">JVM</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-      
-
-      <div style="font-size: 12px;">
-        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
-      </div>
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2018/01/02/JVM堆内存和非堆内存/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
-    <article id="post-MySQL-select子查询引用变量" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2017/12/28/MySQL-select子查询引用变量/">MySQL select子查询引用变量</a>
-    </h1>
-  
-
-        
-        <a href="/2017/12/28/MySQL-select子查询引用变量/" class="archive-article-date">
-  	<time datetime="2017-12-28T06:25:39.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2017-12-28</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h1 id="示例一"><a href="#示例一" class="headerlink" title="示例一"></a>示例一</h1><p>前几天看别人的代码中看到在字段中使用select子查询的方法，第一次见这种写法，然后研究了一下，记录下来</p>
-<p>大概的形式是这样的:</p>
-<figure class="highlight n1ql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> a .*,(<span class="keyword">select</span> b.another_field <span class="keyword">from</span> b <span class="keyword">where</span> a.id=b.aid) another_field <span class="keyword">from</span> a <span class="keyword">where</span> <span class="number">1</span> <span class="keyword">limit</span> <span class="number">10</span>;</span><br></pre></td></tr></table></figure>
-<p>下面还是以实例来说明，要不然不好理解，新建两张表，一张是商品表，另外一张是商品的评论表</p>
-<p>商品表：</p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> <span class="string">`product`</span> (  </span><br><span class="line"> <span class="string">`id`</span> <span class="built_in">int</span>(<span class="number">11</span>) <span class="keyword">NOT</span> <span class="literal">NULL</span> AUTO_INCREMENT,  </span><br><span class="line"> <span class="string">`product_name`</span> <span class="built_in">varchar</span>(<span class="number">30</span>) <span class="built_in">CHARACTER</span> <span class="keyword">SET</span> utf8 <span class="keyword">NOT</span> <span class="literal">NULL</span>,  </span><br><span class="line"> <span class="string">`price`</span> <span class="built_in">float</span> <span class="keyword">NOT</span> <span class="literal">NULL</span>,  </span><br><span class="line"> PRIMARY <span class="keyword">KEY</span> (<span class="string">`id`</span>)  </span><br><span class="line">) <span class="keyword">ENGINE</span>=<span class="keyword">InnoDB</span>;</span><br></pre></td></tr></table></figure>
-<p>评论表：</p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> <span class="string">`comment`</span> (  </span><br><span class="line"> <span class="string">`id`</span> <span class="built_in">int</span>(<span class="number">11</span>) <span class="keyword">NOT</span> <span class="literal">NULL</span> AUTO_INCREMENT,  </span><br><span class="line"> <span class="string">`entity_id`</span> <span class="built_in">int</span>(<span class="number">11</span>) <span class="keyword">NOT</span> <span class="literal">NULL</span>,  </span><br><span class="line"> <span class="string">`content`</span> <span class="built_in">varchar</span>(<span class="number">100</span>) <span class="built_in">CHARACTER</span> <span class="keyword">SET</span> utf8 <span class="keyword">NOT</span> <span class="literal">NULL</span>,  </span><br><span class="line"> PRIMARY <span class="keyword">KEY</span> (<span class="string">`id`</span>)  </span><br><span class="line">) <span class="keyword">ENGINE</span>=<span class="keyword">InnoDB</span>;</span><br></pre></td></tr></table></figure>
-<p>然后插入一些数据：</p>
-<figure class="highlight n1ql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> <span class="symbol">`product`</span> (<span class="symbol">`id`</span>, <span class="symbol">`product_name`</span>, <span class="symbol">`price`</span>) <span class="keyword">VALUES</span>  </span><br><span class="line">(<span class="number">1</span>, <span class="string">'肉松饼'</span>, <span class="number">5</span>),  </span><br><span class="line">(<span class="number">2</span>, <span class="string">'可乐'</span>, <span class="number">5</span>),  </span><br><span class="line">(<span class="number">3</span>, <span class="string">'鸡翅'</span>, <span class="number">12</span>),  </span><br><span class="line">(<span class="number">4</span>, <span class="string">'杯子'</span>, <span class="number">42</span>);  </span><br><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> <span class="symbol">`comment`</span> (<span class="symbol">`id`</span>, <span class="symbol">`entity_id`</span>, <span class="symbol">`content`</span>) <span class="keyword">VALUES</span>  </span><br><span class="line">(<span class="number">1</span>, <span class="number">1</span>, <span class="string">'味道还不错'</span>),  </span><br><span class="line">(<span class="number">2</span>, <span class="number">1</span>, <span class="string">'还行啊'</span>),  </span><br><span class="line">(<span class="number">3</span>, <span class="number">3</span>, <span class="string">'很实用哦'</span>);</span><br></pre></td></tr></table></figure>
-<p>下面我们用子查询的方式来查出商品的信息以及每个商品的评论数量</p>
-<figure class="highlight n1ql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> product.*,(<span class="keyword">select</span> <span class="built_in">count</span>(comment.id) <span class="keyword">from</span> comment <span class="keyword">where</span> product.id=comment.entity_id) comment_count <span class="keyword">FROM</span> <span class="symbol">`product`</span> <span class="keyword">limit</span> <span class="number">5</span>;</span><br></pre></td></tr></table></figure>
-<p>查询结果如下：</p>
-<p><a href="http://www.zjj.com/phpmyadmin/sql.php?db=test&amp;table=product&amp;sql_query=SELECT+product.%2A%2C%28select+count%28comment.id%29+from+comment+where+product.id%3Dcomment.entity_id%29+comment_count+FROM+%60product%60+ORDER+BY+%60product%60.%60id%60+ASC+limit+5&amp;session_max_rows=30&amp;token=c43efc1718c35c767060bafb6158d147" target="_blank" rel="external">id</a> <a href="http://www.zjj.com/phpmyadmin/sql.php?db=test&amp;table=product&amp;sql_query=SELECT+product.%2A%2C%28select+count%28comment.id%29+from+comment+where+product.id%3Dcomment.entity_id%29+comment_count+FROM+%60product%60+ORDER+BY+%60product%60.%60product_name%60+ASC+limit+5&amp;session_max_rows=30&amp;token=c43efc1718c35c767060bafb6158d147" target="_blank" rel="external">product_name</a> <a href="http://www.zjj.com/phpmyadmin/sql.php?db=test&amp;table=product&amp;sql_query=SELECT+product.%2A%2C%28select+count%28comment.id%29+from+comment+where+product.id%3Dcomment.entity_id%29+comment_count+FROM+%60product%60+ORDER+BY+%60product%60.%60price%60+ASC+limit+5&amp;session_max_rows=30&amp;token=c43efc1718c35c767060bafb6158d147" target="_blank" rel="external">price</a> <a href="http://www.zjj.com/phpmyadmin/sql.php?db=test&amp;table=product&amp;sql_query=SELECT+product.%2A%2C%28select+count%28comment.id%29+from+comment+where+product.id%3Dcomment.entity_id%29+comment_count+FROM+%60product%60+ORDER+BY+%60comment_count%60+ASC+limit+5&amp;session_max_rows=30&amp;token=c43efc1718c35c767060bafb6158d147" target="_blank" rel="external">comment_count</a></p>
-<p>1 肉松饼 5  2</p>
-<p>2 可乐 5  0</p>
-<p>3 鸡翅 12  1</p>
-<p>4 杯子 42  0</p>
-<p><strong>对于这种查询，可以分成两部来理解，首先忽略整个select子查询，查出商品表中的数据，然后根据商品的id执行子查询，对于一个商品id,子查询只能返回一条数据，如果子查询返回多条数据则会出错，另外，每一条select子查询只能查询一个字段。</strong></p>
-<p>另外的列子，查出每个商品信息以及商品的最新评论内容：</p>
-<figure class="highlight n1ql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> product.*,(<span class="keyword">select</span> comment.content <span class="keyword">from</span> comment <span class="keyword">where</span> product.id=comment.entity_id <span class="keyword">order</span> <span class="keyword">by</span> comment.id <span class="keyword">desc</span> <span class="keyword">limit</span> <span class="number">1</span>) comment_count <span class="keyword">FROM</span> <span class="symbol">`product`</span> <span class="keyword">limit</span> <span class="number">5</span>;</span><br></pre></td></tr></table></figure>
-<p>查询结果如下：</p>
-<p><a href="http://www.zjj.com/phpmyadmin/sql.php?db=test&amp;table=product&amp;sql_query=SELECT+product.%2A%2C%28select+comment.content+from+comment+where+product.id%3Dcomment.entity_id+limit+1+%29last_comment+FROM+%60product%60+ORDER+BY+%60product%60.%60id%60+ASC+limit+5&amp;session_max_rows=30&amp;token=c43efc1718c35c767060bafb6158d147" target="_blank" rel="external">id</a> <a href="http://www.zjj.com/phpmyadmin/sql.php?db=test&amp;table=product&amp;sql_query=SELECT+product.%2A%2C%28select+comment.content+from+comment+where+product.id%3Dcomment.entity_id+limit+1+%29last_comment+FROM+%60product%60+ORDER+BY+%60product%60.%60product_name%60+ASC+limit+5&amp;session_max_rows=30&amp;token=c43efc1718c35c767060bafb6158d147" target="_blank" rel="external">product_name</a> <a href="http://www.zjj.com/phpmyadmin/sql.php?db=test&amp;table=product&amp;sql_query=SELECT+product.%2A%2C%28select+comment.content+from+comment+where+product.id%3Dcomment.entity_id+limit+1+%29last_comment+FROM+%60product%60+ORDER+BY+%60product%60.%60price%60+ASC+limit+5&amp;session_max_rows=30&amp;token=c43efc1718c35c767060bafb6158d147" target="_blank" rel="external">price</a> <a href="http://www.zjj.com/phpmyadmin/sql.php?db=test&amp;table=product&amp;sql_query=SELECT+product.%2A%2C%28select+comment.content+from+comment+where+product.id%3Dcomment.entity_id+limit+1+%29last_comment+FROM+%60product%60+ORDER+BY+%60last_comment%60+ASC+limit+5&amp;session_max_rows=30&amp;token=c43efc1718c35c767060bafb6158d147" target="_blank" rel="external">last_comment</a></p>
-<p>1 肉松饼 5  还行啊</p>
-<p>2 可乐 5  <em>NULL</em></p>
-<p>3 鸡翅 12  很实用哦</p>
-<p>4 杯子 42  <em>NULL</em></p>
-<h1 id="示例二-billing"><a href="#示例二-billing" class="headerlink" title="示例二 billing"></a>示例二 billing</h1><p>分两步看，</p>
-<ol>
-<li>不看字查询bi.id not in () , 相当于查询出所有的status为1的id，和记录</li>
-</ol>
-<ol>
-<li>SELECT substring_index(group_concat(id ORDER BY product_start_time desc) , ‘,’ , 1)<br>​                                    FROM cash_billing_item<br>​                                    WHERE status = 1<br>​                                    GROUP BY product_no, customer_no</li>
-</ol>
-<p>SELECT SUBSTRING_INDEX(‘15,151,152,16’,’,’,1); ==&gt;得到结果为： 15</p>
-<p>然后每一条记录的bi.product_no 和bi.customer_no，分别和select的结果比较</p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> bi.id</span><br><span class="line"><span class="keyword">FROM</span> cash_billing_item bi</span><br><span class="line"><span class="keyword">WHERE</span> bi.id <span class="keyword">and</span> bi.status = <span class="number">1</span> <span class="keyword">and</span> bi.id</span><br><span class="line">                                  <span class="keyword">not</span> <span class="keyword">in</span></span><br><span class="line">                                  (</span><br><span class="line">                                    <span class="keyword">SELECT</span> substring_index(<span class="keyword">group_concat</span>(<span class="keyword">id</span> <span class="keyword">ORDER</span> <span class="keyword">BY</span> product_start_time <span class="keyword">desc</span>) , <span class="string">','</span> , <span class="number">1</span>)</span><br><span class="line">                                    <span class="keyword">FROM</span> cash_billing_item</span><br><span class="line">                                    <span class="keyword">WHERE</span> product_no = bi.product_no <span class="keyword">AND</span> customer_no = bi.customer_no <span class="keyword">and</span> <span class="keyword">status</span> = <span class="number">1</span></span><br><span class="line">                                    <span class="keyword">GROUP</span> <span class="keyword">BY</span> product_no, customer_no</span><br><span class="line">                                  );</span><br><span class="line">                                  </span><br><span class="line">        <span class="keyword">UPDATE</span> cash_billing_item bi,</span><br><span class="line">          (</span><br><span class="line">            <span class="keyword">SELECT</span> bi.id</span><br><span class="line">            <span class="keyword">FROM</span> cash_billing_item bi</span><br><span class="line">            <span class="keyword">WHERE</span> bi.id <span class="keyword">and</span> bi.status = <span class="number">1</span> <span class="keyword">and</span> bi.id</span><br><span class="line">                            <span class="keyword">not</span> <span class="keyword">in</span></span><br><span class="line">                            (</span><br><span class="line">                              <span class="keyword">SELECT</span> <span class="keyword">group_concat</span>(<span class="keyword">id</span> <span class="keyword">ORDER</span> <span class="keyword">BY</span> product_start_time <span class="keyword">desc</span>)</span><br><span class="line">                              <span class="keyword">FROM</span> cash_billing_item</span><br><span class="line">                              <span class="keyword">WHERE</span> product_no = bi.product_no <span class="keyword">AND</span> customer_no = bi.customer_no</span><br><span class="line">                                <span class="keyword">and</span> <span class="keyword">status</span> = <span class="number">1</span></span><br><span class="line">                              <span class="keyword">GROUP</span> <span class="keyword">BY</span> product_no, customer_no</span><br><span class="line">                            )</span><br><span class="line">          ) temp</span><br><span class="line">        <span class="keyword">SET</span> bi.status = <span class="number">2</span></span><br><span class="line">        <span class="keyword">WHERE</span> bi.id = temp.id;</span><br></pre></td></tr></table></figure>
-<p><strong>cash_billing_item_copy</strong></p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">create</span> <span class="keyword">table</span> cash_billing_item_copy</span><br><span class="line">(</span><br><span class="line">  <span class="keyword">id</span> <span class="built_in">bigint</span>(<span class="number">11</span>) <span class="keyword">unsigned</span> auto_increment <span class="keyword">comment</span> <span class="string">'自增id'</span></span><br><span class="line">    primary <span class="keyword">key</span>,</span><br><span class="line">  customer_no <span class="built_in">varchar</span>(<span class="number">64</span>) <span class="literal">null</span> <span class="keyword">comment</span> <span class="string">'客户编号'</span>,</span><br><span class="line">  product_id <span class="built_in">int</span> <span class="keyword">not</span> <span class="literal">null</span> <span class="keyword">comment</span> <span class="string">'产品表pk'</span>,</span><br><span class="line">  product_start_time <span class="keyword">timestamp</span> <span class="literal">null</span> <span class="keyword">comment</span> <span class="string">'产品生效时间'</span>,</span><br><span class="line">  gmt_create <span class="keyword">timestamp</span> <span class="keyword">default</span> <span class="keyword">CURRENT_TIMESTAMP</span> <span class="keyword">not</span> <span class="literal">null</span> <span class="keyword">comment</span> <span class="string">'创建时间'</span>,</span><br><span class="line">  gmt_modify <span class="keyword">timestamp</span> <span class="keyword">default</span> <span class="keyword">CURRENT_TIMESTAMP</span> <span class="keyword">not</span> <span class="literal">null</span> <span class="keyword">comment</span> <span class="string">'修改时间'</span></span><br><span class="line">)</span><br><span class="line">  <span class="keyword">comment</span> <span class="string">'从账务系统推来的计费项'</span></span><br><span class="line">;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> cash_billing_item_copy (customer_no, product_id, product_start_time) <span class="keyword">VALUES</span></span><br><span class="line">  (<span class="string">'ct2'</span>,<span class="number">1</span>,<span class="string">'2017-12-27 00:00:00'</span>);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">SELECT</span> * <span class="keyword">FROM</span> cash_billing_item_copy;</span><br><span class="line"></span><br><span class="line"><span class="keyword">SELECT</span>  <span class="keyword">group_concat</span>(<span class="keyword">id</span> <span class="keyword">ORDER</span> <span class="keyword">BY</span> product_start_time <span class="keyword">DESC</span>), customer_no , product_id</span><br><span class="line"><span class="keyword">FROM</span> cash_billing_item_copy</span><br><span class="line"><span class="keyword">GROUP</span> <span class="keyword">BY</span> customer_no  , product_id;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">SELECT</span> c.id</span><br><span class="line"></span><br><span class="line">  <span class="keyword">FROM</span> cash_billing_item_copy c</span><br><span class="line"><span class="keyword">WHERE</span> c.id <span class="keyword">AND</span> c.id <span class="keyword">NOT</span> <span class="keyword">IN</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">               (</span><br><span class="line">                 <span class="keyword">SELECT</span></span><br><span class="line">                   substring_index(<span class="keyword">group_concat</span>(<span class="keyword">id</span> <span class="keyword">ORDER</span> <span class="keyword">BY</span> product_start_time <span class="keyword">DESC</span>), <span class="string">','</span>, <span class="number">1</span>)</span><br><span class="line">                 <span class="keyword">FROM</span> cash_billing_item_copy</span><br><span class="line">                 <span class="keyword">GROUP</span> <span class="keyword">BY</span> customer_no, product_id</span><br><span class="line">               );</span><br><span class="line"></span><br><span class="line"><span class="keyword">SELECT</span> SUBSTRING_INDEX(<span class="string">'15,151,152,16'</span>,<span class="string">','</span>,<span class="number">1</span>);</span><br></pre></td></tr></table></figure>
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">mysql</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-      
-
-      <div style="font-size: 12px;">
-        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
-      </div>
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2017/12/28/MySQL-select子查询引用变量/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
   
     <nav id="page-nav">
       <a class="extend prev" rel="prev" href="/page/12/">&laquo; Prev</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/11/">11</a><a class="page-number" href="/page/12/">12</a><span class="page-number current">13</span><a class="page-number" href="/page/14/">14</a><a class="page-number" href="/page/15/">15</a><span class="space">&hellip;</span><a class="page-number" href="/page/18/">18</a><a class="extend next" rel="next" href="/page/14/">Next &raquo;</a>
@@ -1666,15 +1567,15 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">redis</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">linux</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">mysql</a>
+                <a href="javascript:void(0)" class="js-tag color4">快捷键</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">redis</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1682,7 +1583,7 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">快捷键</a>
+                <a href="javascript:void(0)" class="js-tag color1">mysql</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1726,11 +1627,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">guava</a>
+                <a href="javascript:void(0)" class="js-tag color2">elastic-job</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">elastic-job</a>
+                <a href="javascript:void(0)" class="js-tag color1">guava</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1754,11 +1655,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">mybatis</a>
+                <a href="javascript:void(0)" class="js-tag color4">Mac</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">Mac</a>
+                <a href="javascript:void(0)" class="js-tag color3">mybatis</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1770,15 +1671,15 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">分布式锁</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Spring</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">SSE</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">分布式锁</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1818,15 +1719,15 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">HashMap</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">前端跨域</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">单例</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">HashMap</a>
               </li>
              
               <li class="article-tag-list-item">

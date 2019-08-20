@@ -150,6 +150,200 @@
           <div id="js-content" class="content-ll">
             
   
+    <article id="post-Disruptor并发框架上手demo" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2018/05/15/Disruptor并发框架上手demo/">Disruptor并发框架上手demo</a>
+    </h1>
+  
+
+        
+        <a href="/2018/05/15/Disruptor并发框架上手demo/" class="archive-article-date">
+  	<time datetime="2018-05-15T01:37:32.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-05-15</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h4 id="框架简介"><a href="#框架简介" class="headerlink" title="框架简介"></a>框架简介</h4><ul>
+<li>Martin Fowler在自己网站上写了一篇LMAX架构的文章，在文章中他介绍了LMAX是一种新型零售金融交易平台，它能够以很低的延迟产生大量交易。这个系统是建立在JVM平台上，其核心是一个业务逻辑处理器，它能够在一个线程里每秒处理6百万订单。业务逻辑处理器完全是运行在<code>内存</code>中，使用<code>事件源驱动</code>方式。业务逻辑处理器的核心是Disruptor。</li>
+<li>Disruptor它是一个开源的并发框架，并获得2011 Duke’s 程序框架创新奖，能够在无锁的情况下实现网络的Queue并发操作。</li>
+<li>Disruptor是一个高性能的异步处理框架，或者可以认为是最快的消息框架（轻量的JMS），也可以认为是一个观察者模式的实现，或者事件监听模式的实现。</li>
+</ul>
+<blockquote>
+<p>在使用之前，首先说明disruptor主要功能加以说明，你可以理解为他是一种高效的”生产者-消费者”模型。也就性能远远高于传统的BlockingQueue容器。</p>
+</blockquote>
+<h4 id="上手demo"><a href="#上手demo" class="headerlink" title="上手demo"></a>上手demo</h4><ul>
+<li>首先声明一个Event来包含需要传递的数据：</li>
+</ul>
+<figure class="highlight cs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">LongEvent</span> &#123; </span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">long</span> <span class="keyword">value</span>;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">long</span> <span class="title">getValue</span>(<span class="params"></span>) </span>&#123; </span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">value</span>; </span><br><span class="line">    &#125; </span><br><span class="line"> </span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setValue</span>(<span class="params"><span class="keyword">long</span> <span class="keyword">value</span></span>) </span>&#123; </span><br><span class="line">        <span class="keyword">this</span>.<span class="keyword">value</span> = <span class="keyword">value</span>; </span><br><span class="line">    &#125; </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>于需要让Disruptor为我们创建事件，我们同时还声明了一个EventFactory来实例化Event对象。</li>
+</ul>
+<figure class="highlight haxe"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 需要让disruptor为我们创建事件，我们同时还声明了一个EventFactory来实例化Event对象。</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">LongEventFactory</span> <span class="keyword"><span class="keyword">implements</span> <span class="type">EventFactory</span></span> </span>&#123; </span><br><span class="line"></span><br><span class="line">    @Override </span><br><span class="line">    <span class="keyword">public</span> Object <span class="keyword">new</span><span class="type">Instance</span>() &#123; </span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> <span class="type">LongEvent</span>(); </span><br><span class="line">    &#125; </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>我们还需要一个事件消费者，也就是一个事件处理器。这个事件处理器简单地把事件中存储的数据打印到终端：</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">LongEventHandler</span> <span class="keyword">implements</span> <span class="title">EventHandler</span>&lt;<span class="title">LongEvent</span>&gt;  </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onEvent</span><span class="params">(LongEvent longEvent, <span class="keyword">long</span> l, <span class="keyword">boolean</span> b)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">        System.out.println(longEvent.getValue());       </span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>事件都会有一个生成事件的源，这个例子中假设事件是由于磁盘IO或者network读取数据的时候触发的，事件源使用一个ByteBuffer来模拟它接受到的数据，也就是说，事件源会在IO读取到一部分数据的时候触发事件（触发事件不是自动的，程序员需要在读取到数据的时候自己触发事件并发布）</li>
+</ul>
+<figure class="highlight cs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">LongEventProducer</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> final RingBuffer&lt;LongEvent&gt; ringBuffer;</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">LongEventProducer</span>(<span class="params">RingBuffer&lt;LongEvent&gt; ringBuffer</span>)</span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.ringBuffer = ringBuffer;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * onData用来发布事件，每调用一次就发布一次事件</span></span><br><span class="line"><span class="comment">     * 它的参数会用过事件传递给消费者</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onData</span>(<span class="params">ByteBuffer bb</span>)</span>&#123;</span><br><span class="line">        <span class="comment">//1.可以把ringBuffer看做一个事件队列，那么next就是得到下面一个事件槽</span></span><br><span class="line">        <span class="keyword">long</span> sequence = ringBuffer.next();</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="comment">//2.用上面的索引取出一个空的事件用于填充（获取该序号对应的事件对象）</span></span><br><span class="line">            LongEvent <span class="keyword">event</span> = ringBuffer.<span class="keyword">get</span>(sequence);</span><br><span class="line">            <span class="comment">//3.获取要通过事件传递的业务数据</span></span><br><span class="line">            <span class="keyword">event</span>.setValue(bb.getLong(<span class="number">0</span>));</span><br><span class="line">        &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">            <span class="comment">//4.发布事件</span></span><br><span class="line">            <span class="comment">//注意，最后的 ringBuffer.publish 方法必须包含在 finally 中以确保必须得到调用；</span></span><br><span class="line">            <span class="comment">// 如果某个请求的 sequence 未被提交，将会堵塞后续的发布操作或者其它的 producer。</span></span><br><span class="line">            ringBuffer.publish(sequence);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>main函数执行调用</li>
+</ul>
+<figure class="highlight haxe"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">LongEventMain</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> void main(<span class="keyword">String</span>[] args) throws Exception &#123;</span><br><span class="line">        <span class="comment">//创建缓冲池</span></span><br><span class="line">        ExecutorService  executor = Executors.<span class="keyword">new</span><span class="type">CachedThreadPool</span>();</span><br><span class="line">        <span class="comment">//创建工厂</span></span><br><span class="line">        LongEventFactory factory = <span class="keyword">new</span> <span class="type">LongEventFactory</span>();</span><br><span class="line">        <span class="comment">//创建bufferSize ,也就是RingBuffer大小，必须是2的N次方</span></span><br><span class="line">        int ringBufferSize = <span class="number">1024</span> * <span class="number">1024</span>; <span class="comment">// </span></span><br><span class="line"></span><br><span class="line">        <span class="comment">/**</span></span><br><span class="line"><span class="comment">        //BlockingWaitStrategy 是最低效的策略，但其对CPU的消耗最小并且在各种不同部署环境中能提供更加一致的性能表现</span></span><br><span class="line"><span class="comment">        WaitStrategy BLOCKING_WAIT = new BlockingWaitStrategy();</span></span><br><span class="line"><span class="comment">        //SleepingWaitStrategy 的性能表现跟BlockingWaitStrategy差不多，对CPU的消耗也类似，但其对生产者线程的影响最小，适合用于异步日志类似的场景</span></span><br><span class="line"><span class="comment">        WaitStrategy SLEEPING_WAIT = new SleepingWaitStrategy();</span></span><br><span class="line"><span class="comment">        //YieldingWaitStrategy 的性能是最好的，适合用于低延迟的系统。在要求极高性能且事件处理线数小于CPU逻辑核心数的场景中，推荐使用此策略；例如，CPU开启超线程的特性</span></span><br><span class="line"><span class="comment">        WaitStrategy YIELDING_WAIT = new YieldingWaitStrategy();</span></span><br><span class="line"><span class="comment">        */</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">        <span class="comment">/**</span></span><br><span class="line"><span class="comment">         *  参数说明：</span></span><br><span class="line"><span class="comment">         */</span></span><br><span class="line">        </span><br><span class="line">        <span class="comment">//创建disruptor</span></span><br><span class="line">        Disruptor&lt;LongEvent&gt; disruptor = </span><br><span class="line">                    <span class="keyword">new</span> <span class="type">Disruptor</span>&lt;LongEvent&gt;(factory, ringBufferSize, executor, ProducerType.SINGLE, <span class="keyword">new</span> <span class="type">YieldingWaitStrategy</span>());</span><br><span class="line">        <span class="comment">// 连接消费事件方法</span></span><br><span class="line">        disruptor.handleEventsWith(<span class="keyword">new</span> <span class="type">LongEventHandler</span>());</span><br><span class="line">        </span><br><span class="line">        <span class="comment">// 启动</span></span><br><span class="line">        disruptor.start();</span><br><span class="line">        </span><br><span class="line">        <span class="comment">//Disruptor 的事件发布过程是一个两阶段提交的过程：</span></span><br><span class="line">        <span class="comment">//发布事件</span></span><br><span class="line">        RingBuffer&lt;LongEvent&gt; ringBuffer = disruptor.getRingBuffer();</span><br><span class="line">        </span><br><span class="line">        LongEventProducer producer = <span class="keyword">new</span> <span class="type">LongEventProducer</span>(ringBuffer); </span><br><span class="line">        <span class="comment">//LongEventProducerWithTranslator producer = new LongEventProducerWithTranslator(ringBuffer);</span></span><br><span class="line">        ByteBuffer byteBuffer = ByteBuffer.allocate(<span class="number">8</span>);</span><br><span class="line">        <span class="keyword">for</span>(long l = <span class="number">0</span>; l&lt;<span class="number">100</span>; l++)&#123;</span><br><span class="line">            byteBuffer.putLong(<span class="number">0</span>, l);</span><br><span class="line">            producer.onData(byteBuffer);</span><br><span class="line">            <span class="comment">//Thread.sleep(1000);</span></span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        </span><br><span class="line">        disruptor.shutdown();<span class="comment">//关闭 disruptor，方法会堵塞，直至所有的事件都得到处理；</span></span><br><span class="line">        executor.shutdown();<span class="comment">//关闭 disruptor 使用的线程池；如果需要的话，必须手动关闭， disruptor 在 shutdown 时不会自动关闭；      </span></span><br><span class="line">     </span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">java并发包</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+      
+
+      <div style="font-size: 12px;">
+        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
+      </div>
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2018/05/15/Disruptor并发框架上手demo/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
+    <article id="post-Stream分组和分区" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2018/05/14/Stream分组和分区/">Stream分组和分区</a>
+    </h1>
+  
+
+        
+        <a href="/2018/05/14/Stream分组和分区/" class="archive-article-date">
+  	<time datetime="2018-05-14T03:55:40.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-05-14</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>这篇文章展示了如何使用 Streams API 中的 Collector 及 groupingBy 和 partitioningBy 来对流中的元素进行分组和分区。</p>
+<p>思考一下 Employee 对象流，每个对象对应一个名字、城市和销售数量，如下表所示：</p>
+<figure class="highlight asciidoc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="code">+----------+</span>------------<span class="code">+-----------------+</span></span><br><span class="line">| Name     | City       | Number of Sales |</span><br><span class="line"><span class="code">+----------+</span>------------<span class="code">+-----------------+</span></span><br><span class="line">| Alice    | London     | 200             |</span><br><span class="line">| Bob      | London     | 150             |</span><br><span class="line">| Charles  | New York   | 160             |</span><br><span class="line">| Dorothy  | Hong Kong  | 190             |</span><br><span class="line"><span class="code">+----------+</span>------------<span class="code">+-----------------+</span></span><br></pre></td></tr></table></figure>
+<h2 id="分组"><a href="#分组" class="headerlink" title="分组"></a>分组</h2><p>首先，我们利用（lambda表达式出现之前的）命令式风格Java 程序对流中的雇员按城市进行分组：</p>
+<figure class="highlight dart"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">Map</span>&lt;<span class="built_in">String</span>, <span class="built_in">List</span>&lt;Employee&gt;&gt; result = <span class="keyword">new</span> HashMap&lt;&gt;();</span><br><span class="line"><span class="keyword">for</span> (Employee e : employees) &#123;</span><br><span class="line">  <span class="built_in">String</span> city = e.getCity();</span><br><span class="line">  <span class="built_in">List</span>&lt;Employee&gt; empsInCity = result.<span class="keyword">get</span>(city);</span><br><span class="line">  <span class="keyword">if</span> (empsInCity == <span class="keyword">null</span>) &#123;</span><br><span class="line">    empsInCity = <span class="keyword">new</span> ArrayList&lt;&gt;();</span><br><span class="line">    result.put(city, empsInCity);</span><br><span class="line">  &#125;</span><br><span class="line">  empsInCity.add(e);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>你可能很熟悉写这样的代码，你也看到了，一个如此简单的任务就需要这么多代码！</p>
+<p>而在 Java 8 中，你可以使用 groupingBy 收集器，一条语句就能完成相同的功能，像这样：</p>
+<figure class="highlight lasso"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">Map</span>&lt;<span class="built_in">String</span>, <span class="built_in">List</span>&lt;Employee&gt;&gt; employeesByCity =</span><br><span class="line">  employees.stream().collect(groupingBy(Employee<span class="type">::getCity</span>));</span><br></pre></td></tr></table></figure>
+<p>结果如下面的 map 所示：</p>
+<figure class="highlight clojure"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;New York=[Charles], Hong Kong=[Dorothy], London=[Alice, Bob]&#125;</span><br></pre></td></tr></table></figure>
+<p>还可以计算每个城市中雇员的数量，只需传递一个计数收集器给 groupingBy 收集器。第二个收集器的作用是在流分类的同一个组中对每个元素进行递归操作。</p>
+<figure class="highlight lasso"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">Map</span>&lt;<span class="built_in">String</span>, Long&gt; numEmployeesByCity =</span><br><span class="line">  employees.stream().collect(groupingBy(Employee<span class="type">::getCity</span>, counting()));</span><br></pre></td></tr></table></figure>
+<p>结果如下面的 map 所示：</p>
+<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;New <span class="attribute">York</span>=1, Hong <span class="attribute">Kong</span>=1, <span class="attribute">London</span>=2&#125;</span><br></pre></td></tr></table></figure>
+<p>顺便提一下，该功能与下面的 SQL 语句是等同的：</p>
+<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">select city, count(*) <span class="keyword">from</span> Employee<span class="built_in"> group </span>by city</span><br></pre></td></tr></table></figure>
+<p>另一个例子是计算每个城市的平均年龄，这可以联合使用 averagingInt 和 groupingBy 收集器：</p>
+<figure class="highlight lasso"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">Map</span>&lt;<span class="built_in">String</span>, Double&gt; avgSalesByCity =</span><br><span class="line">  employees.stream().collect(groupingBy(Employee<span class="type">::getCity</span>,</span><br><span class="line">                               averagingInt(Employee<span class="type">::getNumSales</span>)));</span><br></pre></td></tr></table></figure>
+<p>结果如下 map 所示：</p>
+ <figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;New <span class="attribute">York</span>=160.0, Hong <span class="attribute">Kong</span>=190.0, <span class="attribute">London</span>=175.0&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="分区"><a href="#分区" class="headerlink" title="分区"></a>分区</h2><p>分区是一种特殊的分组，结果 map 至少包含两个不同的分组——一个true，一个false。例如，如果想找出最优秀的员工，你可以将所有雇员分为两组，一组销售量大于 N，另一组小于 N，使用 partitioningBy 收集器：</p>
+<figure class="highlight lasso"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">Map</span>&lt;<span class="built_in">Boolean</span>, <span class="built_in">List</span>&lt;Employee&gt;&gt; partitioned =</span><br><span class="line">  employees.stream().collect(partitioningBy(e -&gt; e.getNumSales() &gt; <span class="number">150</span>));</span><br></pre></td></tr></table></figure>
+<p>输出如下结果：</p>
+<figure class="highlight clojure"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;<span class="literal">false</span>=[Bob], <span class="literal">true</span>=[Alice, Charles, Dorothy]&#125;</span><br></pre></td></tr></table></figure>
+<p>你也可以将 groupingBy 收集器传递给 partitioningBy 收集器来将联合使用分区和分组。例如，你可以统计每个分区中的每个城市的雇员人数：</p>
+<p>这样会生成一个二级 Map:</p>
+<figure class="highlight lasso"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">Map</span>&lt;<span class="built_in">Boolean</span>, <span class="built_in">Map</span>&lt;<span class="built_in">String</span>, Long&gt;&gt; result =</span><br><span class="line">  employees.stream().collect(partitioningBy(e -&gt; e.getNumSales() &gt; <span class="number">150</span>,</span><br><span class="line">                               groupingBy(Employee<span class="type">::getCity</span>, counting())));</span><br></pre></td></tr></table></figure>
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+      
+
+      <div style="font-size: 12px;">
+        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
+      </div>
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2018/05/14/Stream分组和分区/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
     <article id="post-java死锁重现与排查" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
@@ -852,19 +1046,19 @@
 
 
   
-    <article id="post-实例详解java.lang.OutOfMemoryError" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+    <article id="post-排查问题常用命令" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
       <header class="article-header">
         
   
     <h1 itemprop="name">
-      <a class="article-title" href="/2018/05/13/实例详解java.lang.OutOfMemoryError/">OutOfMemoryError 实例详解</a>
+      <a class="article-title" href="/2018/05/13/排查问题常用命令/">排查线上问题常用命令脚本</a>
     </h1>
   
 
         
-        <a href="/2018/05/13/实例详解java.lang.OutOfMemoryError/" class="archive-article-date">
+        <a href="/2018/05/13/排查问题常用命令/" class="archive-article-date">
   	<time datetime="2018-05-13T06:11:17.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-05-13</time>
 </a>
         
@@ -872,21 +1066,20 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        <h1 id="java-lang-OutOfMemoryError-实例详解"><a href="#java-lang-OutOfMemoryError-实例详解" class="headerlink" title="java.lang.OutOfMemoryError 实例详解"></a>java.lang.OutOfMemoryError 实例详解</h1><h3 id="The-8-symptoms-that-surface-them"><a href="#The-8-symptoms-that-surface-them" class="headerlink" title="The 8 symptoms that surface them"></a>The 8 symptoms that surface them</h3><h3 id="内存溢出的8种主要类型"><a href="#内存溢出的8种主要类型" class="headerlink" title="内存溢出的8种主要类型"></a>内存溢出的8种主要类型</h3><p>The many thousands of java.lang.OutOfMemoryErrors that I’ve met during my career all bear one of the below eight symptoms. This handbook explains what causes a particular error to be thrown, offers code examples that can cause such errors, and gives you solution guidelines for a fix. The content is all based on my own experience.</p>
-<p>笔者在工作中碰到过成千上万的 <code>java.lang.OutOfMemoryError</code>, 都可以归结为以下八种症状。<br>本手册阐述了各种内存溢出错误的形成原因,并提供了可测试这种错误的示例代码,以及解决方案。 内容都来源于笔者的一线开发和实践经验。</p>
-<p>目录:</p>
-<ol>
-<li><a href="01_java-heap-space.md">OutOfMemoryError系列（1）: <strong>Java heap space</strong></a></li>
-<li><a href="02_gc-overhead-limit-exceeded.md">OutOfMemoryError系列（2）: <strong>GC overhead limit exceeded</strong></a></li>
-<li><a href="03_permgen-space.md">OutOfMemoryError系列（3）: <strong>Permgen space</strong></a></li>
-<li><a href="04_metaspace.md">OutOfMemoryError系列（4）: <strong>Metaspace</strong></a></li>
-<li><a href="05_unable-to-create-new-native-thread.md">OutOfMemoryError系列（5）: <strong>Unable to create new native thread</strong></a></li>
-<li><a href="06_out-of-swap-space.md">OutOfMemoryError系列（6）: <strong>Out of swap space?</strong> </a></li>
-<li><a href="07_requested-array-size-exceeds-vm-limit.md">OutOfMemoryError系列（7）: <strong>Requested array size exceeds VM limit</strong> Details</a></li>
-<li><a href="08_kill-process-or-sacrifice-child.md">OutOfMemoryError系列（8）: <strong>Kill process or sacrifice child</strong></a></li>
-</ol>
-<p>原文作者: <strong>Nikita Salnikov-Tarnovski</strong>  – Plumbr Co-Founder and VP of Engineering</p>
-<p>原文链接： <a href="https://plumbr.eu/outofmemoryerror" target="_blank" rel="external">https://plumbr.eu/outofmemoryerror</a></p>
+        <h4 id="1-查看进程pid"><a href="#1-查看进程pid" class="headerlink" title="1. 查看进程pid"></a>1. 查看进程pid</h4><p>ps -ef |grep ‘bbs-service’ | grep -v grep |grep -v ‘python’ | awk ‘{print $2}’</p>
+<h4 id="2-查看线程信息"><a href="#2-查看线程信息" class="headerlink" title="2. 查看线程信息"></a>2. 查看线程信息</h4><p>jstack 27676| grep Druid-ConnectionPool- | wc -l</p>
+<p>jstack 27676| grep Xmemcached-Reactor- </p>
+<p>jstack 27676| grep java.lang.Thread.State </p>
+<p>jstack 27676| grep DubboServerHandler-</p>
+<p>jstack 27676| grep DubboClientHandler-</p>
+<p>top -H -b -n 1  -p 27676 | sed ‘1,/^$/d’ | sed ‘1d;/^$/d’ | grep -v 27676 | sort -nrk9 | head -3</p>
+<p>注：27676 为进程pid</p>
+<h4 id="3-系统"><a href="#3-系统" class="headerlink" title="3. 系统"></a>3. 系统</h4><p>已建立的连接数：</p>
+<p>netstat -ant |grep ESTABLISHED |wc -l</p>
+<p>处于等待状态的连接数：</p>
+<p>netstat -ant |grep TIME_WAIT |wc -l</p>
+<p>各个cpu的资源使用情况：</p>
+<p>mpstat -P ALL</p>
 
       
 
@@ -913,7 +1106,7 @@
       </div>
       
         <p class="article-more-link">
-          <a class="article-more-a" href="/2018/05/13/实例详解java.lang.OutOfMemoryError/">展开全文 >></a>
+          <a class="article-more-a" href="/2018/05/13/排查问题常用命令/">展开全文 >></a>
         </p>
       
 
@@ -1135,188 +1328,6 @@
 
 
   
-    <article id="post-排查问题常用命令" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2018/05/13/排查问题常用命令/">排查线上问题常用命令脚本</a>
-    </h1>
-  
-
-        
-        <a href="/2018/05/13/排查问题常用命令/" class="archive-article-date">
-  	<time datetime="2018-05-13T06:11:17.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-05-13</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h4 id="1-查看进程pid"><a href="#1-查看进程pid" class="headerlink" title="1. 查看进程pid"></a>1. 查看进程pid</h4><p>ps -ef |grep ‘bbs-service’ | grep -v grep |grep -v ‘python’ | awk ‘{print $2}’</p>
-<h4 id="2-查看线程信息"><a href="#2-查看线程信息" class="headerlink" title="2. 查看线程信息"></a>2. 查看线程信息</h4><p>jstack 27676| grep Druid-ConnectionPool- | wc -l</p>
-<p>jstack 27676| grep Xmemcached-Reactor- </p>
-<p>jstack 27676| grep java.lang.Thread.State </p>
-<p>jstack 27676| grep DubboServerHandler-</p>
-<p>jstack 27676| grep DubboClientHandler-</p>
-<p>top -H -b -n 1  -p 27676 | sed ‘1,/^$/d’ | sed ‘1d;/^$/d’ | grep -v 27676 | sort -nrk9 | head -3</p>
-<p>注：27676 为进程pid</p>
-<h4 id="3-系统"><a href="#3-系统" class="headerlink" title="3. 系统"></a>3. 系统</h4><p>已建立的连接数：</p>
-<p>netstat -ant |grep ESTABLISHED |wc -l</p>
-<p>处于等待状态的连接数：</p>
-<p>netstat -ant |grep TIME_WAIT |wc -l</p>
-<p>各个cpu的资源使用情况：</p>
-<p>mpstat -P ALL</p>
-
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">ops</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-      
-
-      <div style="font-size: 12px;">
-        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
-      </div>
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2018/05/13/排查问题常用命令/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
-    <article id="post-jvm堆参数调整" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2018/05/13/jvm堆参数调整/">jvm堆参数调整</a>
-    </h1>
-  
-
-        
-        <a href="/2018/05/13/jvm堆参数调整/" class="archive-article-date">
-  	<time datetime="2018-05-13T06:11:17.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-05-13</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>偶然发现线上通过obelisk发布的应用默认没有配置堆大小等jvm参数</p>
-<p>下面是社区的一个线上dubbo应用的jvm参数：</p>
-<figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">-<span class="string">XX:</span>CICompilerCount=<span class="number">3</span> -<span class="string">XX:</span>InitialHeapSize=<span class="number">130023424</span> -<span class="string">XX:</span>+ManagementServer -<span class="string">XX:</span>MaxHeapSize=<span class="number">2063597568</span> -<span class="string">XX:</span>MaxNewSize=<span class="number">687865856</span> -<span class="string">XX:</span>MinHeapDeltaBytes=<span class="number">524288</span> -<span class="string">XX:</span>NewSize=<span class="number">42991616</span> -<span class="string">XX:</span>OldSize=<span class="number">87031808</span> -<span class="string">XX:</span>+PrintGC -<span class="string">XX:</span>+PrintGCDateStamps -<span class="string">XX:</span>+PrintGCDetails -<span class="string">XX:</span>+PrintGCTimeStamps -<span class="string">XX:</span>+UseCompressedClassPointers -<span class="string">XX:</span>+UseCompressedOops -<span class="string">XX:</span>+UseParallelGC </span><br><span class="line"></span><br><span class="line">注：考虑安全性，部分数据删除</span><br></pre></td></tr></table></figure>
-<p>采用默认值，新生代只有600多M，堆区总大小也只有2个G</p>
-<p><strong>社区这边的线上机器基本都是标配4核8G，上面的配置太浪费，如果活动期间有较高并发量，估计新生代会不足，挤压老年代，持续gc，很容易雪崩。</strong></p>
-<p>线上jvm参数调整</p>
-<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">-Xms5020m -Xmx5020m -Xmn2500m -XX:<span class="attribute">PermSize</span>=96m -XX:<span class="attribute">MaxPermSize</span>=256m -XX:<span class="attribute">ParallelGCThreads</span>=4  -XX:+UseConcMarkSweepGC -XX:+UseCMSCompactAtFullCollection -XX:<span class="attribute">CMSMaxAbortablePrecleanTime</span>=5000 -XX:+CMSClassUnloadingEnabled -XX:+UseCMSInitiatingOccupancyOnly -XX:<span class="attribute">CMSInitiatingOccupancyFraction</span>=80</span><br></pre></td></tr></table></figure>
-<p>========================</p>
-<p>用了两台线上机做测试，配置一样</p>
-<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">192<span class="selector-class">.168</span><span class="selector-class">.16</span><span class="selector-class">.116</span>（参数未调整）</span><br><span class="line">192<span class="selector-class">.168</span><span class="selector-class">.18</span><span class="selector-class">.62</span> （参数调整）</span><br></pre></td></tr></table></figure>
-<p>发布上线后，beta了一天，对比结果如下：</p>
-<p><img src="/2018/05/13/jvm堆参数调整/1.png" alt="image"></p>
-<p><img src="/2018/05/13/jvm堆参数调整/2.png" alt="image"></p>
-<p>192.168.16.116（未调整参数），一天发生了YGC4000多次，整个gc时间26s</p>
-<p>192.168.18.62 （参数调整），一天YGC只有300多次，整个gc时间只有5s</p>
-<p>如果并发量大的情况下，估计这个差异会更大，支持的最大QPS应该会有很大提升，如果要准确数据的话可以性能压测对比下</p>
-
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">ops</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-      
-
-      <div style="font-size: 12px;">
-        此文阅<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>次
-      </div>
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2018/05/13/jvm堆参数调整/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
   
     <nav id="page-nav">
       <a class="extend prev" rel="prev" href="/page/8/">&laquo; Prev</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/7/">7</a><a class="page-number" href="/page/8/">8</a><span class="page-number current">9</span><a class="page-number" href="/page/10/">10</a><a class="page-number" href="/page/11/">11</a><span class="space">&hellip;</span><a class="page-number" href="/page/18/">18</a><a class="extend next" rel="next" href="/page/10/">Next &raquo;</a>
@@ -1450,15 +1461,15 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">redis</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">linux</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">mysql</a>
+                <a href="javascript:void(0)" class="js-tag color4">快捷键</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">redis</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1466,7 +1477,7 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">快捷键</a>
+                <a href="javascript:void(0)" class="js-tag color1">mysql</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1510,11 +1521,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">guava</a>
+                <a href="javascript:void(0)" class="js-tag color2">elastic-job</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">elastic-job</a>
+                <a href="javascript:void(0)" class="js-tag color1">guava</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1538,11 +1549,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">mybatis</a>
+                <a href="javascript:void(0)" class="js-tag color4">Mac</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">Mac</a>
+                <a href="javascript:void(0)" class="js-tag color3">mybatis</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1554,15 +1565,15 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">分布式锁</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Spring</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">SSE</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">分布式锁</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1602,15 +1613,15 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">HashMap</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">前端跨域</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">单例</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">HashMap</a>
               </li>
              
               <li class="article-tag-list-item">

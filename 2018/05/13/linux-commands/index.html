@@ -16,7 +16,7 @@
 <meta property="og:url" content="http://yoursite.com/2018/05/13/linux-commands/index.html">
 <meta property="og:site_name" content="xiaowu&#39;s blog">
 <meta property="og:description" content="CPU相关、进程查看cpu硬件配置1less /proc/cpuinfo 1234uname -a                查看内核/操作系统/CPU信息head -n 1 /etc/issue    查看操作系统版本less /proc/cpuinfo      查看CPU信息hostname                查看计算机名 top  命令实时显示各种系统资源使用情况及进程状态">
-<meta property="og:updated_time" content="2019-06-19T08:30:16.000Z">
+<meta property="og:updated_time" content="2019-08-19T03:11:14.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="linux常用命令">
 <meta name="twitter:description" content="CPU相关、进程查看cpu硬件配置1less /proc/cpuinfo 1234uname -a                查看内核/操作系统/CPU信息head -n 1 /etc/issue    查看操作系统版本less /proc/cpuinfo      查看CPU信息hostname                查看计算机名 top  命令实时显示各种系统资源使用情况及进程状态">
@@ -291,10 +291,15 @@
 </blockquote>
 <p><code>-i</code>输出响应头和内容, <code>-b</code>设置cookie内容</p>
 <figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl -<span class="selector-tag">i</span> -<span class="selector-tag">b</span> <span class="string">"TSESSIONID=K5PCUJM6W-NWH6793X36IPW7Y7QWSW3-868SY2XJ-YP6"</span> https:<span class="comment">//portal.tongdun.cn/admin/acl/userManage.json?operationType=doSearch</span></span><br></pre></td></tr></table></figure>
-<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl -<span class="selector-tag">i</span> -<span class="selector-tag">b</span> <span class="string">"TSESSIONID=K5PCUJM6W-NWH6793X36IPW7Y7QWSW3-868SY2XJ-YP6"</span> https:<span class="comment">//oceanus.tongdun.cn/PartnerAppSelect.json?operationType=doSelectMessage</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">curl -<span class="selector-tag">i</span> -<span class="selector-tag">b</span> <span class="string">"TSESSIONID=K5PCUJM6W-NWH6793X36IPW7Y7QWSW3-868SY2XJ-YP6"</span> https:<span class="comment">//oceanus.tongdun.cn/PartnerAppSelect.json?operationType=doSelectMessage</span></span><br><span class="line"></span><br><span class="line">curl -<span class="selector-tag">i</span> http:<span class="comment">//login-dev.tongdun.cn:8081/userLogin.htm\?loginId\=asgard.pro.06@demo.com\&amp;password\=Tongdun123450</span></span><br><span class="line"></span><br><span class="line">curl -<span class="selector-tag">i</span> https:<span class="comment">//login.tongdun.cn/userLogin.htm\?loginId\=asgard.pro.06@demo.com\&amp;password\=Tongdun123450</span></span><br></pre></td></tr></table></figure>
 <h3 id="tsar-–traffic：显示网络带宽"><a href="#tsar-–traffic：显示网络带宽" class="headerlink" title="tsar –traffic：显示网络带宽"></a>tsar –traffic：显示网络带宽</h3><h3 id="netstat"><a href="#netstat" class="headerlink" title="netstat"></a>netstat</h3><figure class="highlight 1c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta"># 查看端口，及其进程</span></span><br><span class="line">netstat -tunlp <span class="string">| grep 8088</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight gherkin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 所有TCP链接</span></span><br><span class="line">netstat -nat</span><br><span class="line"><span class="comment"># 查询dubbo的链接，总数</span></span><br><span class="line">netstat -nat |<span class="string"> grep ip:20880 </span>|<span class="string"> wc -l</span></span><br></pre></td></tr></table></figure>
+<ul>
+<li>统计每个状态的数量</li>
+</ul>
+<figure class="highlight pf"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">netstat -n | awk '/^tcp/ &#123;++<span class="keyword">state</span>[<span class="variable">$NF</span>]&#125; END &#123;<span class="keyword">for</span>(key <span class="keyword">in</span> <span class="keyword">state</span>) print key,<span class="string">"\t"</span>,<span class="keyword">state</span>[key]&#125;'</span><br></pre></td></tr></table></figure>
+<figure class="highlight lsl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">TIME_WAIT 	 <span class="number">5856</span></span><br><span class="line">CLOSE_WAIT 	 <span class="number">268</span></span><br><span class="line">FIN_WAIT1 	 <span class="number">3</span></span><br><span class="line">ESTABLISHED 	 <span class="number">4837</span></span><br><span class="line">SYN_RECV 	 <span class="number">14</span></span><br><span class="line">CLOSING 	 <span class="number">1</span></span><br></pre></td></tr></table></figure>
 <figure class="highlight haml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">-<span class="ruby">t tcp</span></span><br><span class="line"><span class="ruby">-u udp</span></span><br><span class="line"><span class="ruby">-n numeric，使用数字显示，不用别名</span></span><br><span class="line"><span class="ruby">-l listening,正在监听</span></span><br><span class="line"><span class="ruby">-p programs,显示pid和名称</span></span><br></pre></td></tr></table></figure>
-<figure class="highlight 1c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta"># 查看正在监听的所有相关端口</span></span><br><span class="line">netstat -ant <span class="string">| grep LIST</span></span><br></pre></td></tr></table></figure>
 <p>一般用于检验本机各端口的网络连接情况。netstat是在内核中访问网络及相关信息的程序，它能提供TCP连接，TCP和UDP监听，进程内存管理的相关报告。</p>
 <p><strong>命令参数：</strong></p>
 <figure class="highlight haml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">-<span class="ruby">a或–all 显示所有连线中的Socket。</span></span><br><span class="line"><span class="ruby">-A&lt;网络类型&gt;或–&lt;网络类型&gt; 列出该网络类型连线中的相关地址。</span></span><br><span class="line"><span class="ruby">-c或–continuous 持续列出网络状态。</span></span><br><span class="line"><span class="ruby">-C或–cache 显示路由器配置的快取信息。</span></span><br><span class="line"><span class="ruby">-e或–extend 显示网络其他相关信息。</span></span><br><span class="line"><span class="ruby">-F或–fib 显示FIB。</span></span><br><span class="line"><span class="ruby">-g或–groups 显示多重广播功能群组组员名单。</span></span><br><span class="line"><span class="ruby">-h或–help 在线帮助。</span></span><br><span class="line"><span class="ruby">-i或–interfaces 显示网络界面信息表单。</span></span><br><span class="line"><span class="ruby">-l或–listening 显示监控中的服务器的Socket。</span></span><br><span class="line"><span class="ruby">-M或–masquerade 显示伪装的网络连线。</span></span><br><span class="line"><span class="ruby">-n或–numeric 直接使用IP地址，而不通过域名服务器。</span></span><br><span class="line"><span class="ruby">-N或–netlink或–symbolic 显示网络硬件外围设备的符号连接名称。</span></span><br><span class="line"><span class="ruby">-o或–timers 显示计时器。</span></span><br><span class="line"><span class="ruby">-p或–programs 显示正在使用Socket的程序识别码和程序名称。</span></span><br><span class="line"><span class="ruby">-r或–route 显示Routing Table。</span></span><br><span class="line"><span class="ruby">-s或–statistice 显示网络工作信息统计表。</span></span><br><span class="line"><span class="ruby">-t或–tcp 显示TCP传输协议的连线状况。</span></span><br><span class="line"><span class="ruby">-u或–udp 显示UDP传输协议的连线状况。</span></span><br><span class="line"><span class="ruby">-v或–verbose 显示指令执行过程。</span></span><br><span class="line"><span class="ruby">-V或–version 显示版本信息。</span></span><br><span class="line"><span class="ruby">-w或–raw 显示RAW传输协议的连线状况。</span></span><br><span class="line"><span class="ruby">-x或–unix 此参数的效果和指定”-A unix”参数相同。</span></span><br><span class="line"><span class="ruby">–ip或–inet 此参数的效果和指定”-A inet”参数相同。</span></span><br></pre></td></tr></table></figure>
@@ -335,6 +340,7 @@
 <figure class="highlight mipsasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">du -<span class="keyword">sch </span>* </span><br><span class="line">当前目录下的各目录的大小</span><br></pre></td></tr></table></figure>
 <h2 id="find"><a href="#find" class="headerlink" title="find"></a>find</h2><p>文件查找</p>
 <figure class="highlight vim"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">find</span> . -name <span class="string">"*蝙蝠侠*"</span></span><br><span class="line"># 找出当前目录以及其所有子目录下所有名字中包含“蝙蝠侠”三字的文件</span><br><span class="line"></span><br><span class="line"><span class="keyword">find</span> . -inmae <span class="string">'*hello*'</span> -maxdepth <span class="number">1</span></span><br><span class="line">不区分大小写，在当前目录查找，不包括子目录</span><br><span class="line"></span><br><span class="line"><span class="keyword">find</span> . -name <span class="string">"*.rmvb"</span> -maxdepth <span class="number">1</span></span><br><span class="line"># 找出当前目录（不包括子目录）下所有名字中后缀为<span class="string">".rmvb"</span>的文件</span><br><span class="line"></span><br><span class="line"><span class="keyword">find</span> . -name sys.<span class="built_in">log</span>  </span><br><span class="line">当前目录下查找sys.<span class="built_in">log</span>文件</span><br><span class="line"></span><br><span class="line"><span class="keyword">find</span> . -name <span class="string">"sy*log"</span></span><br><span class="line">查找文件支持通配符</span><br><span class="line"></span><br><span class="line"><span class="keyword">find</span> . -size +<span class="number">20</span>M</span><br><span class="line">查找当前目录下大小超过<span class="number">20</span>M的文件  </span><br><span class="line"></span><br><span class="line"><span class="keyword">find</span> . -size +<span class="number">20</span>M | xargs <span class="keyword">ls</span> -<span class="keyword">lh</span></span><br><span class="line">查找当前目录下大小超过<span class="number">20</span>M的文件，并计算文件大小</span><br><span class="line"></span><br><span class="line"><span class="keyword">find</span> -<span class="built_in">type</span> <span class="keyword">f</span> -<span class="built_in">printf</span> <span class="string">'%s %p\n'</span> |<span class="keyword">sort</span> -nr | head  </span><br><span class="line">查找占用空间最大的<span class="number">10</span>个文件</span><br></pre></td></tr></table></figure>
+<h2 id="grep"><a href="#grep" class="headerlink" title="grep"></a>grep</h2><figure class="highlight vim"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">--递归查找目录下含有该字符串的所有文件</span><br><span class="line"><span class="keyword">grep</span> -rn <span class="string">"data_chushou_pay_info"</span>  /home/hadoop/nisj/automationDemand/</span><br><span class="line"></span><br><span class="line">--查找当前目录下后缀名过滤的文件</span><br><span class="line"><span class="keyword">grep</span> -rn <span class="string">"data_chushou_pay_info"</span> *.<span class="keyword">py</span></span><br></pre></td></tr></table></figure>
 <h2 id="tail"><a href="#tail" class="headerlink" title="tail"></a>tail</h2><p>从指定点开始将文件标准输出</p>
 <ul>
 <li>显示文件最后5行内容</li>
@@ -612,18 +618,18 @@
   
 <nav id="article-nav">
   
-    <a href="/2018/05/13/常用脚本/" id="article-nav-newer" class="article-nav-link-wrap">
+    <a href="/2018/05/13/实例详解java.lang.OutOfMemoryError/" id="article-nav-newer" class="article-nav-link-wrap">
       <i class="icon-circle-left"></i>
       <div class="article-nav-title">
         
-          常用脚本
+          OutOfMemoryError 实例详解
         
       </div>
     </a>
   
   
-    <a href="/2018/05/13/java服务器load飚高排查思路/" id="article-nav-older" class="article-nav-link-wrap">
-      <div class="article-nav-title">java服务器load飙高排查思路</div>
+    <a href="/2018/05/13/JAVA线上问题之Full-GC问题定位/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">JAVA线上问题之Full GC问题定位</div>
       <i class="icon-circle-right"></i>
     </a>
   
@@ -785,15 +791,15 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">redis</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">linux</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">mysql</a>
+                <a href="javascript:void(0)" class="js-tag color4">快捷键</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">redis</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -801,7 +807,7 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">快捷键</a>
+                <a href="javascript:void(0)" class="js-tag color1">mysql</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -845,11 +851,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">guava</a>
+                <a href="javascript:void(0)" class="js-tag color2">elastic-job</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">elastic-job</a>
+                <a href="javascript:void(0)" class="js-tag color1">guava</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -873,11 +879,11 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">mybatis</a>
+                <a href="javascript:void(0)" class="js-tag color4">Mac</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">Mac</a>
+                <a href="javascript:void(0)" class="js-tag color3">mybatis</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -889,15 +895,15 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">分布式锁</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Spring</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">SSE</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">分布式锁</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -937,15 +943,15 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">HashMap</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">前端跨域</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">单例</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">HashMap</a>
               </li>
              
               <li class="article-tag-list-item">
