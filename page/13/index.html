@@ -216,6 +216,16 @@
           </a>
         </li>
       
+        
+        <li class="menu-item menu-item-dubbo">
+          <a href="/categories/Dubbo" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-heartbeat"></i> <br />
+            
+            Dubbo
+          </a>
+        </li>
+      
 
       
         <li class="menu-item menu-item-search">
@@ -269,6 +279,602 @@
           <div id="content" class="content">
             
   <section id="posts" class="posts-expand">
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://zhouxiaowu.coding.me/2018/01/02/JVM堆内存和非堆内存/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="周小伍 Joey">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/xiaowu_avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="xiaowu's blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/01/02/JVM堆内存和非堆内存/" itemprop="url">JVM堆内存和非堆内存</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-01-02T11:04:25+08:00">
+                2018-01-02
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/java基础/" itemprop="url" rel="index">
+                    <span itemprop="name">java基础</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2018/01/02/JVM堆内存和非堆内存/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2018/01/02/JVM堆内存和非堆内存/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  2.9k
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  11
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p><strong>堆和非堆内存</strong></p>
+<p>按照官方的说法：“Java 虚拟机具有一个堆(Heap)，堆是运行时数据区域，所有类实例和数组的内存均从此处分配。堆是在 Java 虚拟机启动时创建的。”“在JVM中堆之外的内存称为非堆内存(Non-heap memory)”。</p>
+<p>JVM主要管理两种类型的内存：堆和非堆。</p>
+<p>Heap memory Code Cache</p>
+<p>Eden Space</p>
+<p>Survivor Space</p>
+<p>Tenured Gen</p>
+<p>non-heap memory Perm Gen</p>
+<p>native heap?(I guess)</p>
+<p><strong>堆内存</strong></p>
+<p>Java 虚拟机具有一个堆，堆是运行时数据区域，所有类实例和数组的内存均从此处分配。堆是在 Java 虚拟机启动时创建的。对象的堆内存由称为垃圾回收器的自动内存管理系统回收。</p>
+<p>堆的大小可以固定，也可以扩大和缩小。堆的内存不需要是连续空间。</p>
+<p><strong>非堆内存</strong></p>
+<p>Java 虚拟机管理堆之外的内存（称为非堆内存）。</p>
+<p>Java 虚拟机具有一个由所有线程共享的方法区。方法区属于非堆内存。它存储每个类结构，如运行时常数池、字段和方法数据，以及方法和构造方法的代码。它是在 Java 虚拟机启动时创建的。</p>
+<p>方法区在逻辑上属于堆，但 Java 虚拟机实现可以选择不对其进行回收或压缩。与堆类似，方法区的大小可以固定，也可以扩大和缩小。方法区的内存不需要是连续空间。</p>
+<p>除了方法区外，Java 虚拟机实现可能需要用于内部处理或优化的内存，这种内存也是非堆内存。例如，JIT 编译器需要内存来存储从 Java 虚拟机代码转换而来的本机代码，从而获得高性能。</p>
+<p><strong>几个基本概念</strong></p>
+<p>PermGen space：全称是Permanent Generation space，即永久代。就是说是永久保存的区域,用于存放Class和Meta信息，Class在被Load的时候被放入该区域，GC(Garbage Collection)应该不会对PermGen space进行清理，所以如果你的APP会LOAD很多CLASS的话，就很可能出现PermGen space错误。</p>
+<p>Heap space：存放Instance。</p>
+<p>Java Heap分为3个区，Young即新生代，Old即老生代和Permanent。</p>
+<p>Young保存刚实例化的对象。当该区被填满时，GC会将对象移到Old区。Permanent区则负责保存反射对象。</p>
+<p><strong>堆内存分配</strong></p>
+<ul>
+<li>JVM初始分配的堆内存由-Xms指定，默认是物理内存的1/64；</li>
+<li>JVM最大分配的堆内存由-Xmx指定，默认是物理内存的1/4。</li>
+<li>默认空余堆内存小于40%时，JVM就会增大堆直到-Xmx的最大限制；</li>
+<li>空余堆内存大于70%时，JVM会减少堆直到-Xms的最小限制。</li>
+<li>因此服务器一般设置-Xms、-Xmx 相等以避免在每次GC 后调整堆的大小。</li>
+<li>说明：如果-Xmx 不指定或者指定偏小，应用可能会导致java.lang.OutOfMemory错误，此错误来自JVM，不是Throwable的，无法用try…catch捕捉。</li>
+</ul>
+<p><strong>非堆内存分配</strong></p>
+<p>\1. JVM使用-XX:PermSize设置非堆内存初始值，默认是物理内存的1/64；</p>
+<p>\2. 由XX:MaxPermSize设置最大非堆内存的大小，默认是物理内存的1/4。</p>
+<ul>
+<li>还有一说：MaxPermSize缺省值和-server -client选项相关，-server选项下默认MaxPermSize为64m，-client选项下默认MaxPermSize为32m。这个我没有实验。</li>
+</ul>
+<p>\3. XX:MaxPermSize设置过小会导致java.lang.OutOfMemoryError: PermGen space 就是内存益出。</p>
+<p>\4. 为什么会内存益出：</p>
+<ul>
+<li>这一部分内存用于存放Class和Meta的信息，Class在被 Load的时候被放入PermGen space区域，它和存放Instance的Heap区域不同。</li>
+<li>GC(Garbage Collection)不会在主程序运行期对PermGen space进行清理，所以如果你的APP会LOAD很多CLASS 的话,就很可能出现PermGen space错误。</li>
+</ul>
+<p>\5. 这种错误常见在web服务器对JSP进行pre compile的时候。</p>
+<p><strong>JVM内存限制(最大值)</strong></p>
+<p>\1. 首先JVM内存限制于实际的最大物理内存，假设物理内存无限大的话，JVM内存的最大值跟操作系统有很大的关系。简单的说就32位处理器虽然可控内存空间有4GB,但是具体的操作系统会给一个限制，这个限制一般是2GB-3GB（一般来说Windows系统下为1.5G-2G，Linux系统下为2G-3G），而64bit以上的处理器就不会有限制了。</p>
+<p>\2. 为什么有的机器我将-Xmx和-XX:MaxPermSize都设置为512M之后Eclipse可以启动，而有些机器无法启动？</p>
+<p>通过上面对JVM内存管理的介绍我们已经了解到JVM内存包含两种：堆内存和非堆内存，另外JVM最大内存首先取决于实际的物理内存和操作系统。所以说设置VM参数导致程序无法启动主要有以下几种原因：</p>
+<ul>
+<li>参数中-Xms的值大于-Xmx，或者-XX:PermSize的值大于-XX:MaxPermSize；</li>
+<li>-Xmx的值和-XX:MaxPermSize的总和超过了JVM内存的最大限制，比如当前操作系统最大内存限制，或者实际的物理内存等等。说到实际物理内存这里需要说明一点的是，如果你的内存是1024MB，但实际系统中用到的并不可能是1024MB，因为有一部分被硬件占用了。</li>
+</ul>
+<p>\3. 如果你有一个双核的CPU，也许可以尝试这个参数: -XX:+UseParallelGC 让GC可以更快的执行。（只是JDK 5里对GC新增加的参数）</p>
+<p>\4. 如果你的WEB APP下都用了大量的第三方jar，其大小超过了服务器jvm默认的大小，那么就会产生内存益出问题了。解决方法： 设置MaxPermSize大小。</p>
+<ul>
+<li>增加服务器启动的JVM参数设置： -Xms128m -Xmx256m -XX:PermSize=128M -XX:MaxNewSize=256m -XX:MaxPermSize=256m</li>
+<li>如tomcat，修改TOMCAT_HOME/bin/catalina.sh，在echo “Using CATALINA_BASE: $CATALINA_BASE”上面加入以下行：JAVA_OPTS=”-server -XX:PermSize=64M -XX:MaxPermSize=128m</li>
+</ul>
+<p>\5. 建议：将相同的第三方jar文件移置到tomcat/shared/lib目录下，这样可以减少jar 文档重复占用内存</p>
+<p><strong>JVM内存设置参数</strong></p>
+<ul>
+<li>内存设置参数</li>
+</ul>
+<p><img src="/2018/01/02/JVM堆内存和非堆内存/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" alt="img"></p>
+<ul>
+<li>说明：</li>
+</ul>
+<ol>
+<li>如果-Xmx不指定或者指定偏小，应用可能会导致java.lang.OutOfMemory错误，此错误来自JVM不是Throwable的，无法用try…catch捕捉。</li>
+<li>PermSize和MaxPermSize指明虚拟机为java永久生成对象（Permanate generation）如，class对象、方法对象这些可反射（reflective）对象分配内存限制，这些内存不包括在Heap（堆内存）区之中。</li>
+<li>-XX:MaxPermSize分配过小会导致：java.lang.OutOfMemoryError: PermGen space。</li>
+<li>MaxPermSize缺省值和-server -client选项相关：-server选项下默认MaxPermSize为64m、-client选项下默认MaxPermSize为32m。</li>
+</ol>
+<ul>
+<li>申请一块内存的过程</li>
+</ul>
+<ol>
+<li>JVM会试图为相关Java对象在Eden中初始化一块内存区域</li>
+<li>当Eden空间足够时，内存申请结束。否则到下一步</li>
+<li>JVM试图释放在Eden中所有不活跃的对象（这属于1或更高级的垃圾回收）；释放后若Eden空间仍然不足以放入新对象，则试图将部分Eden中活跃对象放入Survivor区/OLD区</li>
+<li>Survivor区被用来作为Eden及OLD的中间交换区域，当OLD区空间足够时，Survivor区的对象会被移到Old区，否则会被保留在Survivor区</li>
+<li>当OLD区空间不够时，JVM会在OLD区进行完全的垃圾收集（0级）</li>
+<li>完全垃圾收集后，若Survivor及OLD区仍然无法存放从Eden复制过来的部分对象，导致JVM无法在Eden区为新对象创建内存区域，则出现”out of memory错误”</li>
+</ol>
+<p>resin服务器典型的响应时间优先型的jvm配置：</p>
+<blockquote>
+<p>-Xmx2000M -Xms2000M -Xmn500M</p>
+<p>-XX:PermSize=250M -XX:MaxPermSize=250M</p>
+<p>-Xss256K</p>
+<p>-XX:+DisableExplicitGC</p>
+<p>-XX:SurvivorRatio=1</p>
+<p>-XX:+UseConcMarkSweepGC</p>
+<p>-XX:+UseParNewGC</p>
+<p>-XX:+CMSParallelRemarkEnabled</p>
+<p>-XX:+UseCMSCompactAtFullCollection</p>
+<p>-XX:CMSFullGCsBeforeCompaction=0</p>
+<p>-XX:+CMSClassUnloadingEnabled</p>
+<p>-XX:LargePageSizeInBytes=128M</p>
+<p>-XX:+UseFastAccessorMethods</p>
+<p>-XX:+UseCMSInitiatingOccupancyOnly</p>
+<p>-XX:CMSInitiatingOccupancyFraction=60</p>
+<p>-XX:SoftRefLRUPolicyMSPerMB=0</p>
+<p>-XX:+PrintClassHistogram</p>
+<p>-XX:+PrintGCDetails</p>
+<p>-XX:+PrintGCTimeStamps</p>
+<p>-XX:+PrintHeapAtGC</p>
+<p>-Xloggc:log/gc.log</p>
+</blockquote>
+<p><strong>内存回收算法</strong></p>
+<p>Java中有四种不同的回收算法，对应的启动参数为:</p>
+<blockquote>
+<p>–XX:+UseSerialGC</p>
+<p>–XX:+UseParallelGC</p>
+<p>–XX:+UseParallelOldGC</p>
+<p>–XX:+UseConcMarkSweepGC</p>
+</blockquote>
+<p><strong>Serial Collector</strong></p>
+<p>大部分平台或者强制 java -client 默认会使用这种。</p>
+<p>young generation算法 = serial</p>
+<p>old generation算法 = serial (mark-sweep-compact)</p>
+<p>这种方法的缺点很明显, stop-the-world, 速度慢。服务器应用不推荐使用。</p>
+<p><strong>Parallel Collector</strong></p>
+<p>在linux x64上默认是这种，其他平台要加 java -server 参数才会默认选用这种。</p>
+<p>young = parallel，多个thread同时copy</p>
+<p>old = mark-sweep-compact = 1</p>
+<p>优点：新生代回收更快。因为系统大部分时间做的gc都是新生代的，这样提高了throughput(cpu用于非gc时间)</p>
+<p>缺点：当运行在8G/16G server上old generation live object太多时候pause time过长</p>
+<p><strong>Parallel Compact Collector (ParallelOld)</strong></p>
+<p>young = parallel = 2</p>
+<p>old = parallel，分成多个独立的单元，如果单元中live object少则回收，多则跳过</p>
+<p>优点：old old generation上性能较 parallel 方式有提高</p>
+<p>缺点：大部分server系统old generation内存占用会达到60%-80%, 没有那么多理想的单元live object很少方便迅速回收，同时compact方面开销比起parallel并没明显减少。</p>
+<p><strong>Concurrent Mark-Sweep(CMS) Collector</strong></p>
+<p>young generation = parallel collector = 2</p>
+<p>old = cms</p>
+<p>同时不做 compact 操作。</p>
+<p>优点：pause time会降低, pause敏感但CPU有空闲的场景需要建议使用策略4.</p>
+<p>缺点：cpu占用过多，cpu密集型服务器不适合。另外碎片太多，每个object的存储都要通过链表连续跳n个地方，空间浪费问题也会增大。</p>
+<p><strong>内存监控方法</strong></p>
+<ul>
+<li>jmap -heap 查看java 堆（heap）使用情况</li>
+</ul>
+<blockquote>
+<p>jmap -heap pid</p>
+<p>using thread-local object allocation.</p>
+<p>Parallel GC with 4 thread(s)   #GC 方式</p>
+<p>Heap Configuration:  #堆内存初始化配置</p>
+<p>MinHeapFreeRatio=40  #对应jvm启动参数-XX:MinHeapFreeRatio设置JVM堆最小空闲比率(default 40)</p>
+<p>MaxHeapFreeRatio=70  #对应jvm启动参数 -XX:MaxHeapFreeRatio设置JVM堆最大空闲比率(default 70)</p>
+<p>MaxHeapSize=512.0MB  #对应jvm启动参数-XX:MaxHeapSize=设置JVM堆的最大大小</p>
+<p>NewSize  = 1.0MB     #对应jvm启动参数-XX:NewSize=设置JVM堆的‘新生代’的默认大小</p>
+<p>MaxNewSize =4095MB   #对应jvm启动参数-XX:MaxNewSize=设置JVM堆的‘新生代’的最大大小</p>
+<p>OldSize  = 4.0MB     #对应jvm启动参数-XX:OldSize=<value>:设置JVM堆的‘老生代’的大小</value></p>
+<p>NewRatio  = 8        #对应jvm启动参数-XX:NewRatio=:‘新生代’和‘老生代’的大小比率</p>
+<p>SurvivorRatio = 8    #对应jvm启动参数-XX:SurvivorRatio=设置年轻代中Eden区与Survivor区的大小比值</p>
+<p>PermSize= 16.0MB     #对应jvm启动参数-XX:PermSize=<value>:设置JVM堆的‘永生代’的初始大小</value></p>
+<p>MaxPermSize=64.0MB   #对应jvm启动参数-XX:MaxPermSize=<value>:设置JVM堆的‘永生代’的最大大小</value></p>
+<p>Heap Usage:          #堆内存分步</p>
+<p>PS Young Generation</p>
+<p>Eden Space:         #Eden区内存分布</p>
+<p>capacity = 20381696 (19.4375MB)             #Eden区总容量</p>
+<p>used     = 20370032 (19.426376342773438MB)  #Eden区已使用</p>
+<p>free     = 11664 (0.0111236572265625MB)     #Eden区剩余容量</p>
+<p>99.94277218147106% used                     #Eden区使用比率</p>
+<p>From Space:        #其中一个Survivor区的内存分布</p>
+<p>capacity = 8519680 (8.125MB)</p>
+<p>used     = 32768 (0.03125MB)</p>
+<p>free     = 8486912 (8.09375MB)</p>
+<p>0.38461538461538464% used</p>
+<p>To Space:          #另一个Survivor区的内存分布</p>
+<p>capacity = 9306112 (8.875MB)</p>
+<p>used     = 0 (0.0MB)</p>
+<p>free     = 9306112 (8.875MB)</p>
+<p>0.0% used</p>
+<p>PS Old Generation  #当前的Old区内存分布</p>
+<p>capacity = 366280704 (349.3125MB)</p>
+<p>used     = 322179848 (307.25464630126953MB)</p>
+<p>free     = 44100856 (42.05785369873047MB)</p>
+<p>87.95982001825573% used</p>
+<p>PS Perm Generation #当前的 “永生代” 内存分布</p>
+<p>capacity = 32243712 (30.75MB)</p>
+<p>used     = 28918584 (27.57891082763672MB)</p>
+<p>free     = 3325128 (3.1710891723632812MB)</p>
+<p>89.68751488662348% used</p>
+</blockquote>
+<ul>
+<li>JVM内存监控工具</li>
+</ul>
+<blockquote>
+<p>&lt;%@ page import=”java.lang.management.*” %&gt;</p>
+<p>&lt;%@ page import=”java.util.*” %&gt;</p>
+<html><br><br><head><br><br>  <title>JVM Memory Monitor</title><br><br></head><br><br><body><br><br><table border="0" width="100%"><br><br>​    <tr><td colspan="2" align="center"><h3>Memory MXBean</h3></td></tr><br><br>​    <tr><td width="200">Heap Memory Usage</td><td>&lt;%=ManagementFactory.getMemoryMXBean().getHeapMemoryUsage()%&gt;</td></tr><br><br>​    <tr><td>Non-Heap Memory Usage</td><td>&lt;%=ManagementFactory.getMemoryMXBean().getNonHeapMemoryUsage()%&gt;</td></tr><br><br>​    <tr><td colspan="2"> </td></tr><br><br>​    <tr><td colspan="2" align="center"><h3>Memory Pool MXBeans</h3></td></tr><br><br>&lt;%<br><br>​        Iterator iter = ManagementFactory.getMemoryPoolMXBeans().iterator();<br><br>​        while (iter.hasNext()) {<br><br>​            MemoryPoolMXBean item = (MemoryPoolMXBean) iter.next();<br><br>%&gt;<br><br><tr><td colspan="2"><br><br>​    <table border="0" width="100%" style="border: 1px #98AAB1 solid;"><br><br>​        <tr><td colspan="2" align="center"><b>&lt;%= item.getName() %&gt;</b></td></tr><br><br>​        <tr><td width="200">Type</td><td>&lt;%= item.getType() %&gt;</td></tr><br><br>​        <tr><td>Usage</td><td>&lt;%= item.getUsage() %&gt;</td></tr><br><br>​        <tr><td>Peak Usage</td><td>&lt;%= item.getPeakUsage() %&gt;</td></tr><br><br>​        <tr><td>Collection Usage</td><td>&lt;%= item.getCollectionUsage() %&gt;</td></tr><br><br>​    </table><br><br></td></tr><br><br><tr><td colspan="2"> </td></tr><br><br>&lt;%} %&gt;<br><br></table><br><br></body><br><br></html></blockquote>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://zhouxiaowu.coding.me/2017/12/28/MySQL-select子查询引用变量/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="周小伍 Joey">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/xiaowu_avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="xiaowu's blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2017/12/28/MySQL-select子查询引用变量/" itemprop="url">MySQL select子查询引用变量</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-12-28T14:25:39+08:00">
+                2017-12-28
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/数据库/" itemprop="url" rel="index">
+                    <span itemprop="name">数据库</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2017/12/28/MySQL-select子查询引用变量/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2017/12/28/MySQL-select子查询引用变量/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  816
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  3
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="示例一"><a href="#示例一" class="headerlink" title="示例一"></a>示例一</h1><p>前几天看别人的代码中看到在字段中使用select子查询的方法，第一次见这种写法，然后研究了一下，记录下来</p>
+<p>大概的形式是这样的:</p>
+<figure class="highlight n1ql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> a .*,(<span class="keyword">select</span> b.another_field <span class="keyword">from</span> b <span class="keyword">where</span> a.id=b.aid) another_field <span class="keyword">from</span> a <span class="keyword">where</span> <span class="number">1</span> <span class="keyword">limit</span> <span class="number">10</span>;</span><br></pre></td></tr></table></figure>
+<p>下面还是以实例来说明，要不然不好理解，新建两张表，一张是商品表，另外一张是商品的评论表</p>
+<p>商品表：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> <span class="string">`product`</span> (</span><br><span class="line"> <span class="string">`id`</span> <span class="built_in">int</span>(<span class="number">11</span>) <span class="keyword">NOT</span> <span class="literal">NULL</span> AUTO_INCREMENT,</span><br><span class="line"> <span class="string">`product_name`</span> <span class="built_in">varchar</span>(<span class="number">30</span>) <span class="built_in">CHARACTER</span> <span class="keyword">SET</span> utf8 <span class="keyword">NOT</span> <span class="literal">NULL</span>,</span><br><span class="line"> <span class="string">`price`</span> <span class="built_in">float</span> <span class="keyword">NOT</span> <span class="literal">NULL</span>,</span><br><span class="line"> PRIMARY <span class="keyword">KEY</span> (<span class="string">`id`</span>)</span><br><span class="line">) <span class="keyword">ENGINE</span>=<span class="keyword">InnoDB</span>;</span><br></pre></td></tr></table></figure>
+<p>评论表：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> <span class="string">`comment`</span> (</span><br><span class="line"> <span class="string">`id`</span> <span class="built_in">int</span>(<span class="number">11</span>) <span class="keyword">NOT</span> <span class="literal">NULL</span> AUTO_INCREMENT,</span><br><span class="line"> <span class="string">`entity_id`</span> <span class="built_in">int</span>(<span class="number">11</span>) <span class="keyword">NOT</span> <span class="literal">NULL</span>,</span><br><span class="line"> <span class="string">`content`</span> <span class="built_in">varchar</span>(<span class="number">100</span>) <span class="built_in">CHARACTER</span> <span class="keyword">SET</span> utf8 <span class="keyword">NOT</span> <span class="literal">NULL</span>,</span><br><span class="line"> PRIMARY <span class="keyword">KEY</span> (<span class="string">`id`</span>)</span><br><span class="line">) <span class="keyword">ENGINE</span>=<span class="keyword">InnoDB</span>;</span><br></pre></td></tr></table></figure>
+<p>然后插入一些数据：</p>
+<figure class="highlight n1ql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> <span class="symbol">`product`</span> (<span class="symbol">`id`</span>, <span class="symbol">`product_name`</span>, <span class="symbol">`price`</span>) <span class="keyword">VALUES</span></span><br><span class="line">(<span class="number">1</span>, <span class="string">'肉松饼'</span>, <span class="number">5</span>),</span><br><span class="line">(<span class="number">2</span>, <span class="string">'可乐'</span>, <span class="number">5</span>),</span><br><span class="line">(<span class="number">3</span>, <span class="string">'鸡翅'</span>, <span class="number">12</span>),</span><br><span class="line">(<span class="number">4</span>, <span class="string">'杯子'</span>, <span class="number">42</span>);</span><br><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> <span class="symbol">`comment`</span> (<span class="symbol">`id`</span>, <span class="symbol">`entity_id`</span>, <span class="symbol">`content`</span>) <span class="keyword">VALUES</span></span><br><span class="line">(<span class="number">1</span>, <span class="number">1</span>, <span class="string">'味道还不错'</span>),</span><br><span class="line">(<span class="number">2</span>, <span class="number">1</span>, <span class="string">'还行啊'</span>),</span><br><span class="line">(<span class="number">3</span>, <span class="number">3</span>, <span class="string">'很实用哦'</span>);</span><br></pre></td></tr></table></figure>
+<p>下面我们用子查询的方式来查出商品的信息以及每个商品的评论数量</p>
+<figure class="highlight n1ql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> product.*,(<span class="keyword">select</span> <span class="built_in">count</span>(comment.id) <span class="keyword">from</span> comment <span class="keyword">where</span> product.id=comment.entity_id) comment_count <span class="keyword">FROM</span> <span class="symbol">`product`</span> <span class="keyword">limit</span> <span class="number">5</span>;</span><br></pre></td></tr></table></figure>
+<p>查询结果如下：</p>
+<p><a href="http://www.zjj.com/phpmyadmin/sql.php?db=test&amp;table=product&amp;sql_query=SELECT+product.%2A%2C%28select+count%28comment.id%29+from+comment+where+product.id%3Dcomment.entity_id%29+comment_count+FROM+%60product%60+ORDER+BY+%60product%60.%60id%60+ASC+limit+5&amp;session_max_rows=30&amp;token=c43efc1718c35c767060bafb6158d147" target="_blank" rel="external">id</a> <a href="http://www.zjj.com/phpmyadmin/sql.php?db=test&amp;table=product&amp;sql_query=SELECT+product.%2A%2C%28select+count%28comment.id%29+from+comment+where+product.id%3Dcomment.entity_id%29+comment_count+FROM+%60product%60+ORDER+BY+%60product%60.%60product_name%60+ASC+limit+5&amp;session_max_rows=30&amp;token=c43efc1718c35c767060bafb6158d147" target="_blank" rel="external">product_name</a> <a href="http://www.zjj.com/phpmyadmin/sql.php?db=test&amp;table=product&amp;sql_query=SELECT+product.%2A%2C%28select+count%28comment.id%29+from+comment+where+product.id%3Dcomment.entity_id%29+comment_count+FROM+%60product%60+ORDER+BY+%60product%60.%60price%60+ASC+limit+5&amp;session_max_rows=30&amp;token=c43efc1718c35c767060bafb6158d147" target="_blank" rel="external">price</a> <a href="http://www.zjj.com/phpmyadmin/sql.php?db=test&amp;table=product&amp;sql_query=SELECT+product.%2A%2C%28select+count%28comment.id%29+from+comment+where+product.id%3Dcomment.entity_id%29+comment_count+FROM+%60product%60+ORDER+BY+%60comment_count%60+ASC+limit+5&amp;session_max_rows=30&amp;token=c43efc1718c35c767060bafb6158d147" target="_blank" rel="external">comment_count</a></p>
+<p>1 肉松饼 5  2</p>
+<p>2 可乐 5  0</p>
+<p>3 鸡翅 12  1</p>
+<p>4 杯子 42  0</p>
+<p><strong>对于这种查询，可以分成两部来理解，首先忽略整个select子查询，查出商品表中的数据，然后根据商品的id执行子查询，对于一个商品id,子查询只能返回一条数据，如果子查询返回多条数据则会出错，另外，每一条select子查询只能查询一个字段。</strong></p>
+<p>另外的列子，查出每个商品信息以及商品的最新评论内容：</p>
+<figure class="highlight n1ql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> product.*,(<span class="keyword">select</span> comment.content <span class="keyword">from</span> comment <span class="keyword">where</span> product.id=comment.entity_id <span class="keyword">order</span> <span class="keyword">by</span> comment.id <span class="keyword">desc</span> <span class="keyword">limit</span> <span class="number">1</span>) comment_count <span class="keyword">FROM</span> <span class="symbol">`product`</span> <span class="keyword">limit</span> <span class="number">5</span>;</span><br></pre></td></tr></table></figure>
+<p>查询结果如下：</p>
+<p><a href="http://www.zjj.com/phpmyadmin/sql.php?db=test&amp;table=product&amp;sql_query=SELECT+product.%2A%2C%28select+comment.content+from+comment+where+product.id%3Dcomment.entity_id+limit+1+%29last_comment+FROM+%60product%60+ORDER+BY+%60product%60.%60id%60+ASC+limit+5&amp;session_max_rows=30&amp;token=c43efc1718c35c767060bafb6158d147" target="_blank" rel="external">id</a> <a href="http://www.zjj.com/phpmyadmin/sql.php?db=test&amp;table=product&amp;sql_query=SELECT+product.%2A%2C%28select+comment.content+from+comment+where+product.id%3Dcomment.entity_id+limit+1+%29last_comment+FROM+%60product%60+ORDER+BY+%60product%60.%60product_name%60+ASC+limit+5&amp;session_max_rows=30&amp;token=c43efc1718c35c767060bafb6158d147" target="_blank" rel="external">product_name</a> <a href="http://www.zjj.com/phpmyadmin/sql.php?db=test&amp;table=product&amp;sql_query=SELECT+product.%2A%2C%28select+comment.content+from+comment+where+product.id%3Dcomment.entity_id+limit+1+%29last_comment+FROM+%60product%60+ORDER+BY+%60product%60.%60price%60+ASC+limit+5&amp;session_max_rows=30&amp;token=c43efc1718c35c767060bafb6158d147" target="_blank" rel="external">price</a> <a href="http://www.zjj.com/phpmyadmin/sql.php?db=test&amp;table=product&amp;sql_query=SELECT+product.%2A%2C%28select+comment.content+from+comment+where+product.id%3Dcomment.entity_id+limit+1+%29last_comment+FROM+%60product%60+ORDER+BY+%60last_comment%60+ASC+limit+5&amp;session_max_rows=30&amp;token=c43efc1718c35c767060bafb6158d147" target="_blank" rel="external">last_comment</a></p>
+<p>1 肉松饼 5  还行啊</p>
+<p>2 可乐 5  <em>NULL</em></p>
+<p>3 鸡翅 12  很实用哦</p>
+<p>4 杯子 42  <em>NULL</em></p>
+<h1 id="示例二-billing"><a href="#示例二-billing" class="headerlink" title="示例二 billing"></a>示例二 billing</h1><p>分两步看，</p>
+<ol>
+<li>不看字查询bi.id not in () , 相当于查询出所有的status为1的id，和记录</li>
+</ol>
+<ol>
+<li>SELECT substring_index(group_concat(id ORDER BY product_start_time desc) , ‘,’ , 1)<br>​                                    FROM cash_billing_item<br>​                                    WHERE status = 1<br>​                                    GROUP BY product_no, customer_no</li>
+</ol>
+<p>SELECT SUBSTRING_INDEX(‘15,151,152,16’,’,’,1); ==&gt;得到结果为： 15</p>
+<p>然后每一条记录的bi.product_no 和bi.customer_no，分别和select的结果比较</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> bi.id</span><br><span class="line"><span class="keyword">FROM</span> cash_billing_item bi</span><br><span class="line"><span class="keyword">WHERE</span> bi.id <span class="keyword">and</span> bi.status = <span class="number">1</span> <span class="keyword">and</span> bi.id</span><br><span class="line">                                  <span class="keyword">not</span> <span class="keyword">in</span></span><br><span class="line">                                  (</span><br><span class="line">                                    <span class="keyword">SELECT</span> substring_index(<span class="keyword">group_concat</span>(<span class="keyword">id</span> <span class="keyword">ORDER</span> <span class="keyword">BY</span> product_start_time <span class="keyword">desc</span>) , <span class="string">','</span> , <span class="number">1</span>)</span><br><span class="line">                                    <span class="keyword">FROM</span> cash_billing_item</span><br><span class="line">                                    <span class="keyword">WHERE</span> product_no = bi.product_no <span class="keyword">AND</span> customer_no = bi.customer_no <span class="keyword">and</span> <span class="keyword">status</span> = <span class="number">1</span></span><br><span class="line">                                    <span class="keyword">GROUP</span> <span class="keyword">BY</span> product_no, customer_no</span><br><span class="line">                                  );</span><br><span class="line"></span><br><span class="line">        <span class="keyword">UPDATE</span> cash_billing_item bi,</span><br><span class="line">          (</span><br><span class="line">            <span class="keyword">SELECT</span> bi.id</span><br><span class="line">            <span class="keyword">FROM</span> cash_billing_item bi</span><br><span class="line">            <span class="keyword">WHERE</span> bi.id <span class="keyword">and</span> bi.status = <span class="number">1</span> <span class="keyword">and</span> bi.id</span><br><span class="line">                            <span class="keyword">not</span> <span class="keyword">in</span></span><br><span class="line">                            (</span><br><span class="line">                              <span class="keyword">SELECT</span> <span class="keyword">group_concat</span>(<span class="keyword">id</span> <span class="keyword">ORDER</span> <span class="keyword">BY</span> product_start_time <span class="keyword">desc</span>)</span><br><span class="line">                              <span class="keyword">FROM</span> cash_billing_item</span><br><span class="line">                              <span class="keyword">WHERE</span> product_no = bi.product_no <span class="keyword">AND</span> customer_no = bi.customer_no</span><br><span class="line">                                <span class="keyword">and</span> <span class="keyword">status</span> = <span class="number">1</span></span><br><span class="line">                              <span class="keyword">GROUP</span> <span class="keyword">BY</span> product_no, customer_no</span><br><span class="line">                            )</span><br><span class="line">          ) temp</span><br><span class="line">        <span class="keyword">SET</span> bi.status = <span class="number">2</span></span><br><span class="line">        <span class="keyword">WHERE</span> bi.id = temp.id;</span><br></pre></td></tr></table></figure>
+<p><strong>cash_billing_item_copy</strong></p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">create</span> <span class="keyword">table</span> cash_billing_item_copy</span><br><span class="line">(</span><br><span class="line">  <span class="keyword">id</span> <span class="built_in">bigint</span>(<span class="number">11</span>) <span class="keyword">unsigned</span> auto_increment <span class="keyword">comment</span> <span class="string">'自增id'</span></span><br><span class="line">    primary <span class="keyword">key</span>,</span><br><span class="line">  customer_no <span class="built_in">varchar</span>(<span class="number">64</span>) <span class="literal">null</span> <span class="keyword">comment</span> <span class="string">'客户编号'</span>,</span><br><span class="line">  product_id <span class="built_in">int</span> <span class="keyword">not</span> <span class="literal">null</span> <span class="keyword">comment</span> <span class="string">'产品表pk'</span>,</span><br><span class="line">  product_start_time <span class="keyword">timestamp</span> <span class="literal">null</span> <span class="keyword">comment</span> <span class="string">'产品生效时间'</span>,</span><br><span class="line">  gmt_create <span class="keyword">timestamp</span> <span class="keyword">default</span> <span class="keyword">CURRENT_TIMESTAMP</span> <span class="keyword">not</span> <span class="literal">null</span> <span class="keyword">comment</span> <span class="string">'创建时间'</span>,</span><br><span class="line">  gmt_modify <span class="keyword">timestamp</span> <span class="keyword">default</span> <span class="keyword">CURRENT_TIMESTAMP</span> <span class="keyword">not</span> <span class="literal">null</span> <span class="keyword">comment</span> <span class="string">'修改时间'</span></span><br><span class="line">)</span><br><span class="line">  <span class="keyword">comment</span> <span class="string">'从账务系统推来的计费项'</span></span><br><span class="line">;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> cash_billing_item_copy (customer_no, product_id, product_start_time) <span class="keyword">VALUES</span></span><br><span class="line">  (<span class="string">'ct2'</span>,<span class="number">1</span>,<span class="string">'2017-12-27 00:00:00'</span>);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">SELECT</span> * <span class="keyword">FROM</span> cash_billing_item_copy;</span><br><span class="line"></span><br><span class="line"><span class="keyword">SELECT</span>  <span class="keyword">group_concat</span>(<span class="keyword">id</span> <span class="keyword">ORDER</span> <span class="keyword">BY</span> product_start_time <span class="keyword">DESC</span>), customer_no , product_id</span><br><span class="line"><span class="keyword">FROM</span> cash_billing_item_copy</span><br><span class="line"><span class="keyword">GROUP</span> <span class="keyword">BY</span> customer_no  , product_id;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">SELECT</span> c.id</span><br><span class="line"></span><br><span class="line">  <span class="keyword">FROM</span> cash_billing_item_copy c</span><br><span class="line"><span class="keyword">WHERE</span> c.id <span class="keyword">AND</span> c.id <span class="keyword">NOT</span> <span class="keyword">IN</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">               (</span><br><span class="line">                 <span class="keyword">SELECT</span></span><br><span class="line">                   substring_index(<span class="keyword">group_concat</span>(<span class="keyword">id</span> <span class="keyword">ORDER</span> <span class="keyword">BY</span> product_start_time <span class="keyword">DESC</span>), <span class="string">','</span>, <span class="number">1</span>)</span><br><span class="line">                 <span class="keyword">FROM</span> cash_billing_item_copy</span><br><span class="line">                 <span class="keyword">GROUP</span> <span class="keyword">BY</span> customer_no, product_id</span><br><span class="line">               );</span><br><span class="line"></span><br><span class="line"><span class="keyword">SELECT</span> SUBSTRING_INDEX(<span class="string">'15,151,152,16'</span>,<span class="string">','</span>,<span class="number">1</span>);</span><br></pre></td></tr></table></figure>
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
     
       
 
@@ -2166,471 +2772,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://zhouxiaowu.coding.me/2017/11/26/zookeeper详解/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="周小伍 Joey">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/xiaowu_avatar.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="xiaowu's blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2017/11/26/zookeeper详解/" itemprop="url">zookeeper详解</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-11-26T21:47:28+08:00">
-                2017-11-26
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/分布式/" itemprop="url" rel="index">
-                    <span itemprop="name">分布式</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2017/11/26/zookeeper详解/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count disqus-comment-count"
-                        data-disqus-identifier="2017/11/26/zookeeper详解/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-
-          
-
-          
-            <div class="post-wordcount">
-              
-                
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-file-word-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">字数统计&#58;</span>
-                
-                <span title="字数统计">
-                  554
-                </span>
-              
-
-              
-                <span class="post-meta-divider">|</span>
-              
-
-              
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-clock-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
-                
-                <span title="阅读时长">
-                  2
-                </span>
-              
-            </div>
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h1 id="start"><a href="#start" class="headerlink" title="start"></a>start</h1><figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">bin/zkServer<span class="selector-class">.sh</span> start</span><br><span class="line"></span><br><span class="line">$ bin/zkCli<span class="selector-class">.sh</span> -server <span class="number">127.0</span>.<span class="number">0.1</span>:<span class="number">2181</span></span><br></pre></td></tr></table></figure>
-<h1 id="zk-client-操作"><a href="#zk-client-操作" class="headerlink" title="zk client 操作"></a>zk client 操作</h1><pre><code>stat path [watch]
-set path data [version]
-ls path [watch]
-delquota [-n|-b] path
-ls2 path [watch]
-setAcl path acl
-setquota -n|-b val path
-history
-redo cmdno
-printwatches on|off
-delete path [version]
-sync path
-listquota path
-rmr path
-get path [watch]
-create [-s] [-e] path data acl
-addauth scheme auth
-quit
-getAcl path
-close
-connect host:port
-</code></pre><h1 id="伪集群搭建"><a href="#伪集群搭建" class="headerlink" title="伪集群搭建"></a>伪集群搭建</h1><p>参考：<a href="http://zookeeper.apache.org/doc/trunk/zookeeperStarted.html" target="_blank" rel="external">http://zookeeper.apache.org/doc/trunk/zookeeperStarted.html</a></p>
-<p><strong>集群配置：</strong></p>
-<p>1、配置文件conf/zoo.cfg，除了单机模式的配置之外，还需要新加server.x信息，如下所示。</p>
-<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">tickTime</span>=2000</span><br><span class="line"><span class="attribute">dataDir</span>=D:\09tmp\zookeeper\data</span><br><span class="line"><span class="attribute">clientPort</span>=2181</span><br><span class="line"><span class="attribute">initLimit</span>=5</span><br><span class="line"><span class="attribute">syncLimit</span>=2</span><br><span class="line">server.<span class="attribute">1</span>=zoo1:2888:3888</span><br><span class="line">server.<span class="attribute">2</span>=zoo2:2888:3888</span><br><span class="line">server.<span class="attribute">3</span>=zoo3:2888:3888</span><br></pre></td></tr></table></figure>
-<p>​    zoox表示的是zookeeper服务器的IP地址，第一个端口2888：在zookeeper服务器之间及和leader连接时使用，第二个端口号：3888是在进行leader选举时使用。</p>
-<p>2、同时需要在配置项dataDir所指示目录下创建文件myid文件，其内容为该1中server.x中的x，表示该zookeeper服务器的编号。</p>
-<p>3、为了降低更新的延迟，需要为事物日志的存放专门指定存储路径，该配置项为：dataLogDir</p>
-<figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># The number of milliseconds of each tick</span></span><br><span class="line"><span class="attr">tickTime</span>=<span class="number">2000</span></span><br><span class="line"><span class="comment"># The number of ticks that the initial</span></span><br><span class="line"><span class="comment"># synchronization phase can take</span></span><br><span class="line"><span class="attr">initLimit</span>=<span class="number">10</span></span><br><span class="line"><span class="comment"># The number of ticks that can pass between</span></span><br><span class="line"><span class="comment"># sending a request and getting an acknowledgement</span></span><br><span class="line"><span class="attr">syncLimit</span>=<span class="number">5</span></span><br><span class="line"><span class="comment"># the directory where the snapshot is stored.</span></span><br><span class="line"><span class="comment"># do not use /tmp for storage, /tmp here is just</span></span><br><span class="line"><span class="comment"># example sakes.</span></span><br><span class="line"><span class="attr">dataDir</span>=D:\\<span class="number">09</span>tmp\\zookeeper\\data</span><br><span class="line"><span class="attr">dataLogDir</span>=D:\\<span class="number">09</span>tmp\\zookeeper\\log</span><br></pre></td></tr></table></figure>
-<p><strong>伪集群配置：</strong></p>
-<p>1、由于所有zookeeper服务器都在一台物理机器上，因此zoo1.cfg中配置项server.x的端口信息，不能相同。且配置项dataDir和dataLogDir也需要为伪服务器单独指定。配置项clientPort在三个服务器中也要配置不同的值，示例如下：</p>
-<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">tickTime</span>=2000</span><br><span class="line"><span class="attribute">dataDir</span>=D:\09tmp\zookeeper\data\\1</span><br><span class="line"><span class="attribute">dataLogDir</span>=D:\09tmp\zookeeper\log\\1</span><br><span class="line"><span class="attribute">clientPort</span>=2181</span><br><span class="line"><span class="attribute">initLimit</span>=5</span><br><span class="line"><span class="attribute">syncLimit</span>=2</span><br><span class="line">server.<span class="attribute">1</span>=localhost:2888:3888</span><br><span class="line">server.<span class="attribute">2</span>=localhost:2889:3889</span><br><span class="line">server.<span class="attribute">3</span>=localhost:2890:3890</span><br></pre></td></tr></table></figure>
-<p>2、同时需要准备zoo2.cfg和zoo3.cfg配置文件，参考1进行配置</p>
-<p>3、在D:\09tmp\zookeeper\data\1、D:\09tmp\zookeeper\data\2和D:\09tmp\zookeeper\data\3中分别创建文件myid，里面填写对应的zookeeper服务器编号。</p>
-<p>4、创建三个文件：zkEnv1.cmd、zkEnv2.cmd和zkEnv3.cmd分别用来指定使用不同的zoo.cfg。</p>
-<p>5、创建三个文件：zkServer1.cmd、zkServer2.cmd和zkServer3.cmd分别用来指定不同的文件zkEnv.cmd。</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://zhouxiaowu.coding.me/2017/11/25/Mockito浅谈/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="周小伍 Joey">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/xiaowu_avatar.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="xiaowu's blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2017/11/25/Mockito浅谈/" itemprop="url">Mockito浅谈</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-11-25T10:54:39+08:00">
-                2017-11-25
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/java基础/" itemprop="url" rel="index">
-                    <span itemprop="name">java基础</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2017/11/25/Mockito浅谈/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count disqus-comment-count"
-                        data-disqus-identifier="2017/11/25/Mockito浅谈/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-
-          
-
-          
-            <div class="post-wordcount">
-              
-                
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-file-word-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">字数统计&#58;</span>
-                
-                <span title="字数统计">
-                  2.3k
-                </span>
-              
-
-              
-                <span class="post-meta-divider">|</span>
-              
-
-              
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-clock-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
-                
-                <span title="阅读时长">
-                  10
-                </span>
-              
-            </div>
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h1 id="Mockito简介"><a href="#Mockito简介" class="headerlink" title="Mockito简介"></a>Mockito简介</h1><ul>
-<li>什么是mock？<br>在软件开发的世界之外, “mock”一词是指模仿或者效仿。 因此可以将“mock”理解为一个替身，替代者. 在软件开发中提及”mock”，通常理解为模拟对象或者Fake。</li>
-<li>为什么需要Mock?<br>Mock是为了解决units之间由于耦合而难于被测试的问题。所以mock object是unit test的一部分。</li>
-</ul>
-<h1 id="Mock的好处是什么"><a href="#Mock的好处是什么" class="headerlink" title="Mock的好处是什么?"></a>Mock的好处是什么?</h1><ul>
-<li><p>提前创建测试，TDD（测试驱动开发）</p>
-<blockquote>
-<p>这是个最大的好处吧。如果你创建了一个Mock那么你就可以在service接口创建之前写Service Tests了，这样你就能在开发过程中把测试添加到你的自动化测试环境中了。换句话说，模拟使你能够使用测试驱动开发。</p>
-</blockquote>
-</li>
-<li><p>团队可以并行工作</p>
-<blockquote>
-<p>这类似于上面的那点；为不存在的代码创建测试。但前面讲的是开发人员编写测试程序，这里说的是测试团队来创建。当还没有任何东西要测的时候测试团队如何来创建测试呢？模拟并针对模拟测试！这意味着当service借口需要测试时，实际上QA团队已经有了一套完整的测试组件；没有出现一个团队等待另一个团队完成的情况。这使得模拟的效益型尤为突出了。</p>
-</blockquote>
-</li>
-<li><p>你可以创建一个验证或者演示程序。</p>
-<blockquote>
-<p>由于Mocks非常高效，Mocks可以用来创建一个概念证明，作为一个示意图，或者作为一个你正考虑构建项目的演示程序。这为你决定项目接下来是否要进行提供了有力的基础，但最重要的还是提供了实际的设计决策。</p>
-</blockquote>
-</li>
-<li><p>为无法访问的资源编写测试</p>
-<blockquote>
-<p>这个好处不属于实际效益的一种，而是作为一个必要时的“救生圈”。有没有遇到这样的情况？当你想要测试一个service接口，但service需要经过防火墙访问，防火墙不能为你打开或者你需要认证才能访问。遇到这样情况时，你可以在你能访问的地方使用MockService替代，这就是一个“救生圈”功能。</p>
-</blockquote>
-</li>
-<li><p>Mock 可以交给用户</p>
-<blockquote>
-<p>在有些情况下，某种原因你需要允许一些外部来源访问你的测试系统，像合作伙伴或者客户。这些原因导致别人也可以访问你的敏感信息，而你或许只是想允许访问部分测试环境。在这种情况下，如何向合作伙伴或者客户提供一个测试系统来开发或者做测试呢？最简单的就是提供一个mock，无论是来自于你的网络或者客户的网络。soapUI mock非常容易配置，他可以运行在soapUI或者作为一个war包发布到你的java服务器里面。</p>
-</blockquote>
-</li>
-<li><p>隔离系统</p>
-<blockquote>
-<p>有时，你希望在没有系统其他部分的影响下测试系统单独的一部分。由于其他系统部分会给测试数据造成干扰，影响根据数据收集得到的测试结论。使用mock你可以移除掉除了需要测试部分的系统依赖的模拟。当隔离这些mocks后，mocks就变得非常简单可靠，快速可预见。这为你提供了一个移除了随机行为，有重复模式并且可以监控特殊系统的测试环境。</p>
-</blockquote>
-</li>
-</ul>
-<h1 id="Mockito使用示例"><a href="#Mockito使用示例" class="headerlink" title="Mockito使用示例"></a>Mockito使用示例</h1><h2 id="模拟对象"><a href="#模拟对象" class="headerlink" title="模拟对象"></a>模拟对象</h2><figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 模拟LinkedList 的一个对象</span></span><br><span class="line">LinkedList mockedList = mock(LinkedList.<span class="keyword">class</span>);</span><br><span class="line"><span class="comment">// 此时调用get方法，会返回null，因为还没有对方法调用的返回值做模拟</span></span><br><span class="line">System.<span class="keyword">out</span>.println(mockedList.<span class="keyword">get</span>(<span class="number">0</span>));</span><br></pre></td></tr></table></figure>
-<h2 id="模拟方法调用的返回值"><a href="#模拟方法调用的返回值" class="headerlink" title="模拟方法调用的返回值"></a>模拟方法调用的返回值</h2><figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 模拟获取第一个元素时，返回字符串first。  给特定的方法调用返回固定值在官方说法中称为stub。</span></span><br><span class="line"><span class="keyword">when</span>(mockedList.<span class="keyword">get</span>(<span class="number">0</span>)).thenReturn(<span class="string">"first"</span>);</span><br><span class="line"><span class="comment">// 此时打印输出first</span></span><br><span class="line">System.<span class="keyword">out</span>.println(mockedList.<span class="keyword">get</span>(<span class="number">0</span>));</span><br></pre></td></tr></table></figure>
-<h2 id="模拟方法调用抛出异常"><a href="#模拟方法调用抛出异常" class="headerlink" title="模拟方法调用抛出异常"></a>模拟方法调用抛出异常</h2><figure class="highlight arduino"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 模拟获取第二个元素时，抛出RuntimeException</span></span><br><span class="line">when(mockedList.<span class="built_in">get</span>(<span class="number">1</span>)).thenThrow(<span class="keyword">new</span> RuntimeException());</span><br><span class="line"><span class="comment">// 此时将会抛出RuntimeException</span></span><br><span class="line">System.out.<span class="built_in">println</span>(mockedList.<span class="built_in">get</span>(<span class="number">1</span>));</span><br></pre></td></tr></table></figure>
-<p>如果一个函数没有返回值类型，那么可以使用此方法模拟异常抛出</p>
-<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="title">doThrow</span><span class="params">(new RuntimeException(<span class="string">"clear exception"</span>)</span></span>).when(mockedList).<span class="attribute">clear</span>();</span><br><span class="line">mockedList.<span class="attribute">clear</span>();</span><br></pre></td></tr></table></figure>
-<h2 id="模拟调用方法时的参数匹配"><a href="#模拟调用方法时的参数匹配" class="headerlink" title="模拟调用方法时的参数匹配"></a>模拟调用方法时的参数匹配</h2><figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// anyInt()匹配任何int参数，这意味着参数为任意值，其返回值均是element</span></span><br><span class="line"><span class="keyword">when</span>(mockedList.<span class="keyword">get</span>(anyInt())).thenReturn(<span class="string">"element"</span>);</span><br><span class="line"><span class="comment">// 此时打印是element</span></span><br><span class="line">System.<span class="keyword">out</span>.println(mockedList.<span class="keyword">get</span>(<span class="number">999</span>));</span><br></pre></td></tr></table></figure>
-<h2 id="模拟方法调用次数"><a href="#模拟方法调用次数" class="headerlink" title="模拟方法调用次数"></a>模拟方法调用次数</h2><figure class="highlight less"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 调用add一次</span></span><br><span class="line"><span class="selector-tag">mockedList</span><span class="selector-class">.add</span>(<span class="string">"once"</span>);</span><br><span class="line"><span class="comment">// 下面两个写法验证效果一样，均验证add方法是否被调用了一次</span></span><br><span class="line"><span class="selector-tag">verify</span>(mockedList)<span class="selector-class">.add</span>(<span class="string">"once"</span>);</span><br><span class="line"><span class="selector-tag">verify</span>(mockedList, times(<span class="number">1</span>))<span class="selector-class">.add</span>(<span class="string">"once"</span>);</span><br></pre></td></tr></table></figure>
-<h2 id="校验行为"><a href="#校验行为" class="headerlink" title="校验行为"></a>校验行为</h2><figure class="highlight gcode"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// mock creation</span></span><br><span class="line">List mockedList = mock<span class="comment">(List.class)</span>;</span><br><span class="line"><span class="comment">// using mock object</span></span><br><span class="line">mockedList.add<span class="comment">("one")</span>;</span><br><span class="line">mockedList.clear<span class="comment">()</span>;</span><br><span class="line"><span class="comment">//verification</span></span><br><span class="line">verify<span class="comment">(mockedList)</span>.add<span class="comment">("one")</span>;</span><br><span class="line">verify<span class="comment">(mockedList)</span>.clear<span class="comment">()</span>;</span><br></pre></td></tr></table></figure>
-<h2 id="模拟方法调用-Stubbing"><a href="#模拟方法调用-Stubbing" class="headerlink" title="模拟方法调用(Stubbing)"></a>模拟方法调用(Stubbing)</h2><figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//You can mock concrete classes, not just interfaces</span></span><br><span class="line">LinkedList mockedList = mock(LinkedList.<span class="keyword">class</span>);</span><br><span class="line"><span class="comment">//stubbing</span></span><br><span class="line"><span class="keyword">when</span>(mockedList.<span class="keyword">get</span>(<span class="number">0</span>)).thenReturn(<span class="string">"first"</span>);</span><br><span class="line"><span class="keyword">when</span>(mockedList.<span class="keyword">get</span>(<span class="number">1</span>)).thenThrow(new RuntimeException());</span><br><span class="line"><span class="comment">//following prints "first"</span></span><br><span class="line">System.<span class="keyword">out</span>.println(mockedList.<span class="keyword">get</span>(<span class="number">0</span>));</span><br><span class="line"><span class="comment">//following throws runtime exception</span></span><br><span class="line">System.<span class="keyword">out</span>.println(mockedList.<span class="keyword">get</span>(<span class="number">1</span>));</span><br><span class="line"><span class="comment">//following prints "null" because get(999) was not stubbed</span></span><br><span class="line">System.<span class="keyword">out</span>.println(mockedList.<span class="keyword">get</span>(<span class="number">999</span>));</span><br><span class="line"></span><br><span class="line">verify(mockedList).<span class="keyword">get</span>(<span class="number">0</span>);</span><br></pre></td></tr></table></figure>
-<h2 id="参数匹配"><a href="#参数匹配" class="headerlink" title="参数匹配"></a>参数匹配</h2><figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//stubbing using built-in anyInt() argument matcher</span></span><br><span class="line"><span class="keyword">when</span>(mockedList.<span class="keyword">get</span>(anyInt())).thenReturn(<span class="string">"element"</span>);</span><br><span class="line"><span class="comment">//stubbing using custom matcher (let's say isValid() returns your own matcher implementation):</span></span><br><span class="line"><span class="keyword">when</span>(mockedList.contains(argThat(isValid()))).thenReturn(<span class="string">"element"</span>);</span><br><span class="line"><span class="comment">//following prints "element"</span></span><br><span class="line">System.<span class="keyword">out</span>.println(mockedList.<span class="keyword">get</span>(<span class="number">999</span>));</span><br><span class="line"><span class="comment">//you can also verify using an argument matcher</span></span><br><span class="line">verify(mockedList).<span class="keyword">get</span>(anyInt());</span><br><span class="line"><span class="comment">//argument matchers can also be written as Java 8 Lambdas</span></span><br><span class="line">verify(mockedList).add(someString -&gt; someString.length() &gt; <span class="number">5</span>);</span><br></pre></td></tr></table></figure>
-<h2 id="校验方法调用次数"><a href="#校验方法调用次数" class="headerlink" title="校验方法调用次数"></a>校验方法调用次数</h2><figure class="highlight less"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//using mock</span></span><br><span class="line"><span class="selector-tag">mockedList</span><span class="selector-class">.add</span>(<span class="string">"once"</span>);</span><br><span class="line"></span><br><span class="line"><span class="selector-tag">mockedList</span><span class="selector-class">.add</span>(<span class="string">"twice"</span>);</span><br><span class="line"><span class="selector-tag">mockedList</span><span class="selector-class">.add</span>(<span class="string">"twice"</span>);</span><br><span class="line"></span><br><span class="line"><span class="selector-tag">mockedList</span><span class="selector-class">.add</span>(<span class="string">"three times"</span>);</span><br><span class="line"><span class="selector-tag">mockedList</span><span class="selector-class">.add</span>(<span class="string">"three times"</span>);</span><br><span class="line"><span class="selector-tag">mockedList</span><span class="selector-class">.add</span>(<span class="string">"three times"</span>);</span><br><span class="line"><span class="comment">//following two verifications work exactly the same - times(1) is used by default</span></span><br><span class="line"><span class="selector-tag">verify</span>(mockedList)<span class="selector-class">.add</span>(<span class="string">"once"</span>);</span><br><span class="line"><span class="selector-tag">verify</span>(mockedList, times(<span class="number">1</span>))<span class="selector-class">.add</span>(<span class="string">"once"</span>);</span><br><span class="line"><span class="comment">//exact number of invocations verification</span></span><br><span class="line"><span class="selector-tag">verify</span>(mockedList, times(<span class="number">2</span>))<span class="selector-class">.add</span>(<span class="string">"twice"</span>);</span><br><span class="line"><span class="selector-tag">verify</span>(mockedList, times(<span class="number">3</span>))<span class="selector-class">.add</span>(<span class="string">"three times"</span>);</span><br><span class="line"><span class="comment">//verification using never(). never() is an alias to times(0)</span></span><br><span class="line"><span class="selector-tag">verify</span>(mockedList, never())<span class="selector-class">.add</span>(<span class="string">"never happened"</span>);</span><br><span class="line"><span class="comment">//verification using atLeast()/atMost()</span></span><br><span class="line"><span class="selector-tag">verify</span>(mockedList, atLeastOnce())<span class="selector-class">.add</span>(<span class="string">"three times"</span>);</span><br><span class="line"><span class="selector-tag">verify</span>(mockedList, atLeast(<span class="number">2</span>))<span class="selector-class">.add</span>(<span class="string">"five times"</span>);</span><br><span class="line"><span class="selector-tag">verify</span>(mockedList, atMost(<span class="number">5</span>))<span class="selector-class">.add</span>(<span class="string">"three times"</span>);</span><br></pre></td></tr></table></figure>
-<h2 id="模拟无返回方法抛出异常"><a href="#模拟无返回方法抛出异常" class="headerlink" title="模拟无返回方法抛出异常"></a>模拟无返回方法抛出异常</h2><figure class="highlight pony"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">doThrow(<span class="function"><span class="keyword">new</span> <span class="title">RuntimeException</span>()).<span class="title">when</span>(mockedList).<span class="title">clear</span>();</span></span><br><span class="line"><span class="function"><span class="comment">//following throws RuntimeException:</span></span></span><br><span class="line"><span class="function"><span class="title">mockedList</span>.<span class="title">clear</span>();</span></span><br></pre></td></tr></table></figure>
-<h2 id="校验方法调用顺序"><a href="#校验方法调用顺序" class="headerlink" title="校验方法调用顺序"></a>校验方法调用顺序</h2><figure class="highlight dart"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// A. Single mock whose methods must be invoked in a particular order</span></span><br><span class="line"><span class="built_in">List</span> singleMock = mock(<span class="built_in">List</span>.<span class="keyword">class</span>);</span><br><span class="line"><span class="comment">//using a single mock</span></span><br><span class="line">singleMock.add(<span class="string">"was added first"</span>);</span><br><span class="line">singleMock.add(<span class="string">"was added second"</span>);</span><br><span class="line"><span class="comment">//create an inOrder verifier for a single mock</span></span><br><span class="line">InOrder inOrder = inOrder(singleMock);</span><br><span class="line"><span class="comment">//following will make sure that add is first called with "was added first, then with "was added second"</span></span><br><span class="line">inOrder.verify(singleMock).add(<span class="string">"was added first"</span>);</span><br><span class="line">inOrder.verify(singleMock).add(<span class="string">"was added second"</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">// B. Multiple mocks that must be used in a particular order</span></span><br><span class="line"><span class="built_in">List</span> firstMock = mock(<span class="built_in">List</span>.<span class="keyword">class</span>);</span><br><span class="line"><span class="built_in">List</span> secondMock = mock(<span class="built_in">List</span>.<span class="keyword">class</span>);</span><br><span class="line"><span class="comment">//using mocks</span></span><br><span class="line">firstMock.add(<span class="string">"was called first"</span>);</span><br><span class="line">secondMock.add(<span class="string">"was called second"</span>);</span><br><span class="line"><span class="comment">//create inOrder object passing any mocks that need to be verified in order</span></span><br><span class="line">InOrder inOrder = inOrder(firstMock, secondMock);</span><br><span class="line"><span class="comment">//following will make sure that firstMock was called before secondMock</span></span><br><span class="line">inOrder.verify(firstMock).add(<span class="string">"was called first"</span>);</span><br><span class="line">inOrder.verify(secondMock).add(<span class="string">"was called second"</span>);</span><br><span class="line"><span class="comment">// Oh, and A + B can be mixed together at will</span></span><br></pre></td></tr></table></figure>
-<h2 id="校验方法是否从未调用"><a href="#校验方法是否从未调用" class="headerlink" title="校验方法是否从未调用"></a>校验方法是否从未调用</h2><figure class="highlight less"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//using mocks - only mockOne is interacted</span></span><br><span class="line"><span class="selector-tag">mockOne</span><span class="selector-class">.add</span>(<span class="string">"one"</span>);</span><br><span class="line"><span class="comment">//ordinary verification</span></span><br><span class="line"><span class="selector-tag">verify</span>(mockOne)<span class="selector-class">.add</span>(<span class="string">"one"</span>);</span><br><span class="line"><span class="comment">//verify that method was never called on a mock</span></span><br><span class="line"><span class="selector-tag">verify</span>(mockOne, never())<span class="selector-class">.add</span>(<span class="string">"two"</span>);</span><br><span class="line"><span class="comment">//verify that other mocks were not interacted</span></span><br><span class="line"><span class="selector-tag">verifyZeroInteractions</span>(mockTwo, mockThree);</span><br></pre></td></tr></table></figure>
-<h2 id="快速创建Mock对象"><a href="#快速创建Mock对象" class="headerlink" title="快速创建Mock对象"></a>快速创建Mock对象</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ArticleManagerTest</span> </span>&#123;</span><br><span class="line">   <span class="meta">@Mock</span> <span class="keyword">private</span> ArticleCalculator calculator;</span><br><span class="line">      <span class="meta">@Mock</span> <span class="keyword">private</span> ArticleDatabase database;</span><br><span class="line">      <span class="meta">@Mock</span> <span class="keyword">private</span> UserProvider userProvider;</span><br><span class="line">      <span class="meta">@Before</span></span><br><span class="line">      <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">before</span><span class="params">()</span></span>&#123;</span><br><span class="line">          MockitoAnnotations.initMocks(<span class="keyword">this</span>);</span><br><span class="line">      &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h2 id="自定义返回不同结果"><a href="#自定义返回不同结果" class="headerlink" title="自定义返回不同结果"></a>自定义返回不同结果</h2><figure class="highlight arduino"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">when(mock.someMethod(<span class="string">"some arg"</span>))</span><br><span class="line">   .thenThrow(<span class="keyword">new</span> RuntimeException())  <span class="comment">// 第一次会抛出异常</span></span><br><span class="line">   .thenReturn(<span class="string">"foo"</span>); <span class="comment">// 第二次会返回这个结果</span></span><br><span class="line"><span class="comment">//First call: throws runtime exception:</span></span><br><span class="line">mock.someMethod(<span class="string">"some arg"</span>); <span class="comment">// 第一次</span></span><br><span class="line"><span class="comment">//Second call: prints "foo"</span></span><br><span class="line">System.out.<span class="built_in">println</span>(mock.someMethod(<span class="string">"some arg"</span>)); <span class="comment">// 第二次</span></span><br><span class="line"><span class="comment">//Any consecutive call: prints "foo" as well (last stubbing wins).</span></span><br><span class="line">System.out.<span class="built_in">println</span>(mock.someMethod(<span class="string">"some arg"</span>)); <span class="comment">// 第n次(n&gt; 2)，依旧以最后返回最后一个配置</span></span><br></pre></td></tr></table></figure>
-<h2 id="对返回结果进行拦截"><a href="#对返回结果进行拦截" class="headerlink" title="对返回结果进行拦截"></a>对返回结果进行拦截</h2><figure class="highlight processing"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">when(mock.someMethod(anyString())).thenAnswer(<span class="keyword">new</span> Answer() &#123;</span><br><span class="line">    <span class="keyword">Object</span> answer(InvocationOnMock invocation) &#123;</span><br><span class="line">        <span class="keyword">Object</span>[] args = invocation.getArguments();</span><br><span class="line">        <span class="keyword">Object</span> mock = invocation.getMock();</span><br><span class="line">        <span class="keyword">return</span> <span class="string">"called with arguments: "</span> + args;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;);</span><br><span class="line"><span class="comment">//the following prints "called with arguments: foo"</span></span><br><span class="line">System.out.<span class="built_in">println</span>(mock.someMethod(<span class="string">"foo"</span>));</span><br></pre></td></tr></table></figure>
-<h2 id="Mock函数操作"><a href="#Mock函数操作" class="headerlink" title="Mock函数操作"></a>Mock函数操作</h2><p>可以通过doThrow(), doAnswer(), doNothing(), doReturn() and doCallRealMethod() 来自定义函数操作。</p>
-<h2 id="暗中调用真实对象"><a href="#暗中调用真实对象" class="headerlink" title="暗中调用真实对象"></a>暗中调用真实对象</h2><figure class="highlight processing"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">List list = <span class="keyword">new</span> LinkedList();</span><br><span class="line">List spy = spy(list);</span><br><span class="line"><span class="comment">//optionally, you can stub out some methods:</span></span><br><span class="line">when(spy.<span class="built_in">size</span>()).thenReturn(<span class="number">100</span>);</span><br><span class="line"><span class="comment">//using the spy calls *real* methods</span></span><br><span class="line">spy.<span class="built_in">add</span>(<span class="string">"one"</span>);</span><br><span class="line">spy.<span class="built_in">add</span>(<span class="string">"two"</span>);</span><br><span class="line"><span class="comment">//prints "one" - the first element of a list</span></span><br><span class="line">System.out.<span class="built_in">println</span>(spy.<span class="built_in">get</span>(<span class="number">0</span>));</span><br><span class="line"><span class="comment">//size() method was stubbed - 100 is printed</span></span><br><span class="line">System.out.<span class="built_in">println</span>(spy.<span class="built_in">size</span>());</span><br><span class="line"><span class="comment">//optionally, you can verify</span></span><br><span class="line">verify(spy).<span class="built_in">add</span>(<span class="string">"one"</span>);</span><br><span class="line">   verify(spy).<span class="built_in">add</span>(<span class="string">"two"</span>);</span><br></pre></td></tr></table></figure>
-<h2 id="改变默认返回值"><a href="#改变默认返回值" class="headerlink" title="改变默认返回值"></a>改变默认返回值</h2><figure class="highlight lisp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Foo mock = mock(<span class="name">Foo</span>.class, Mockito.RETURNS_SMART_NULLS)<span class="comment">;</span></span><br><span class="line">Foo mockTwo = mock(<span class="name">Foo</span>.class, new YourOwnAnswer())<span class="comment">;</span></span><br></pre></td></tr></table></figure>
-<h2 id="捕获函数的参数值"><a href="#捕获函数的参数值" class="headerlink" title="捕获函数的参数值"></a>捕获函数的参数值</h2><figure class="highlight mipsasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">ArgumentCaptor&lt;Person&gt; argument = ArgumentCaptor.forClass(Person.class)<span class="comment">;</span></span><br><span class="line">verify(mock).doSomething(argument.capture())<span class="comment">;</span></span><br><span class="line">assertEquals(<span class="string">"John"</span>, argument.getValue().getName())<span class="comment">;</span></span><br></pre></td></tr></table></figure>
-<h2 id="部分Mock"><a href="#部分Mock" class="headerlink" title="部分Mock"></a>部分Mock</h2><figure class="highlight pony"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//you can create partial mock with spy() method:</span></span><br><span class="line"><span class="type">List</span> list = spy(<span class="function"><span class="keyword">new</span> <span class="title">LinkedList</span>());</span></span><br><span class="line"><span class="function"><span class="comment">//you can enable partial mock capabilities selectively on mocks:</span></span></span><br><span class="line"><span class="function"><span class="title">Foo</span> <span class="title">mock</span> = <span class="title">mock</span>(<span class="type">Foo</span>.class);</span></span><br><span class="line"><span class="function"><span class="comment">//Be sure the real implementation is 'safe'.</span></span></span><br><span class="line"><span class="function"><span class="comment">//If real implementation throws exceptions or depends on specific state of the object then you're in trouble.</span></span></span><br><span class="line"><span class="function"><span class="title">when</span>(mock.someMethod()).<span class="title">thenCallRealMethod</span>();</span></span><br></pre></td></tr></table></figure>
-<h2 id="重置Mock"><a href="#重置Mock" class="headerlink" title="重置Mock"></a>重置Mock</h2><figure class="highlight dart"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">List</span> mock = mock(<span class="built_in">List</span>.<span class="keyword">class</span>);</span><br><span class="line">when(mock.size()).thenReturn(<span class="number">10</span>);</span><br><span class="line">mock.add(<span class="number">1</span>);</span><br><span class="line">reset(mock);</span><br><span class="line"><span class="comment">//at this point the mock forgot any interactions &amp; stubbing</span></span><br></pre></td></tr></table></figure>
-<h2 id="序列化"><a href="#序列化" class="headerlink" title="序列化"></a>序列化</h2><figure class="highlight lisp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">List&lt;Object&gt; list = new ArrayList&lt;Object&gt;()<span class="comment">;</span></span><br><span class="line">List&lt;Object&gt; spy = mock(<span class="name">ArrayList</span>.class, withSettings()</span><br><span class="line">                 .spiedInstance(<span class="name">list</span>)</span><br><span class="line">                 .defaultAnswer(<span class="name">CALLS_REAL_METHODS</span>)</span><br><span class="line">                 .serializable())<span class="comment">;</span></span><br></pre></td></tr></table></figure>
-<h2 id="检查超时"><a href="#检查超时" class="headerlink" title="检查超时"></a>检查超时</h2><figure class="highlight gcode"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//passes when someMethod() is called within given time span</span></span><br><span class="line">verify<span class="comment">(mock, timeout(100)</span>).someMethod<span class="comment">()</span>;</span><br><span class="line"><span class="comment">//above is an alias to:</span></span><br><span class="line">verify<span class="comment">(mock, timeout(100)</span>.times<span class="comment">(1)</span>).someMethod<span class="comment">()</span>;</span><br><span class="line"><span class="comment">//passes when som`eMethod() is called *exactly* 2 times within given time span</span></span><br><span class="line">verify<span class="comment">(mock, timeout(100)</span>.times<span class="comment">(2)</span>).someMethod<span class="comment">()</span>;</span><br><span class="line"><span class="comment">//passes when someMethod() is called *at least* 2 times within given time span</span></span><br><span class="line">verify<span class="comment">(mock, timeout(100)</span>.atLeast<span class="comment">(2)</span>).someMethod<span class="comment">()</span>;</span><br><span class="line"><span class="comment">//verifies someMethod() within given time span using given verification mode</span></span><br><span class="line"><span class="comment">//useful only if you have your own custom verification modes.</span></span><br><span class="line">verify<span class="comment">(mock, new Timeout(100, yourOwnVerificationMode)</span>).someMethod<span class="comment">()</span>;</span><br></pre></td></tr></table></figure>
-<h2 id="Mock详情"><a href="#Mock详情" class="headerlink" title="Mock详情"></a>Mock详情</h2><figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="selector-tag">Mockito</span><span class="selector-class">.mockingDetails</span>(<span class="selector-tag">someObject</span>)<span class="selector-class">.isMock</span>();</span><br><span class="line"><span class="selector-tag">Mockito</span><span class="selector-class">.mockingDetails</span>(<span class="selector-tag">someObject</span>)<span class="selector-class">.isSpy</span>();</span><br></pre></td></tr></table></figure>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -2685,7 +2826,7 @@ connect host:port
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">147</span>
+                  <span class="site-state-item-count">149</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -2696,7 +2837,7 @@ connect host:port
               
               <div class="site-state-item site-state-categories">
                 <a href="/categories/index.html">
-                  <span class="site-state-item-count">27</span>
+                  <span class="site-state-item-count">28</span>
                   <span class="site-state-item-name">分类</span>
                 </a>
               </div>
@@ -2760,7 +2901,7 @@ connect host:port
     
       <span class="post-meta-item-text">Site words total count&#58;</span>
     
-    <span title="Site words total count">265.9k</span>
+    <span title="Site words total count">275.8k</span>
   
 </div>
 
