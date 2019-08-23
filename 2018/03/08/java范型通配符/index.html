@@ -86,7 +86,7 @@
 <meta property="og:site_name" content="xiaowu&#39;s blog">
 <meta property="og:description" content="范型通配符 &amp;lt;? extends Hero&amp;gt;  ArrayList heroList&amp;lt;? extends Hero&amp;gt; 表示只能放子类所以 可以确凿的是，从heroList取出来的对象，一定是可以转型成Hero的  &amp;lt;? super Hero&amp;gt;  ArrayList heroList&amp;lt;? super Hero&amp;gt; 表示heroList的泛型可能是Hero">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2018-03-24T02:37:39.000Z">
+<meta property="og:updated_time" content="2019-08-22T02:59:01.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="java范型使用小结">
 <meta name="twitter:description" content="范型通配符 &amp;lt;? extends Hero&amp;gt;  ArrayList heroList&amp;lt;? extends Hero&amp;gt; 表示只能放子类所以 可以确凿的是，从heroList取出来的对象，一定是可以转型成Hero的  &amp;lt;? super Hero&amp;gt;  ArrayList heroList&amp;lt;? super Hero&amp;gt; 表示heroList的泛型可能是Hero">
@@ -131,6 +131,16 @@
 
 
 
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?3da41265a1a0042eebe5413c0d6c76f5";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
 
 
 
@@ -186,6 +196,16 @@
               <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
             
             首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
           </a>
         </li>
       
@@ -272,6 +292,28 @@
           </span>
 
           
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/java基础/" itemprop="url" rel="index">
+                    <span itemprop="name">java基础</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
 
           
             
@@ -293,6 +335,37 @@
 
           
 
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  3.6k
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  14
+                </span>
+              
+            </div>
           
 
           
@@ -325,29 +398,29 @@
 <p>一、泛型由来<br>Java语言类型包括八种基本类型(byte short int long float double boolean char)和复杂类型，复杂类型包括类和数组。<br>早期Java版本（1.4之前）如果要代指某个泛化类对象，只能使用Object，这样写出来的代码需要增加强转，而且缺少类型检查，代码缺少健壮性。在1.5之后，Java引入了泛型(Generic)的概念，提供了一套抽象的类型表示方法。利用泛型，我们可以：<br>1、表示多个可变类型之间的相互关系：HashMap<t,s>表示类型T与S的映射，HashMap<t, s="" extends="" t="">表示T的子类与T的映射关系</t,></t,s></p>
 <p>2、细化类的能力：ArrayList<t> 可以容纳任何指定类型T的数据，当T代指人，则是人的有序列表，当T代指杯子，则是杯子的有序列表，所有对象个体可以共用相同的操作行为</t></p>
 <p>3、复杂类型被细分成更多类型：List<people>和List<cup>是两种不同的类型，这意味着List<people> listP = new ArrayList<cup>()是不可编译的。后面会提到，这种检查基于编译而非运行，所以说是不可编译并非不可运行，因为运行时ArrayList不保留Cup信息。另外要注意，即使People继承自Object，List<object> listO = new ArrayList<people>()也是不可编译的，应理解为两种不同类型。因为listO可以容纳任意类型，而实例化的People列表只能接收People实例，这会破坏数据类型完整性。</people></object></cup></people></cup></people></p>
-<p>4、简化代码实现：假设有一个执行过程，对不同类型的数据，进行某些流程一致的处理，不引入泛型的实现方法为：<br>[java] view plain copy<br>public void addToArray(Integer data, Integer array[], int pos) {<br>    array[pos] = data;<br>}<br>public void addToArray(Long data, Long array[], int pos) {<br>    array[pos] = data;<br>}<br>这是一种典型的多态行为——重载，但是不够简化。引入泛型的写法更优雅：<br>[java] view plain copy<br>public <t> void addToArray(T data, T array[], int pos) {<br>    array[pos] = data;<br>}  </t></p>
-<p>二、泛型定义与使用（泛型类和泛型方法）<br>1、泛型参数的命名风格：<br>1）尽量用简便的命名来命名泛型，若类型无特定意义，尽量使用一个字符<br>2）尽量使用全大写来命名泛型形参，以此与其他类型区分开<br>3）单字母的泛型建议用T命名，如果有多个泛型，可以取T周围的大写字母，注意，如果泛型本身有意义，可以不遵守这一条，比如缓存管理CacheManager<param, data="">，该类负责管理缓存查询条件与数据的映射，用单字母就不太合适，使用多字母更好<br>4）对于泛型函数或者泛型内部类在某个泛型类中出现的情况，建议泛型函数和内部类的泛型形参名称与外层类的泛型名称保持不同，否则容易引起混淆。类似这种：<br>[java] view plain copy<br>public class GenericClass<t> {<br>     public <t> void testGenericMethod(T t) {<br>     }<br>}  </t></t></param,></p>
-<p>其实testGenericMethod方法的形参与外面GenericClass的形参完全没有关系。换句话说，泛型方法的泛型是优先使用方法泛型定义的。这种更应该写成：<br>[java] view plain copy<br>public class GenericClass<t> {<br>     public <s> void testGenericMethod(S s) {<br>     }<br>}  </s></t></p>
+<p>4、简化代码实现：假设有一个执行过程，对不同类型的数据，进行某些流程一致的处理，不引入泛型的实现方法为：<br>[java] view plain copy<br>public void addToArray(Integer data, Integer array[], int pos) {<br>    array[pos] = data;<br>}<br>public void addToArray(Long data, Long array[], int pos) {<br>    array[pos] = data;<br>}<br>这是一种典型的多态行为——重载，但是不够简化。引入泛型的写法更优雅：<br>[java] view plain copy<br>public <t> void addToArray(T data, T array[], int pos) {<br>    array[pos] = data;<br>}</t></p>
+<p>二、泛型定义与使用（泛型类和泛型方法）<br>1、泛型参数的命名风格：<br>1）尽量用简便的命名来命名泛型，若类型无特定意义，尽量使用一个字符<br>2）尽量使用全大写来命名泛型形参，以此与其他类型区分开<br>3）单字母的泛型建议用T命名，如果有多个泛型，可以取T周围的大写字母，注意，如果泛型本身有意义，可以不遵守这一条，比如缓存管理CacheManager<param, data="">，该类负责管理缓存查询条件与数据的映射，用单字母就不太合适，使用多字母更好<br>4）对于泛型函数或者泛型内部类在某个泛型类中出现的情况，建议泛型函数和内部类的泛型形参名称与外层类的泛型名称保持不同，否则容易引起混淆。类似这种：<br>[java] view plain copy<br>public class GenericClass<t> {<br>     public <t> void testGenericMethod(T t) {<br>     }<br>}</t></t></param,></p>
+<p>其实testGenericMethod方法的形参与外面GenericClass的形参完全没有关系。换句话说，泛型方法的泛型是优先使用方法泛型定义的。这种更应该写成：<br>[java] view plain copy<br>public class GenericClass<t> {<br>     public <s> void testGenericMethod(S s) {<br>     }<br>}</s></t></p>
 <p>2、泛型存在两种用法：泛型类和泛型方法</p>
-<p>1）泛型类<br>定义泛型类时，在类名后加&lt;&gt;，尖括号内可以定义一个或多个泛型参数，并指定泛型参数的取值范围，多个参数用逗号(,)分割<br>泛型类中定义的泛型全类可用（静态方法、静态代码块、静态成员变量除外）<br>父类定义的泛型参数子类无法继承，所以子类得自己写<br>[java] view plain copy<br>public class GenericClass<t extends="" aclass=""> {<br>    T data;<br>    void setData(T t) {<br>        data = t;<br>    }<br>    T getData() {<br>        return data;<br>    }<br>}  </t></p>
-<p>2）泛型方法<br>定义泛型方法，在方法修饰符后，返回参数前加上&lt;&gt;，尖括号内可以定义一个或多个泛型参数，并指定泛型参数取值范围，多个参数用逗号(,)分割<br>泛型方法中定义的泛型作用域在方法内<br>[java] view plain copy<br>public class GenericMethodClass {<br>    public <t extends="" aclass,="" s="" t=""> T setData(T t, S s) {<br>        //do something<br>        return t;<br>    }<br>}  </t></p>
-<p>定义泛型方法，更多是为了表达返回值和方法形参间的关系，本例中方法第一个参数T继承AClass，第二个参数S继承T，返回值是第一个参数。<br>如果仅仅是为了实现了多态，应优先使用通配符。类似如下：<br>[java] view plain copy<br>public void addList(List&lt;?&gt; list) {<br>    //todo<br>}  </p>
+<p>1）泛型类<br>定义泛型类时，在类名后加&lt;&gt;，尖括号内可以定义一个或多个泛型参数，并指定泛型参数的取值范围，多个参数用逗号(,)分割<br>泛型类中定义的泛型全类可用（静态方法、静态代码块、静态成员变量除外）<br>父类定义的泛型参数子类无法继承，所以子类得自己写<br>[java] view plain copy<br>public class GenericClass<t extends="" aclass=""> {<br>    T data;<br>    void setData(T t) {<br>        data = t;<br>    }<br>    T getData() {<br>        return data;<br>    }<br>}</t></p>
+<p>2）泛型方法<br>定义泛型方法，在方法修饰符后，返回参数前加上&lt;&gt;，尖括号内可以定义一个或多个泛型参数，并指定泛型参数取值范围，多个参数用逗号(,)分割<br>泛型方法中定义的泛型作用域在方法内<br>[java] view plain copy<br>public class GenericMethodClass {<br>    public <t extends="" aclass,="" s="" t=""> T setData(T t, S s) {<br>        //do something<br>        return t;<br>    }<br>}</t></p>
+<p>定义泛型方法，更多是为了表达返回值和方法形参间的关系，本例中方法第一个参数T继承AClass，第二个参数S继承T，返回值是第一个参数。<br>如果仅仅是为了实现了多态，应优先使用通配符。类似如下：<br>[java] view plain copy<br>public void addList(List&lt;?&gt; list) {<br>    //todo<br>}</p>
 <p>3、定义了多个泛型类型参数时，一定要在使用时都指定类型，否则会编译出错。</p>
 <p>4、对泛型类的类型参数赋值包含两种方法：<br>1）类变量或实例化：<br>List<string> listS;<br>listS = new ArrayList<string>();</string></string></p>
 <p>2）继承<br>public class MyList<s> extends ArrayList<s> implements IMyInterface<s> {<br>}<br>S是对ArrayList内部定义的泛型E的赋值。</s></s></s></p>
-<p>5、对泛型方法的赋值：<br>[java] view plain copy<br>public <t> T testMethod1(T t, List<t> list) {<br>}  </t></t></p>
-<p>public <t> T testMethod2(List<t> list1, List<t> list2){<br>}  </t></t></t></p>
-<p>People n = null;  </p>
-<p>List<people> list1 = null;<br>testMethod1(n, list1);//此时泛型参数T为People  </people></p>
-<p>List<integer> list2 = null;<br>testMethod2(list1, list2);//编译报错  </integer></p>
+<p>5、对泛型方法的赋值：<br>[java] view plain copy<br>public <t> T testMethod1(T t, List<t> list) {<br>}</t></t></p>
+<p>public <t> T testMethod2(List<t> list1, List<t> list2){<br>}</t></t></t></p>
+<p>People n = null;</p>
+<p>List<people> list1 = null;<br>testMethod1(n, list1);//此时泛型参数T为People</people></p>
+<p>List<integer> list2 = null;<br>testMethod2(list1, list2);//编译报错</integer></p>
 <p>三、通配符<br>1）上述泛型赋值都是赋予泛型参数确定值，我们还可以赋予泛型参数不确定值，也就是通配符?。使用通配符?表示一个未知的类型。类似如下：<br>List&lt;?&gt; list;存放任意的对象<br>List&lt;? extends AClass&gt; listSubAClass; //存放AClass的子类<br>List&lt;? extends BClass&gt; listSuperBClass; //存放BClass的父类</p>
 <p>2）通配符通常与泛型关键字一起使用。</p>
 <p>3）在Java集合框架中，对于未知类型的容器类，只能读取其中元素，不能添加元素。这是因为，对不确定的参数类型，编译器无法识别添加元素的类型和容器的类型是否兼容，唯一的例外是NULL。同时，其读取的元素只能用Object来存储。</p>
-<p>4）通配符不能用在泛型类和泛型方法声明中，类似如下：<br>[java] view plain copy<br>public class GenericClass&lt;?&gt; { //编译错误<br>  public &lt;?&gt; void testGenericMethod(? t) { //编译错误<br>  }<br>}  </p>
+<p>4）通配符不能用在泛型类和泛型方法声明中，类似如下：<br>[java] view plain copy<br>public class GenericClass&lt;?&gt; { //编译错误<br>  public &lt;?&gt; void testGenericMethod(? t) { //编译错误<br>  }<br>}</p>
 <p>四、泛型关键字<br>1、泛型关键字有二个 extends和super，分别表示类型上界和类型下界<br>T extends AClass 表示T继承自AClass类<br>? super AClass 表示?是AClass的父类，注意：super只能与通配符?搭配使用，我们不能写：<br>public class GenericClass<t super="" aclass=""> { //错误<br>}<br>此例子中super换成extends是正确的，表示泛型T继承自AClass，T换成通配符?也是可以的，表示未知类型的下界是AClass。</t></p>
 <p>2、通配符与泛型关键字组合使用</p>
-<p>举两个例子：<br>下界：<br>[java] view plain copy<br>List&lt;? super People&gt; list = new ArrayList&lt;&gt;();<br>People people = new People();<br>list.add(people);<br>People data= list.get(0 ); //编译出错，报错Object不能转为People  </p>
-<p>上界：<br>[java] view plain copy<br>List&lt;? extends People&gt; list = new ArrayList&lt;&gt;();<br>People people = new People();<br>list.add(people);// 编译出错，不能向容器中添加确定的元素<br>People data= list.get( 0);  </p>
+<p>举两个例子：<br>下界：<br>[java] view plain copy<br>List&lt;? super People&gt; list = new ArrayList&lt;&gt;();<br>People people = new People();<br>list.add(people);<br>People data= list.get(0 ); //编译出错，报错Object不能转为People</p>
+<p>上界：<br>[java] view plain copy<br>List&lt;? extends People&gt; list = new ArrayList&lt;&gt;();<br>People people = new People();<br>list.add(people);// 编译出错，不能向容器中添加确定的元素<br>People data= list.get( 0);</p>
 <p>总结就是：上界添加(add)受限，下界查询(get)受限</p>
 <p>五、泛型实现原理<br>1、Java泛型是编译时技术，在运行时不包含类型信息，仅其实例中包含类型参数的定义信息。<br>2、Java利用编译器擦除（erasure，前端处理）实现泛型，基本上就是泛型版本源码到非泛型版本源码的转化。<br>3、擦除去掉了所有的泛型类内所有的泛型类型信息，所有在尖括号之间的类型信息都被扔掉.<br>举例来说：List<string>类型被转换为List，所有对类型变量String的引用被替换成类型变量的上限(通常是Object)。<br>而且，无论何时结果代码类型不正确，会插入一个到合适类型的转换。<br>[java] view plain copy</string></p>
 <p><t> T badCast(T t, Object o) {<br>return (T) o; // unchecked warning<br>}<br>这说明String类型参数在List运行时并不存在。它们也就不会添加任何的时间或者空间上的负担。但同时，这也意味着你不能依靠他们进行类型转换。</t></p>
@@ -358,21 +431,21 @@
 <p>5、泛型与instanceof<br>泛型擦除了类型信息，所以使用instanceof检查某个实例是否是特定类型的泛型类是不可行的：<br>GenericClass genericClass = new GenericClass<string>();<br>if (genericClass instanceof GenericClass<string>) {} // 编译错误</string></string></p>
 <p>同时：<br>GenericClass<string> class1 = (GenericClass<string>) genericClass； //会报警告</string></string></p>
 <p>六、Class与泛型（摘自网络）<br>从Java1.5后Class类就改为了泛型实现，Class类内定义的泛型T指的是Class对象代表的类型。比如说String.class类型代表Class<string>，People.class类型代表Class<people>。<br>主要用于提高反射代码的类型安全。</people></string></p>
-<p>Class类的newInstance返回泛型T的对象，故而可以在反射时创建更精确的类型。<br>举例来说：假定你要写一个工具方法来进行一个数据库查询，给定一个SQL语句，并返回一个数据库中符合查询条件<br>的对象集合(collection)。<br>一个方法是显式的传递一个工厂对象，像下面的代码：<br>[java] view plain copy<br>interface Factory<t> {<br>    public T[] make();<br>}<br>public <t> Collection<t> select(Factory<t> factory, String statement) {<br>     Collection<t> result = new ArrayList<t>();<br>     /<em> run sql query using jdbc </em>/<br>     for ( int i=0; i&lt;10; i++ ) { /<em> iterate over jdbc results </em>/<br>         T item = factory.make();<br>         /<em> use reflection and set all of item’s fields from sql results </em>/<br>         result.add( item );<br>      }<br>      return result;<br>}  </t></t></t></t></t></t></p>
-<p>你可以这样调用：<br>[java] view plain copy<br>select(new Factory<empinfo>() {<br>      public EmpInfo make() {<br>          return new EmpInfo();<br>      }<br>  } , ”selection string”);<br>也可以声明一个类 EmpInfoFactory 来支持接口 Factory：<br>[java] view plain copy<br>class EmpInfoFactory implements Factory<empinfo> {<br>      …<br>      public EmpInfo make() {<br>            return new EmpInfo();<br>      }<br>}<br>然后调用：<br>[java] view plain copy<br>select(getMyEmpInfoFactory(), “selection string”);  </empinfo></empinfo></p>
-<p>这个解决方案的缺点是它需要下面的二者之一：<br>调用处那冗长的匿名工厂类，或为每个要使用的类型声明一个工厂类并传递其对象给调用的地方<br>这很不自然。<br>使用class类型参数值是非常自然的，它可以被反射使用。没有泛型的代码可能是：<br>[java] view plain copy<br>Collection emps = sqlUtility.select(EmpInfo.class, ”select <em> from emps”);<br>…<br>public static Collection select(Class c, String sqlStatement) {<br>          Collection result = new ArrayList();<br>          /</em> run sql query using jdbc <em>/<br>          for ( /</em> iterate over jdbc results <em>/ ) {<br>                Object item = c.newInstance();<br>                /</em> use reflection and set all of item’s fields from sql results */<br>                result.add(item);<br>          }<br>          return result;<br>   }<br>}  </p>
-<p>但是这不能给我们返回一个我们要的精确类型的集合。现在Class是泛型的，我们可以写：<br>[java] view plain copy<br>Collection<empinfo> emps=sqlUtility.select(EmpInfo.class, ”select <em> from emps”);<br>…<br>public static <t> Collection<t> select(Class<t>c, String sqlStatement) {<br>     Collection<t> result = new ArrayList<t>();<br>     /</t></t></t></t></t></em> run sql query using jdbc <em>/<br>     for ( /</em> iterate over jdbc results <em>/ ) {<br>         T item = c.newInstance();<br>         /</em> use reflection and set all of item’s fields from sql results */<br>         result.add(item);<br>     }<br>     return result;<br>}  </empinfo></p>
+<p>Class类的newInstance返回泛型T的对象，故而可以在反射时创建更精确的类型。<br>举例来说：假定你要写一个工具方法来进行一个数据库查询，给定一个SQL语句，并返回一个数据库中符合查询条件<br>的对象集合(collection)。<br>一个方法是显式的传递一个工厂对象，像下面的代码：<br>[java] view plain copy<br>interface Factory<t> {<br>    public T[] make();<br>}<br>public <t> Collection<t> select(Factory<t> factory, String statement) {<br>     Collection<t> result = new ArrayList<t>();<br>     /<em> run sql query using jdbc </em>/<br>     for ( int i=0; i&lt;10; i++ ) { /<em> iterate over jdbc results </em>/<br>         T item = factory.make();<br>         /<em> use reflection and set all of item’s fields from sql results </em>/<br>         result.add( item );<br>      }<br>      return result;<br>}</t></t></t></t></t></t></p>
+<p>你可以这样调用：<br>[java] view plain copy<br>select(new Factory<empinfo>() {<br>      public EmpInfo make() {<br>          return new EmpInfo();<br>      }<br>  } , ”selection string”);<br>也可以声明一个类 EmpInfoFactory 来支持接口 Factory：<br>[java] view plain copy<br>class EmpInfoFactory implements Factory<empinfo> {<br>      …<br>      public EmpInfo make() {<br>            return new EmpInfo();<br>      }<br>}<br>然后调用：<br>[java] view plain copy<br>select(getMyEmpInfoFactory(), “selection string”);</empinfo></empinfo></p>
+<p>这个解决方案的缺点是它需要下面的二者之一：<br>调用处那冗长的匿名工厂类，或为每个要使用的类型声明一个工厂类并传递其对象给调用的地方<br>这很不自然。<br>使用class类型参数值是非常自然的，它可以被反射使用。没有泛型的代码可能是：<br>[java] view plain copy<br>Collection emps = sqlUtility.select(EmpInfo.class, ”select <em> from emps”);<br>…<br>public static Collection select(Class c, String sqlStatement) {<br>          Collection result = new ArrayList();<br>          /</em> run sql query using jdbc <em>/<br>          for ( /</em> iterate over jdbc results <em>/ ) {<br>                Object item = c.newInstance();<br>                /</em> use reflection and set all of item’s fields from sql results */<br>                result.add(item);<br>          }<br>          return result;<br>   }<br>}</p>
+<p>但是这不能给我们返回一个我们要的精确类型的集合。现在Class是泛型的，我们可以写：<br>[java] view plain copy<br>Collection<empinfo> emps=sqlUtility.select(EmpInfo.class, ”select <em> from emps”);<br>…<br>public static <t> Collection<t> select(Class<t>c, String sqlStatement) {<br>     Collection<t> result = new ArrayList<t>();<br>     /</t></t></t></t></t></em> run sql query using jdbc <em>/<br>     for ( /</em> iterate over jdbc results <em>/ ) {<br>         T item = c.newInstance();<br>         /</em> use reflection and set all of item’s fields from sql results */<br>         result.add(item);<br>     }<br>     return result;<br>}</empinfo></p>
 <p>籍此以类型安全的方式获取我们需要的集合。<br>这项技术是一个非常有用的技巧，在处理注释(annotations)的新API中被广泛使用。</p>
-<p>七、容器与泛型<br>Java泛型的最深入人心的应用就是容器（Collections）了。容器不需要考虑它要装什么东西，它的职责就是表达它装的东西的集合所具有的功能。因此是天然的泛型支持者。<br>在没有泛型时，如果要封装一个列表，简化应该是这样的：<br>[java] view plain copy<br>public class ArrayList {<br>    Object[] array = new Object[10];<br>    int i = 0;<br>    public void add(Object object) {<br>          array[i++] = object;<br>    }  </p>
-<pre><code>public Object get(int index) {  
-      return array[index];  
-}  
-</code></pre><p>}  </p>
-<p>这意味着我们把元素存进去，取出来还要强转，类型安全无法保证（存入一个Integer再存一个Long，转出时强转成Integer就崩溃了）。用泛型可以在编译时保证不能存入非泛型支持的数据，保证类型安全。<br>按照我们之前说的，ArrayList内不存储泛型信息，而是存储泛型的最近父类，对ArrayList<t>而言就是Object，所以其内部代码是：<br>[java] view plain copy<br>public class ArrayList<t> {<br>    Object[] array = new Object[10];<br>    int i = 0;<br>    public void add(T object) {<br>          array[i++] = object;<br>    }  </t></t></p>
-<pre><code>public T get(int index) {  
-      return (T)array[index];  
-}  
-</code></pre><p>}  </p>
+<p>七、容器与泛型<br>Java泛型的最深入人心的应用就是容器（Collections）了。容器不需要考虑它要装什么东西，它的职责就是表达它装的东西的集合所具有的功能。因此是天然的泛型支持者。<br>在没有泛型时，如果要封装一个列表，简化应该是这样的：<br>[java] view plain copy<br>public class ArrayList {<br>    Object[] array = new Object[10];<br>    int i = 0;<br>    public void add(Object object) {<br>          array[i++] = object;<br>    }</p>
+<pre><code>public Object get(int index) {
+      return array[index];
+}
+</code></pre><p>}</p>
+<p>这意味着我们把元素存进去，取出来还要强转，类型安全无法保证（存入一个Integer再存一个Long，转出时强转成Integer就崩溃了）。用泛型可以在编译时保证不能存入非泛型支持的数据，保证类型安全。<br>按照我们之前说的，ArrayList内不存储泛型信息，而是存储泛型的最近父类，对ArrayList<t>而言就是Object，所以其内部代码是：<br>[java] view plain copy<br>public class ArrayList<t> {<br>    Object[] array = new Object[10];<br>    int i = 0;<br>    public void add(T object) {<br>          array[i++] = object;<br>    }</t></t></p>
+<pre><code>public T get(int index) {
+      return (T)array[index];
+}
+</code></pre><p>}</p>
 <p>保证我们加进去和取出来的数据都是经过类型检查的。</p>
 <p>八、总结<br>1、泛型是Java为类型安全而做的一个优化，它在内部保证了数据类型一致性，细化了可变参数的类型，且能更好的表示类型间的相关性。<br>2、泛型是编译时技术，其起作用的时机是编译时，完善的编译器会报告错误的泛型使用，保证代码不能编译通过。<br>3、平常写代码时，要认真思考是否有使用泛型的必要。通常来讲，如果方法或类描述的是数据类型无关的逻辑，且其数据类型可变时，则应该使用泛型。</p>
 
@@ -499,7 +572,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">175</span>
+                  <span class="site-state-item-count">150</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -510,7 +583,7 @@
               
               <div class="site-state-item site-state-categories">
                 <a href="/categories/index.html">
-                  <span class="site-state-item-count">10</span>
+                  <span class="site-state-item-count">28</span>
                   <span class="site-state-item-name">分类</span>
                 </a>
               </div>
@@ -520,10 +593,10 @@
               
               
               <div class="site-state-item site-state-tags">
-                
-                  <span class="site-state-item-count">51</span>
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">43</span>
                   <span class="site-state-item-name">标签</span>
-                
+                </a>
               </div>
             
 
@@ -582,6 +655,15 @@
   </span>
   <span class="author" itemprop="copyrightHolder">周小伍 Joey</span>
 
+  
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-area-chart"></i>
+    </span>
+    
+      <span class="post-meta-item-text">Site words total count&#58;</span>
+    
+    <span title="Site words total count">270.1k</span>
   
 </div>
 

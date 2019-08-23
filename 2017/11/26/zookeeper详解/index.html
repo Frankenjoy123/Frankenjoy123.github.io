@@ -87,7 +87,7 @@
 <meta property="og:site_name" content="xiaowu&#39;s blog">
 <meta property="og:description" content="start123bin/zkServer.sh start$ bin/zkCli.sh -server 127.0.0.1:2181 zk client 操作stat path [watch] set path data [version] ls path [watch] delquota [-n|-b] path ls2 path [watch] setAcl path acl setquota">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2017-11-27T01:30:16.000Z">
+<meta property="og:updated_time" content="2019-08-22T03:30:06.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="zookeeper详解">
 <meta name="twitter:description" content="start123bin/zkServer.sh start$ bin/zkCli.sh -server 127.0.0.1:2181 zk client 操作stat path [watch] set path data [version] ls path [watch] delquota [-n|-b] path ls2 path [watch] setAcl path acl setquota">
@@ -132,6 +132,16 @@
 
 
 
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?3da41265a1a0042eebe5413c0d6c76f5";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
 
 
 
@@ -187,6 +197,16 @@
               <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
             
             首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
           </a>
         </li>
       
@@ -273,6 +293,28 @@
           </span>
 
           
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/分布式/" itemprop="url" rel="index">
+                    <span itemprop="name">分布式</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
 
           
             
@@ -294,6 +336,37 @@
 
           
 
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  554
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  2
+                </span>
+              
+            </div>
           
 
           
@@ -338,9 +411,9 @@ connect host:port
 <p>1、配置文件conf/zoo.cfg，除了单机模式的配置之外，还需要新加server.x信息，如下所示。</p>
 <figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">tickTime</span>=2000</span><br><span class="line"><span class="attribute">dataDir</span>=D:\09tmp\zookeeper\data</span><br><span class="line"><span class="attribute">clientPort</span>=2181</span><br><span class="line"><span class="attribute">initLimit</span>=5</span><br><span class="line"><span class="attribute">syncLimit</span>=2</span><br><span class="line">server.<span class="attribute">1</span>=zoo1:2888:3888</span><br><span class="line">server.<span class="attribute">2</span>=zoo2:2888:3888</span><br><span class="line">server.<span class="attribute">3</span>=zoo3:2888:3888</span><br></pre></td></tr></table></figure>
 <p>​    zoox表示的是zookeeper服务器的IP地址，第一个端口2888：在zookeeper服务器之间及和leader连接时使用，第二个端口号：3888是在进行leader选举时使用。</p>
-<p>2、同时需要在配置项dataDir所指示目录下创建文件myid文件，其内容为该1中server.x中的x，表示该zookeeper服务器的编号。 </p>
-<p>3、为了降低更新的延迟，需要为事物日志的存放专门指定存储路径，该配置项为：dataLogDir    </p>
-<figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># The number of milliseconds of each tick</span></span><br><span class="line"><span class="attr">tickTime</span>=<span class="number">2000</span></span><br><span class="line"><span class="comment"># The number of ticks that the initial </span></span><br><span class="line"><span class="comment"># synchronization phase can take</span></span><br><span class="line"><span class="attr">initLimit</span>=<span class="number">10</span></span><br><span class="line"><span class="comment"># The number of ticks that can pass between </span></span><br><span class="line"><span class="comment"># sending a request and getting an acknowledgement</span></span><br><span class="line"><span class="attr">syncLimit</span>=<span class="number">5</span></span><br><span class="line"><span class="comment"># the directory where the snapshot is stored.</span></span><br><span class="line"><span class="comment"># do not use /tmp for storage, /tmp here is just </span></span><br><span class="line"><span class="comment"># example sakes.</span></span><br><span class="line"><span class="attr">dataDir</span>=D:\\<span class="number">09</span>tmp\\zookeeper\\data</span><br><span class="line"><span class="attr">dataLogDir</span>=D:\\<span class="number">09</span>tmp\\zookeeper\\log</span><br></pre></td></tr></table></figure>
+<p>2、同时需要在配置项dataDir所指示目录下创建文件myid文件，其内容为该1中server.x中的x，表示该zookeeper服务器的编号。</p>
+<p>3、为了降低更新的延迟，需要为事物日志的存放专门指定存储路径，该配置项为：dataLogDir</p>
+<figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># The number of milliseconds of each tick</span></span><br><span class="line"><span class="attr">tickTime</span>=<span class="number">2000</span></span><br><span class="line"><span class="comment"># The number of ticks that the initial</span></span><br><span class="line"><span class="comment"># synchronization phase can take</span></span><br><span class="line"><span class="attr">initLimit</span>=<span class="number">10</span></span><br><span class="line"><span class="comment"># The number of ticks that can pass between</span></span><br><span class="line"><span class="comment"># sending a request and getting an acknowledgement</span></span><br><span class="line"><span class="attr">syncLimit</span>=<span class="number">5</span></span><br><span class="line"><span class="comment"># the directory where the snapshot is stored.</span></span><br><span class="line"><span class="comment"># do not use /tmp for storage, /tmp here is just</span></span><br><span class="line"><span class="comment"># example sakes.</span></span><br><span class="line"><span class="attr">dataDir</span>=D:\\<span class="number">09</span>tmp\\zookeeper\\data</span><br><span class="line"><span class="attr">dataLogDir</span>=D:\\<span class="number">09</span>tmp\\zookeeper\\log</span><br></pre></td></tr></table></figure>
 <p><strong>伪集群配置：</strong></p>
 <p>1、由于所有zookeeper服务器都在一台物理机器上，因此zoo1.cfg中配置项server.x的端口信息，不能相同。且配置项dataDir和dataLogDir也需要为伪服务器单独指定。配置项clientPort在三个服务器中也要配置不同的值，示例如下：</p>
 <figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">tickTime</span>=2000</span><br><span class="line"><span class="attribute">dataDir</span>=D:\09tmp\zookeeper\data\\1</span><br><span class="line"><span class="attribute">dataLogDir</span>=D:\09tmp\zookeeper\log\\1</span><br><span class="line"><span class="attribute">clientPort</span>=2181</span><br><span class="line"><span class="attribute">initLimit</span>=5</span><br><span class="line"><span class="attribute">syncLimit</span>=2</span><br><span class="line">server.<span class="attribute">1</span>=localhost:2888:3888</span><br><span class="line">server.<span class="attribute">2</span>=localhost:2889:3889</span><br><span class="line">server.<span class="attribute">3</span>=localhost:2890:3890</span><br></pre></td></tr></table></figure>
@@ -478,7 +551,7 @@ connect host:port
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">175</span>
+                  <span class="site-state-item-count">150</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -489,7 +562,7 @@ connect host:port
               
               <div class="site-state-item site-state-categories">
                 <a href="/categories/index.html">
-                  <span class="site-state-item-count">10</span>
+                  <span class="site-state-item-count">28</span>
                   <span class="site-state-item-name">分类</span>
                 </a>
               </div>
@@ -499,10 +572,10 @@ connect host:port
               
               
               <div class="site-state-item site-state-tags">
-                
-                  <span class="site-state-item-count">51</span>
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">43</span>
                   <span class="site-state-item-name">标签</span>
-                
+                </a>
               </div>
             
 
@@ -561,6 +634,15 @@ connect host:port
   </span>
   <span class="author" itemprop="copyrightHolder">周小伍 Joey</span>
 
+  
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-area-chart"></i>
+    </span>
+    
+      <span class="post-meta-item-text">Site words total count&#58;</span>
+    
+    <span title="Site words total count">270.1k</span>
   
 </div>
 

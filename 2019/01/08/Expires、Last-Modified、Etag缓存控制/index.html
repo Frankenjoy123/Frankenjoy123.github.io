@@ -96,7 +96,7 @@
 <meta property="og:image" content="https://images0.cnblogs.com/blog/648334/201408/221538345655678.jpg">
 <meta property="og:image" content="https://common.cnblogs.com/images/copycode.gif">
 <meta property="og:image" content="https://common.cnblogs.com/images/copycode.gif">
-<meta property="og:updated_time" content="2019-01-08T06:43:11.000Z">
+<meta property="og:updated_time" content="2019-08-22T02:51:47.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Expires、Last-Modified、Etag缓存控制">
 <meta name="twitter:description" content="当请求一个页面时，如果浏览器使用本地缓存，因此我们经常会看到一个HTTP请求为304状态。或者显示200状态，在chrome下标注是from cache，在火狐下会标注BFCache； 我们希望在服务器端更新了静态文件（如css、js、图片），能够在客户端得到及时的更新，但又不想让浏览器每次请求都从服务器端获取静态资源。那么就需要了解一些下面的知识： Last-Modified / If-Modi">
@@ -142,6 +142,16 @@
 
 
 
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?3da41265a1a0042eebe5413c0d6c76f5";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
 
 
 
@@ -197,6 +207,16 @@
               <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
             
             首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
           </a>
         </li>
       
@@ -283,6 +303,28 @@
           </span>
 
           
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/前端/" itemprop="url" rel="index">
+                    <span itemprop="name">前端</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
 
           
             
@@ -304,6 +346,37 @@
 
           
 
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  1.2k
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  4
+                </span>
+              
+            </div>
           
 
           
@@ -348,7 +421,7 @@
 <p>除非有特殊需求，最好还是不要禁用缓存，毕竟是用缓存能节省宽带，节省服务器资源，节省money…</p>
 <h3 id="浏览器第一次请求过程"><a href="#浏览器第一次请求过程" class="headerlink" title="浏览器第一次请求过程"></a>浏览器第一次请求过程</h3><p><img src="https://images0.cnblogs.com/blog/648334/201408/221537307378944.jpg" alt="img"></p>
 <h3 id="浏览器第二次请求过程"><a href="#浏览器第二次请求过程" class="headerlink" title="浏览器第二次请求过程"></a>浏览器第二次请求过程</h3><p><img src="https://images0.cnblogs.com/blog/648334/201408/221538345655678.jpg" alt="img"></p>
-<p>我们希望服务器端更新了文件，客户端可以及时的更新文件，根具上面流程，我们需要针对静态文件的响应头添加expires，设置为永久过期，浏览器每次请求静态文件，就会询问服务器文件有没有做过更改，如果更改了就从服务器端获取资源，否则直接使用缓存。  </p>
+<p>我们希望服务器端更新了文件，客户端可以及时的更新文件，根具上面流程，我们需要针对静态文件的响应头添加expires，设置为永久过期，浏览器每次请求静态文件，就会询问服务器文件有没有做过更改，如果更改了就从服务器端获取资源，否则直接使用缓存。</p>
 <h3 id="apache的配置："><a href="#apache的配置：" class="headerlink" title="apache的配置："></a>apache的配置：</h3><p><a href="javascript:void(0" target="_blank" rel="external"><img src="https://common.cnblogs.com/images/copycode.gif" alt="复制代码"></a>;)</p>
 <figure class="highlight apache"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#开启mod_expires模块</span></span><br><span class="line"><span class="attribute"><span class="nomarkup">LoadModule</span></span> expires_module modules/mod_expires.so</span><br><span class="line"></span><br><span class="line"><span class="attribute">ExpiresActive</span> <span class="literal">On</span></span><br><span class="line"><span class="attribute">ExpiresDefault</span> <span class="string">"access plus 0 seconds"</span> #默认缓存0s</span><br><span class="line"><span class="section">&lt;Directory  "根目录"&gt;</span></span><br><span class="line">    <span class="comment">#Options FollowSymLinks</span></span><br><span class="line">    <span class="comment">#AllowOverride all</span></span><br><span class="line">    <span class="attribute"><span class="nomarkup">Order</span></span> deny,allow</span><br><span class="line">    <span class="attribute"><span class="nomarkup">Allow</span></span> from <span class="literal">all</span></span><br><span class="line">    <span class="comment">#ExpiresByType application/* "access plus 0 seconds"</span></span><br><span class="line">    <span class="comment">#ExpiresByType image/* "access plus 0 seconds"</span></span><br><span class="line">    <span class="comment">#ExpiresByType text/css "access plus 0 seconds"</span></span><br><span class="line"><span class="section">&lt;/Directory&gt;</span></span><br></pre></td></tr></table></figure>
 <p><a href="javascript:void(0" target="_blank" rel="external"><img src="https://common.cnblogs.com/images/copycode.gif" alt="复制代码"></a>;)</p>
@@ -479,7 +552,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">175</span>
+                  <span class="site-state-item-count">150</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -490,7 +563,7 @@
               
               <div class="site-state-item site-state-categories">
                 <a href="/categories/index.html">
-                  <span class="site-state-item-count">10</span>
+                  <span class="site-state-item-count">28</span>
                   <span class="site-state-item-name">分类</span>
                 </a>
               </div>
@@ -500,10 +573,10 @@
               
               
               <div class="site-state-item site-state-tags">
-                
-                  <span class="site-state-item-count">51</span>
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">43</span>
                   <span class="site-state-item-name">标签</span>
-                
+                </a>
               </div>
             
 
@@ -562,6 +635,15 @@
   </span>
   <span class="author" itemprop="copyrightHolder">周小伍 Joey</span>
 
+  
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-area-chart"></i>
+    </span>
+    
+      <span class="post-meta-item-text">Site words total count&#58;</span>
+    
+    <span title="Site words total count">270.1k</span>
   
 </div>
 

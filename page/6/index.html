@@ -128,6 +128,16 @@
 
 
 
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?3da41265a1a0042eebe5413c0d6c76f5";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
 
 
 
@@ -187,6 +197,16 @@
         </li>
       
         
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
         <li class="menu-item menu-item-archives">
           <a href="/archives/" rel="section">
             
@@ -215,441 +235,6 @@
           <div id="content" class="content">
             
   <section id="posts" class="posts-expand">
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/09/06/kafka原理详解/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="周小伍 Joey">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/xiaowu_avatar.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="xiaowu's blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2018/09/06/kafka原理详解/" itemprop="url">kafka原理详解</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-09-06T21:54:39+08:00">
-                2018-09-06
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2018/09/06/kafka原理详解/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count disqus-comment-count"
-                        data-disqus-identifier="2018/09/06/kafka原理详解/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h2 id="kafka提供的基本脚本"><a href="#kafka提供的基本脚本" class="headerlink" title="kafka提供的基本脚本"></a>kafka提供的基本脚本</h2><h3 id="启动broker-server"><a href="#启动broker-server" class="headerlink" title="启动broker server"></a>启动broker server</h3><figure class="highlight axapta"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">bin/kafka-<span class="keyword">server</span>-start.sh config/<span class="keyword">server</span>.properties</span><br></pre></td></tr></table></figure>
-<h3 id="创建topic"><a href="#创建topic" class="headerlink" title="创建topic"></a>创建topic</h3><figure class="highlight brainfuck"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">bin/kafka</span><span class="literal">-</span><span class="comment">topics</span><span class="string">.</span><span class="comment">sh</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">create</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">zookeeper</span> <span class="comment">localhost:2181</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">replication</span><span class="literal">-</span><span class="comment">factor</span> <span class="comment">2</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">partitions</span> <span class="comment">3</span> <span class="literal">-</span><span class="literal">-</span> <span class="comment">topic</span> <span class="comment">testReplicaTopic</span></span><br></pre></td></tr></table></figure>
-<p>当broker节点本身只有1个，少于副本数2时，报错</p>
-<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[<span class="number">2018</span>-<span class="number">09</span>-<span class="number">06</span> <span class="number">23</span>:<span class="number">13</span>:<span class="number">38</span>,<span class="number">288</span>] ERROR org<span class="selector-class">.apache</span><span class="selector-class">.kafka</span><span class="selector-class">.common</span><span class="selector-class">.errors</span><span class="selector-class">.InvalidReplicationFactorException</span>: Replication factor: <span class="number">2</span> larger than available brokers: <span class="number">1</span>.</span><br><span class="line"> (kafka<span class="selector-class">.admin</span><span class="selector-class">.TopicCommand</span>$)</span><br></pre></td></tr></table></figure>
-<h3 id="查看某个topic的信息"><a href="#查看某个topic的信息" class="headerlink" title="查看某个topic的信息"></a>查看某个topic的信息</h3><figure class="highlight brainfuck"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">bin/kafka</span><span class="literal">-</span><span class="comment">topics</span><span class="string">.</span><span class="comment">sh</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">describe</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">zookeeper</span> <span class="comment">localhost:2181</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">topic</span> <span class="comment">xiaowu</span><span class="literal">-</span><span class="comment">topic</span></span><br></pre></td></tr></table></figure>
-<h3 id="生产者发送消息"><a href="#生产者发送消息" class="headerlink" title="生产者发送消息"></a>生产者发送消息</h3><figure class="highlight vim"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">bin/kafka-console-producer.<span class="keyword">sh</span> --broker-<span class="keyword">list</span> localhos<span class="variable">t:9092</span> --topic xiaowu-topic</span><br></pre></td></tr></table></figure>
-<h3 id="消费者消费消息"><a href="#消费者消费消息" class="headerlink" title="消费者消费消息"></a>消费者消费消息</h3><figure class="highlight brainfuck"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">bin/kafka</span><span class="literal">-</span><span class="comment">console</span><span class="literal">-</span><span class="comment">consumer</span><span class="string">.</span><span class="comment">sh</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">bootstrap</span><span class="literal">-</span><span class="comment">server</span> <span class="comment">localhost:9092</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">topic</span> <span class="comment">xiaowu</span><span class="literal">-</span><span class="comment">topic</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">from</span><span class="literal">-</span><span class="comment">beginning</span></span><br></pre></td></tr></table></figure>
-<h3 id="查看消息日志文件"><a href="#查看消息日志文件" class="headerlink" title="查看消息日志文件"></a>查看消息日志文件</h3><figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">bin/kafka-run-class<span class="selector-class">.sh</span> kafka<span class="selector-class">.tools</span><span class="selector-class">.DumpLogSegments</span> --files /Users/zhouxiaowu/install/kafka/kafka-data/xiaowu-topic-<span class="number">0</span>/<span class="number">00000000000000000000</span><span class="selector-class">.log</span> --print-data-log</span><br></pre></td></tr></table></figure>
-<h3 id="查看索引文件内容"><a href="#查看索引文件内容" class="headerlink" title="查看索引文件内容"></a>查看索引文件内容</h3><figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">bin/kafka-run-class<span class="selector-class">.sh</span> kafka<span class="selector-class">.tools</span><span class="selector-class">.DumpLogSegments</span> --files /Users/zhouxiaowu/install/kafka/kafka-data/xiaowu-topic-<span class="number">0</span>/<span class="number">00000000000000000000</span><span class="selector-class">.index</span> --print-data-log</span><br></pre></td></tr></table></figure>
-<h2 id="zookeeper状态"><a href="#zookeeper状态" class="headerlink" title="zookeeper状态"></a>zookeeper状态</h2><h3 id="查看某个topic的某个分区的状态"><a href="#查看某个topic的某个分区的状态" class="headerlink" title="查看某个topic的某个分区的状态"></a>查看某个topic的某个分区的状态</h3><figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[<span class="string">zk:</span> <span class="string">localhost:</span><span class="number">2181</span>(CONNECTED) <span class="number">16</span>] get  <span class="regexp">/brokers/</span>topics<span class="regexp">/xiaowu-topic/</span>partitions<span class="regexp">/0/</span>state</span><br><span class="line">&#123;<span class="string">"controller_epoch"</span>:<span class="number">4</span>,<span class="string">"leader"</span>:<span class="number">0</span>,<span class="string">"version"</span>:<span class="number">1</span>,<span class="string">"leader_epoch"</span>:<span class="number">0</span>,<span class="string">"isr"</span>:[<span class="number">0</span>]&#125;</span><br></pre></td></tr></table></figure>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/08/13/Spring-Boot-Web篇/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="周小伍 Joey">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/xiaowu_avatar.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="xiaowu's blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2018/08/13/Spring-Boot-Web篇/" itemprop="url">Spring Boot Web篇</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-08-13T09:38:25+08:00">
-                2018-08-13
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2018/08/13/Spring-Boot-Web篇/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count disqus-comment-count"
-                        data-disqus-identifier="2018/08/13/Spring-Boot-Web篇/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <ul>
-<li><p>标准优化技术</p>
-<ul>
-<li><p>资源变化</p>
-<p>响应头：Last-Modified</p>
-<p>请求头：If-Modified-Since</p>
-</li>
-<li><p>资源缓存</p>
-<p>响应头：ETag</p>
-<p> 请求头：If-None-Match</p>
-</li>
-</ul>
-</li>
-</ul>
-<h2 id="Spring-Boot-Actuator"><a href="#Spring-Boot-Actuator" class="headerlink" title="Spring Boot Actuator"></a>Spring Boot Actuator</h2><p>引用包</p>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-starter-actuator<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
-<ul>
-<li>/beans 查看bean的情况</li>
-<li><code>ManagementServerProperties</code>类查看配置内容</li>
-</ul>
-<p>如： <code>management.security.enabled = false</code>关闭安全检查</p>
-<ul>
-<li>localhost:8080/autoconfig 查看匹配方式，negtive匹配不成功</li>
-</ul>
-<h2 id="Spring-Framwork-Transaction"><a href="#Spring-Framwork-Transaction" class="headerlink" title="Spring Framwork Transaction"></a>Spring Framwork Transaction</h2><ul>
-<li><code>@EnableTransactionManagement</code>注解启用事务管理</li>
-<li><code>proxyTargetClass = true</code>选择使用cglib动态代理，这样service类可以不用实现接口。</li>
-</ul>
-<figure class="highlight aspectj"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@EnableTransactionManagement</span>(proxyTargetClass = <span class="keyword">true</span>)</span><br></pre></td></tr></table></figure>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/08/12/Spring-boot体系/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="周小伍 Joey">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/xiaowu_avatar.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="xiaowu's blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2018/08/12/Spring-boot体系/" itemprop="url">Spring boot体系</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-08-12T10:52:14+08:00">
-                2018-08-12
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2018/08/12/Spring-boot体系/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count disqus-comment-count"
-                        data-disqus-identifier="2018/08/12/Spring-boot体系/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h1 id="mangement"><a href="#mangement" class="headerlink" title="mangement"></a>mangement</h1><ul>
-<li>health</li>
-<li>dump</li>
-<li>trace</li>
-<li>metrics</li>
-</ul>
-<h1 id="Jconsole"><a href="#Jconsole" class="headerlink" title="Jconsole"></a>Jconsole</h1>
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
     
       
 
@@ -706,6 +291,28 @@
           </span>
 
           
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/数据库/" itemprop="url" rel="index">
+                    <span itemprop="name">数据库</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
 
           
             
@@ -727,6 +334,37 @@
 
           
 
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  1.1k
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  4
+                </span>
+              
+            </div>
           
 
           
@@ -882,6 +520,28 @@
           </span>
 
           
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/SpringCloud/" itemprop="url" rel="index">
+                    <span itemprop="name">SpringCloud</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
 
           
             
@@ -903,6 +563,37 @@
 
           
 
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  655
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  3
+                </span>
+              
+            </div>
           
 
           
@@ -936,16 +627,16 @@
 <p>序列化：对象 -&gt; 文本</p>
 </li>
 </ul>
-<h4 id="HttpMessageConverter-分析"><a href="#HttpMessageConverter-分析" class="headerlink" title="HttpMessageConverter 分析"></a><code>HttpMessageConverter</code> 分析</h4><h5 id="判断是否可读可写"><a href="#判断是否可读可写" class="headerlink" title="判断是否可读可写"></a>判断是否可读可写</h5><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">HttpMessageConverter</span>&lt;<span class="title">T</span>&gt; </span>&#123;</span><br><span class="line"></span><br><span class="line">	<span class="function"><span class="keyword">boolean</span> <span class="title">canRead</span><span class="params">(Class&lt;?&gt; clazz, @Nullable MediaType mediaType)</span></span>;</span><br><span class="line"></span><br><span class="line">	</span><br><span class="line">	<span class="function"><span class="keyword">boolean</span> <span class="title">canWrite</span><span class="params">(Class&lt;?&gt; clazz, @Nullable MediaType mediaType)</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="HttpMessageConverter-分析"><a href="#HttpMessageConverter-分析" class="headerlink" title="HttpMessageConverter 分析"></a><code>HttpMessageConverter</code> 分析</h4><h5 id="判断是否可读可写"><a href="#判断是否可读可写" class="headerlink" title="判断是否可读可写"></a>判断是否可读可写</h5><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">HttpMessageConverter</span>&lt;<span class="title">T</span>&gt; </span>&#123;</span><br><span class="line"></span><br><span class="line">	<span class="function"><span class="keyword">boolean</span> <span class="title">canRead</span><span class="params">(Class&lt;?&gt; clazz, @Nullable MediaType mediaType)</span></span>;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">	<span class="function"><span class="keyword">boolean</span> <span class="title">canWrite</span><span class="params">(Class&lt;?&gt; clazz, @Nullable MediaType mediaType)</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>clazz = Person.class</p>
-<h5 id="当前支持的媒体类型"><a href="#当前支持的媒体类型" class="headerlink" title="当前支持的媒体类型"></a>当前支持的媒体类型</h5><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">HttpMessageConverter</span>&lt;<span class="title">T</span>&gt; </span>&#123;	</span><br><span class="line">	<span class="function">List&lt;MediaType&gt; <span class="title">getSupportedMediaTypes</span><span class="params">()</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h5 id="当前支持的媒体类型"><a href="#当前支持的媒体类型" class="headerlink" title="当前支持的媒体类型"></a>当前支持的媒体类型</h5><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">HttpMessageConverter</span>&lt;<span class="title">T</span>&gt; </span>&#123;</span><br><span class="line">	<span class="function">List&lt;MediaType&gt; <span class="title">getSupportedMediaTypes</span><span class="params">()</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p><code>MappingJackson2HttpMessageConverter</code></p>
-<h5 id="反序列化"><a href="#反序列化" class="headerlink" title="反序列化"></a>反序列化</h5><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">HttpMessageConverter</span>&lt;<span class="title">T</span>&gt; </span>&#123;	</span><br><span class="line">	<span class="function">T <span class="title">read</span><span class="params">(Class&lt;? extends T&gt; clazz, HttpInputMessage inputMessage)</span></span></span><br><span class="line"><span class="function">			<span class="keyword">throws</span> IOException, HttpMessageNotReadableException</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h5 id="反序列化"><a href="#反序列化" class="headerlink" title="反序列化"></a>反序列化</h5><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">HttpMessageConverter</span>&lt;<span class="title">T</span>&gt; </span>&#123;</span><br><span class="line">	<span class="function">T <span class="title">read</span><span class="params">(Class&lt;? extends T&gt; clazz, HttpInputMessage inputMessage)</span></span></span><br><span class="line"><span class="function">			<span class="keyword">throws</span> IOException, HttpMessageNotReadableException</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>特别提醒：Spring Web MVC  依赖 Servlet，Spring 在早期设计时，它就考虑到了去 Servlet 化。</p>
 <p>HttpInputMessage 类似于 HttpServletRequest</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">HttpInputMessage</span> <span class="keyword">extends</span> <span class="title">HttpMessage</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">	<span class="function">InputStream <span class="title">getBody</span><span class="params">()</span> <span class="keyword">throws</span> IOException</span>;</span><br><span class="line">    </span><br><span class="line">	<span class="comment">// 来自于 HttpMessage</span></span><br><span class="line">	<span class="function">HttpHeaders <span class="title">getHeaders</span><span class="params">()</span></span>;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">HttpInputMessage</span> <span class="keyword">extends</span> <span class="title">HttpMessage</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">	<span class="function">InputStream <span class="title">getBody</span><span class="params">()</span> <span class="keyword">throws</span> IOException</span>;</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 来自于 HttpMessage</span></span><br><span class="line">	<span class="function">HttpHeaders <span class="title">getHeaders</span><span class="params">()</span></span>;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>类比 <code>HttpServletRequest</code></p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">HttpServletRequest</span> </span>&#123;    </span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 来自于 ServletRequest</span></span><br><span class="line">	<span class="function"><span class="keyword">public</span> ServletInputStream <span class="title">getInputStream</span><span class="params">()</span> <span class="keyword">throws</span> IOException</span>;</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">public</span> Enumeration&lt;String&gt; <span class="title">getHeaders</span><span class="params">(String name)</span></span>;</span><br><span class="line"> </span><br><span class="line">    <span class="function"><span class="keyword">public</span> Enumeration&lt;String&gt; <span class="title">getHeaderNames</span><span class="params">()</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">HttpServletRequest</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 来自于 ServletRequest</span></span><br><span class="line">	<span class="function"><span class="keyword">public</span> ServletInputStream <span class="title">getInputStream</span><span class="params">()</span> <span class="keyword">throws</span> IOException</span>;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Enumeration&lt;String&gt; <span class="title">getHeaders</span><span class="params">(String name)</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Enumeration&lt;String&gt; <span class="title">getHeaderNames</span><span class="params">()</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p><code>RestTemplate</code>利用 <code>HttpMessageConverter</code> 对一定媒体类型序列化和反序列化</p>
 <p>JSON</p>
 <p>XML</p>
@@ -1081,6 +772,28 @@
           </span>
 
           
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/SpringCloud/" itemprop="url" rel="index">
+                    <span itemprop="name">SpringCloud</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
 
           
             
@@ -1102,6 +815,37 @@
 
           
 
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  597
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  2
+                </span>
+              
+            </div>
           
 
           
@@ -1294,6 +1038,28 @@
           </span>
 
           
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/SpringCloud/" itemprop="url" rel="index">
+                    <span itemprop="name">SpringCloud</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
 
           
             
@@ -1315,6 +1081,37 @@
 
           
 
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  666
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  3
+                </span>
+              
+            </div>
           
 
           
@@ -1402,11 +1199,11 @@
 </ul>
 <h3 id="设计原理"><a href="#设计原理" class="headerlink" title="设计原理"></a>设计原理</h3><h4 id="分析-EnableConfigServer"><a href="#分析-EnableConfigServer" class="headerlink" title="分析@EnableConfigServer"></a>分析<code>@EnableConfigServer</code></h4><figure class="highlight less"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">@Target</span>(&#123;ElementType.TYPE&#125;)</span><br><span class="line"><span class="variable">@Retention</span>(RetentionPolicy.RUNTIME)</span><br><span class="line"><span class="variable">@Documented</span></span><br><span class="line"><span class="variable">@Import</span>(&#123;ConfigServerConfiguration.class&#125;)</span><br><span class="line">public <span class="variable">@interface</span> EnableConfigServer &#123;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p><code>org.springframework.cloud.config.server.config.ConfigServerAutoConfiguration</code></p>
-<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">JdbcRepositoryConfiguration<span class="selector-class">.class</span>, </span><br><span class="line">VaultRepositoryConfiguration<span class="selector-class">.class</span>,		</span><br><span class="line">SvnRepositoryConfiguration<span class="selector-class">.class</span>, </span><br><span class="line">NativeRepositoryConfiguration<span class="selector-class">.class</span>, </span><br><span class="line">GitRepositoryConfiguration<span class="selector-class">.class</span>,  git的实现</span><br><span class="line">DefaultRepositoryConfiguration.class</span><br><span class="line">从代码中看，才是最真实的。</span><br></pre></td></tr></table></figure>
+<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">JdbcRepositoryConfiguration<span class="selector-class">.class</span>,</span><br><span class="line">VaultRepositoryConfiguration<span class="selector-class">.class</span>,</span><br><span class="line">SvnRepositoryConfiguration<span class="selector-class">.class</span>,</span><br><span class="line">NativeRepositoryConfiguration<span class="selector-class">.class</span>,</span><br><span class="line">GitRepositoryConfiguration<span class="selector-class">.class</span>,  git的实现</span><br><span class="line">DefaultRepositoryConfiguration.class</span><br><span class="line">从代码中看，才是最真实的。</span><br></pre></td></tr></table></figure>
 <figure class="highlight less"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">@Configuration</span></span><br><span class="line"><span class="variable">@ConditionalOnBean</span>(ConfigServerConfiguration.Marker.class)</span><br><span class="line"><span class="variable">@EnableConfigurationProperties</span>(ConfigServerProperties.class)</span><br><span class="line"><span class="variable">@Import</span>(&#123; EnvironmentRepositoryConfiguration.class, CompositeConfiguration.class, ResourceRepositoryConfiguration.class,</span><br><span class="line">		ConfigServerEncryptionConfiguration.class, ConfigServerMvcConfiguration.class &#125;)</span><br><span class="line">public class ConfigServerAutoConfiguration &#123;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>当应用配置类标注了</p>
 <ul>
-<li><p><code>@EnableConfigSever</code> </p>
+<li><p><code>@EnableConfigSever</code></p>
 <ul>
 <li><p>导入 <code>ConfigServerConfiguration</code></p>
 <ul>
@@ -1435,7 +1232,7 @@
 <ul>
 <li><p><code>JdbcEnvironmentProperties</code></p>
 <ul>
-<li><p><code>spring.cloud.config.server.jdbc.sql</code> </p>
+<li><p><code>spring.cloud.config.server.jdbc.sql</code></p>
 <ul>
 <li><p>不配置，默认：<code>DEFAULT_SQL</code></p>
 <ul>
@@ -1602,6 +1399,28 @@
           </span>
 
           
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Spring/" itemprop="url" rel="index">
+                    <span itemprop="name">Spring</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
 
           
             
@@ -1623,6 +1442,37 @@
 
           
 
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  294
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  1
+                </span>
+              
+            </div>
           
 
           
@@ -1660,139 +1510,6 @@
 <p>从这段代码，可以看出，<code>defaultProperties</code>优先级最低，放在最后。<code>commandLine</code>优先级很高，放在最前面，addFirst。</p>
 <h2 id="代码demo"><a href="#代码demo" class="headerlink" title="代码demo"></a>代码demo</h2><p><code>https://github.com/Frankenjoy123/microservices-joey-project</code></p>
 <p>找到<code>spring-cloud-native-application</code>项目入口启动</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/07/26/node及npm安装-版本升级/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="周小伍 Joey">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/xiaowu_avatar.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="xiaowu's blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2018/07/26/node及npm安装-版本升级/" itemprop="url">node及npm安装 版本升级</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-07-26T14:50:39+08:00">
-                2018-07-26
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2018/07/26/node及npm安装-版本升级/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count disqus-comment-count"
-                        data-disqus-identifier="2018/07/26/node及npm安装-版本升级/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>#1.官网下载node</p>
-<p><a href="https://nodejs.org/en/download/" target="_blank" rel="external">https://nodejs.org/en/download/</a></p>
-<h1 id="2-升级npm"><a href="#2-升级npm" class="headerlink" title="2.升级npm"></a>2.升级npm</h1><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 先安装模块n</span></span><br><span class="line">npm install n -g</span><br><span class="line"><span class="meta">#</span><span class="bash"> 将 node 升级到最新稳定版</span></span><br><span class="line">n stable</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 将 npm 升级到最新版</span></span><br><span class="line">npm install npm -g</span><br><span class="line"><span class="meta">#</span><span class="bash"> 如果要指定版本，可以通过@指定版本</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> npm install npm@3.10.10 -g</span></span><br></pre></td></tr></table></figure>
 
           
         
@@ -1883,6 +1600,28 @@
           </span>
 
           
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Spring/" itemprop="url" rel="index">
+                    <span itemprop="name">Spring</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
 
           
             
@@ -1904,6 +1643,37 @@
 
           
 
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  1.1k
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  5
+                </span>
+              
+            </div>
           
 
           
@@ -1950,8 +1720,1229 @@
 <p>然后，把该bean 注册到配置中(路径spring-debug/src/spring-config.xml)：</p>
 <figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="php"><span class="meta">&lt;?</span>xml version=<span class="string">"1.0"</span> encoding=<span class="string">"UTF-8"</span><span class="meta">?&gt;</span></span></span><br><span class="line"><span class="tag">&lt;<span class="name">beans</span> <span class="attr">xmlns</span>=<span class="string">"http://www.springframework.org/schema/beans"</span></span></span><br><span class="line"><span class="tag">	   <span class="attr">xmlns:xsi</span>=<span class="string">"http://www.w3.org/2001/XMLSchema-instance"</span></span></span><br><span class="line"><span class="tag">	   <span class="attr">xsi:schemaLocation</span>=<span class="string">"http://www.springframework.org/schema/beans</span></span></span><br><span class="line"><span class="tag"><span class="string">       http://www.springframework.org/schema/beans/spring-beans.xsd"</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">"loginService"</span> <span class="attr">class</span>=<span class="string">"com.joey.demo.service.impl.LoginServiceImpl"</span>/&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">beans</span>&gt;</span></span><br></pre></td></tr></table></figure>
 <p>最后，编写调用的代码：</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">App</span> </span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">( String[] args )</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line"></span><br><span class="line">		ApplicationContext applicationContext = <span class="keyword">new</span> ClassPathXmlApplicationContext(<span class="string">"classpath:applicationContext.xml"</span>);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">//		String XMLPath = "//Users/sky/Java/spring-framework/spring-debug/src/spring-config.xml";</span></span><br><span class="line"><span class="comment">//		ApplicationContext applicationContext = new FileSystemXmlApplicationContext(XMLPath);</span></span><br><span class="line"></span><br><span class="line">		ILogin login = (ILogin) applicationContext.getBean(<span class="string">"loginService"</span>);</span><br><span class="line">		login.loginCheck(<span class="string">"boy"</span>, <span class="string">"123"</span>);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">App</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">( String[] args )</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line"></span><br><span class="line">		ApplicationContext applicationContext = <span class="keyword">new</span> ClassPathXmlApplicationContext(<span class="string">"classpath:applicationContext.xml"</span>);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">//		String XMLPath = "//Users/sky/Java/spring-framework/spring-debug/src/spring-config.xml";</span></span><br><span class="line"><span class="comment">//		ApplicationContext applicationContext = new FileSystemXmlApplicationContext(XMLPath);</span></span><br><span class="line"></span><br><span class="line">		ILogin login = (ILogin) applicationContext.getBean(<span class="string">"loginService"</span>);</span><br><span class="line">		login.loginCheck(<span class="string">"boy"</span>, <span class="string">"123"</span>);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>然后就可以 进行Debug了，并且可以Debug到Spring源码内部。</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/07/20/XMind快捷键指南/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="周小伍 Joey">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/xiaowu_avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="xiaowu's blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/07/20/XMind快捷键指南/" itemprop="url">XMind快捷键指南</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-07-20T11:11:08+08:00">
+                2018-07-20
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/运维/" itemprop="url" rel="index">
+                    <span itemprop="name">运维</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2018/07/20/XMind快捷键指南/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2018/07/20/XMind快捷键指南/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  440
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  1
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <table>
+<thead>
+<tr>
+<th><strong>快捷鍵（Windows）</strong></th>
+<th><strong>快捷鍵（Mac）</strong></th>
+<th><strong>描述</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Ctrl+N</strong></td>
+<td><strong>Command+N</strong></td>
+<td><strong>建立新工作簿</strong></td>
+</tr>
+<tr>
+<td><strong>Ctrl+O</strong></td>
+<td><strong>Command+O</strong></td>
+<td><strong>开启工作簿</strong></td>
+</tr>
+<tr>
+<td><strong>Ctrl+S</strong></td>
+<td><strong>Command+S</strong></td>
+<td><strong>储存目前工作簿</strong></td>
+</tr>
+<tr>
+<td><strong>Ctrl+Shift+S</strong></td>
+<td><strong>Command+Shift+S</strong></td>
+<td><strong>储存全部工作簿</strong></td>
+</tr>
+<tr>
+<td><strong>Ctrl+W</strong></td>
+<td><strong>Command+W</strong></td>
+<td><strong>关闭目前工作簿</strong></td>
+</tr>
+<tr>
+<td><strong>Ctrl+Shift+W</strong></td>
+<td><strong>Command+Shift+W</strong></td>
+<td><strong>关闭全部工作簿</strong></td>
+</tr>
+<tr>
+<td><strong>Ctrl+P</strong></td>
+<td><strong>Command+P</strong></td>
+<td><strong>列印</strong></td>
+</tr>
+<tr>
+<td><strong>Ctrl+Z</strong></td>
+<td><strong>Command+Z</strong></td>
+<td><strong>复原</strong></td>
+</tr>
+<tr>
+<td><strong>Ctrl+Y</strong></td>
+<td><strong>Command+Y</strong></td>
+<td><strong>重做</strong></td>
+</tr>
+<tr>
+<td><strong>Ctrl+X</strong></td>
+<td><strong>Command+X</strong></td>
+<td><strong>剪切</strong></td>
+</tr>
+<tr>
+<td><strong>Ctrl+C</strong></td>
+<td><strong>Command+C</strong></td>
+<td><strong>复制</strong></td>
+</tr>
+<tr>
+<td><strong>Ctrl+V</strong></td>
+<td><strong>Command+V</strong></td>
+<td><strong>贴上</strong></td>
+</tr>
+<tr>
+<td><strong>Delete</strong></td>
+<td><strong>Delete</strong></td>
+<td><strong>删除</strong></td>
+</tr>
+<tr>
+<td><strong>Ctrl+Home</strong></td>
+<td><strong>Command+Home</strong></td>
+<td><strong>返回中心主題</strong></td>
+</tr>
+<tr>
+<td><strong>Ctrl+A</strong></td>
+<td><strong>Command+A</strong></td>
+<td><strong>选择全部主題</strong></td>
+</tr>
+<tr>
+<td><strong>Ctrl+Shift+A</strong></td>
+<td><strong>Command+Shift+A</strong></td>
+<td><strong>选择同層級主題</strong></td>
+</tr>
+<tr>
+<td><strong>Ctrl+Alt+A</strong></td>
+<td><strong>Command+Alt+A</strong></td>
+<td><strong>选择子主題</strong></td>
+</tr>
+<tr>
+<td><strong>Ctrl+F</strong></td>
+<td><strong>Command+F</strong></td>
+<td><strong>寻找/取代</strong></td>
+</tr>
+<tr>
+<td><strong>Ctrl++</strong></td>
+<td><strong>Command++</strong></td>
+<td><strong>放大</strong></td>
+</tr>
+<tr>
+<td><strong>Ctrl+-</strong></td>
+<td><strong>Command+-</strong></td>
+<td><strong>缩小</strong></td>
+</tr>
+<tr>
+<td><strong>Ctrl+=</strong></td>
+<td><strong>Command+=</strong></td>
+<td><strong>正常大小</strong></td>
+</tr>
+<tr>
+<td><strong>Ctrl+]</strong></td>
+<td><strong>Command+]</strong></td>
+<td><strong>插入摘要</strong></td>
+</tr>
+<tr>
+<td><strong>Alt+Enter</strong></td>
+<td><strong>Alt+Enter</strong></td>
+<td><strong>属性内容內容</strong></td>
+</tr>
+<tr>
+<td><strong>Enter</strong></td>
+<td><strong>Enter</strong></td>
+<td><strong>插入主题</strong></td>
+</tr>
+<tr>
+<td><strong>Tab</strong></td>
+<td><strong>Tab</strong></td>
+<td><strong>插入子主题</strong></td>
+</tr>
+<tr>
+<td><strong>Shift+Enter</strong></td>
+<td><strong>Shift+Enter</strong></td>
+<td><strong>在目前主题前插入主题</strong></td>
+</tr>
+<tr>
+<td><strong>Ctrl+Enter</strong></td>
+<td><strong>Command+Enter</strong></td>
+<td><strong>插入目前主题父主题</strong></td>
+</tr>
+<tr>
+<td><strong>Ctrl+Shift+L</strong></td>
+<td><strong>Command+Shift+L</strong></td>
+<td><strong>快捷鍵助手</strong></td>
+</tr>
+<tr>
+<td><strong>Ctrl+I</strong></td>
+<td><strong>Ctrl+I</strong></td>
+<td><strong>插入图片</strong></td>
+</tr>
+<tr>
+<td><strong>Ctrl+Shift+H</strong></td>
+<td><strong>Command+Shift+H</strong></td>
+<td><strong>插入超链接</strong></td>
+</tr>
+<tr>
+<td><strong>Ctrl+B</strong></td>
+<td><strong>Command+B</strong></td>
+<td><strong>添加外框</strong></td>
+</tr>
+<tr>
+<td><strong>Ctrl+L</strong></td>
+<td><strong>Command+L</strong></td>
+<td><strong>添加关联</strong></td>
+</tr>
+<tr>
+<td><strong>F2</strong></td>
+<td><strong>F2</strong></td>
+<td><strong>编辑主题</strong></td>
+</tr>
+<tr>
+<td><strong>F3</strong></td>
+<td><strong>F3</strong></td>
+<td><strong>添加/编辑标签</strong></td>
+</tr>
+<tr>
+<td><strong>F4</strong></td>
+<td><strong>F4</strong></td>
+<td><strong>添加/编辑备注</strong></td>
+</tr>
+<tr>
+<td><strong>F5</strong></td>
+<td><strong>F5</strong></td>
+<td><strong>简报演示</strong></td>
+</tr>
+<tr>
+<td><strong>F6</strong></td>
+<td><strong>F6</strong></td>
+<td><strong>下钻</strong></td>
+</tr>
+<tr>
+<td><strong>Shift+F6</strong></td>
+<td><strong>Shift+F6</strong></td>
+<td><strong>上钻</strong></td>
+</tr>
+<tr>
+<td><strong>F7</strong></td>
+<td><strong>F7</strong></td>
+<td><strong>智慧截取图面</strong></td>
+</tr>
+<tr>
+<td><strong>+</strong></td>
+<td><strong>+</strong></td>
+<td><strong>展开目前分支</strong></td>
+</tr>
+<tr>
+<td><strong>-</strong></td>
+<td><strong>-</strong></td>
+<td><strong>收缩目前分支</strong></td>
+</tr>
+<tr>
+<td><strong>*</strong></td>
+<td><strong>*</strong></td>
+<td><strong>展开所有分支</strong></td>
+</tr>
+<tr>
+<td><strong>/</strong></td>
+<td><strong>/</strong></td>
+<td><strong>收缩所有分支</strong></td>
+</tr>
+<tr>
+<td><strong>Alt+Up</strong></td>
+<td><strong>Alt+Up</strong></td>
+<td><strong>向前移动</strong></td>
+</tr>
+<tr>
+<td><strong>Alt+Down</strong></td>
+<td><strong>Alt+Down</strong></td>
+<td><strong>向后移动</strong></td>
+</tr>
+<tr>
+<td><strong>Ctrl+T</strong></td>
+<td><strong>Command+T</strong></td>
+<td><strong>建立新心智图</strong></td>
+</tr>
+<tr>
+<td><strong>Ctrl+1,2,3,4,5,6</strong></td>
+<td><strong>Command+1,2,3,4,5,6</strong></td>
+<td><strong>快速添加优先等级图标</strong></td>
+</tr>
+<tr>
+<td><strong>Esc</strong></td>
+<td><strong>Esc</strong></td>
+<td><strong>关闭跳出的备注对话框 / 取消截图</strong></td>
+</tr>
+<tr>
+<td><strong>Ctrl+滑鼠滚轮</strong></td>
+<td><strong>Command+滑鼠滚轮</strong></td>
+<td><strong>放大缩小目前的画面</strong></td>
+</tr>
+</tbody>
+</table>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/07/19/理解spring中的BeanFactory与FactoryBean区别/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="周小伍 Joey">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/xiaowu_avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="xiaowu's blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/07/19/理解spring中的BeanFactory与FactoryBean区别/" itemprop="url">理解spring中的BeanFactory与FactoryBean区别</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-07-19T07:58:05+08:00">
+                2018-07-19
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Spring/" itemprop="url" rel="index">
+                    <span itemprop="name">Spring</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2018/07/19/理解spring中的BeanFactory与FactoryBean区别/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2018/07/19/理解spring中的BeanFactory与FactoryBean区别/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  670
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  3
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>实现 <code>BeanFactory</code> 接口的类表明此类事一个工厂，作用就是配置、新建、管理 各种Bean。<code>DefaultListBeanFacory</code>等都实现这个接口，IOC容器，管理bean。</p>
+<p>而 实现 <code>FactoryBean</code> 的类表明此类也是一个Bean，类型为工厂Bean（Spring中共有两种bean，一种为普通bean，另一种则为工厂bean）。顾名思义，它也是用来管理Bean的，而它本身由spring管理。</p>
+<p>一个Bean想要实现 <code>FactoryBean</code> ，必须实现以下三个接口：</p>
+<figure class="highlight armasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">1</span>. Object getObject():返回由FactoryBean创建的<span class="keyword">Bean的实例</span></span><br><span class="line"><span class="keyword"></span></span><br><span class="line"><span class="keyword">2. </span><span class="keyword">boolean </span>isSingleton():确定由FactoryBean创建的<span class="keyword">Bean的作用域是singleton还是prototype；</span></span><br><span class="line"><span class="keyword"></span></span><br><span class="line"><span class="keyword">3. </span>getObjectType():返回FactoryBean创建的<span class="keyword">Bean的类型。12345</span></span><br></pre></td></tr></table></figure>
+<p>有一点需要注意，如果将一个实现了FactoryBean的类成功配置到了spring上下文中，那么通过该类对象的名称（比如appleFactoryBean）从spring的applicationContext或者beanFactory获取bean时，获取到的是appleFactoryBean创建的apple实例，而不是appleFactoryBean自己，如果想通过spring拿到appleFactoryBean，需要在名称前加 <code>&amp;</code> 符号 ：</p>
+<figure class="highlight ada"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">out</span>.println(applicationContext.getBean(<span class="string">"&amp;appleFactoryBean"</span>))<span class="number">1</span></span><br></pre></td></tr></table></figure>
+<p>这个prefix在BeanFactory接口源码中有提到：</p>
+<figure class="highlight smali"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">/**</span><br><span class="line">* Used to dereference a &#123;@link FactoryBean&#125;<span class="built_in"> instance </span>and distinguish it from</span><br><span class="line">* beans &lt;i&gt;created&lt;/i&gt; by the FactoryBean. For example,<span class="built_in"> if </span>the bean named</span><br><span class="line">* &#123;@code myJndiObject&#125; is a FactoryBean, getting &#123;@code &amp;myJndiObject&#125;</span><br><span class="line">* will<span class="built_in"> return </span>the factory,<span class="built_in"> not </span>the<span class="built_in"> instance </span>returned by the factory.</span><br><span class="line">*/</span><br><span class="line">    String FACTORY_BEAN_PREFIX = <span class="string">"&amp;"</span>;1234567</span><br></pre></td></tr></table></figure>
+<p>还有一点需要注意，FactoryBean管理的bean实际上也是由spring进行配置、实例化、管理，因此由FactoryBean管理的bean不能再次配置到spring配置文件中（xml、java类配置、注解均不可以），否则会报如下异常：</p>
+<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">Exception <span class="keyword">in</span> thread <span class="string">"main"</span> org<span class="selector-class">.springframework</span><span class="selector-class">.beans</span><span class="selector-class">.factory</span><span class="selector-class">.BeanIsNotAFactoryException</span>: Bean named <span class="string">'appleFactoryBean'</span> is expected to be of type <span class="string">'org.springframework.beans.factory.FactoryBean'</span> but was actually of type <span class="string">'java.lang.Object'</span></span><br><span class="line">    at org<span class="selector-class">.springframework</span><span class="selector-class">.beans</span><span class="selector-class">.factory</span><span class="selector-class">.support</span><span class="selector-class">.AbstractBeanFactory</span><span class="selector-class">.getObjectForBeanInstance</span>(AbstractBeanFactory<span class="selector-class">.java</span>:<span class="number">1612</span>)</span><br><span class="line">    at org<span class="selector-class">.springframework</span><span class="selector-class">.beans</span><span class="selector-class">.factory</span><span class="selector-class">.support</span><span class="selector-class">.AbstractBeanFactory</span><span class="selector-class">.doGetBean</span>(AbstractBeanFactory<span class="selector-class">.java</span>:<span class="number">317</span>)</span><br><span class="line">    at org<span class="selector-class">.springframework</span><span class="selector-class">.beans</span><span class="selector-class">.factory</span><span class="selector-class">.support</span><span class="selector-class">.AbstractBeanFactory</span><span class="selector-class">.getBean</span>(AbstractBeanFactory<span class="selector-class">.java</span>:<span class="number">197</span>)</span><br><span class="line">    at org<span class="selector-class">.springframework</span><span class="selector-class">.beans</span><span class="selector-class">.factory</span><span class="selector-class">.support</span><span class="selector-class">.DefaultListableBeanFactory</span><span class="selector-class">.preInstantiateSingletons</span>(DefaultListableBeanFactory<span class="selector-class">.java</span>:<span class="number">742</span>)</span><br><span class="line">    at org<span class="selector-class">.springframework</span><span class="selector-class">.context</span><span class="selector-class">.support</span><span class="selector-class">.AbstractApplicationContext</span><span class="selector-class">.finishBeanFactoryInitialization</span>(AbstractApplicationContext<span class="selector-class">.java</span>:<span class="number">866</span>)</span><br><span class="line">    at org<span class="selector-class">.springframework</span><span class="selector-class">.context</span><span class="selector-class">.support</span><span class="selector-class">.AbstractApplicationContext</span><span class="selector-class">.refresh</span>(AbstractApplicationContext<span class="selector-class">.java</span>:<span class="number">542</span>)</span><br><span class="line">    at org<span class="selector-class">.springframework</span><span class="selector-class">.context</span><span class="selector-class">.annotation</span><span class="selector-class">.AnnotationConfigApplicationContext</span>.&lt;init&gt;(AnnotationConfigApplicationContext<span class="selector-class">.java</span>:<span class="number">84</span>)</span><br><span class="line">    at com<span class="selector-class">.joen</span><span class="selector-class">.testspringcontainer</span><span class="selector-class">.Start</span><span class="selector-class">.main</span>(Start<span class="selector-class">.java</span>:<span class="number">11</span>)</span><br><span class="line">    at sun<span class="selector-class">.reflect</span><span class="selector-class">.NativeMethodAccessorImpl</span><span class="selector-class">.invoke0</span>(Native Method)</span><br><span class="line">    at sun<span class="selector-class">.reflect</span><span class="selector-class">.NativeMethodAccessorImpl</span><span class="selector-class">.invoke</span>(NativeMethodAccessorImpl<span class="selector-class">.java</span>:<span class="number">62</span>)</span><br><span class="line">    at sun<span class="selector-class">.reflect</span><span class="selector-class">.DelegatingMethodAccessorImpl</span><span class="selector-class">.invoke</span>(DelegatingMethodAccessorImpl<span class="selector-class">.java</span>:<span class="number">43</span>)</span><br><span class="line">    at java<span class="selector-class">.lang</span><span class="selector-class">.reflect</span><span class="selector-class">.Method</span><span class="selector-class">.invoke</span>(Method<span class="selector-class">.java</span>:<span class="number">498</span>)</span><br><span class="line">    at com<span class="selector-class">.intellij</span><span class="selector-class">.rt</span><span class="selector-class">.execution</span><span class="selector-class">.application</span><span class="selector-class">.AppMain</span><span class="selector-class">.main</span>(AppMain<span class="selector-class">.java</span>:<span class="number">147</span>)<span class="number">1234567891011121314</span></span><br></pre></td></tr></table></figure>
+<p>附上一个例子：</p>
+<p>spring配置类：</p>
+<figure class="highlight less"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">@Configuration</span></span><br><span class="line"><span class="variable">@ComponentScan</span></span><br><span class="line">public class Configurations &#123;</span><br><span class="line">&#125;<span class="number">1234</span></span><br></pre></td></tr></table></figure>
+<p>AppleBean :</p>
+<figure class="highlight actionscript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//@Component  这里不可以加注解 ！！！！！！</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">AppleBean</span></span>&#123;</span><br><span class="line"></span><br><span class="line">&#125;<span class="number">1234</span></span><br></pre></td></tr></table></figure>
+<p>AppleFactoryBean :</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">AppleFactoryBean</span> <span class="keyword">implements</span> <span class="title">FactoryBean</span></span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Object <span class="title">getObject</span><span class="params">()</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> AppleBean();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> Class&lt;?&gt; getObjectType() &#123;</span><br><span class="line">        <span class="keyword">return</span> AppleBean.class;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">isSingleton</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;<span class="number">123456789101112131415</span></span><br></pre></td></tr></table></figure>
+<p>启动类 :</p>
+<figure class="highlight cs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">Start</span> &#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span>(<span class="params">String[] args</span>)</span>&#123;</span><br><span class="line">        ApplicationContext applicationContext = <span class="keyword">new</span> AnnotationConfigApplicationContext(Configurations.class);</span><br><span class="line">                 <span class="keyword">out</span>.println(applicationContext.getBean(<span class="string">"appleFactoryBean"</span>));<span class="comment">//得到的是apple</span></span><br><span class="line">                 <span class="keyword">out</span>.println(applicationContext.getBean(<span class="string">"&amp;appleFactoryBean"</span>));<span class="comment">//得到的是apple工厂</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/07/13/cookie中的path与domain属性详解/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="周小伍 Joey">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/xiaowu_avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="xiaowu's blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/07/13/cookie中的path与domain属性详解/" itemprop="url">cookie中的path与domain属性详解</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-07-13T15:58:17+08:00">
+                2018-07-13
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/前端/" itemprop="url" rel="index">
+                    <span itemprop="name">前端</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2018/07/13/cookie中的path与domain属性详解/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2018/07/13/cookie中的path与domain属性详解/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  2.3k
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  9
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>#字段解释</p>
+<h2 id="Domain-–-域"><a href="#Domain-–-域" class="headerlink" title="Domain – 域"></a>Domain – 域</h2><p>domain表示的是cookie所在的域，默认为请求的地址，如网址为www.jb51.net/test/test.aspx，那么domain默认为www.jb51.net。而跨域访问，如域A为t1.test.com，域B为t2.test.com，那么在域A生产一个令域A和域B都能访问的cookie就要将该cookie的domain设置为.test.com；如果要在域A生产一个令域A不能访问而域B能访问的cookie就要将该cookie的domain设置为t2.test.com。</p>
+<p>值是域名，比如www.china.com。这是对path路径属性的一个延伸。如果我们想让 www.china.com能够访问bbs.china.com设置的cookies，该怎么办? 我们可以把<a href="http://nonfu.me/tag/domain" target="_blank" rel="external">domain</a>属性设置成“.china.com”，并把path属性设置成“/”。</p>
+<p>路径能解决在同一个域下访问 cookie 的问题，咱们接着说 cookie 实现同域之间访问的问题。语法如下：</p>
+<blockquote>
+<p>document.cookie = “name=value;path=path;domain=domain“</p>
+</blockquote>
+<p>红色的domain就是设置的 cookie 域的值。例如 “www.qq.com” 与 “sports.qq.com” 公用一个关联的域名”qq.com”，我们如果想让”sports.qq.com” 下的cookie被 “www.qq.com” 访问，我们就需要用到cookie 的domain属性，并且需要把path属性设置为 “/“。例：</p>
+<blockquote>
+<p>document.cookie = “username=Darren;path=/;domain=qq.com“</p>
+</blockquote>
+<p>注：一定的是同域之间的访问，不能把domain的值设置成非主域的域名。</p>
+<h2 id="Path-–-路径"><a href="#Path-–-路径" class="headerlink" title="Path – 路径"></a>Path – 路径</h2><p>path表示cookie所在的目录，asp.net默认为/，就是根目录。在同一个服务器上有目录如下：/test/,/test/cd/,/test/dd/，现设一个cookie1的path为/test/，cookie2的path为/test/cd/，那么test下的所有页面都可以访问到cookie1，而/test/和/test/dd/的子页面不能访问cookie2。这是因为cookie能让其path路径下的页面访问。</p>
+<p>值可以是一个目录，或者是一个路径。<br>如果<a href="http://www.china.com/test/index.html" target="_blank" rel="external">http://www.china.com/test/index.html</a> 建立了一个cookie，那么在<a href="http://www.china.com/test/目录里的所有页面，以及该目录下面任何子目录里的页面都可以访问这个cookie。" target="_blank" rel="external">http://www.china.com/test/目录里的所有页面，以及该目录下面任何子目录里的页面都可以访问这个cookie。</a><br>这就是说，在<a href="http://www.china.com/test/test2/test3" target="_blank" rel="external">http://www.china.com/test/test2/test3</a> 里的任何页面都可以访问<a href="http://www.china.com/test/index.html建立的cookie。" target="_blank" rel="external">http://www.china.com/test/index.html建立的cookie。</a><br>但是，如果<a href="http://www.china.com/test/" target="_blank" rel="external">http://www.china.com/test/</a> 需要访问<a href="http://www.china.com/test/index.html设置的cookes，该怎么办？" target="_blank" rel="external">http://www.china.com/test/index.html设置的cookes，该怎么办？</a><br>这时，我们要把cookies的<a href="http://nonfu.me/tag/path" target="_blank" rel="external">path</a>属性设置成“/”。在指定路径的时候，凡是来自同一服务器，URL里有相同路径的所有WEB页面都可以共享cookies。</p>
+<h2 id="Expires-–-过期时间"><a href="#Expires-–-过期时间" class="headerlink" title="Expires – 过期时间"></a>Expires – 过期时间</h2><p>指cookie的生命期，确切地说是过期日期。<br>如果想让cookie的存在期限超过当前浏览器的会话时间，就必须使用这个属性。当过了到期日期时，浏览器会自动删除cookie文件。</p>
+<p><strong>expires/Max-Age</strong> 字段为此cookie超时时间。若设置其值为一个时间，那么当到达此时间后，此cookie失效。不设置的话默认值是Session，意思是cookie会和session一起失效。当浏览器关闭(不是浏览器标签页，而是整个浏览器) 后，此cookie失效。</p>
+<p>3.浏览器会将domain和path都相同的cookie保存在一个文件里，cookie间用*隔开。</p>
+<p>##Secure – 安全</p>
+<p>设置是否只能通过https来传递cookie</p>
+<p>##http字段</p>
+<p>cookie的httponly属性。若此属性为true，则只有在http请求头中会带有此cookie的信息，而不能通过document.cookie来访问此cookie。</p>
+<h2 id="Size字段"><a href="#Size字段" class="headerlink" title="Size字段"></a><strong>Size</strong>字段</h2><p>此cookie大小。</p>
+<h1 id="测试"><a href="#测试" class="headerlink" title="测试"></a>测试</h1><p>今天研究一天发现<strong>cookie无法设置除当前域名或者其父域名之外</strong>的其他domain.</p>
+<p>这个是浏览器出于对cookie的保护造成的，也就是<strong>cookie无法跨域设置</strong>。</p>
+<p>对于子域名也有如下规则，当前域名只能设置当前域名以及他的父域名，不能设置子域名</p>
+<p>如在<a href="http://www.wo.cao.baidu.com/" target="_blank" rel="external">www.wo.cao.baidu.com</a>  域名下只能设置 cao.baidu.com   baidu.com</p>
+<p>不能设置 da.jia.wo.cao.baidu.com的cookie。</p>
+<p>当我们给网站设置cookie时，大家有没有发现在网站的其他域名下也接收到了这些cookie。这些没用的cookie看似不占多少流量，但如果对一个日PV千万的站点来说，那浪费的资源就不是一点点了。因此在设置cookie时，对它的作用域一定要设置准确了。</p>
+<p>我们都知道在<a href="http://lib.csdn.net/base/php" target="_blank" rel="external">PHP</a>中用<strong>setcookie</strong> 来设置网站的cookie，该函数的用法如下：</p>
+<p>bool <strong>setcookie</strong> ( string <code>$name</code> [, string <code>$value</code> [, int<code>$expire</code> = 0 [, string<code>$path</code> [, string <strong>$domain</strong> [, bool<code>$secure</code> = false [, bool<code>$httponly</code> = false ]]]]]] )</p>
+<p>今天我们就来探讨一下它的第五个参数<code>$</code>domain，因为它决定了cookie的作用域。</p>
+<p>现在有如下3个域名，一个顶级域名、一个二级域名和一个三级域名：</p>
+<p><strong>① zydya.com②blog.zyday.com③one.blog.zyday.com</strong></p>
+<ul>
+<li>首先在①zyday.com域名下设置cookie，做四次测试，分别设置domain参数为空、’zyday.com’、’blog.zyday.com’与’one.blog.zyday.com’。<br>√表示该域名下能取到cookie，×表示不能取到cookie</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>domain参数</th>
+<th><strong>zydya.com</strong></th>
+<th>blog.zyday.com</th>
+<th>one.blog.zyday.com</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>setcookie(‘name’,1,time()+1)</td>
+<td>√</td>
+<td>√</td>
+<td>√</td>
+</tr>
+<tr>
+<td>setcookie(‘name’,1,time()+1,’/‘,’zyday.com’)</td>
+<td>√</td>
+<td>√</td>
+<td>√</td>
+</tr>
+<tr>
+<td>setcookie(‘name’,1,time() +1,’/‘,’blog.zyday.com’)</td>
+<td>×</td>
+<td>×</td>
+<td>×</td>
+</tr>
+<tr>
+<td>setcookie(‘name’,1,time() +1,’/‘,’one.blog.zyday.com’)</td>
+<td>×</td>
+<td>×</td>
+<td>×</td>
+</tr>
+</tbody>
+</table>
+<p>当domain设置为空时，domain默认为当前域名，并且该域名下的子域名都可以接收到cookie。<br>但是domain参数设置其子域名时，所有域名就接收不到了，包括那个子域名。</p>
+<p><strong>只能设置当前域名或者父域名的cookie，</strong></p>
+<ul>
+<li>然后在②blog.zyday.com域名下设置cookie，测试条件同上</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>domain参数</th>
+<th>zydya.com</th>
+<th><strong>*blog.zyday.com*</strong></th>
+<th>one.blog.zyday.com</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>setcookie(‘name’,1,time() +1)</td>
+<td>×</td>
+<td>√</td>
+<td>√</td>
+</tr>
+<tr>
+<td>setcookie(‘name’,1,time()+1,’/‘,’zyday.com’)</td>
+<td>√</td>
+<td>√</td>
+<td>√</td>
+</tr>
+<tr>
+<td>setcookie(‘name’,1,time()+1,’/‘,’blog.zyday.com’)</td>
+<td>×</td>
+<td>√</td>
+<td>√</td>
+</tr>
+<tr>
+<td>setcookie(‘name’,1,time()+1,’/‘,one.blog.zyday.com’)</td>
+<td>×</td>
+<td>×</td>
+<td>×</td>
+</tr>
+</tbody>
+</table>
+<p>看第二行，domain参数是zyday.com，是blog.zyday.com的父域名，那么zyday.com下所有子域名(包括zyday.com、blog.zyday.com、one.blog.zyday.com)都能接收到cookie。<br>当domain为自身域名时，那么其父域名受影响，其本身与其子域名可以接收到cookie。<br>而设置其子域名或其他域名时，所有域名都接收不到cookie了。</p>
+<ul>
+<li>最后在③one.blog.zyday.com域名下设置cookie</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>domain参数</th>
+<th>zydya.com</th>
+<th>blog.zyday.com</th>
+<th><strong>*one.blog.zyday.com*</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>setcookie(‘name’,1,time() +1)</td>
+<td>×</td>
+<td>×</td>
+<td>√</td>
+</tr>
+<tr>
+<td>setcookie(‘name’,1,time()+1,’/‘,’zyday.com’)</td>
+<td>√</td>
+<td>√</td>
+<td>√</td>
+</tr>
+<tr>
+<td>setcookie(‘name’,1,time()+1,’/‘,’blog.zyday.com’)</td>
+<td>×</td>
+<td>√</td>
+<td>√</td>
+</tr>
+<tr>
+<td>setcookie(‘name’,1,time()+1,’/‘,one.blog.zyday.com’)</td>
+<td>×</td>
+<td>×</td>
+<td>√</td>
+</tr>
+</tbody>
+</table>
+<p>第三个<a href="http://lib.csdn.net/base/softwaretest" target="_blank" rel="external">测试</a>得出的结论在上面已经总结了。再看一遍，这里就不多解释了。</p>
+<p>domain的设置，有两点要注意：</p>
+<p>1.在setcookie中省略domain参数，那么domain默认为当前域名。</p>
+<p>2.domain参数可以设置父域名以及自身，但<strong>不能</strong>设置其它域名，包括子域名，否则cookie不起作用。</p>
+<p>那么cookie的作用域：</p>
+<p><strong>cookie的作用域是domain本身以及domain下的所有子域名。</strong></p>
+<h1 id="设置COOKIE"><a href="#设置COOKIE" class="headerlink" title="设置COOKIE"></a>设置COOKIE</h1><h2 id="顶级域名"><a href="#顶级域名" class="headerlink" title="顶级域名"></a>顶级域名</h2><p>顶级域名只能设置<code>domain</code>为顶级域名，不能设置为二级域名或者三级域名等等，否则<code>cookie</code>无法生成。</p>
+<blockquote>
+<p>如<code>yangbai.com</code>能设置<code>domain</code>为<code>yangbai.com</code>或者<code>www.yangbai.com</code>，但不能设置<code>domain</code>为<code>login.yangbai.com</code>，这样<code>cookie</code>不会生成。</p>
+</blockquote>
+<p>以下面的代码为例：</p>
+<figure class="highlight gauss"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">setcookie(<span class="string">"name1"</span>, <span class="string">"yangbai"</span>, <span class="built_in">time</span>() + <span class="number">1000</span>);<span class="comment">//yangbai.com自己可以看到</span></span><br><span class="line">setcookie(<span class="string">"name2"</span>, <span class="string">"yangbai"</span>, <span class="built_in">time</span>() + <span class="number">1000</span>, <span class="string">"/"</span>, <span class="string">"www.yangbai.com"</span>);<span class="comment">//*.www.yangbai.com都可以看到</span></span><br><span class="line">setcookie(<span class="string">"name3"</span>, <span class="string">"yangbai"</span>, <span class="built_in">time</span>() + <span class="number">1000</span>, <span class="string">"/"</span>, <span class="string">"yangbai.com"</span>);<span class="comment">//*.yangbai.com都可以看到</span></span><br><span class="line">setcookie(<span class="string">"name4"</span>, <span class="string">"yangbai"</span>, <span class="built_in">time</span>() + <span class="number">1000</span>, <span class="string">"/"</span>, <span class="string">"login.youzan.com"</span>);<span class="comment">//设置无效</span></span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>设置<code>domain</code>的时候，<code>.yangbai.com</code>和<code>yangbai.com</code>是一样的。<br>未指定<code>domain</code>时，默认的<code>domain</code>为用哪个域名访问就是哪个。</p>
+</blockquote>
+<p>执行后，<code>www.yangbai.com</code>在浏览器的<code>cookie</code>情况如下图：</p>
+<p><img src="https://segmentfault.com/img/bVDeNV?w=2413&amp;h=238" alt="图片描述"></p>
+<p>二级域名<code>login.yangbai.com</code>和<code>game.yangbai.com</code>浏览器的<code>cookie</code>情况如下图：</p>
+<p><img src="https://segmentfault.com/img/bVDeOc?w=1208&amp;h=70" alt="clipboard.png"></p>
+<p>总的来说，顶级域名设置的<code>cookie</code>可以共享【需要指定<code>domain</code>主域名的<code>host</code>】给二级域名，也可以自己私有【不指定<code>domain</code>】。</p>
+<h2 id="二级域名"><a href="#二级域名" class="headerlink" title="二级域名"></a>二级域名</h2><p>拿<code>game.yangbai.com</code>为例，代码如下：</p>
+<figure class="highlight less"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="selector-tag">setcookie</span>(<span class="string">"game"</span>, <span class="string">"yangbai"</span>);<span class="comment">//只有自己可以看到</span></span><br><span class="line"><span class="selector-tag">setcookie</span>(<span class="string">"game1"</span>, <span class="string">"yangbai"</span>, time() + <span class="number">1000</span>, <span class="string">"/"</span>, <span class="string">"yangbai.com"</span>);<span class="comment">//*.yangbai.com都可以看到</span></span><br><span class="line"><span class="selector-tag">setcookie</span>(<span class="string">"game2"</span>, <span class="string">"yangbai"</span>, time() + <span class="number">1000</span>, <span class="string">"/"</span>, <span class="string">"chip.game.yangbai.com"</span>);<span class="comment">//设置无效</span></span><br></pre></td></tr></table></figure>
+<p>执行后，<code>game.yangbai.com</code>在浏览器的<code>cookie</code>情况如下图：</p>
+<p><img src="https://segmentfault.com/img/bVDfC3?w=2411&amp;h=170" alt="图片描述"></p>
+<blockquote>
+<p>总的来说，设置<code>cookie</code>的话只能在本域名下或者<code>domain</code>级别高于自身的域名下才会生效！</p>
+</blockquote>
+<h1 id="读取COOKIE"><a href="#读取COOKIE" class="headerlink" title="读取COOKIE"></a>读取COOKIE</h1><p>有了上面的例子和实践，大概的规则如下：</p>
+<ul>
+<li>二级域名能读取设置了<code>domain</code>为顶级域名或者自身的<code>cookie</code>，不能读取其他二级域名<code>domain</code>的<code>cookie</code>。例如：要想<code>cookie</code>在多个二级域名中共享，需要设置<code>domain</code>为顶级域名，这样就可以在所有二级域名里面或者到这个<code>cookie</code>的值了。</li>
+<li>顶级域名只能获取到<code>domain</code>设置为顶级域名的<code>cookie</code>，<code>domain</code>设置为其他子级域名的无法获取。</li>
+</ul>
+<h1 id="修改COOKIE"><a href="#修改COOKIE" class="headerlink" title="修改COOKIE"></a>修改COOKIE</h1><h2 id="顶级域名-1"><a href="#顶级域名-1" class="headerlink" title="顶级域名"></a>顶级域名</h2><p>顶级域名的<code>cookie</code>在顶级域名或者非顶级域名【需要设置domain为顶级域名才可以】都可以修改。代码如下：</p>
+<figure class="highlight applescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#为所有二级域名设置一个cookie</span></span><br><span class="line">setcookie(<span class="string">"name"</span>, <span class="string">"yangbai"</span>, <span class="built_in">time</span>() + <span class="number">1000</span>, <span class="string">"/"</span>, <span class="string">"yangbai.com"</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">#在game.yangbai.com下面修改这个cookie值</span></span><br><span class="line">setcookie(<span class="string">"name"</span>, <span class="string">"yangbai11"</span>, <span class="built_in">time</span>() + <span class="number">1000</span>, <span class="string">"/"</span>, <span class="string">"yangbai.com"</span>);</span><br></pre></td></tr></table></figure>
+<h2 id="二级域名-1"><a href="#二级域名-1" class="headerlink" title="二级域名"></a>二级域名</h2><p>修改二级域名自身生成的<code>cookie</code>不需要设置<code>domain</code>，直接设置即可。代码如下：</p>
+<figure class="highlight applescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#修改game.yangbai.com下面自身的cookie值</span></span><br><span class="line">setcookie(<span class="string">"game"</span>, <span class="string">"chip"</span>, <span class="built_in">time</span>() + <span class="number">10000</span>);</span><br></pre></td></tr></table></figure>
+<h1 id="删除COOKIE"><a href="#删除COOKIE" class="headerlink" title="删除COOKIE"></a>删除COOKIE</h1><p>删除cookie理解为是修改cookie的一种特殊场景，只需将<code>expire</code>设置为过期、值设置为<code>null</code>即可，代码如下：</p>
+<figure class="highlight gauss"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#删除yangbai.com下面的cookie值</span></span><br><span class="line">setcookie(<span class="string">"name"</span>, <span class="built_in">null</span>, <span class="built_in">time</span>() - <span class="number">1000</span>, <span class="string">"/"</span>, <span class="string">"yangbai.com"</span>);</span><br><span class="line"></span><br><span class="line"><span class="meta">#删除game.yangbai.com下面自身的cookie值</span></span><br><span class="line">setcookie(<span class="string">"game"</span>, <span class="built_in">null</span>, <span class="built_in">time</span>() - <span class="number">1000</span>);</span><br></pre></td></tr></table></figure>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/07/07/Mysql-for-mac-安装及环境配置/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="周小伍 Joey">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/xiaowu_avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="xiaowu's blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/07/07/Mysql-for-mac-安装及环境配置/" itemprop="url">Mysql for mac 安装及环境配置</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-07-07T10:00:42+08:00">
+                2018-07-07
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/数据库/" itemprop="url" rel="index">
+                    <span itemprop="name">数据库</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2018/07/07/Mysql-for-mac-安装及环境配置/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2018/07/07/Mysql-for-mac-安装及环境配置/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  444
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  1
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="一-下载及安装"><a href="#一-下载及安装" class="headerlink" title="一.下载及安装"></a>一.下载及安装</h2><p>首先去官网下载mac对应版本的Mysql,尾缀为.dmg的程序包</p>
+<p>下载地址：<a href="https://dev.mysql.com/downloads/mysql/" target="_blank" rel="external">https://dev.mysql.com/downloads/mysql/</a></p>
+<p>下载完毕后，一步步傻瓜式安装即可，安装完后mysql会弹出一个框框，告诉你安装成功以及root用户的初始密码，注意Mysql for Mac 的初始密码是随机生成的，最好记住</p>
+<h2 id="二-更改初始密码"><a href="#二-更改初始密码" class="headerlink" title="二.更改初始密码"></a>二.更改初始密码</h2><p>A.打开终端</p>
+<p>1.进入mysql的bin目录下（默认安装的目录为 /usr/local/mysql/bin）</p>
+<p><code>cd /usr/local/mysql/bin/</code></p>
+<p>2.输入指令，会提示输入密码（输入mac账户的root密码）</p>
+<p>sudo ./mysqld_safe –skip-grant-tables</p>
+<p>3.输入密码后，会发现有一些提示，且Mysql会自动重启</p>
+<p>B.另开一个终端</p>
+<p>1、输入指令1：（进入到mysql的bin目录下）<br>输入：<code>cd /usr/local/mysql/bin/</code><br>2、输入指令2：<br>输入：<code>./mysql</code><br>3、进入到mysql命令状态下：（<code>mysql&gt;</code>是mysql命令状态提示）<br>输入：mysql&gt; <code>FLUSH PRIVILEGES;</code><br>4、设置密码root<br>输入：<code>mysql&gt; SET PASSWORD FOR &#39;root&#39;@&#39;localhost&#39; = PASSWORD(&#39;root&#39;);</code></p>
+<p>至此，初始密码设置完毕</p>
+<h2 id="三-配置环境变量"><a href="#三-配置环境变量" class="headerlink" title="三.配置环境变量"></a>三.配置环境变量</h2><p>若不设置环境变量，输入命令太繁琐，每次登陆Mysql的命令为：/usr/local/mysql/bin/ mysql -u root -p</p>
+<p>windows系统直接在环境变量中添加mysql的路径就好，mac系统则需要在home目录下的.bash_profile文件中新建path路径指向mysql的路径</p>
+<p>查看home目录：</p>
+<p>输入命令 echo $HOME</p>
+<p>mac默认的home目录为当前用户根目录 /Users/silverlaw</p>
+<p>配置环境变量：</p>
+<p>1.打开终端,输入：</p>
+<p>open .bash_profile</p>
+<p>2.直接输入如下语句：</p>
+<p>export PATH=${PATH}:/usr/local/mysql/bin</p>
+<p>保存，关闭终端和TextEdit</p>
+<p>重新打开终端，输入：mysql -u root -p，即可成功登陆</p>
 
           
         
@@ -1991,7 +2982,7 @@
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/page/5/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/5/">5</a><span class="page-number current">6</span><a class="page-number" href="/page/7/">7</a><span class="space">&hellip;</span><a class="page-number" href="/page/18/">18</a><a class="extend next" rel="next" href="/page/7/"><i class="fa fa-angle-right"></i></a>
+    <a class="extend prev" rel="prev" href="/page/5/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/5/">5</a><span class="page-number current">6</span><a class="page-number" href="/page/7/">7</a><span class="space">&hellip;</span><a class="page-number" href="/page/15/">15</a><a class="extend next" rel="next" href="/page/7/"><i class="fa fa-angle-right"></i></a>
   </nav>
 
 
@@ -2041,7 +3032,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">175</span>
+                  <span class="site-state-item-count">150</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -2052,7 +3043,7 @@
               
               <div class="site-state-item site-state-categories">
                 <a href="/categories/index.html">
-                  <span class="site-state-item-count">10</span>
+                  <span class="site-state-item-count">28</span>
                   <span class="site-state-item-name">分类</span>
                 </a>
               </div>
@@ -2062,10 +3053,10 @@
               
               
               <div class="site-state-item site-state-tags">
-                
-                  <span class="site-state-item-count">51</span>
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">43</span>
                   <span class="site-state-item-name">标签</span>
-                
+                </a>
               </div>
             
 
@@ -2108,6 +3099,15 @@
   </span>
   <span class="author" itemprop="copyrightHolder">周小伍 Joey</span>
 
+  
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-area-chart"></i>
+    </span>
+    
+      <span class="post-meta-item-text">Site words total count&#58;</span>
+    
+    <span title="Site words total count">270.1k</span>
   
 </div>
 

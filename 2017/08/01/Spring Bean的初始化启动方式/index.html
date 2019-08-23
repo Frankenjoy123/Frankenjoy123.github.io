@@ -87,7 +87,7 @@
 <meta property="og:site_name" content="xiaowu&#39;s blog">
 <meta property="og:description" content="方式一: xml &amp;lt;bean init-method=&amp;quot;init&amp;quot;1234&amp;lt;bean class=&quot;cn.fraudmetrix.billing.consumer.FlowConsumer&quot; init-method=&quot;init&quot; destroy-method=&quot;destroy&quot;&amp;gt;    &amp;lt;property name=&quot;kafkaTopics&quot; value">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2017-12-19T05:48:12.000Z">
+<meta property="og:updated_time" content="2019-08-22T03:25:55.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Spring Bean的初始化启动方式">
 <meta name="twitter:description" content="方式一: xml &amp;lt;bean init-method=&amp;quot;init&amp;quot;1234&amp;lt;bean class=&quot;cn.fraudmetrix.billing.consumer.FlowConsumer&quot; init-method=&quot;init&quot; destroy-method=&quot;destroy&quot;&amp;gt;    &amp;lt;property name=&quot;kafkaTopics&quot; value">
@@ -132,6 +132,16 @@
 
 
 
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?3da41265a1a0042eebe5413c0d6c76f5";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
 
 
 
@@ -187,6 +197,16 @@
               <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
             
             首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
           </a>
         </li>
       
@@ -273,6 +293,28 @@
           </span>
 
           
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Spring/" itemprop="url" rel="index">
+                    <span itemprop="name">Spring</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
 
           
             
@@ -295,6 +337,37 @@
           
 
           
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  543
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  2
+                </span>
+              
+            </div>
+          
 
           
 
@@ -313,7 +386,7 @@
       
         <h1 id="方式一-xml-lt-bean-init-method-quot-init-quot"><a href="#方式一-xml-lt-bean-init-method-quot-init-quot" class="headerlink" title="方式一: xml &lt;bean init-method=&quot;init&quot;"></a>方式一: <code>xml &lt;bean init-method=&quot;init&quot;</code></h1><figure class="highlight dust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="xml"><span class="tag">&lt;<span class="name">bean</span> <span class="attr">class</span>=<span class="string">"cn.fraudmetrix.billing.consumer.FlowConsumer"</span> <span class="attr">init-method</span>=<span class="string">"init"</span> <span class="attr">destroy-method</span>=<span class="string">"destroy"</span>&gt;</span></span></span><br><span class="line"><span class="xml">    <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"kafkaTopics"</span> <span class="attr">value</span>=<span class="string">"$</span></span></span><span class="template-variable">&#123;billing.kafka.topics&#125;</span><span class="xml"><span class="tag"><span class="string">"</span>/&gt;</span></span></span><br><span class="line"><span class="xml">    <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"debug"</span> <span class="attr">value</span>=<span class="string">"$</span></span></span><span class="template-variable">&#123;billing.flow.consumer.debug&#125;</span><span class="xml"><span class="tag"><span class="string">"</span>/&gt;</span></span></span><br><span class="line"><span class="xml"><span class="tag">&lt;/<span class="name">bean</span>&gt;</span></span></span><br></pre></td></tr></table></figure>
 <h1 id="方式二-implements-InitializingBean"><a href="#方式二-implements-InitializingBean" class="headerlink" title="方式二: implements InitializingBean"></a>方式二: <code>implements InitializingBean</code></h1><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">DisconfPropertiesFactory</span> <span class="keyword">implements</span> <span class="title">FactoryBean</span>&lt;<span class="title">Properties</span>&gt;, <span class="title">InitializingBean</span> </span>&#123;</span><br><span class="line">    ...</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">afterPropertiesSet</span><span class="params">()</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (<span class="keyword">this</span>.singleton) &#123;</span><br><span class="line">            <span class="keyword">this</span>.singletonInstance = <span class="keyword">this</span>.createProperties();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    ...</span><br></pre></td></tr></table></figure>
-<h1 id="方式三-注解-PostConstruct-PreDestroy"><a href="#方式三-注解-PostConstruct-PreDestroy" class="headerlink" title="方式三:注解@PostConstruct @PreDestroy"></a>方式三:<code>注解@PostConstruct @PreDestroy</code></h1><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.myapp.core.annotation.init;  </span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> javax.annotation.PostConstruct;  </span><br><span class="line"><span class="keyword">import</span> javax.annotation.PreDestroy;  </span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">PersonService</span> </span>&#123;  </span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> String message;  </span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">getMessage</span><span class="params">()</span> </span>&#123;  </span><br><span class="line">        <span class="keyword">return</span> message;  </span><br><span class="line">    &#125;  </span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setMessage</span><span class="params">(String message)</span> </span>&#123;  </span><br><span class="line">        <span class="keyword">this</span>.message = message;  </span><br><span class="line">    &#125;  </span><br><span class="line"></span><br><span class="line">    <span class="meta">@PostConstruct</span>  </span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">init</span><span class="params">()</span></span>&#123;  </span><br><span class="line">        System.out.println(<span class="string">"I'm init method using @PostConstrut...."</span>+message);  </span><br><span class="line">    &#125;  </span><br><span class="line"></span><br><span class="line">    <span class="meta">@PreDestroy</span>  </span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">dostory</span><span class="params">()</span></span>&#123;  </span><br><span class="line">        System.out.println(<span class="string">"I'm destory method using @PreDestroy....."</span>+message);  </span><br><span class="line">    &#125;  </span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h1 id="方式三-注解-PostConstruct-PreDestroy"><a href="#方式三-注解-PostConstruct-PreDestroy" class="headerlink" title="方式三:注解@PostConstruct @PreDestroy"></a>方式三:<code>注解@PostConstruct @PreDestroy</code></h1><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.myapp.core.annotation.init;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> javax.annotation.PostConstruct;</span><br><span class="line"><span class="keyword">import</span> javax.annotation.PreDestroy;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">PersonService</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> String message;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">getMessage</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> message;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setMessage</span><span class="params">(String message)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.message = message;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@PostConstruct</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">init</span><span class="params">()</span></span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"I'm init method using @PostConstrut...."</span>+message);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@PreDestroy</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">dostory</span><span class="params">()</span></span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"I'm destory method using @PreDestroy....."</span>+message);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <hr>
 <h2 id="bean-factory负责bean创建的最初四步，然后移交给应用上下文做后续创建过程："><a href="#bean-factory负责bean创建的最初四步，然后移交给应用上下文做后续创建过程：" class="headerlink" title="bean factory负责bean创建的最初四步，然后移交给应用上下文做后续创建过程："></a>bean factory负责bean创建的最初四步，然后移交给应用上下文做后续创建过程：</h2><ul>
 <li>1.Spring初始化bean</li>
@@ -361,8 +434,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2017/07/19/面试第一题 - HashMap/" rel="next" title="面试第一题 - HashMap">
-                <i class="fa fa-chevron-left"></i> 面试第一题 - HashMap
+              <a href="/2015/10/07/JVM参数配置/" rel="next" title="JVM参数配置">
+                <i class="fa fa-chevron-left"></i> JVM参数配置
               </a>
             
           </div>
@@ -371,8 +444,8 @@
 
           <div class="post-nav-prev post-nav-item">
             
-              <a href="/2017/08/03/centos7一键部署java和node环境/" rel="prev" title="centos7一键部署java和node环境">
-                centos7一键部署java和node环境 <i class="fa fa-chevron-right"></i>
+              <a href="/2017/08/03/内网docker集群环境/" rel="prev" title="内网docker集群环境">
+                内网docker集群环境 <i class="fa fa-chevron-right"></i>
               </a>
             
           </div>
@@ -461,7 +534,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">175</span>
+                  <span class="site-state-item-count">150</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -472,7 +545,7 @@
               
               <div class="site-state-item site-state-categories">
                 <a href="/categories/index.html">
-                  <span class="site-state-item-count">10</span>
+                  <span class="site-state-item-count">28</span>
                   <span class="site-state-item-name">分类</span>
                 </a>
               </div>
@@ -482,10 +555,10 @@
               
               
               <div class="site-state-item site-state-tags">
-                
-                  <span class="site-state-item-count">51</span>
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">43</span>
                   <span class="site-state-item-name">标签</span>
-                
+                </a>
               </div>
             
 
@@ -544,6 +617,15 @@
   </span>
   <span class="author" itemprop="copyrightHolder">周小伍 Joey</span>
 
+  
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-area-chart"></i>
+    </span>
+    
+      <span class="post-meta-item-text">Site words total count&#58;</span>
+    
+    <span title="Site words total count">270.1k</span>
   
 </div>
 

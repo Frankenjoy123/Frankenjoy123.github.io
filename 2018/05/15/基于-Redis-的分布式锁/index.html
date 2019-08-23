@@ -88,7 +88,7 @@
 <meta property="og:description" content="前言分布式锁在分布式应用中应用广泛，想要搞懂一个新事物首先得了解它的由来，这样才能更加的理解甚至可以举一反三。 首先谈到分布式锁自然也就联想到分布式应用。 在我们将应用拆分为分布式应用之前的单机系统中，对一些并发场景读取公共资源时如扣库存，卖车票之类的需求可以简单的使用同步或者是加锁就可以实现。 但是应用分布式了之后系统由以前的单进程多线程的程序变为了多进程多线程，这时使用以上的解决方案明显就不够">
 <meta property="og:locale" content="zh-Hans">
 <meta property="og:image" content="https://ws2.sinaimg.cn/large/006tKfTcgy1fpxho866hbj311u0ej42f.jpg">
-<meta property="og:updated_time" content="2018-05-15T10:49:35.000Z">
+<meta property="og:updated_time" content="2019-08-22T03:23:44.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="基于 Redis 的分布式锁">
 <meta name="twitter:description" content="前言分布式锁在分布式应用中应用广泛，想要搞懂一个新事物首先得了解它的由来，这样才能更加的理解甚至可以举一反三。 首先谈到分布式锁自然也就联想到分布式应用。 在我们将应用拆分为分布式应用之前的单机系统中，对一些并发场景读取公共资源时如扣库存，卖车票之类的需求可以简单的使用同步或者是加锁就可以实现。 但是应用分布式了之后系统由以前的单进程多线程的程序变为了多进程多线程，这时使用以上的解决方案明显就不够">
@@ -134,6 +134,16 @@
 
 
 
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?3da41265a1a0042eebe5413c0d6c76f5";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
 
 
 
@@ -189,6 +199,16 @@
               <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
             
             首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
           </a>
         </li>
       
@@ -275,6 +295,39 @@
           </span>
 
           
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/缓存/" itemprop="url" rel="index">
+                    <span itemprop="name">缓存</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/缓存/redis/" itemprop="url" rel="index">
+                    <span itemprop="name">redis</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
 
           
             
@@ -296,6 +349,37 @@
 
           
 
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  2k
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  8
+                </span>
+              
+            </div>
           
 
           
@@ -341,7 +425,7 @@
 <p>该命令可以保证 NX EX 的原子性。</p>
 <p>一定不要把两个命令(NX EX)分开执行，如果在 NX 之后程序出现问题就有可能产生死锁。</p>
 <h4 id="阻塞锁"><a href="#阻塞锁" class="headerlink" title="阻塞锁"></a>阻塞锁</h4><p>同时也可以实现一个阻塞锁：</p>
-<figure class="highlight processing"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//一直阻塞</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> lock(<span class="keyword">String</span> <span class="built_in">key</span>, <span class="keyword">String</span> request) <span class="keyword">throws</span> InterruptedException &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> (;;)&#123;</span><br><span class="line">        <span class="keyword">String</span> result = <span class="keyword">this</span>.jedis.<span class="built_in">set</span>(LOCK_PREFIX + <span class="built_in">key</span>, request, SET_IF_NOT_EXIST, SET_WITH_EXPIRE_TIME, <span class="number">10</span> * TIME);</span><br><span class="line">        <span class="keyword">if</span> (LOCK_MSG.equals(result))&#123;</span><br><span class="line">            <span class="keyword">break</span> ;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line"> <span class="comment">//防止一直消耗 CPU 	</span></span><br><span class="line">        Thread.sleep(DEFAULT_SLEEP_TIME) ;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"> <span class="comment">//自定义阻塞时间</span></span><br><span class="line"> <span class="keyword">public</span> <span class="built_in">boolean</span> lock(<span class="keyword">String</span> <span class="built_in">key</span>, <span class="keyword">String</span> request,<span class="built_in">int</span> blockTime) <span class="keyword">throws</span> InterruptedException &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span> (blockTime &gt;= <span class="number">0</span>)&#123;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">String</span> result = <span class="keyword">this</span>.jedis.<span class="built_in">set</span>(LOCK_PREFIX + <span class="built_in">key</span>, request, SET_IF_NOT_EXIST, SET_WITH_EXPIRE_TIME, <span class="number">10</span> * TIME);</span><br><span class="line">        <span class="keyword">if</span> (LOCK_MSG.equals(result))&#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">true</span> ;</span><br><span class="line">        &#125;</span><br><span class="line">        blockTime -= DEFAULT_SLEEP_TIME ;</span><br><span class="line"></span><br><span class="line">        Thread.sleep(DEFAULT_SLEEP_TIME) ;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">false</span> ;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight processing"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//一直阻塞</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> lock(<span class="keyword">String</span> <span class="built_in">key</span>, <span class="keyword">String</span> request) <span class="keyword">throws</span> InterruptedException &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> (;;)&#123;</span><br><span class="line">        <span class="keyword">String</span> result = <span class="keyword">this</span>.jedis.<span class="built_in">set</span>(LOCK_PREFIX + <span class="built_in">key</span>, request, SET_IF_NOT_EXIST, SET_WITH_EXPIRE_TIME, <span class="number">10</span> * TIME);</span><br><span class="line">        <span class="keyword">if</span> (LOCK_MSG.equals(result))&#123;</span><br><span class="line">            <span class="keyword">break</span> ;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line"> <span class="comment">//防止一直消耗 CPU</span></span><br><span class="line">        Thread.sleep(DEFAULT_SLEEP_TIME) ;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"> <span class="comment">//自定义阻塞时间</span></span><br><span class="line"> <span class="keyword">public</span> <span class="built_in">boolean</span> lock(<span class="keyword">String</span> <span class="built_in">key</span>, <span class="keyword">String</span> request,<span class="built_in">int</span> blockTime) <span class="keyword">throws</span> InterruptedException &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span> (blockTime &gt;= <span class="number">0</span>)&#123;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">String</span> result = <span class="keyword">this</span>.jedis.<span class="built_in">set</span>(LOCK_PREFIX + <span class="built_in">key</span>, request, SET_IF_NOT_EXIST, SET_WITH_EXPIRE_TIME, <span class="number">10</span> * TIME);</span><br><span class="line">        <span class="keyword">if</span> (LOCK_MSG.equals(result))&#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">true</span> ;</span><br><span class="line">        &#125;</span><br><span class="line">        blockTime -= DEFAULT_SLEEP_TIME ;</span><br><span class="line"></span><br><span class="line">        Thread.sleep(DEFAULT_SLEEP_TIME) ;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">false</span> ;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <h3 id="解锁"><a href="#解锁" class="headerlink" title="解锁"></a>解锁</h3><p>解锁也很简单，其实就是把这个 key 删掉就万事大吉了，比如使用 <code>del key</code> 命令。</p>
 <p>但现实往往没有那么 easy。</p>
 <p>如果进程 A 获取了锁设置了超时时间，但是由于执行周期较长导致到了超时时间之后锁就自动释放了。这时进程 B 获取了该锁执行很快就释放锁。这样就会出现进程 B 将进程 A 的锁释放了。</p>
@@ -526,7 +610,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">175</span>
+                  <span class="site-state-item-count">150</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -537,7 +621,7 @@
               
               <div class="site-state-item site-state-categories">
                 <a href="/categories/index.html">
-                  <span class="site-state-item-count">10</span>
+                  <span class="site-state-item-count">28</span>
                   <span class="site-state-item-name">分类</span>
                 </a>
               </div>
@@ -547,10 +631,10 @@
               
               
               <div class="site-state-item site-state-tags">
-                
-                  <span class="site-state-item-count">51</span>
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">43</span>
                   <span class="site-state-item-name">标签</span>
-                
+                </a>
               </div>
             
 
@@ -609,6 +693,15 @@
   </span>
   <span class="author" itemprop="copyrightHolder">周小伍 Joey</span>
 
+  
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-area-chart"></i>
+    </span>
+    
+      <span class="post-meta-item-text">Site words total count&#58;</span>
+    
+    <span title="Site words total count">270.1k</span>
   
 </div>
 

@@ -86,7 +86,7 @@
 <meta property="og:site_name" content="xiaowu&#39;s blog">
 <meta property="og:description" content="背景最近做spring与quartz整合。业务实现时，需要在job里引入spring的bean，但是job的初始化时quartz在执行时new出来的。不受spring的管理，无法注入相关的依赖bean。多方查阅资料后，发现AutowireCapableBeanFactory可以实现类似功能。下面就通过走读代码的方式来学习下这个类的用法。 进入正题首先来看下AutowireCapableBeanFa">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2018-09-28T02:24:40.000Z">
+<meta property="og:updated_time" content="2019-08-22T03:25:57.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Spring AutowireCapableBeanFactory 整合 quartz">
 <meta name="twitter:description" content="背景最近做spring与quartz整合。业务实现时，需要在job里引入spring的bean，但是job的初始化时quartz在执行时new出来的。不受spring的管理，无法注入相关的依赖bean。多方查阅资料后，发现AutowireCapableBeanFactory可以实现类似功能。下面就通过走读代码的方式来学习下这个类的用法。 进入正题首先来看下AutowireCapableBeanFa">
@@ -131,6 +131,16 @@
 
 
 
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?3da41265a1a0042eebe5413c0d6c76f5";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
 
 
 
@@ -186,6 +196,16 @@
               <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
             
             首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
           </a>
         </li>
       
@@ -272,6 +292,28 @@
           </span>
 
           
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Spring/" itemprop="url" rel="index">
+                    <span itemprop="name">Spring</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
 
           
             
@@ -293,6 +335,37 @@
 
           
 
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  802
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  4
+                </span>
+              
+            </div>
           
 
           
@@ -322,7 +395,7 @@
 <p>job的具体处理逻辑</p>
 <figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">final</span> <span class="class"><span class="keyword">class</span> <span class="title">InternalJob</span> <span class="keyword">implements</span> <span class="title">Job</span> &#123;</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> Logger logger = LoggerFactory.getLogger(InternalJob .<span class="keyword">class</span>);</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="keyword">private</span> CuratorFramework client;</span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="keyword">private</span> JobAlarmEventService jobAlarmEventService;</span><br></pre></td></tr></table></figure>
 <p>job的spring配置：</p>
-<figure class="highlight applescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&lt;bean <span class="built_in">id</span>=<span class="string">"jobFactory"</span> <span class="built_in">class</span>=<span class="string">"com.test.scheduler.JobFactory"</span>&gt;&lt;/bean&gt;</span><br><span class="line">    &lt;bean <span class="built_in">id</span>=<span class="string">"schedulerFactoryBean"</span> <span class="built_in">class</span>=<span class="string">"org.springframework.scheduling.quartz.SchedulerFactoryBean"</span>&gt;</span><br><span class="line">        &lt;<span class="keyword">property</span> <span class="built_in">name</span>=<span class="string">"jobFactory"</span> <span class="keyword">ref</span>=<span class="string">"jobFactory"</span>&gt;&lt;/<span class="keyword">property</span>&gt;</span><br><span class="line">        &lt;<span class="keyword">property</span> <span class="built_in">name</span>=<span class="string">"schedulerName"</span> value=<span class="string">"scheduler"</span>&gt;&lt;/<span class="keyword">property</span>&gt;</span><br><span class="line">        &lt;<span class="keyword">property</span> <span class="built_in">name</span>=<span class="string">"configLocation"</span>  value=<span class="string">"classpath:META-INF/spring/quartz.properties"</span>&gt;&lt;/<span class="keyword">property</span>&gt;    </span><br><span class="line">    &lt;/bean&gt;</span><br></pre></td></tr></table></figure>
+<figure class="highlight applescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&lt;bean <span class="built_in">id</span>=<span class="string">"jobFactory"</span> <span class="built_in">class</span>=<span class="string">"com.test.scheduler.JobFactory"</span>&gt;&lt;/bean&gt;</span><br><span class="line">    &lt;bean <span class="built_in">id</span>=<span class="string">"schedulerFactoryBean"</span> <span class="built_in">class</span>=<span class="string">"org.springframework.scheduling.quartz.SchedulerFactoryBean"</span>&gt;</span><br><span class="line">        &lt;<span class="keyword">property</span> <span class="built_in">name</span>=<span class="string">"jobFactory"</span> <span class="keyword">ref</span>=<span class="string">"jobFactory"</span>&gt;&lt;/<span class="keyword">property</span>&gt;</span><br><span class="line">        &lt;<span class="keyword">property</span> <span class="built_in">name</span>=<span class="string">"schedulerName"</span> value=<span class="string">"scheduler"</span>&gt;&lt;/<span class="keyword">property</span>&gt;</span><br><span class="line">        &lt;<span class="keyword">property</span> <span class="built_in">name</span>=<span class="string">"configLocation"</span>  value=<span class="string">"classpath:META-INF/spring/quartz.properties"</span>&gt;&lt;/<span class="keyword">property</span>&gt;</span><br><span class="line">    &lt;/bean&gt;</span><br></pre></td></tr></table></figure>
       
     </div>
     
@@ -446,7 +519,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">175</span>
+                  <span class="site-state-item-count">150</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -457,7 +530,7 @@
               
               <div class="site-state-item site-state-categories">
                 <a href="/categories/index.html">
-                  <span class="site-state-item-count">10</span>
+                  <span class="site-state-item-count">28</span>
                   <span class="site-state-item-name">分类</span>
                 </a>
               </div>
@@ -467,10 +540,10 @@
               
               
               <div class="site-state-item site-state-tags">
-                
-                  <span class="site-state-item-count">51</span>
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">43</span>
                   <span class="site-state-item-name">标签</span>
-                
+                </a>
               </div>
             
 
@@ -529,6 +602,15 @@
   </span>
   <span class="author" itemprop="copyrightHolder">周小伍 Joey</span>
 
+  
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-area-chart"></i>
+    </span>
+    
+      <span class="post-meta-item-text">Site words total count&#58;</span>
+    
+    <span title="Site words total count">270.1k</span>
   
 </div>
 

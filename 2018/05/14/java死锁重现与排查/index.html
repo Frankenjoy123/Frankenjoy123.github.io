@@ -68,7 +68,7 @@
 
 
 
-  <meta name="keywords" content="java并发包," />
+  <meta name="keywords" content="Hexo, NexT" />
 
 
 
@@ -80,14 +80,13 @@
 
 
 <meta name="description" content="1.构造死锁通过模拟两个哲学吃饭，需要两把叉子。 123456789101112131415161718192021222324252627282930313233343536373839404142434445464748495051525354555657585960616263646566676869707172737475767778798081828384858687/** * Crea">
-<meta name="keywords" content="java并发包">
 <meta property="og:type" content="article">
 <meta property="og:title" content="java死锁重现与排查">
 <meta property="og:url" content="http://yoursite.com/2018/05/14/java死锁重现与排查/index.html">
 <meta property="og:site_name" content="xiaowu&#39;s blog">
 <meta property="og:description" content="1.构造死锁通过模拟两个哲学吃饭，需要两把叉子。 123456789101112131415161718192021222324252627282930313233343536373839404142434445464748495051525354555657585960616263646566676869707172737475767778798081828384858687/** * Crea">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2018-05-14T01:28:29.000Z">
+<meta property="og:updated_time" content="2019-08-22T02:57:33.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="java死锁重现与排查">
 <meta name="twitter:description" content="1.构造死锁通过模拟两个哲学吃饭，需要两把叉子。 123456789101112131415161718192021222324252627282930313233343536373839404142434445464748495051525354555657585960616263646566676869707172737475767778798081828384858687/** * Crea">
@@ -132,6 +131,16 @@
 
 
 
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?3da41265a1a0042eebe5413c0d6c76f5";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
 
 
 
@@ -187,6 +196,16 @@
               <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
             
             首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
           </a>
         </li>
       
@@ -273,6 +292,28 @@
           </span>
 
           
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/线上故障排查/" itemprop="url" rel="index">
+                    <span itemprop="name">线上故障排查</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
 
           
             
@@ -295,6 +336,37 @@
           
 
           
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  1.1k
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  6
+                </span>
+              
+            </div>
+          
 
           
 
@@ -316,7 +388,7 @@
 <h1 id="2-排查问题"><a href="#2-排查问题" class="headerlink" title="2. 排查问题"></a>2. 排查问题</h1><p>死锁的线程不占用cpu，通过jstack可以排查</p>
 <figure class="highlight 1c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">jstack <span class="number">59356</span> &gt; dead_lock_stack.<span class="built_in">log</span></span><br></pre></td></tr></table></figure>
 <p>搜索<code>deadlock</code></p>
-<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br></pre></td><td class="code"><pre><span class="line">2018-05-14 09:08:13</span><br><span class="line">Full thread dump Java HotSpot(TM) 64-Bit<span class="built_in"> Server </span>VM (25.144-b01 mixed mode):</span><br><span class="line"></span><br><span class="line"><span class="string">"Attach Listener"</span> #12 daemon <span class="attribute">prio</span>=9 <span class="attribute">os_prio</span>=31 <span class="attribute">tid</span>=0x00007fb3818c8000 <span class="attribute">nid</span>=0x1407 waiting on condition [0x0000000000000000]</span><br><span class="line">   java.lang.Thread.State: RUNNABLE</span><br><span class="line"></span><br><span class="line"><span class="string">"哲学家2"</span> #11 <span class="attribute">prio</span>=5 <span class="attribute">os_prio</span>=31 <span class="attribute">tid</span>=0x00007fb38185a000 <span class="attribute">nid</span>=0x5103 waiting <span class="keyword">for</span> monitor entry [0x000070000d069000]</span><br><span class="line">   java.lang.Thread.State: BLOCKED (on object monitor)</span><br><span class="line">	at DeadLock.<span class="builtin-name">run</span>(DeadLock.java:59)</span><br><span class="line">	- waiting <span class="keyword">to</span> lock &lt;0x0000000795782620&gt; (a java.lang.Object)</span><br><span class="line">	- locked &lt;0x0000000795782630&gt; (a java.lang.Object)</span><br><span class="line"></span><br><span class="line"><span class="string">"哲学家1"</span> #10 <span class="attribute">prio</span>=5 <span class="attribute">os_prio</span>=31 <span class="attribute">tid</span>=0x00007fb382042800 <span class="attribute">nid</span>=0x4f03 waiting <span class="keyword">for</span> monitor entry [0x000070000cf66000]</span><br><span class="line">   java.lang.Thread.State: BLOCKED (on object monitor)</span><br><span class="line">	at DeadLock.<span class="builtin-name">run</span>(DeadLock.java:41)</span><br><span class="line">	- waiting <span class="keyword">to</span> lock &lt;0x0000000795782630&gt; (a java.lang.Object)</span><br><span class="line">	- locked &lt;0x0000000795782620&gt; (a java.lang.Object)</span><br><span class="line"></span><br><span class="line"><span class="string">"Service Thread"</span> #9 daemon <span class="attribute">prio</span>=9 <span class="attribute">os_prio</span>=31 <span class="attribute">tid</span>=0x00007fb38206c800 <span class="attribute">nid</span>=0x4b03 runnable [0x0000000000000000]</span><br><span class="line">   java.lang.Thread.State: RUNNABLE</span><br><span class="line"></span><br><span class="line"><span class="string">"C1 CompilerThread2"</span> #8 daemon <span class="attribute">prio</span>=9 <span class="attribute">os_prio</span>=31 <span class="attribute">tid</span>=0x00007fb38185f000 <span class="attribute">nid</span>=0x4903 waiting on condition [0x0000000000000000]</span><br><span class="line">   java.lang.Thread.State: RUNNABLE</span><br><span class="line"></span><br><span class="line"><span class="string">"C2 CompilerThread1"</span> #7 daemon <span class="attribute">prio</span>=9 <span class="attribute">os_prio</span>=31 <span class="attribute">tid</span>=0x00007fb382815800 <span class="attribute">nid</span>=0x4703 waiting on condition [0x0000000000000000]</span><br><span class="line">   java.lang.Thread.State: RUNNABLE</span><br><span class="line"></span><br><span class="line"><span class="string">"C2 CompilerThread0"</span> #6 daemon <span class="attribute">prio</span>=9 <span class="attribute">os_prio</span>=31 <span class="attribute">tid</span>=0x00007fb381859000 <span class="attribute">nid</span>=0x4503 waiting on condition [0x0000000000000000]</span><br><span class="line">   java.lang.Thread.State: RUNNABLE</span><br><span class="line"></span><br><span class="line"><span class="string">"Monitor Ctrl-Break"</span> #5 daemon <span class="attribute">prio</span>=5 <span class="attribute">os_prio</span>=31 <span class="attribute">tid</span>=0x00007fb3830b9000 <span class="attribute">nid</span>=0x4303 runnable [0x000070000c954000]</span><br><span class="line">   java.lang.Thread.State: RUNNABLE</span><br><span class="line">	at java.net.SocketInputStream.socketRead0(Native Method)</span><br><span class="line">	at java.net.SocketInputStream.socketRead(SocketInputStream.java:116)</span><br><span class="line">	at java.net.SocketInputStream.read(SocketInputStream.java:171)</span><br><span class="line">	at java.net.SocketInputStream.read(SocketInputStream.java:141)</span><br><span class="line">	at sun.nio.cs.StreamDecoder.readBytes(StreamDecoder.java:284)</span><br><span class="line">	at sun.nio.cs.StreamDecoder.implRead(StreamDecoder.java:326)</span><br><span class="line">	at sun.nio.cs.StreamDecoder.read(StreamDecoder.java:178)</span><br><span class="line">	- locked &lt;0x0000000795708738&gt; (a java.io.InputStreamReader)</span><br><span class="line">	at java.io.InputStreamReader.read(InputStreamReader.java:184)</span><br><span class="line">	at java.io.BufferedReader.fill(BufferedReader.java:161)</span><br><span class="line">	at java.io.BufferedReader.readLine(BufferedReader.java:324)</span><br><span class="line">	- locked &lt;0x0000000795708738&gt; (a java.io.InputStreamReader)</span><br><span class="line">	at java.io.BufferedReader.readLine(BufferedReader.java:389)</span><br><span class="line">	at com.intellij.rt.execution.application.AppMainV2<span class="variable">$1</span>.<span class="builtin-name">run</span>(AppMainV2.java:64)</span><br><span class="line"></span><br><span class="line"><span class="string">"Signal Dispatcher"</span> #4 daemon <span class="attribute">prio</span>=9 <span class="attribute">os_prio</span>=31 <span class="attribute">tid</span>=0x00007fb382030800 <span class="attribute">nid</span>=0x4103 runnable [0x0000000000000000]</span><br><span class="line">   java.lang.Thread.State: RUNNABLE</span><br><span class="line"></span><br><span class="line"><span class="string">"Finalizer"</span> #3 daemon <span class="attribute">prio</span>=8 <span class="attribute">os_prio</span>=31 <span class="attribute">tid</span>=0x00007fb38202b000 <span class="attribute">nid</span>=0x3103 <span class="keyword">in</span> Object.wait() [0x000070000c74e000]</span><br><span class="line">   java.lang.Thread.State: WAITING (on object monitor)</span><br><span class="line">	at java.lang.Object.wait(Native Method)</span><br><span class="line">	- waiting on &lt;0x0000000795588ec8&gt; (a java.lang.ref.ReferenceQueue<span class="variable">$Lock</span>)</span><br><span class="line">	at java.lang.ref.ReferenceQueue.<span class="builtin-name">remove</span>(ReferenceQueue.java:143)</span><br><span class="line">	- locked &lt;0x0000000795588ec8&gt; (a java.lang.ref.ReferenceQueue<span class="variable">$Lock</span>)</span><br><span class="line">	at java.lang.ref.ReferenceQueue.<span class="builtin-name">remove</span>(ReferenceQueue.java:164)</span><br><span class="line">	at java.lang.ref.Finalizer<span class="variable">$FinalizerThread</span>.<span class="builtin-name">run</span>(Finalizer.java:209)</span><br><span class="line"></span><br><span class="line"><span class="string">"Reference Handler"</span> #2 daemon <span class="attribute">prio</span>=10 <span class="attribute">os_prio</span>=31 <span class="attribute">tid</span>=0x00007fb382805000 <span class="attribute">nid</span>=0x2f03 <span class="keyword">in</span> Object.wait() [0x000070000c64b000]</span><br><span class="line">   java.lang.Thread.State: WAITING (on object monitor)</span><br><span class="line">	at java.lang.Object.wait(Native Method)</span><br><span class="line">	- waiting on &lt;0x0000000795586b68&gt; (a java.lang.ref.Reference<span class="variable">$Lock</span>)</span><br><span class="line">	at java.lang.Object.wait(Object.java:502)</span><br><span class="line">	at java.lang.ref.Reference.tryHandlePending(Reference.java:191)</span><br><span class="line">	- locked &lt;0x0000000795586b68&gt; (a java.lang.ref.Reference<span class="variable">$Lock</span>)</span><br><span class="line">	at java.lang.ref.Reference<span class="variable">$ReferenceHandler</span>.<span class="builtin-name">run</span>(Reference.java:153)</span><br><span class="line"></span><br><span class="line"><span class="string">"main"</span> #1 <span class="attribute">prio</span>=5 <span class="attribute">os_prio</span>=31 <span class="attribute">tid</span>=0x00007fb382005800 <span class="attribute">nid</span>=0x1c03 runnable [0x000070000c039000]</span><br><span class="line">   java.lang.Thread.State: RUNNABLE</span><br><span class="line">	at DeadLock.main(DeadLock.java:81)</span><br><span class="line"></span><br><span class="line"><span class="string">"VM Thread"</span> <span class="attribute">os_prio</span>=31 <span class="attribute">tid</span>=0x00007fb382802800 <span class="attribute">nid</span>=0x2d03 runnable </span><br><span class="line"></span><br><span class="line"><span class="string">"GC task thread#0 (ParallelGC)"</span> <span class="attribute">os_prio</span>=31 <span class="attribute">tid</span>=0x00007fb38200e800 <span class="attribute">nid</span>=0x2503 runnable </span><br><span class="line"></span><br><span class="line"><span class="string">"GC task thread#1 (ParallelGC)"</span> <span class="attribute">os_prio</span>=31 <span class="attribute">tid</span>=0x00007fb38200f800 <span class="attribute">nid</span>=0x2703 runnable </span><br><span class="line"></span><br><span class="line"><span class="string">"GC task thread#2 (ParallelGC)"</span> <span class="attribute">os_prio</span>=31 <span class="attribute">tid</span>=0x00007fb382010000 <span class="attribute">nid</span>=0x2903 runnable </span><br><span class="line"></span><br><span class="line"><span class="string">"GC task thread#3 (ParallelGC)"</span> <span class="attribute">os_prio</span>=31 <span class="attribute">tid</span>=0x00007fb382010800 <span class="attribute">nid</span>=0x2b03 runnable </span><br><span class="line"></span><br><span class="line"><span class="string">"VM Periodic Task Thread"</span> <span class="attribute">os_prio</span>=31 <span class="attribute">tid</span>=0x00007fb382085800 <span class="attribute">nid</span>=0x4d03 waiting on condition </span><br><span class="line"></span><br><span class="line">JNI global references: 22</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">Found one Java-level deadlock:</span><br><span class="line">=============================</span><br><span class="line"><span class="string">"哲学家2"</span>:</span><br><span class="line">  waiting <span class="keyword">to</span> lock monitor 0x00007fb38202a5f8 (object 0x0000000795782620, a java.lang.Object),</span><br><span class="line">  which is held by <span class="string">"哲学家1"</span></span><br><span class="line"><span class="string">"哲学家1"</span>:</span><br><span class="line">  waiting <span class="keyword">to</span> lock monitor 0x00007fb3818ca808 (object 0x0000000795782630, a java.lang.Object),</span><br><span class="line">  which is held by <span class="string">"哲学家2"</span></span><br><span class="line"></span><br><span class="line">Java stack information <span class="keyword">for</span> the threads listed above:</span><br><span class="line">===================================================</span><br><span class="line"><span class="string">"哲学家2"</span>:</span><br><span class="line">	at DeadLock.<span class="builtin-name">run</span>(DeadLock.java:59)</span><br><span class="line">	- waiting <span class="keyword">to</span> lock &lt;0x0000000795782620&gt; (a java.lang.Object)</span><br><span class="line">	- locked &lt;0x0000000795782630&gt; (a java.lang.Object)</span><br><span class="line"><span class="string">"哲学家1"</span>:</span><br><span class="line">	at DeadLock.<span class="builtin-name">run</span>(DeadLock.java:41)</span><br><span class="line">	- waiting <span class="keyword">to</span> lock &lt;0x0000000795782630&gt; (a java.lang.Object)</span><br><span class="line">	- locked &lt;0x0000000795782620&gt; (a java.lang.Object)</span><br><span class="line"></span><br><span class="line">Found 1 deadlock.</span><br></pre></td></tr></table></figure>
+<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br></pre></td><td class="code"><pre><span class="line">2018-05-14 09:08:13</span><br><span class="line">Full thread dump Java HotSpot(TM) 64-Bit<span class="built_in"> Server </span>VM (25.144-b01 mixed mode):</span><br><span class="line"></span><br><span class="line"><span class="string">"Attach Listener"</span> #12 daemon <span class="attribute">prio</span>=9 <span class="attribute">os_prio</span>=31 <span class="attribute">tid</span>=0x00007fb3818c8000 <span class="attribute">nid</span>=0x1407 waiting on condition [0x0000000000000000]</span><br><span class="line">   java.lang.Thread.State: RUNNABLE</span><br><span class="line"></span><br><span class="line"><span class="string">"哲学家2"</span> #11 <span class="attribute">prio</span>=5 <span class="attribute">os_prio</span>=31 <span class="attribute">tid</span>=0x00007fb38185a000 <span class="attribute">nid</span>=0x5103 waiting <span class="keyword">for</span> monitor entry [0x000070000d069000]</span><br><span class="line">   java.lang.Thread.State: BLOCKED (on object monitor)</span><br><span class="line">	at DeadLock.<span class="builtin-name">run</span>(DeadLock.java:59)</span><br><span class="line">	- waiting <span class="keyword">to</span> lock &lt;0x0000000795782620&gt; (a java.lang.Object)</span><br><span class="line">	- locked &lt;0x0000000795782630&gt; (a java.lang.Object)</span><br><span class="line"></span><br><span class="line"><span class="string">"哲学家1"</span> #10 <span class="attribute">prio</span>=5 <span class="attribute">os_prio</span>=31 <span class="attribute">tid</span>=0x00007fb382042800 <span class="attribute">nid</span>=0x4f03 waiting <span class="keyword">for</span> monitor entry [0x000070000cf66000]</span><br><span class="line">   java.lang.Thread.State: BLOCKED (on object monitor)</span><br><span class="line">	at DeadLock.<span class="builtin-name">run</span>(DeadLock.java:41)</span><br><span class="line">	- waiting <span class="keyword">to</span> lock &lt;0x0000000795782630&gt; (a java.lang.Object)</span><br><span class="line">	- locked &lt;0x0000000795782620&gt; (a java.lang.Object)</span><br><span class="line"></span><br><span class="line"><span class="string">"Service Thread"</span> #9 daemon <span class="attribute">prio</span>=9 <span class="attribute">os_prio</span>=31 <span class="attribute">tid</span>=0x00007fb38206c800 <span class="attribute">nid</span>=0x4b03 runnable [0x0000000000000000]</span><br><span class="line">   java.lang.Thread.State: RUNNABLE</span><br><span class="line"></span><br><span class="line"><span class="string">"C1 CompilerThread2"</span> #8 daemon <span class="attribute">prio</span>=9 <span class="attribute">os_prio</span>=31 <span class="attribute">tid</span>=0x00007fb38185f000 <span class="attribute">nid</span>=0x4903 waiting on condition [0x0000000000000000]</span><br><span class="line">   java.lang.Thread.State: RUNNABLE</span><br><span class="line"></span><br><span class="line"><span class="string">"C2 CompilerThread1"</span> #7 daemon <span class="attribute">prio</span>=9 <span class="attribute">os_prio</span>=31 <span class="attribute">tid</span>=0x00007fb382815800 <span class="attribute">nid</span>=0x4703 waiting on condition [0x0000000000000000]</span><br><span class="line">   java.lang.Thread.State: RUNNABLE</span><br><span class="line"></span><br><span class="line"><span class="string">"C2 CompilerThread0"</span> #6 daemon <span class="attribute">prio</span>=9 <span class="attribute">os_prio</span>=31 <span class="attribute">tid</span>=0x00007fb381859000 <span class="attribute">nid</span>=0x4503 waiting on condition [0x0000000000000000]</span><br><span class="line">   java.lang.Thread.State: RUNNABLE</span><br><span class="line"></span><br><span class="line"><span class="string">"Monitor Ctrl-Break"</span> #5 daemon <span class="attribute">prio</span>=5 <span class="attribute">os_prio</span>=31 <span class="attribute">tid</span>=0x00007fb3830b9000 <span class="attribute">nid</span>=0x4303 runnable [0x000070000c954000]</span><br><span class="line">   java.lang.Thread.State: RUNNABLE</span><br><span class="line">	at java.net.SocketInputStream.socketRead0(Native Method)</span><br><span class="line">	at java.net.SocketInputStream.socketRead(SocketInputStream.java:116)</span><br><span class="line">	at java.net.SocketInputStream.read(SocketInputStream.java:171)</span><br><span class="line">	at java.net.SocketInputStream.read(SocketInputStream.java:141)</span><br><span class="line">	at sun.nio.cs.StreamDecoder.readBytes(StreamDecoder.java:284)</span><br><span class="line">	at sun.nio.cs.StreamDecoder.implRead(StreamDecoder.java:326)</span><br><span class="line">	at sun.nio.cs.StreamDecoder.read(StreamDecoder.java:178)</span><br><span class="line">	- locked &lt;0x0000000795708738&gt; (a java.io.InputStreamReader)</span><br><span class="line">	at java.io.InputStreamReader.read(InputStreamReader.java:184)</span><br><span class="line">	at java.io.BufferedReader.fill(BufferedReader.java:161)</span><br><span class="line">	at java.io.BufferedReader.readLine(BufferedReader.java:324)</span><br><span class="line">	- locked &lt;0x0000000795708738&gt; (a java.io.InputStreamReader)</span><br><span class="line">	at java.io.BufferedReader.readLine(BufferedReader.java:389)</span><br><span class="line">	at com.intellij.rt.execution.application.AppMainV2<span class="variable">$1</span>.<span class="builtin-name">run</span>(AppMainV2.java:64)</span><br><span class="line"></span><br><span class="line"><span class="string">"Signal Dispatcher"</span> #4 daemon <span class="attribute">prio</span>=9 <span class="attribute">os_prio</span>=31 <span class="attribute">tid</span>=0x00007fb382030800 <span class="attribute">nid</span>=0x4103 runnable [0x0000000000000000]</span><br><span class="line">   java.lang.Thread.State: RUNNABLE</span><br><span class="line"></span><br><span class="line"><span class="string">"Finalizer"</span> #3 daemon <span class="attribute">prio</span>=8 <span class="attribute">os_prio</span>=31 <span class="attribute">tid</span>=0x00007fb38202b000 <span class="attribute">nid</span>=0x3103 <span class="keyword">in</span> Object.wait() [0x000070000c74e000]</span><br><span class="line">   java.lang.Thread.State: WAITING (on object monitor)</span><br><span class="line">	at java.lang.Object.wait(Native Method)</span><br><span class="line">	- waiting on &lt;0x0000000795588ec8&gt; (a java.lang.ref.ReferenceQueue<span class="variable">$Lock</span>)</span><br><span class="line">	at java.lang.ref.ReferenceQueue.<span class="builtin-name">remove</span>(ReferenceQueue.java:143)</span><br><span class="line">	- locked &lt;0x0000000795588ec8&gt; (a java.lang.ref.ReferenceQueue<span class="variable">$Lock</span>)</span><br><span class="line">	at java.lang.ref.ReferenceQueue.<span class="builtin-name">remove</span>(ReferenceQueue.java:164)</span><br><span class="line">	at java.lang.ref.Finalizer<span class="variable">$FinalizerThread</span>.<span class="builtin-name">run</span>(Finalizer.java:209)</span><br><span class="line"></span><br><span class="line"><span class="string">"Reference Handler"</span> #2 daemon <span class="attribute">prio</span>=10 <span class="attribute">os_prio</span>=31 <span class="attribute">tid</span>=0x00007fb382805000 <span class="attribute">nid</span>=0x2f03 <span class="keyword">in</span> Object.wait() [0x000070000c64b000]</span><br><span class="line">   java.lang.Thread.State: WAITING (on object monitor)</span><br><span class="line">	at java.lang.Object.wait(Native Method)</span><br><span class="line">	- waiting on &lt;0x0000000795586b68&gt; (a java.lang.ref.Reference<span class="variable">$Lock</span>)</span><br><span class="line">	at java.lang.Object.wait(Object.java:502)</span><br><span class="line">	at java.lang.ref.Reference.tryHandlePending(Reference.java:191)</span><br><span class="line">	- locked &lt;0x0000000795586b68&gt; (a java.lang.ref.Reference<span class="variable">$Lock</span>)</span><br><span class="line">	at java.lang.ref.Reference<span class="variable">$ReferenceHandler</span>.<span class="builtin-name">run</span>(Reference.java:153)</span><br><span class="line"></span><br><span class="line"><span class="string">"main"</span> #1 <span class="attribute">prio</span>=5 <span class="attribute">os_prio</span>=31 <span class="attribute">tid</span>=0x00007fb382005800 <span class="attribute">nid</span>=0x1c03 runnable [0x000070000c039000]</span><br><span class="line">   java.lang.Thread.State: RUNNABLE</span><br><span class="line">	at DeadLock.main(DeadLock.java:81)</span><br><span class="line"></span><br><span class="line"><span class="string">"VM Thread"</span> <span class="attribute">os_prio</span>=31 <span class="attribute">tid</span>=0x00007fb382802800 <span class="attribute">nid</span>=0x2d03 runnable</span><br><span class="line"></span><br><span class="line"><span class="string">"GC task thread#0 (ParallelGC)"</span> <span class="attribute">os_prio</span>=31 <span class="attribute">tid</span>=0x00007fb38200e800 <span class="attribute">nid</span>=0x2503 runnable</span><br><span class="line"></span><br><span class="line"><span class="string">"GC task thread#1 (ParallelGC)"</span> <span class="attribute">os_prio</span>=31 <span class="attribute">tid</span>=0x00007fb38200f800 <span class="attribute">nid</span>=0x2703 runnable</span><br><span class="line"></span><br><span class="line"><span class="string">"GC task thread#2 (ParallelGC)"</span> <span class="attribute">os_prio</span>=31 <span class="attribute">tid</span>=0x00007fb382010000 <span class="attribute">nid</span>=0x2903 runnable</span><br><span class="line"></span><br><span class="line"><span class="string">"GC task thread#3 (ParallelGC)"</span> <span class="attribute">os_prio</span>=31 <span class="attribute">tid</span>=0x00007fb382010800 <span class="attribute">nid</span>=0x2b03 runnable</span><br><span class="line"></span><br><span class="line"><span class="string">"VM Periodic Task Thread"</span> <span class="attribute">os_prio</span>=31 <span class="attribute">tid</span>=0x00007fb382085800 <span class="attribute">nid</span>=0x4d03 waiting on condition</span><br><span class="line"></span><br><span class="line">JNI global references: 22</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">Found one Java-level deadlock:</span><br><span class="line">=============================</span><br><span class="line"><span class="string">"哲学家2"</span>:</span><br><span class="line">  waiting <span class="keyword">to</span> lock monitor 0x00007fb38202a5f8 (object 0x0000000795782620, a java.lang.Object),</span><br><span class="line">  which is held by <span class="string">"哲学家1"</span></span><br><span class="line"><span class="string">"哲学家1"</span>:</span><br><span class="line">  waiting <span class="keyword">to</span> lock monitor 0x00007fb3818ca808 (object 0x0000000795782630, a java.lang.Object),</span><br><span class="line">  which is held by <span class="string">"哲学家2"</span></span><br><span class="line"></span><br><span class="line">Java stack information <span class="keyword">for</span> the threads listed above:</span><br><span class="line">===================================================</span><br><span class="line"><span class="string">"哲学家2"</span>:</span><br><span class="line">	at DeadLock.<span class="builtin-name">run</span>(DeadLock.java:59)</span><br><span class="line">	- waiting <span class="keyword">to</span> lock &lt;0x0000000795782620&gt; (a java.lang.Object)</span><br><span class="line">	- locked &lt;0x0000000795782630&gt; (a java.lang.Object)</span><br><span class="line"><span class="string">"哲学家1"</span>:</span><br><span class="line">	at DeadLock.<span class="builtin-name">run</span>(DeadLock.java:41)</span><br><span class="line">	- waiting <span class="keyword">to</span> lock &lt;0x0000000795782630&gt; (a java.lang.Object)</span><br><span class="line">	- locked &lt;0x0000000795782620&gt; (a java.lang.Object)</span><br><span class="line"></span><br><span class="line">Found 1 deadlock.</span><br></pre></td></tr></table></figure>
 <p>发现哲学家1，持有锁<code>0x0000000795782620</code>,等待锁<code>0x0000000795782630</code> ； 而哲学家2，则相反。</p>
 
       
@@ -332,12 +404,6 @@
     
 
     <footer class="post-footer">
-      
-        <div class="post-tags">
-          
-            <a href="/tags/java并发包/" rel="tag"># java并发包</a>
-          
-        </div>
       
 
       
@@ -448,7 +514,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">175</span>
+                  <span class="site-state-item-count">150</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -459,7 +525,7 @@
               
               <div class="site-state-item site-state-categories">
                 <a href="/categories/index.html">
-                  <span class="site-state-item-count">10</span>
+                  <span class="site-state-item-count">28</span>
                   <span class="site-state-item-name">分类</span>
                 </a>
               </div>
@@ -469,10 +535,10 @@
               
               
               <div class="site-state-item site-state-tags">
-                
-                  <span class="site-state-item-count">51</span>
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">43</span>
                   <span class="site-state-item-name">标签</span>
-                
+                </a>
               </div>
             
 
@@ -531,6 +597,15 @@
   </span>
   <span class="author" itemprop="copyrightHolder">周小伍 Joey</span>
 
+  
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-area-chart"></i>
+    </span>
+    
+      <span class="post-meta-item-text">Site words total count&#58;</span>
+    
+    <span title="Site words total count">270.1k</span>
   
 </div>
 

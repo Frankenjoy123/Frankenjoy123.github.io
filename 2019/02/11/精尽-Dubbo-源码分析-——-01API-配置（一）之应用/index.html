@@ -79,23 +79,23 @@
 
 
 
-<meta name="description" content="友情提示，【配置】这块的内容，会相对比较枯燥。所以，如果看到一些很难懂的地方，建议先跳过。 对于 Dubbo ，重点是要去理解，多协议、RPC、容错等等模块，而不是【配置】。  1. 概述我们都“知道”，Dubbo 的配置是非常“灵活”的。 例如，目前提供了四种配置方式：  API 配置 属性配置 XML 配置 注解配置  ps：🙂 后续的几篇文章也是按照这样的顺序，解析 Dubbo 配置的源">
+<meta name="description" content="&amp;gt;  友情提示，【配置】这块的内容，会相对比较枯燥。所以，如果看到一些很难懂的地方，建议先跳过。 对于 Dubbo ，重点是要去理解，多协议、RPC、容错等等模块，而不是【配置】。  1. 概述我们都“知道”，Dubbo 的配置是非常“灵活”的。 例如，目前提供了四种配置方式：  API 配置 属性配置 XML 配置 注解配置  ps：🙂 后续的几篇文章也是按照这样的顺序，解析 Dubbo">
 <meta name="keywords" content="Dubbo">
 <meta property="og:type" content="article">
 <meta property="og:title" content="精尽 Dubbo 源码分析 —— 01API 配置（一）之应用">
 <meta property="og:url" content="http://yoursite.com/2019/02/11/精尽-Dubbo-源码分析-——-01API-配置（一）之应用/index.html">
 <meta property="og:site_name" content="xiaowu&#39;s blog">
-<meta property="og:description" content="友情提示，【配置】这块的内容，会相对比较枯燥。所以，如果看到一些很难懂的地方，建议先跳过。 对于 Dubbo ，重点是要去理解，多协议、RPC、容错等等模块，而不是【配置】。  1. 概述我们都“知道”，Dubbo 的配置是非常“灵活”的。 例如，目前提供了四种配置方式：  API 配置 属性配置 XML 配置 注解配置  ps：🙂 后续的几篇文章也是按照这样的顺序，解析 Dubbo 配置的源">
+<meta property="og:description" content="&amp;gt;  友情提示，【配置】这块的内容，会相对比较枯燥。所以，如果看到一些很难懂的地方，建议先跳过。 对于 Dubbo ，重点是要去理解，多协议、RPC、容错等等模块，而不是【配置】。  1. 概述我们都“知道”，Dubbo 的配置是非常“灵活”的。 例如，目前提供了四种配置方式：  API 配置 属性配置 XML 配置 注解配置  ps：🙂 后续的几篇文章也是按照这样的顺序，解析 Dubbo">
 <meta property="og:locale" content="zh-Hans">
 <meta property="og:image" content="https://gitee.com/Joey_z/dubbo-picture/blob/master/2018_01_07/01.png">
 <meta property="og:image" content="http://www.iocoder.cn/images/Dubbo/2018_01_07/02.png">
 <meta property="og:image" content="http://www.iocoder.cn/images/Dubbo/2018_01_07/03.png">
 <meta property="og:image" content="http://www.iocoder.cn/images/Dubbo/2018_01_07/05.png">
 <meta property="og:image" content="http://www.iocoder.cn/images/Dubbo/2018_01_07/04.png">
-<meta property="og:updated_time" content="2019-02-11T13:45:43.000Z">
+<meta property="og:updated_time" content="2019-08-22T02:45:04.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="精尽 Dubbo 源码分析 —— 01API 配置（一）之应用">
-<meta name="twitter:description" content="友情提示，【配置】这块的内容，会相对比较枯燥。所以，如果看到一些很难懂的地方，建议先跳过。 对于 Dubbo ，重点是要去理解，多协议、RPC、容错等等模块，而不是【配置】。  1. 概述我们都“知道”，Dubbo 的配置是非常“灵活”的。 例如，目前提供了四种配置方式：  API 配置 属性配置 XML 配置 注解配置  ps：🙂 后续的几篇文章也是按照这样的顺序，解析 Dubbo 配置的源">
+<meta name="twitter:description" content="&amp;gt;  友情提示，【配置】这块的内容，会相对比较枯燥。所以，如果看到一些很难懂的地方，建议先跳过。 对于 Dubbo ，重点是要去理解，多协议、RPC、容错等等模块，而不是【配置】。  1. 概述我们都“知道”，Dubbo 的配置是非常“灵活”的。 例如，目前提供了四种配置方式：  API 配置 属性配置 XML 配置 注解配置  ps：🙂 后续的几篇文章也是按照这样的顺序，解析 Dubbo">
 <meta name="twitter:image" content="https://gitee.com/Joey_z/dubbo-picture/blob/master/2018_01_07/01.png">
 
 
@@ -138,6 +138,16 @@
 
 
 
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?3da41265a1a0042eebe5413c0d6c76f5";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
 
 
 
@@ -193,6 +203,16 @@
               <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
             
             首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
           </a>
         </li>
       
@@ -279,6 +299,28 @@
           </span>
 
           
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Dubbo/" itemprop="url" rel="index">
+                    <span itemprop="name">Dubbo</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
 
           
             
@@ -301,6 +343,37 @@
           
 
           
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  3.2k
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  14
+                </span>
+              
+            </div>
+          
 
           
 
@@ -317,7 +390,8 @@
       
 
       
-        <blockquote>
+        <p>&gt;</p>
+<blockquote>
 <p>友情提示，【<strong>配置</strong>】这块的内容，会相对比较枯燥。所以，如果看到一些很难懂的地方，建议先跳过。</p>
 <p>对于 Dubbo ，重点是要去理解，多协议、RPC、容错等等模块，而不是【<strong>配置</strong>】。</p>
 </blockquote>
@@ -464,7 +538,7 @@
 <li>在 <a href="http://dubbo.apache.org/zh-cn/docs/user/demos/callback-parameter.html" target="_blank" rel="external">《Dubbo 用户指南 —— 参数回调》</a> 特性中使用。</li>
 </ul>
 <h1 id="4-URL"><a href="#4-URL" class="headerlink" title="4. URL"></a>4. URL</h1><p><a href="https://github.com/YunaiV/dubbo/blob/9d38b6f9f95798755141d6140e311e8fd51fecc1/dubbo-common/src/main/java/com/alibaba/dubbo/common/URL.java" target="_blank" rel="external"><code>com.alibaba.dubbo.common.URL</code></a> ，Dubbo URL 。代码如下：</p>
-<figure class="highlight processing"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">final</span> class URL implements Serializable &#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 协议名</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">String</span> protocol;</span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 用户名</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">String</span> username;</span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 密码</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">String</span> password;</span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * by default, host to registry</span></span><br><span class="line"><span class="comment">     * 地址</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">String</span> host;</span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * by default, port to registry</span></span><br><span class="line"><span class="comment">     * 端口</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> <span class="built_in">int</span> port;</span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 路径（服务名）</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">String</span> path;</span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 参数集合</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> Map&lt;<span class="keyword">String</span>, <span class="keyword">String</span>&gt; parameters;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// ... 省略其他代码</span></span><br><span class="line">    </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight processing"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">final</span> class URL implements Serializable &#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 协议名</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">String</span> protocol;</span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 用户名</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">String</span> username;</span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 密码</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">String</span> password;</span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * by default, host to registry</span></span><br><span class="line"><span class="comment">     * 地址</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">String</span> host;</span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * by default, port to registry</span></span><br><span class="line"><span class="comment">     * 端口</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> <span class="built_in">int</span> port;</span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 路径（服务名）</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">String</span> path;</span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 参数集合</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> Map&lt;<span class="keyword">String</span>, <span class="keyword">String</span>&gt; parameters;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// ... 省略其他代码</span></span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <ul>
 <li><p>上文我们提到<strong>所有配置最终都将转换为 Dubbo URL 表示，并由服务提供方生成，经注册中心传递给消费方，各属性对应 URL 的参数，参见配置项一览表中的 “对应URL参数” 列</strong>。那么一个 Service 注册到注册中心的格式如下：</p>
 <figure class="highlight maxima"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">dubbo://<span class="number">192.168</span>.3.17:<span class="number">20880</span>/com.alibaba.dubbo.<span class="built_in">demo</span>.DemoService?anyhost=<span class="literal">true</span>&amp;application=<span class="built_in">demo</span>-provider&amp;default.<span class="built_in">delay</span>=-<span class="number">1</span>&amp;default.retries=<span class="number">0</span>&amp;default.service.filter=demoFilter&amp;<span class="built_in">delay</span>=-<span class="number">1</span>&amp;dubbo=<span class="number">2.0</span>.0&amp;generic=<span class="literal">false</span>&amp;interface=com.alibaba.dubbo.<span class="built_in">demo</span>.DemoService&amp;methods=sayHello&amp;pid=<span class="number">19031</span>&amp;side=provider&amp;timestamp=<span class="number">1519651641799</span></span><br></pre></td></tr></table></figure>
@@ -615,7 +689,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">175</span>
+                  <span class="site-state-item-count">150</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -626,7 +700,7 @@
               
               <div class="site-state-item site-state-categories">
                 <a href="/categories/index.html">
-                  <span class="site-state-item-count">10</span>
+                  <span class="site-state-item-count">28</span>
                   <span class="site-state-item-name">分类</span>
                 </a>
               </div>
@@ -636,10 +710,10 @@
               
               
               <div class="site-state-item site-state-tags">
-                
-                  <span class="site-state-item-count">51</span>
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">43</span>
                   <span class="site-state-item-name">标签</span>
-                
+                </a>
               </div>
             
 
@@ -698,6 +772,15 @@
   </span>
   <span class="author" itemprop="copyrightHolder">周小伍 Joey</span>
 
+  
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-area-chart"></i>
+    </span>
+    
+      <span class="post-meta-item-text">Site words total count&#58;</span>
+    
+    <span title="Site words total count">270.1k</span>
   
 </div>
 

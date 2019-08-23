@@ -96,7 +96,7 @@
 <meta property="og:image" content="http://yoursite.com/2019/08/02/Spark原理案例及搭建/09.png">
 <meta property="og:image" content="http://yoursite.com/2019/08/02/Spark原理案例及搭建/08.png">
 <meta property="og:image" content="http://yoursite.com/2019/08/02/Spark原理案例及搭建/10.png">
-<meta property="og:updated_time" content="2019-08-19T03:11:11.000Z">
+<meta property="og:updated_time" content="2019-08-22T03:25:03.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Spark原理案例及搭建">
 <meta name="twitter:description" content="本文基于Spark 2.3.1    scala 2.11 RDD算子a resilient distributed dataset (RDD), which is a collection of elements partitioned across the nodes of the cluster that can be operated on in parallel  Transformat">
@@ -142,6 +142,16 @@
 
 
 
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?3da41265a1a0042eebe5413c0d6c76f5";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
 
 
 
@@ -197,6 +207,16 @@
               <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
             
             首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
           </a>
         </li>
       
@@ -283,6 +303,28 @@
           </span>
 
           
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/大数据/" itemprop="url" rel="index">
+                    <span itemprop="name">大数据</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
 
           
             
@@ -304,6 +346,37 @@
 
           
 
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  2.3k
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  10
+                </span>
+              
+            </div>
           
 
           
@@ -327,7 +400,7 @@
 <h2 id="Transformation算子"><a href="#Transformation算子" class="headerlink" title="Transformation算子"></a>Transformation算子</h2><p><a href="http://spark.apache.org/docs/latest/rdd-programming-guide.html#transformations" target="_blank" rel="external">http://spark.apache.org/docs/latest/rdd-programming-guide.html#transformations</a></p>
 <p>懒执行，返回值依然是RDD</p>
 <ul>
-<li>map </li>
+<li>map</li>
 <li>filter</li>
 <li>flatMap</li>
 <li>groupByKey</li>
@@ -361,6 +434,8 @@
 <p>一个action算子，就是一个Job</p>
 <h1 id="standlone部署"><a href="#standlone部署" class="headerlink" title="standlone部署"></a>standlone部署</h1><h2 id="spark-env-sh-修改"><a href="#spark-env-sh-修改" class="headerlink" title="spark-env.sh 修改"></a>spark-env.sh 修改</h2><figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># masterIP</span></span><br><span class="line"><span class="attr">SPARK_MASTER_HOST</span>=node01</span><br><span class="line"><span class="comment"># master通信端口</span></span><br><span class="line"><span class="attr">SPARK_MASTER_PORT</span>=<span class="number">7077</span></span><br><span class="line"><span class="comment"># 心跳超时时间</span></span><br><span class="line"><span class="attr">SPARK_MASTER_OPTS</span>=<span class="string">"-Dspark.worker.timeout=100"</span></span><br><span class="line"><span class="comment"># webUI端口</span></span><br><span class="line"><span class="attr">SPARK_MASTER_WEBUI_PORT</span>=<span class="number">8888</span></span><br><span class="line"><span class="comment"># 日志存放位置</span></span><br><span class="line"><span class="attr">SPARK_LOCAL_DIRS</span>=<span class="string">"/var/zfg/spark"</span></span><br><span class="line"><span class="comment"># worker进程所管理的核心数</span></span><br><span class="line"><span class="attr">SPARK_WORKER_CORES</span>=<span class="number">2</span></span><br><span class="line"><span class="comment"># worker进程所管理的内存数</span></span><br><span class="line"><span class="attr">SPARK_WORKER_MEMORY</span>=<span class="number">3</span>G</span><br><span class="line"><span class="comment"># 计算工作区</span></span><br><span class="line"><span class="attr">SPARK_WORKER_DIR</span>=<span class="string">"/var/zfg/spark/work"</span></span><br><span class="line"><span class="comment"># 工作区文件的有效期</span></span><br><span class="line"><span class="attr">SPARK_WORKER_OPTS</span>=<span class="string">"-Dspark.worker.cleanup.enabled=true -Dspark.worker.cleanup.appDataTtl=259200"</span></span><br></pre></td></tr></table></figure>
 <h2 id="slave修改"><a href="#slave修改" class="headerlink" title="slave修改"></a>slave修改</h2><figure class="highlight gcode"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="symbol">node02</span></span><br><span class="line"><span class="symbol">node03</span></span><br><span class="line"><span class="symbol">node04</span></span><br></pre></td></tr></table></figure>
+<p>sbin的目录下的spark-config.sh 文件下添加</p>
+<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="builtin-name">export</span> <span class="attribute">JAVA_HOME</span>=/usr/install/jdk/jdk1.8.0_171</span><br></pre></td></tr></table></figure>
 <h2 id="环境变量"><a href="#环境变量" class="headerlink" title="环境变量"></a>环境变量</h2><p>配置环境变量，sbin bin添加到path</p>
 <p>start-all.sh  改名start-spark.sh</p>
 <h2 id="scp到node02-node03-node04"><a href="#scp到node02-node03-node04" class="headerlink" title="scp到node02 node03 node04"></a>scp到node02 node03 node04</h2><h2 id="启动"><a href="#启动" class="headerlink" title="启动"></a>启动</h2><p>启动 start-spark.sh</p>
@@ -378,7 +453,7 @@
 <li>处于active状态的master，会将收集的元信息放到zookeeper，包括worker个数，地址。</li>
 <li>备用master监听zk，通知active挂了。备用master会从zk中读取元数据到内存，通知worker以后的主、心跳发送</li>
 </ul>
-<h2 id="配置"><a href="#配置" class="headerlink" title="配置"></a>配置</h2><p>SPARK_DAEMON_JAVA_OPTS in spark-env by configuring <code>spark.deploy.recoveryMode</code> and related spark.deploy.zookeeper.* configurations. </p>
+<h2 id="配置"><a href="#配置" class="headerlink" title="配置"></a>配置</h2><p>SPARK_DAEMON_JAVA_OPTS in spark-env by configuring <code>spark.deploy.recoveryMode</code> and related spark.deploy.zookeeper.* configurations.</p>
 <figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">SPARK_DAEMON_JAVA_OPTS</span>=<span class="string">"-Dspark.deploy.recoveryMode=ZOOKEEPER spark.deploy.zookeeper.url=node02:2181,node03:2181,node04:2181 -Dspark.deploy.zookeeper.dir=spark201908"</span></span><br></pre></td></tr></table></figure>
 <ul>
 <li>将spark-env.sh 同步到其他节点</li>
@@ -587,11 +662,26 @@
 <li>默认情况下，每一个worker节点为当前的Application指定启动一个1executor，这个executor默认使用1G 所有的core</li>
 </ul>
 <ol>
-<li><p>client指定driver不在本地执行，为Driver申请资源，1G 1core</p>
-</li>
-<li><p>master查询workers信息，随机指定worker2启动启动Driver进程。</p>
-</li>
+<li>client指定driver不在本地执行，为Driver申请资源，1G 1core</li>
+<li>master查询workers信息，随机指定worker2启动启动Driver进程。</li>
 </ol>
+<figure class="highlight jboss-cli"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">spark-submit <span class="params">--class</span> org.apache.spark.examples.SparkPi <span class="params">--master</span> spark:<span class="string">//node01</span><span class="function">:7077</span> <span class="params">--deploy-mode</span> cluster <span class="params">--driver-memory</span> 1g <span class="params">--num-executors</span> 2 <span class="params">--executor-memory</span> 1g <span class="params">--executor-cores</span> 1 <span class="string">/opt/sxt/spark-2.3.1/examples/jars/spark-examples_2.11-2.3.1.jar</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight jboss-cli"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">spark-submit <span class="params">--class</span> org.apache.spark.examples.SparkPi <span class="params">--master</span> spark:<span class="string">//node01</span><span class="function">:7077</span> <span class="params">--deploy-mode</span> cluster <span class="params">--total-executor-cores=6</span> <span class="params">--executor-memory</span> 1g <span class="params">--executor-cores</span> 1 <span class="string">/opt/sxt/spark-2.3.1/examples/jars/spark-examples_2.11-2.3.1.jar</span></span><br></pre></td></tr></table></figure>
+<p>`</p>
+<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">spark<span class="selector-class">.deploy</span><span class="selector-class">.spreadOut</span>=true</span><br></pre></td></tr></table></figure>
+<ul>
+<li><p>默认情况下（在提交Application的时候，没有指定–executor-cores），每一个worker节点为当前的Application只启动1个Executor，这个Executor使用所有的核</p>
+</li>
+<li><p>如果想要一个Worker节点上启动多个Executor，那么在提交Application的时候需要指定<code>--executor-cores</code>这个选项</p>
+</li>
+<li><p><code>spark.deploy.spreadOut</code>默认为true，表示轮询在workers启动executor</p>
+<figure class="highlight jboss-cli"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">spark-submit <span class="params">--class</span> org.apache.spark.examples.SparkPi <span class="params">--master</span> spark:<span class="string">//node01</span><span class="function">:7077</span> <span class="params">--deploy-mode</span> cluster <span class="params">--total-executor-cores=6</span> <span class="params">--executor-memory</span> 1g <span class="params">--executor-cores</span> 1 <span class="params">--spark</span>.<span class="keyword">deploy</span>.spreadOut <span class="literal">false</span> <span class="string">/opt/sxt/spark-2.3.1/examples/jars/spark-examples_2.11-2.3.1.jar</span></span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<p>参考</p>
+<blockquote>
+<p><a href="https://spark.apache.org/docs/latest/spark-standalone.html" target="_blank" rel="external">https://spark.apache.org/docs/latest/spark-standalone.html</a></p>
+</blockquote>
 
       
     </div>
@@ -712,7 +802,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">175</span>
+                  <span class="site-state-item-count">150</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -723,7 +813,7 @@
               
               <div class="site-state-item site-state-categories">
                 <a href="/categories/index.html">
-                  <span class="site-state-item-count">10</span>
+                  <span class="site-state-item-count">28</span>
                   <span class="site-state-item-name">分类</span>
                 </a>
               </div>
@@ -733,10 +823,10 @@
               
               
               <div class="site-state-item site-state-tags">
-                
-                  <span class="site-state-item-count">51</span>
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">43</span>
                   <span class="site-state-item-name">标签</span>
-                
+                </a>
               </div>
             
 
@@ -795,6 +885,15 @@
   </span>
   <span class="author" itemprop="copyrightHolder">周小伍 Joey</span>
 
+  
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-area-chart"></i>
+    </span>
+    
+      <span class="post-meta-item-text">Site words total count&#58;</span>
+    
+    <span title="Site words total count">270.1k</span>
   
 </div>
 

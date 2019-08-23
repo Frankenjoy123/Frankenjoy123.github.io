@@ -86,7 +86,7 @@
 <meta property="og:site_name" content="xiaowu&#39;s blog">
 <meta property="og:description" content="1.定义跨域是指a页面想获取b页面资源，如果a、b页面的协议、域名、端口、子域名不同，所进行的访问行动都是跨域的，而浏览器为了安全问题一般都限制了跨域访问，也就是不允许跨域请求资源。必须是协议、域名、端口全部一致。注意：跨域限制访问，其实是浏览器的限制。理解这一点很重要！！！ 2.跨域访问示例假设有两个网站，A网站部署在：http://localhost:81 即本地ip端口81上；B网站部署在：">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2018-10-28T12:27:01.000Z">
+<meta property="og:updated_time" content="2019-08-22T03:21:48.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Nginx常用配置及反向代理解决跨域问题">
 <meta name="twitter:description" content="1.定义跨域是指a页面想获取b页面资源，如果a、b页面的协议、域名、端口、子域名不同，所进行的访问行动都是跨域的，而浏览器为了安全问题一般都限制了跨域访问，也就是不允许跨域请求资源。必须是协议、域名、端口全部一致。注意：跨域限制访问，其实是浏览器的限制。理解这一点很重要！！！ 2.跨域访问示例假设有两个网站，A网站部署在：http://localhost:81 即本地ip端口81上；B网站部署在：">
@@ -131,6 +131,16 @@
 
 
 
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?3da41265a1a0042eebe5413c0d6c76f5";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
 
 
 
@@ -186,6 +196,16 @@
               <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
             
             首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
           </a>
         </li>
       
@@ -272,6 +292,28 @@
           </span>
 
           
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Nginx/" itemprop="url" rel="index">
+                    <span itemprop="name">Nginx</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
 
           
             
@@ -293,6 +335,37 @@
 
           
 
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  2.8k
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  12
+                </span>
+              
+            </div>
           
 
           
@@ -322,7 +395,7 @@
 <ol>
 <li>由配置信息可知，我们让nginx监听localhost的80端口，网站A与网站B的访问都是经过localhost的80端口进行访问。</li>
 <li>我们特殊配置了一个“/apis”目录的访问，并且对url执行了重写，最后使以“/apis”开头的地址都转到“<a href="http://localhost:82”进行处理。" target="_blank" rel="external">http://localhost:82”进行处理。</a></li>
-<li>rewrite  ^/apis/(.*)$ /$1 break; </li>
+<li>rewrite  ^/apis/(.*)$ /$1 break;</li>
 </ol>
 <p>代表重写拦截进来的请求，并且只能对域名后边以“/apis”开头的起作用，例如<code>www.a.com/apis/msg?x=1</code>重写。只对/apis重写。  请求<code>/msg?x=1</code>转发到<code>localhost:82</code></p>
 <p>rewrite后面的参数是一个简单的正则 ^/apis/(.*)$ ,$1代表正则中的第一个(),$2代表第二个()的值,以此类推。</p>
@@ -427,36 +500,36 @@
 <figure class="highlight vim"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo <span class="keyword">vim</span> /etc/pf.<span class="keyword">conf</span></span><br></pre></td></tr></table></figure>
 <p><code>rdr-anchor &quot;com.apple/*&quot;</code><br> 后面添加一行配置，转发到5555,如下：</p>
 <figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">rdr on lo0 inet proto tcp <span class="keyword">from</span> any <span class="keyword">to</span> 127.0.0.1<span class="built_in"> port </span>80 -&gt; 127.0.0.1<span class="built_in"> port </span>5555</span><br></pre></td></tr></table></figure>
-<h2 id="2、依次执行以下命令："><a href="#2、依次执行以下命令：" class="headerlink" title="2、依次执行以下命令："></a>2、依次执行以下命令：</h2><figure class="highlight stata"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">sudo pfctl -<span class="built_in">d</span></span><br><span class="line">sudo pfctl -f /etc/pf.<span class="keyword">conf</span>  </span><br><span class="line">sudo pfctl -<span class="built_in">e</span></span><br></pre></td></tr></table></figure>
+<h2 id="2、依次执行以下命令："><a href="#2、依次执行以下命令：" class="headerlink" title="2、依次执行以下命令："></a>2、依次执行以下命令：</h2><figure class="highlight stata"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">sudo pfctl -<span class="built_in">d</span></span><br><span class="line">sudo pfctl -f /etc/pf.<span class="keyword">conf</span></span><br><span class="line">sudo pfctl -<span class="built_in">e</span></span><br></pre></td></tr></table></figure>
 <p>注意：如果有apache等服务器占用了80端口，则需要将其停掉方能成功！</p>
 <p>如果出现</p>
 <figure class="highlight maxima"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">No ALTQ support <span class="keyword">in</span> kernel</span><br><span class="line">ALTQ related <span class="built_in">functions</span> disabled</span><br><span class="line">pfctl: pf <span class="keyword">not</span> enabled</span><br></pre></td></tr></table></figure>
 <p>忽略即可。</p>
-<h1 id="常用命令"><a href="#常用命令" class="headerlink" title="常用命令"></a>常用命令</h1><p>##1、查看nginx进程 </p>
+<h1 id="常用命令"><a href="#常用命令" class="headerlink" title="常用命令"></a>常用命令</h1><p>##1、查看nginx进程</p>
 <figure class="highlight vim"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">ps</span> -ef|<span class="keyword">grep</span> nginx</span><br></pre></td></tr></table></figure>
 <p>说明：nginx的进程由主进程和工作进程组成。</p>
 <p>##2、启动nginx</p>
 <figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">nginx</span><br><span class="line"></span><br><span class="line">nginx -c ~<span class="regexp">/Dropbox/</span>commonConfig<span class="regexp">/nginx/</span>nginx.conf</span><br><span class="line">nginx -t -c ~<span class="regexp">/Dropbox/</span>commonConfig<span class="regexp">/nginx/</span>nginx.conf</span><br></pre></td></tr></table></figure>
-<p>启动结果显示nginx的主线程和工作线程，工作线程的数量跟nginx.conf中的配置参数worker_processes有关。 </p>
+<p>启动结果显示nginx的主线程和工作线程，工作线程的数量跟nginx.conf中的配置参数worker_processes有关。</p>
 <p>##3、平滑启动nginx</p>
-<figure class="highlight jboss-cli"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">kill -HUP `cat <span class="string">/var/run/nginx.pid</span>`  </span><br><span class="line">或者 </span><br><span class="line">nginx -s <span class="keyword">reload</span></span><br><span class="line"></span><br><span class="line">nginx -s <span class="keyword">reload</span> -c ~<span class="string">/Dropbox/commonConfig/nginx/nginx.conf</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight jboss-cli"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">kill -HUP `cat <span class="string">/var/run/nginx.pid</span>`</span><br><span class="line">或者</span><br><span class="line">nginx -s <span class="keyword">reload</span></span><br><span class="line"></span><br><span class="line">nginx -s <span class="keyword">reload</span> -c ~<span class="string">/Dropbox/commonConfig/nginx/nginx.conf</span></span><br></pre></td></tr></table></figure>
 <p>其中进程文件路径在配置文件nginx.conf中可以找到。</p>
 <p>平滑启动的意思是在不停止nginx的情况下，重启nginx，重新加载配置文件，启动新的工作线程，完美停止旧的工作线程。</p>
-<p>##4、完美停止nginx </p>
+<p>##4、完美停止nginx</p>
 <figure class="highlight stata"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kill -QUIT `<span class="keyword">cat</span> /<span class="keyword">var</span>/<span class="keyword">run</span>/nginx.pid`</span><br></pre></td></tr></table></figure>
-<p>##5、快速停止nginx </p>
+<p>##5、快速停止nginx</p>
 <figure class="highlight stata"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">kill -TERM `<span class="keyword">cat</span> /<span class="keyword">var</span>/<span class="keyword">run</span>/nginx.pid`</span><br><span class="line">或者</span><br><span class="line">kill -INT `<span class="keyword">cat</span> /<span class="keyword">var</span>/<span class="keyword">run</span>/nginx.pid`</span><br></pre></td></tr></table></figure>
-<p>##6、完美停止工作进程（主要用于平滑升级） </p>
+<p>##6、完美停止工作进程（主要用于平滑升级）</p>
 <figure class="highlight stata"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kill -WINCH `<span class="keyword">cat</span> /<span class="keyword">var</span>/<span class="keyword">run</span>/nginx.pid`</span><br></pre></td></tr></table></figure>
-<p>##7、强制停止nginx </p>
+<p>##7、强制停止nginx</p>
 <figure class="highlight lsl"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pkill <span class="number">-9</span> nginx</span><br></pre></td></tr></table></figure>
-<p>##8、检查对nginx.conf文件的修改是否正确 </p>
+<p>##8、检查对nginx.conf文件的修改是否正确</p>
 <figure class="highlight excel"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">nginx -<span class="built_in">t</span> -c /etc/nginx/nginx.conf 或者 nginx -<span class="built_in">t</span></span><br><span class="line"></span><br><span class="line">nginx -<span class="built_in">t</span> -c ~/Dropbox/commonConfig/nginx/nginx.conf</span><br></pre></td></tr></table></figure>
 <p>##9、停止nginx的命令</p>
 <figure class="highlight arduino"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nginx -s <span class="built_in">stop</span></span><br></pre></td></tr></table></figure>
 <p>##10、查看nginx的版本信息</p>
 <figure class="highlight ebnf"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">nginx -v</span></span><br></pre></td></tr></table></figure>
-<p>##11、查看完整的nginx的配置信息 </p>
+<p>##11、查看完整的nginx的配置信息</p>
 <figure class="highlight ebnf"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">nginx -V</span></span><br></pre></td></tr></table></figure>
 
       
@@ -582,7 +655,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">175</span>
+                  <span class="site-state-item-count">150</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -593,7 +666,7 @@
               
               <div class="site-state-item site-state-categories">
                 <a href="/categories/index.html">
-                  <span class="site-state-item-count">10</span>
+                  <span class="site-state-item-count">28</span>
                   <span class="site-state-item-name">分类</span>
                 </a>
               </div>
@@ -603,10 +676,10 @@
               
               
               <div class="site-state-item site-state-tags">
-                
-                  <span class="site-state-item-count">51</span>
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">43</span>
                   <span class="site-state-item-name">标签</span>
-                
+                </a>
               </div>
             
 
@@ -665,6 +738,15 @@
   </span>
   <span class="author" itemprop="copyrightHolder">周小伍 Joey</span>
 
+  
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-area-chart"></i>
+    </span>
+    
+      <span class="post-meta-item-text">Site words total count&#58;</span>
+    
+    <span title="Site words total count">270.1k</span>
   
 </div>
 

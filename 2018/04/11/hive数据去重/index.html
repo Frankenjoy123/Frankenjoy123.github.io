@@ -86,7 +86,7 @@
 <meta property="og:site_name" content="xiaowu&#39;s blog">
 <meta property="og:description" content="distinct会整条数据去重，有一项是不同的整条数据就算不同的，不会去掉，按照某一个字段去重需要如下方法  hive数据去重，并根据需求取其中一条 数据案例： name  adx       tran_id                 cost        tsck        5        125.168.10.0          33.00   1407234660ck">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2018-04-11T06:51:01.000Z">
+<meta property="og:updated_time" content="2019-08-22T02:53:36.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="hive数据去重">
 <meta name="twitter:description" content="distinct会整条数据去重，有一项是不同的整条数据就算不同的，不会去掉，按照某一个字段去重需要如下方法  hive数据去重，并根据需求取其中一条 数据案例： name  adx       tran_id                 cost        tsck        5        125.168.10.0          33.00   1407234660ck">
@@ -131,6 +131,16 @@
 
 
 
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?3da41265a1a0042eebe5413c0d6c76f5";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
 
 
 
@@ -186,6 +196,16 @@
               <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
             
             首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
           </a>
         </li>
       
@@ -272,6 +292,28 @@
           </span>
 
           
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/大数据/" itemprop="url" rel="index">
+                    <span itemprop="name">大数据</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
 
           
             
@@ -294,6 +336,37 @@
           
 
           
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  561
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  2
+                </span>
+              
+            </div>
+          
 
           
 
@@ -314,14 +387,14 @@
 <p> hive数据去重，并根据需求取其中一条</p>
 <p>数据案例：</p>
 <p>name  adx       tran_id                 cost        ts<br>ck        5        125.168.10.0          33.00   1407234660<br>ck        5        187.18.99.00          33.32   1407234661<br>ck        5        125.168.10.0          33.24   1407234661<br>只需要前两行的记录，因为第三行的tran_id和第一行的重复了，所以需要将最后面一行重复的去掉。</p>
-<h2 id="方案一："><a href="#方案一：" class="headerlink" title="方案一："></a>方案一：</h2><figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">selectt1.tran_id,[<span class="string">t2.name</span>](<span class="link">http://t2.name/</span>),t2.cost </span><br><span class="line"></span><br><span class="line">from (selectdistinct tran_id from table) t1</span><br><span class="line"></span><br><span class="line">join table t2 ont1.tran<span class="emphasis">_id=t2.tran_</span>id</span><br></pre></td></tr></table></figure>
+<h2 id="方案一："><a href="#方案一：" class="headerlink" title="方案一："></a>方案一：</h2><figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">selectt1.tran_id,[<span class="string">t2.name</span>](<span class="link">http://t2.name/</span>),t2.cost</span><br><span class="line"></span><br><span class="line">from (selectdistinct tran_id from table) t1</span><br><span class="line"></span><br><span class="line">join table t2 ont1.tran<span class="emphasis">_id=t2.tran_</span>id</span><br></pre></td></tr></table></figure>
 <p>分析：<br>如果使用distinct的话，需要把tran_id放在第一列，查出来的数据很不友好。</p>
-<h2 id="方案二："><a href="#方案二：" class="headerlink" title="方案二："></a>方案二：</h2><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span>* </span><br><span class="line"></span><br><span class="line"> <span class="keyword">from</span>(</span><br><span class="line"></span><br><span class="line">​        <span class="keyword">select</span> *,row_number() <span class="keyword">over</span> (<span class="keyword">partition</span> <span class="keyword">by</span> tran_id  <span class="keyword">order</span> <span class="keyword">by</span> <span class="keyword">timestamp</span> <span class="keyword">asc</span>) <span class="keyword">num</span> <span class="keyword">from</span> <span class="keyword">table</span></span><br><span class="line"></span><br><span class="line">  ) t </span><br><span class="line"></span><br><span class="line">wheret.num=<span class="number">1</span>;</span><br></pre></td></tr></table></figure>
+<h2 id="方案二："><a href="#方案二：" class="headerlink" title="方案二："></a>方案二：</h2><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span>*</span><br><span class="line"></span><br><span class="line"> <span class="keyword">from</span>(</span><br><span class="line"></span><br><span class="line">​        <span class="keyword">select</span> *,row_number() <span class="keyword">over</span> (<span class="keyword">partition</span> <span class="keyword">by</span> tran_id  <span class="keyword">order</span> <span class="keyword">by</span> <span class="keyword">timestamp</span> <span class="keyword">asc</span>) <span class="keyword">num</span> <span class="keyword">from</span> <span class="keyword">table</span></span><br><span class="line"></span><br><span class="line">  ) t</span><br><span class="line"></span><br><span class="line">wheret.num=<span class="number">1</span>;</span><br></pre></td></tr></table></figure>
 <p>分析：</p>
 <p>row_number() over (partition by tran_idorder by timestamp desc) num   取num=1 的<br>意思是先根据tran_id进行分组，并在分组内部按timestamp 降序排序，row_number()函数计算的值就表示某个tran_id组内部排序后的顺序编号（该编号在一个组内是连续并且唯一的) 。<br>所以最后直接去每个分组内的第一个（num=1）即可。</p>
 <p>PS：</p>
 <p><strong>ROW_NUMBER() OVER函数的基本用法</strong><br>语法：ROW_NUMBER() OVER(PARTITION BY COLUMN ORDER BY COLUMN)<br>简单的说row_number()从1开始，为每一个分组记录返回一个数字，这里的ROW_NUMBER() OVER (ORDER BY xlh DESC) 是先把xlh列降序，再为降序以后的每条xlh记录返回一个序号。<br>示例：<br>xlh          row_num<br>1700             1<br>1500             2<br>1085             3<br>710               4<br>row_number() OVER (PARTITION BY COL1 ORDERBY COL2) 表示根据COL1分组，在分组内部根据 COL2排序，而此函数计算的值就表示每组内部排序后的顺序编号（该编号在组内是连续并且唯一的) 。</p>
-<p>实例： </p>
+<p>实例：</p>
 <p>数据显示为<br>empid       deptid     salary</p>
 <hr>
 <p>1          10          5500.00<br>2          10          4500.00<br>3           20         1900.00<br>4          20          4800.00<br>5          40          6500.00<br>6          40          14500.00<br>7          40          44500.00<br>8          50          6500.00<br>9          50          7500.00<br>需求：根据部门分组，显示每个部门的工资等级<br>预期结果：<br>empid       deptid     salary                                rank</p>
@@ -451,7 +524,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">175</span>
+                  <span class="site-state-item-count">150</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -462,7 +535,7 @@
               
               <div class="site-state-item site-state-categories">
                 <a href="/categories/index.html">
-                  <span class="site-state-item-count">10</span>
+                  <span class="site-state-item-count">28</span>
                   <span class="site-state-item-name">分类</span>
                 </a>
               </div>
@@ -472,10 +545,10 @@
               
               
               <div class="site-state-item site-state-tags">
-                
-                  <span class="site-state-item-count">51</span>
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">43</span>
                   <span class="site-state-item-name">标签</span>
-                
+                </a>
               </div>
             
 
@@ -534,6 +607,15 @@
   </span>
   <span class="author" itemprop="copyrightHolder">周小伍 Joey</span>
 
+  
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-area-chart"></i>
+    </span>
+    
+      <span class="post-meta-item-text">Site words total count&#58;</span>
+    
+    <span title="Site words total count">270.1k</span>
   
 </div>
 

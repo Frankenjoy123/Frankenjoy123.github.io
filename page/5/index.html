@@ -128,6 +128,16 @@
 
 
 
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?3da41265a1a0042eebe5413c0d6c76f5";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
 
 
 
@@ -187,6 +197,16 @@
         </li>
       
         
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
         <li class="menu-item menu-item-archives">
           <a href="/archives/" rel="section">
             
@@ -215,144 +235,6 @@
           <div id="content" class="content">
             
   <section id="posts" class="posts-expand">
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/11/09/浅谈springMVC中的设计模式——组合模式/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="周小伍 Joey">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/xiaowu_avatar.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="xiaowu's blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2018/11/09/浅谈springMVC中的设计模式——组合模式/" itemprop="url">浅谈springMVC中的设计模式——组合模式</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-11-09T22:31:35+08:00">
-                2018-11-09
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2018/11/09/浅谈springMVC中的设计模式——组合模式/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count disqus-comment-count"
-                        data-disqus-identifier="2018/11/09/浅谈springMVC中的设计模式——组合模式/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h2 id="定义"><a href="#定义" class="headerlink" title="定义"></a>定义</h2><p>惯例我们先来看一看组合模式的定义：组合模式，将对象组合成树形结构以表示“部分-整体”的层次结构，组合模式使得用户对单个对象和组合对象的使用具有一致性。通俗的来说，就是讲一系列的对象组合在一个整体的对象中，用户在对这个组合对象操作使用时就能跟操作一个对象一样。</p>
-<h2 id="WebMvcConfigurerComposite"><a href="#WebMvcConfigurerComposite" class="headerlink" title="WebMvcConfigurerComposite"></a>WebMvcConfigurerComposite</h2><h3 id="1-component-gt-WebMvcConfigurer抽象接口"><a href="#1-component-gt-WebMvcConfigurer抽象接口" class="headerlink" title="1.  component -&gt; WebMvcConfigurer抽象接口"></a>1.  component -&gt; WebMvcConfigurer抽象接口</h3><figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">public<span class="built_in"> interface </span>WebMvcConfigurer &#123;</span><br><span class="line"></span><br><span class="line"><span class="built_in">..</span>.</span><br><span class="line"><span class="built_in">	default </span>void addInterceptors(InterceptorRegistry registry) &#123;</span><br><span class="line">	&#125;</span><br><span class="line"><span class="built_in">..</span>.	</span><br><span class="line">	</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h2 id="2-leaf-具体实现-gt-自定义实现"><a href="#2-leaf-具体实现-gt-自定义实现" class="headerlink" title="2. leaf 具体实现 -&gt; 自定义实现"></a>2. leaf 具体实现 -&gt; 自定义实现</h2><figure class="highlight aspectj"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Bean</span></span><br><span class="line"><span class="keyword">public</span> <span class="function">WebMvcConfigurer <span class="title">webMvcConfigurer</span><span class="params">()</span></span>&#123;</span><br><span class="line">    WebMvcConfigurer configurer = <span class="keyword">new</span> WebMvcConfigurer() &#123;</span><br><span class="line">        <span class="meta">@Override</span></span><br><span class="line">        <span class="keyword">public</span> <span class="function"><span class="keyword">void</span> <span class="title">addInterceptors</span><span class="params">(InterceptorRegistry registry)</span> </span>&#123;</span><br><span class="line">            registry.addInterceptor(<span class="keyword">new</span> HandlerInterceptor() &#123;</span><br><span class="line">                <span class="meta">@Override</span></span><br><span class="line">                <span class="keyword">public</span> <span class="function"><span class="keyword">boolean</span> <span class="title">preHandle</span><span class="params">(HttpServletRequest request, HttpServletResponse response, Object <span class="keyword">handler</span>)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">                    System.out.println(<span class="string">"handler执行前"</span>);</span><br><span class="line">                    <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> configurer;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h3 id="3-composite容器-gt-WebMvcConfigurerComposite"><a href="#3-composite容器-gt-WebMvcConfigurerComposite" class="headerlink" title="3. composite容器 -&gt; WebMvcConfigurerComposite"></a>3. composite容器 -&gt; WebMvcConfigurerComposite</h3><p><code>@EnableWebMvc</code></p>
-<p>​    <code>@Import(DelegatingWebMvcConfiguration.class)</code></p>
-<p>​        <code>WebMvcConfigurerComposite</code></p>
-<p>本身也实现component <code>WebMvcConfigurer</code>接口，并存在<code>List&lt;WebMvcConfigurer&gt; delegates</code>，对所有的leaf进行统一配置</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">WebMvcConfigurerComposite</span> <span class="keyword">implements</span> <span class="title">WebMvcConfigurer</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">private</span> <span class="keyword">final</span> List&lt;WebMvcConfigurer&gt; delegates = <span class="keyword">new</span> ArrayList&lt;&gt;();</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">addWebMvcConfigurers</span><span class="params">(List&lt;WebMvcConfigurer&gt; configurers)</span> </span>&#123;</span><br><span class="line">		<span class="keyword">if</span> (!CollectionUtils.isEmpty(configurers)) &#123;</span><br><span class="line">			<span class="keyword">this</span>.delegates.addAll(configurers);</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="meta">@Override</span></span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">configurePathMatch</span><span class="params">(PathMatchConfigurer configurer)</span> </span>&#123;</span><br><span class="line">		<span class="keyword">for</span> (WebMvcConfigurer delegate : <span class="keyword">this</span>.delegates) &#123;</span><br><span class="line">			delegate.configurePathMatch(configurer);</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	</span><br><span class="line">	...	</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
     
       
 
@@ -409,6 +291,28 @@
           </span>
 
           
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/微服务/" itemprop="url" rel="index">
+                    <span itemprop="name">微服务</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
 
           
             
@@ -430,6 +334,37 @@
 
           
 
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  1.3k
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  4
+                </span>
+              
+            </div>
           
 
           
@@ -467,7 +402,7 @@
 <p>使用全局唯一ID是一个通用方案，可以支持插入、更新、删除业务操作。但是这个方案看起来很美但是实现起来比较麻烦，下面的方案适用于特定的场景，但是实现起来比较简单。</p>
 <h3 id="去重表"><a href="#去重表" class="headerlink" title="去重表"></a>去重表</h3><p>这种方法适用于在业务中有唯一标的插入场景中，比如在以上的支付场景中，如果一个订单只会支付一次，所以订单ID可以作为唯一标识。这时，我们就可以建一张去重表，并且把唯一标识作为唯一索引，在我们实现时，把创建支付单据和写入去去重表，放在一个事务中，如果重复创建，数据库会抛出唯一约束异常，操作就会回滚。</p>
 <p>插入或更新<br>这种方法插入并且有唯一索引的情况，比如我们要关联商品品类，其中商品的ID和品类的ID可以构成唯一索引，并且在数据表中也增加了唯一索引。这时就可以使用InsertOrUpdate操作。在mysql数据库中如下：</p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">insert</span> <span class="keyword">into</span> goods_category (goods_id,category_id,create_time,update_time) </span><br><span class="line">       <span class="keyword">values</span>(#&#123;goodsId&#125;,#&#123;categoryId&#125;,<span class="keyword">now</span>(),<span class="keyword">now</span>()) </span><br><span class="line">       <span class="keyword">on</span> <span class="keyword">DUPLICATE</span> <span class="keyword">KEY</span> <span class="keyword">UPDATE</span></span><br><span class="line">       update_time=<span class="keyword">now</span>()</span><br></pre></td></tr></table></figure>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">insert</span> <span class="keyword">into</span> goods_category (goods_id,category_id,create_time,update_time)</span><br><span class="line">       <span class="keyword">values</span>(#&#123;goodsId&#125;,#&#123;categoryId&#125;,<span class="keyword">now</span>(),<span class="keyword">now</span>())</span><br><span class="line">       <span class="keyword">on</span> <span class="keyword">DUPLICATE</span> <span class="keyword">KEY</span> <span class="keyword">UPDATE</span></span><br><span class="line">       update_time=<span class="keyword">now</span>()</span><br></pre></td></tr></table></figure>
 <h3 id="多版本控制"><a href="#多版本控制" class="headerlink" title="多版本控制"></a>多版本控制</h3><p>这种方法适合在更新的场景中，比如我们要更新商品的名字，这时我们就可以在更新的接口中增加一个版本号，来做幂等</p>
 <figure class="highlight arduino"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">boolean</span> updateGoodsName(<span class="keyword">int</span> id,<span class="keyword">String</span> newName,<span class="keyword">int</span> version);</span><br></pre></td></tr></table></figure>
 <p>在实现时可以如下</p>
@@ -564,6 +499,28 @@
           </span>
 
           
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/分布式/" itemprop="url" rel="index">
+                    <span itemprop="name">分布式</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
 
           
             
@@ -585,6 +542,37 @@
 
           
 
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  4.9k
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  17
+                </span>
+              
+            </div>
           
 
           
@@ -827,6 +815,28 @@
           </span>
 
           
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/微服务/" itemprop="url" rel="index">
+                    <span itemprop="name">微服务</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
 
           
             
@@ -848,6 +858,37 @@
 
           
 
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  4k
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  15
+                </span>
+              
+            </div>
           
 
           
@@ -918,7 +959,7 @@
 <h4 id="4-4-3-专有云输出"><a href="#4-4-3-专有云输出" class="headerlink" title="4.4.3 专有云输出"></a>4.4.3 专有云输出</h4><p>这种形式主要面向于已建设了自己专有云平台的大用户，GTS可以直接部署到用户的专有云上，为专有云提供分布式事务服务。目前已经有10多个特大型企业的专有云使用GTS解决分布式事务难题，性能与稳定性经过了用户的严格检测。</p>
 <h3 id="4-5-GTS的使用方式"><a href="#4-5-GTS的使用方式" class="headerlink" title="4.5 GTS的使用方式"></a>4.5 <a href="https://help.aliyun.com/document_detail/53298.html?spm=a2c4g.11186623.6.554.NZEXg9" target="_blank" rel="external">GTS的使用方式</a></h3><p>GTS对应用的侵入性非常低，使用也很简单。下面以订单存储应用为例说明。订单业务应用通过调用订单服务和库存服务完成订单业务，服务开发框架为Dubbo。</p>
 <h4 id="4-5-1-订单业务应用"><a href="#4-5-1-订单业务应用" class="headerlink" title="4.5.1 订单业务应用"></a>4.5.1 订单业务应用</h4><p>在业务函数外围使用@TxcTransaction注解即可开启分布式事务。Dubbo应用通过隐藏参数将GTS的事务xid传播到服务端。</p>
-<figure class="highlight haxe"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"> @TxcTransaction(timeout = <span class="number">1000</span> * <span class="number">10</span>)</span><br><span class="line"><span class="keyword">public</span> void Bussiness(OrderService orderService, StockService stockService, <span class="keyword">String</span> userId) &#123;</span><br><span class="line">    <span class="comment">//获取事务上下文</span></span><br><span class="line">    <span class="keyword">String</span> xid = TxcContext.getCurrentXid();</span><br><span class="line">    <span class="comment">//通过RpcContext将xid传到一个服务端</span></span><br><span class="line">    RpcContext.getContext().setAttachment(<span class="string">"xid"</span>, xid);</span><br><span class="line">    </span><br><span class="line">    <span class="comment">//执行自己的业务逻辑</span></span><br><span class="line">    int productId = <span class="keyword">new</span> <span class="type">Random</span>().nextInt(<span class="number">100</span>);</span><br><span class="line">    int productNum = <span class="keyword">new</span> <span class="type">Random</span>().nextInt(<span class="number">100</span>);</span><br><span class="line">    OrderDO orderDO = <span class="keyword">new</span> <span class="type">OrderDO</span>(userId, productId, productNum, <span class="keyword">new</span> <span class="type">Timestamp</span>(<span class="keyword">new</span> <span class="type">Date</span>().getTime()));</span><br><span class="line">    orderService.createOrder(orderDO);</span><br><span class="line">    </span><br><span class="line">    <span class="comment">//通过RpcContext将xid传到另一个服务端</span></span><br><span class="line">    RpcContext.getContext().setAttachment(<span class="string">"xid"</span>,xid);</span><br><span class="line">    stockService.updateStock(orderDO);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight haxe"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"> @TxcTransaction(timeout = <span class="number">1000</span> * <span class="number">10</span>)</span><br><span class="line"><span class="keyword">public</span> void Bussiness(OrderService orderService, StockService stockService, <span class="keyword">String</span> userId) &#123;</span><br><span class="line">    <span class="comment">//获取事务上下文</span></span><br><span class="line">    <span class="keyword">String</span> xid = TxcContext.getCurrentXid();</span><br><span class="line">    <span class="comment">//通过RpcContext将xid传到一个服务端</span></span><br><span class="line">    RpcContext.getContext().setAttachment(<span class="string">"xid"</span>, xid);</span><br><span class="line"></span><br><span class="line">    <span class="comment">//执行自己的业务逻辑</span></span><br><span class="line">    int productId = <span class="keyword">new</span> <span class="type">Random</span>().nextInt(<span class="number">100</span>);</span><br><span class="line">    int productNum = <span class="keyword">new</span> <span class="type">Random</span>().nextInt(<span class="number">100</span>);</span><br><span class="line">    OrderDO orderDO = <span class="keyword">new</span> <span class="type">OrderDO</span>(userId, productId, productNum, <span class="keyword">new</span> <span class="type">Timestamp</span>(<span class="keyword">new</span> <span class="type">Date</span>().getTime()));</span><br><span class="line">    orderService.createOrder(orderDO);</span><br><span class="line"></span><br><span class="line">    <span class="comment">//通过RpcContext将xid传到另一个服务端</span></span><br><span class="line">    RpcContext.getContext().setAttachment(<span class="string">"xid"</span>,xid);</span><br><span class="line">    stockService.updateStock(orderDO);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <h4 id="4-5-2-服务提供者"><a href="#4-5-2-服务提供者" class="headerlink" title="4.5.2 服务提供者"></a>4.5.2 服务提供者</h4><p>更新库存方法</p>
 <figure class="highlight processing"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="built_in">int</span> updateStock(OrderDO orderDO) &#123;</span><br><span class="line"></span><br><span class="line"><span class="comment">//获取全局事务ID，并绑定到上下文</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">String</span> xid = RpcContext.getContext().getAttachment(<span class="string">"xid"</span>);</span><br><span class="line"></span><br><span class="line">TxcContext.bind(xid,<span class="keyword">null</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">//执行自己的业务逻辑</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">int</span> ret = jdbcTemplate.update(<span class="string">"update stock set amount = amount - ? where product_id = ?"</span>,<span class="keyword">new</span> <span class="keyword">Object</span>[]&#123;orderDO.getNumber(), orderDO.getProductId()&#125;);</span><br><span class="line"></span><br><span class="line">TxcContext.unbind();</span><br><span class="line"></span><br><span class="line"><span class="keyword">return</span> ret;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <h3 id="4-6-GTS的应用情况"><a href="#4-6-GTS的应用情况" class="headerlink" title="4.6 GTS的应用情况"></a>4.6 GTS的应用情况</h3><p>GTS目前已经在淘宝、天猫、阿里影业、淘票票、阿里妈妈、1688等阿里各业务系统广泛使用，经受了16年和17年两年双十一海量请求的考验。某线上业务系统最高流量已达十万TPS（每秒钟10万笔事务）。</p>
@@ -1077,6 +1118,28 @@
           </span>
 
           
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Spring/" itemprop="url" rel="index">
+                    <span itemprop="name">Spring</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
 
           
             
@@ -1098,6 +1161,37 @@
 
           
 
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  802
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  4
+                </span>
+              
+            </div>
           
 
           
@@ -1129,7 +1223,7 @@
 <p>job的具体处理逻辑</p>
 <figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">final</span> <span class="class"><span class="keyword">class</span> <span class="title">InternalJob</span> <span class="keyword">implements</span> <span class="title">Job</span> &#123;</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> Logger logger = LoggerFactory.getLogger(InternalJob .<span class="keyword">class</span>);</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="keyword">private</span> CuratorFramework client;</span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="keyword">private</span> JobAlarmEventService jobAlarmEventService;</span><br></pre></td></tr></table></figure>
 <p>job的spring配置：</p>
-<figure class="highlight applescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&lt;bean <span class="built_in">id</span>=<span class="string">"jobFactory"</span> <span class="built_in">class</span>=<span class="string">"com.test.scheduler.JobFactory"</span>&gt;&lt;/bean&gt;</span><br><span class="line">    &lt;bean <span class="built_in">id</span>=<span class="string">"schedulerFactoryBean"</span> <span class="built_in">class</span>=<span class="string">"org.springframework.scheduling.quartz.SchedulerFactoryBean"</span>&gt;</span><br><span class="line">        &lt;<span class="keyword">property</span> <span class="built_in">name</span>=<span class="string">"jobFactory"</span> <span class="keyword">ref</span>=<span class="string">"jobFactory"</span>&gt;&lt;/<span class="keyword">property</span>&gt;</span><br><span class="line">        &lt;<span class="keyword">property</span> <span class="built_in">name</span>=<span class="string">"schedulerName"</span> value=<span class="string">"scheduler"</span>&gt;&lt;/<span class="keyword">property</span>&gt;</span><br><span class="line">        &lt;<span class="keyword">property</span> <span class="built_in">name</span>=<span class="string">"configLocation"</span>  value=<span class="string">"classpath:META-INF/spring/quartz.properties"</span>&gt;&lt;/<span class="keyword">property</span>&gt;    </span><br><span class="line">    &lt;/bean&gt;</span><br></pre></td></tr></table></figure>
+<figure class="highlight applescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&lt;bean <span class="built_in">id</span>=<span class="string">"jobFactory"</span> <span class="built_in">class</span>=<span class="string">"com.test.scheduler.JobFactory"</span>&gt;&lt;/bean&gt;</span><br><span class="line">    &lt;bean <span class="built_in">id</span>=<span class="string">"schedulerFactoryBean"</span> <span class="built_in">class</span>=<span class="string">"org.springframework.scheduling.quartz.SchedulerFactoryBean"</span>&gt;</span><br><span class="line">        &lt;<span class="keyword">property</span> <span class="built_in">name</span>=<span class="string">"jobFactory"</span> <span class="keyword">ref</span>=<span class="string">"jobFactory"</span>&gt;&lt;/<span class="keyword">property</span>&gt;</span><br><span class="line">        &lt;<span class="keyword">property</span> <span class="built_in">name</span>=<span class="string">"schedulerName"</span> value=<span class="string">"scheduler"</span>&gt;&lt;/<span class="keyword">property</span>&gt;</span><br><span class="line">        &lt;<span class="keyword">property</span> <span class="built_in">name</span>=<span class="string">"configLocation"</span>  value=<span class="string">"classpath:META-INF/spring/quartz.properties"</span>&gt;&lt;/<span class="keyword">property</span>&gt;</span><br><span class="line">    &lt;/bean&gt;</span><br></pre></td></tr></table></figure>
           
         
       
@@ -1219,6 +1313,28 @@
           </span>
 
           
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/运维/" itemprop="url" rel="index">
+                    <span itemprop="name">运维</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
 
           
             
@@ -1240,6 +1356,37 @@
 
           
 
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  121
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  1
+                </span>
+              
+            </div>
           
 
           
@@ -1368,6 +1515,28 @@
           </span>
 
           
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/数据库/" itemprop="url" rel="index">
+                    <span itemprop="name">数据库</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
 
           
             
@@ -1390,6 +1559,37 @@
           
 
           
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  209
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  1
+                </span>
+              
+            </div>
+          
 
           
 
@@ -1409,151 +1609,14 @@
         
           
             <h3 id="联表删除："><a href="#联表删除：" class="headerlink" title="联表删除："></a>联表删除：</h3><p>1、从数据表t1 中把那些id值在数据表t2 里有匹配的记录全删除掉</p>
-<figure class="highlight mipsasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">DELETE <span class="built_in">t1</span> FROM <span class="built_in">t1</span>,<span class="built_in">t2</span> WHERE <span class="built_in">t1</span>.id=<span class="built_in">t2</span>.id    </span><br><span class="line"></span><br><span class="line">或</span><br><span class="line"></span><br><span class="line">DELETE  FROM <span class="built_in">t1</span> USING <span class="built_in">t1</span>,<span class="built_in">t2</span> WHERE <span class="built_in">t1</span>.id=<span class="built_in">t2</span>.id</span><br></pre></td></tr></table></figure>
+<figure class="highlight mipsasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">DELETE <span class="built_in">t1</span> FROM <span class="built_in">t1</span>,<span class="built_in">t2</span> WHERE <span class="built_in">t1</span>.id=<span class="built_in">t2</span>.id</span><br><span class="line"></span><br><span class="line">或</span><br><span class="line"></span><br><span class="line">DELETE  FROM <span class="built_in">t1</span> USING <span class="built_in">t1</span>,<span class="built_in">t2</span> WHERE <span class="built_in">t1</span>.id=<span class="built_in">t2</span>.id</span><br></pre></td></tr></table></figure>
 <p>2、从数据表t1里在数据表t2里没有匹配的记录查找出来并删除掉</p>
-<figure class="highlight n1ql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">DELETE</span> t1 <span class="keyword">FROM</span> t1 <span class="keyword">LEFT</span> <span class="keyword">JOIN</span> T2 <span class="keyword">ON</span> t1.id=t2.id <span class="keyword">WHERE</span> t2.id <span class="keyword">IS</span> <span class="literal">NULL</span> </span><br><span class="line"></span><br><span class="line">或</span><br><span class="line"></span><br><span class="line"><span class="keyword">DELETE</span>  <span class="keyword">FROM</span> t1,<span class="keyword">USING</span> t1 <span class="keyword">LEFT</span> <span class="keyword">JOIN</span> T2 <span class="keyword">ON</span> t1.id=t2.id <span class="keyword">WHERE</span> t2.id <span class="keyword">IS</span> <span class="literal">NULL</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight n1ql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">DELETE</span> t1 <span class="keyword">FROM</span> t1 <span class="keyword">LEFT</span> <span class="keyword">JOIN</span> T2 <span class="keyword">ON</span> t1.id=t2.id <span class="keyword">WHERE</span> t2.id <span class="keyword">IS</span> <span class="literal">NULL</span></span><br><span class="line"></span><br><span class="line">或</span><br><span class="line"></span><br><span class="line"><span class="keyword">DELETE</span>  <span class="keyword">FROM</span> t1,<span class="keyword">USING</span> t1 <span class="keyword">LEFT</span> <span class="keyword">JOIN</span> T2 <span class="keyword">ON</span> t1.id=t2.id <span class="keyword">WHERE</span> t2.id <span class="keyword">IS</span> <span class="literal">NULL</span></span><br></pre></td></tr></table></figure>
 <p>3、从两个表中找出相同记录的数据并把两个表中的数据都删除掉</p>
 <figure class="highlight mipsasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">DELETE <span class="built_in">t1</span>,<span class="built_in">t2</span> from <span class="built_in">t1</span> LEFT <span class="keyword">JOIN </span><span class="built_in">t2</span> ON <span class="built_in">t1</span>.id=<span class="built_in">t2</span>.id WHERE <span class="built_in">t1</span>.id=<span class="number">25</span></span><br></pre></td></tr></table></figure>
 <p>注意此处的delete t1,t2 from 中的t1,t2不能是别名</p>
 <p>如：<br><figure class="highlight applescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">delete t1,t2 <span class="keyword">from</span> table_name <span class="keyword">as</span> t1 left join table2_name <span class="keyword">as</span> t2 <span class="keyword">on</span> t1.<span class="built_in">id</span>=t2.<span class="built_in">id</span> <span class="keyword">where</span> table_name.<span class="built_in">id</span>=<span class="number">25</span></span><br></pre></td></tr></table></figure></p>
 <p><strong>要求：MYSQL 版本不小于5.0</strong></p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/09/18/Spring之AOP源码分析/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="周小伍 Joey">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/xiaowu_avatar.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="xiaowu's blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2018/09/18/Spring之AOP源码分析/" itemprop="url">Spring之AOP源码分析</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-09-18T20:47:55+08:00">
-                2018-09-18
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2018/09/18/Spring之AOP源码分析/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count disqus-comment-count"
-                        data-disqus-identifier="2018/09/18/Spring之AOP源码分析/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h2 id="表达式"><a href="#表达式" class="headerlink" title="表达式"></a>表达式</h2><ul>
-<li>第一个点代表真正的点，也就是包名上的点</li>
-<li>第二个点代表正则表达式，表示任意字符</li>
-</ul>
-<h2 id="AopProxyUtil"><a href="#AopProxyUtil" class="headerlink" title="AopProxyUtil"></a>AopProxyUtil</h2><ul>
-<li>getSingletonTarget</li>
-</ul>
 
           
         
@@ -1644,6 +1707,39 @@
           </span>
 
           
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/缓存/" itemprop="url" rel="index">
+                    <span itemprop="name">缓存</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/缓存/redis/" itemprop="url" rel="index">
+                    <span itemprop="name">redis</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
 
           
             
@@ -1665,6 +1761,37 @@
 
           
 
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  683
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  3
+                </span>
+              
+            </div>
           
 
           
@@ -1708,7 +1835,7 @@
 <p>  条件满足一个执行，每条规则之间是“或”的关系</p>
 <p>  In the example below the behaviour will be to save:<br>  after 900 sec (15 min) if at least 1 key changed<br>  after 300 sec (5 min) if at least 10 keys changed<br>  after 60 sec if at least 10000 keys changed</p>
 </blockquote>
-<figure class="highlight lsl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">save <span class="number">900</span> <span class="number">1</span> </span><br><span class="line">save <span class="number">300</span> <span class="number">10</span></span><br><span class="line">save <span class="number">60</span> <span class="number">10000</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight lsl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">save <span class="number">900</span> <span class="number">1</span></span><br><span class="line">save <span class="number">300</span> <span class="number">10</span></span><br><span class="line">save <span class="number">60</span> <span class="number">10000</span></span><br></pre></td></tr></table></figure>
 <h3 id="aof"><a href="#aof" class="headerlink" title="aof"></a>aof</h3><ul>
 <li>默认的rdb能够满足持久化的需求，但是存在缺陷就是两次快照之间，可能会丢失数据。</li>
 </ul>
@@ -1860,6 +1987,28 @@
           </span>
 
           
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/SpringBoot/" itemprop="url" rel="index">
+                    <span itemprop="name">SpringBoot</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
 
           
             
@@ -1881,6 +2030,37 @@
 
           
 
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  632
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  3
+                </span>
+              
+            </div>
           
 
           
@@ -1960,11 +2140,416 @@
 
 
     
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/09/06/kafka原理详解/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="周小伍 Joey">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/xiaowu_avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="xiaowu's blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/09/06/kafka原理详解/" itemprop="url">kafka原理详解</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-09-06T21:54:39+08:00">
+                2018-09-06
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/消息中间件/" itemprop="url" rel="index">
+                    <span itemprop="name">消息中间件</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2018/09/06/kafka原理详解/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2018/09/06/kafka原理详解/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  239
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  1
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="kafka提供的基本脚本"><a href="#kafka提供的基本脚本" class="headerlink" title="kafka提供的基本脚本"></a>kafka提供的基本脚本</h2><h3 id="启动broker-server"><a href="#启动broker-server" class="headerlink" title="启动broker server"></a>启动broker server</h3><figure class="highlight axapta"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">bin/kafka-<span class="keyword">server</span>-start.sh config/<span class="keyword">server</span>.properties</span><br></pre></td></tr></table></figure>
+<h3 id="创建topic"><a href="#创建topic" class="headerlink" title="创建topic"></a>创建topic</h3><figure class="highlight brainfuck"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">bin/kafka</span><span class="literal">-</span><span class="comment">topics</span><span class="string">.</span><span class="comment">sh</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">create</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">zookeeper</span> <span class="comment">localhost:2181</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">replication</span><span class="literal">-</span><span class="comment">factor</span> <span class="comment">2</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">partitions</span> <span class="comment">3</span> <span class="literal">-</span><span class="literal">-</span> <span class="comment">topic</span> <span class="comment">testReplicaTopic</span></span><br></pre></td></tr></table></figure>
+<p>当broker节点本身只有1个，少于副本数2时，报错</p>
+<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[<span class="number">2018</span>-<span class="number">09</span>-<span class="number">06</span> <span class="number">23</span>:<span class="number">13</span>:<span class="number">38</span>,<span class="number">288</span>] ERROR org<span class="selector-class">.apache</span><span class="selector-class">.kafka</span><span class="selector-class">.common</span><span class="selector-class">.errors</span><span class="selector-class">.InvalidReplicationFactorException</span>: Replication factor: <span class="number">2</span> larger than available brokers: <span class="number">1</span>.</span><br><span class="line"> (kafka<span class="selector-class">.admin</span><span class="selector-class">.TopicCommand</span>$)</span><br></pre></td></tr></table></figure>
+<h3 id="查看某个topic的信息"><a href="#查看某个topic的信息" class="headerlink" title="查看某个topic的信息"></a>查看某个topic的信息</h3><figure class="highlight brainfuck"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">bin/kafka</span><span class="literal">-</span><span class="comment">topics</span><span class="string">.</span><span class="comment">sh</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">describe</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">zookeeper</span> <span class="comment">localhost:2181</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">topic</span> <span class="comment">xiaowu</span><span class="literal">-</span><span class="comment">topic</span></span><br></pre></td></tr></table></figure>
+<h3 id="生产者发送消息"><a href="#生产者发送消息" class="headerlink" title="生产者发送消息"></a>生产者发送消息</h3><figure class="highlight vim"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">bin/kafka-console-producer.<span class="keyword">sh</span> --broker-<span class="keyword">list</span> localhos<span class="variable">t:9092</span> --topic xiaowu-topic</span><br></pre></td></tr></table></figure>
+<h3 id="消费者消费消息"><a href="#消费者消费消息" class="headerlink" title="消费者消费消息"></a>消费者消费消息</h3><figure class="highlight brainfuck"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">bin/kafka</span><span class="literal">-</span><span class="comment">console</span><span class="literal">-</span><span class="comment">consumer</span><span class="string">.</span><span class="comment">sh</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">bootstrap</span><span class="literal">-</span><span class="comment">server</span> <span class="comment">localhost:9092</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">topic</span> <span class="comment">xiaowu</span><span class="literal">-</span><span class="comment">topic</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">from</span><span class="literal">-</span><span class="comment">beginning</span></span><br></pre></td></tr></table></figure>
+<h3 id="查看消息日志文件"><a href="#查看消息日志文件" class="headerlink" title="查看消息日志文件"></a>查看消息日志文件</h3><figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">bin/kafka-run-class<span class="selector-class">.sh</span> kafka<span class="selector-class">.tools</span><span class="selector-class">.DumpLogSegments</span> --files /Users/zhouxiaowu/install/kafka/kafka-data/xiaowu-topic-<span class="number">0</span>/<span class="number">00000000000000000000</span><span class="selector-class">.log</span> --print-data-log</span><br></pre></td></tr></table></figure>
+<h3 id="查看索引文件内容"><a href="#查看索引文件内容" class="headerlink" title="查看索引文件内容"></a>查看索引文件内容</h3><figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">bin/kafka-run-class<span class="selector-class">.sh</span> kafka<span class="selector-class">.tools</span><span class="selector-class">.DumpLogSegments</span> --files /Users/zhouxiaowu/install/kafka/kafka-data/xiaowu-topic-<span class="number">0</span>/<span class="number">00000000000000000000</span><span class="selector-class">.index</span> --print-data-log</span><br></pre></td></tr></table></figure>
+<h2 id="zookeeper状态"><a href="#zookeeper状态" class="headerlink" title="zookeeper状态"></a>zookeeper状态</h2><h3 id="查看某个topic的某个分区的状态"><a href="#查看某个topic的某个分区的状态" class="headerlink" title="查看某个topic的某个分区的状态"></a>查看某个topic的某个分区的状态</h3><figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[<span class="string">zk:</span> <span class="string">localhost:</span><span class="number">2181</span>(CONNECTED) <span class="number">16</span>] get  <span class="regexp">/brokers/</span>topics<span class="regexp">/xiaowu-topic/</span>partitions<span class="regexp">/0/</span>state</span><br><span class="line">&#123;<span class="string">"controller_epoch"</span>:<span class="number">4</span>,<span class="string">"leader"</span>:<span class="number">0</span>,<span class="string">"version"</span>:<span class="number">1</span>,<span class="string">"leader_epoch"</span>:<span class="number">0</span>,<span class="string">"isr"</span>:[<span class="number">0</span>]&#125;</span><br></pre></td></tr></table></figure>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/08/13/Spring-Boot-Web篇/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="周小伍 Joey">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/xiaowu_avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="xiaowu's blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/08/13/Spring-Boot-Web篇/" itemprop="url">Spring Boot Web篇</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-08-13T09:38:25+08:00">
+                2018-08-13
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/SpringBoot/" itemprop="url" rel="index">
+                    <span itemprop="name">SpringBoot</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2018/08/13/Spring-Boot-Web篇/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2018/08/13/Spring-Boot-Web篇/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  146
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  1
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <ul>
+<li><p>标准优化技术</p>
+<ul>
+<li><p>资源变化</p>
+<p>响应头：Last-Modified</p>
+<p>请求头：If-Modified-Since</p>
+</li>
+<li><p>资源缓存</p>
+<p>响应头：ETag</p>
+<p> 请求头：If-None-Match</p>
+</li>
+</ul>
+</li>
+</ul>
+<h2 id="Spring-Boot-Actuator"><a href="#Spring-Boot-Actuator" class="headerlink" title="Spring Boot Actuator"></a>Spring Boot Actuator</h2><p>引用包</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-starter-actuator<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<ul>
+<li>/beans 查看bean的情况</li>
+<li><code>ManagementServerProperties</code>类查看配置内容</li>
+</ul>
+<p>如： <code>management.security.enabled = false</code>关闭安全检查</p>
+<ul>
+<li>localhost:8080/autoconfig 查看匹配方式，negtive匹配不成功</li>
+</ul>
+<h2 id="Spring-Framwork-Transaction"><a href="#Spring-Framwork-Transaction" class="headerlink" title="Spring Framwork Transaction"></a>Spring Framwork Transaction</h2><ul>
+<li><code>@EnableTransactionManagement</code>注解启用事务管理</li>
+<li><code>proxyTargetClass = true</code>选择使用cglib动态代理，这样service类可以不用实现接口。</li>
+</ul>
+<figure class="highlight aspectj"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@EnableTransactionManagement</span>(proxyTargetClass = <span class="keyword">true</span>)</span><br></pre></td></tr></table></figure>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
   </section>
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/page/4/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/4/">4</a><span class="page-number current">5</span><a class="page-number" href="/page/6/">6</a><span class="space">&hellip;</span><a class="page-number" href="/page/18/">18</a><a class="extend next" rel="next" href="/page/6/"><i class="fa fa-angle-right"></i></a>
+    <a class="extend prev" rel="prev" href="/page/4/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/4/">4</a><span class="page-number current">5</span><a class="page-number" href="/page/6/">6</a><span class="space">&hellip;</span><a class="page-number" href="/page/15/">15</a><a class="extend next" rel="next" href="/page/6/"><i class="fa fa-angle-right"></i></a>
   </nav>
 
 
@@ -2014,7 +2599,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">175</span>
+                  <span class="site-state-item-count">150</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -2025,7 +2610,7 @@
               
               <div class="site-state-item site-state-categories">
                 <a href="/categories/index.html">
-                  <span class="site-state-item-count">10</span>
+                  <span class="site-state-item-count">28</span>
                   <span class="site-state-item-name">分类</span>
                 </a>
               </div>
@@ -2035,10 +2620,10 @@
               
               
               <div class="site-state-item site-state-tags">
-                
-                  <span class="site-state-item-count">51</span>
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">43</span>
                   <span class="site-state-item-name">标签</span>
-                
+                </a>
               </div>
             
 
@@ -2081,6 +2666,15 @@
   </span>
   <span class="author" itemprop="copyrightHolder">周小伍 Joey</span>
 
+  
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-area-chart"></i>
+    </span>
+    
+      <span class="post-meta-item-text">Site words total count&#58;</span>
+    
+    <span title="Site words total count">270.1k</span>
   
 </div>
 

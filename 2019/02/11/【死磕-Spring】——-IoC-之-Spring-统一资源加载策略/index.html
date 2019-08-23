@@ -90,7 +90,7 @@
 <meta property="og:image" content="https://gitee.com/chenssy/blog-home/raw/master/image/201811/spring-201805091003.jpg">
 <meta property="og:image" content="https://gitee.com/chenssy/blog-home/raw/master/image/201811/spring-201805091004.png">
 <meta property="og:image" content="https://gitee.com/chenssy/blog-home/blob/master/image/201811/87106504.jpg">
-<meta property="og:updated_time" content="2019-02-11T13:01:03.000Z">
+<meta property="og:updated_time" content="2019-08-22T02:37:00.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="【死磕 Spring】—— IoC 之 Spring 统一资源加载策略">
 <meta name="twitter:description" content="本文主要基于 Spring 5.0.6.RELEASE 摘要: 原创出处 http://cmsblogs.com/?p=2656 「小明哥」，谢谢！ 作为「小明哥」的忠实读者，「老艿艿」略作修改，记录在理解过程中，参考的资料。  在学 Java SE 的时候，我们学习了一个标准类 java.net.URL，该类在 Java SE 中的定位为统一资源定位器（Uniform Resource Loca">
@@ -136,6 +136,16 @@
 
 
 
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?3da41265a1a0042eebe5413c0d6c76f5";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
 
 
 
@@ -191,6 +201,16 @@
               <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
             
             首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
           </a>
         </li>
       
@@ -277,6 +297,28 @@
           </span>
 
           
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Spring/" itemprop="url" rel="index">
+                    <span itemprop="name">Spring</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
 
           
             
@@ -298,6 +340,37 @@
 
           
 
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  6k
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  26
+                </span>
+              
+            </div>
           
 
           
@@ -352,9 +425,9 @@
 <figure class="highlight cs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">interface</span> <span class="title">ResourceLoader</span> &#123;</span><br><span class="line"></span><br><span class="line">	String CLASSPATH_URL_PREFIX = ResourceUtils.CLASSPATH_URL_PREFIX; <span class="comment">// CLASSPATH URL 前缀。默认为："classpath:"</span></span><br><span class="line"></span><br><span class="line">	<span class="function">Resource <span class="title">getResource</span>(<span class="params">String location</span>)</span>;</span><br><span class="line"></span><br><span class="line">	<span class="function">ClassLoader <span class="title">getClassLoader</span>(<span class="params"></span>)</span>;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <ul>
 <li><figure class="highlight leaf"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">#</span><span class="title">getResource</span><span class="params">(<span class="variable">String</span> <span class="variable">location</span>)</span></span></span><br></pre></td></tr></table></figure>
+<p>方法，根据所提供资源的路径 location 返回 Resource 实例，但是它不确保该 Resource 一定存在，需要调用</p>
 </li>
 </ul>
-<p>  方法，根据所提供资源的路径 location 返回 Resource 实例，但是它不确保该 Resource 一定存在，需要调用</p>
   <figure class="highlight leaf"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Resource<span class="function"><span class="keyword">#</span><span class="title">exist</span><span class="params">()</span></span></span><br></pre></td></tr></table></figure>
 <p>  方法来判断。</p>
 <ul>
@@ -378,7 +451,7 @@
 <li>在使用<strong>带</strong>参数的构造函数时，可以通过 <code>ClassUtils#getDefaultClassLoader()</code>获取。</li>
 </ul>
 <p>代码如下：</p>
-<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Nullable</span></span><br><span class="line"><span class="keyword">private</span> ClassLoader classLoader;</span><br><span class="line">	</span><br><span class="line"><span class="keyword">public</span> DefaultResourceLoader() &#123; <span class="comment">// 无参构造函数</span></span><br><span class="line">	<span class="keyword">this</span>.classLoader = ClassUtils.getDefaultClassLoader();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> DefaultResourceLoader(<span class="meta">@Nullable</span> ClassLoader classLoader) &#123; <span class="comment">// 带 ClassLoader 参数的构造函数</span></span><br><span class="line">	<span class="keyword">this</span>.classLoader = classLoader;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> void setClassLoader(<span class="meta">@Nullable</span> ClassLoader classLoader) &#123;</span><br><span class="line">	<span class="keyword">this</span>.classLoader = classLoader;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="meta">@Nullable</span></span><br><span class="line"><span class="keyword">public</span> ClassLoader getClassLoader() &#123;</span><br><span class="line">	<span class="keyword">return</span> (<span class="keyword">this</span>.classLoader != <span class="literal">null</span> ? <span class="keyword">this</span>.classLoader : ClassUtils.getDefaultClassLoader());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Nullable</span></span><br><span class="line"><span class="keyword">private</span> ClassLoader classLoader;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> DefaultResourceLoader() &#123; <span class="comment">// 无参构造函数</span></span><br><span class="line">	<span class="keyword">this</span>.classLoader = ClassUtils.getDefaultClassLoader();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> DefaultResourceLoader(<span class="meta">@Nullable</span> ClassLoader classLoader) &#123; <span class="comment">// 带 ClassLoader 参数的构造函数</span></span><br><span class="line">	<span class="keyword">this</span>.classLoader = classLoader;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> void setClassLoader(<span class="meta">@Nullable</span> ClassLoader classLoader) &#123;</span><br><span class="line">	<span class="keyword">this</span>.classLoader = classLoader;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="meta">@Nullable</span></span><br><span class="line"><span class="keyword">public</span> ClassLoader getClassLoader() &#123;</span><br><span class="line">	<span class="keyword">return</span> (<span class="keyword">this</span>.classLoader != <span class="literal">null</span> ? <span class="keyword">this</span>.classLoader : ClassUtils.getDefaultClassLoader());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <ul>
 <li>另外，也可以调用 <code>#setClassLoader()</code> 方法进行后续设置。</li>
 </ul>
@@ -400,7 +473,7 @@
 <figure class="highlight crmsh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">/**</span><br><span class="line"> * 使用指定的 ResourceLoader ，解析指定的 <span class="keyword">location</span> <span class="title">。</span></span><br><span class="line"><span class="title"> * 若成功，则返回对应的 Resource</span> 。</span><br><span class="line"> *</span><br><span class="line"> * Resolve the given <span class="keyword">location</span> <span class="title">against</span> the given resource loader</span><br><span class="line"> * if this implementation's protocol matches.</span><br><span class="line"> * @param <span class="keyword">location</span> <span class="title">the</span> user-specified resource <span class="keyword">location</span> <span class="title">资源路径</span></span><br><span class="line"><span class="title"> * @param</span> resourceLoader the associated resource loader 指定的加载器 ResourceLoader</span><br><span class="line"> * @return a corresponding &#123;@code Resource&#125; handle if the given location</span><br><span class="line"> * matches this resolver's protocol, <span class="keyword">or</span> &#123;@code null&#125; otherwise 返回为相应的 Resource</span><br><span class="line"> */</span><br><span class="line">@Nullable</span><br><span class="line">Resource resolve(<span class="keyword">String</span> location, ResourceLoader resourceLoader);</span><br></pre></td></tr></table></figure>
 <hr>
 <p>在 Spring 中你会发现该接口并没有实现类，它需要用户自定义，自定义的 Resolver 如何加入 Spring 体系呢？调用 <code>DefaultResourceLoader#addProtocolResolver(ProtocolResolver)</code> 方法即可。代码如下：</p>
-<figure class="highlight cs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * ProtocolResolver 集合</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">private</span> final Set&lt;ProtocolResolver&gt; protocolResolvers = <span class="keyword">new</span> LinkedHashSet&lt;&gt;(<span class="number">4</span>);</span><br><span class="line">	</span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">addProtocolResolver</span>(<span class="params">ProtocolResolver resolver</span>) </span>&#123;</span><br><span class="line">	Assert.notNull(resolver, <span class="string">"ProtocolResolver must not be null"</span>);</span><br><span class="line">	<span class="keyword">this</span>.protocolResolvers.<span class="keyword">add</span>(resolver);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight cs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * ProtocolResolver 集合</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">private</span> final Set&lt;ProtocolResolver&gt; protocolResolvers = <span class="keyword">new</span> LinkedHashSet&lt;&gt;(<span class="number">4</span>);</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">addProtocolResolver</span>(<span class="params">ProtocolResolver resolver</span>) </span>&#123;</span><br><span class="line">	Assert.notNull(resolver, <span class="string">"ProtocolResolver must not be null"</span>);</span><br><span class="line">	<span class="keyword">this</span>.protocolResolvers.<span class="keyword">add</span>(resolver);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <h3 id="2-1-4-示例"><a href="#2-1-4-示例" class="headerlink" title="2.1.4 示例"></a>2.1.4 示例</h3><p>下面示例是演示 DefaultResourceLoader 加载资源的具体策略，代码如下（该示例参考<a href="https://item.jd.com/10062476670.html?jd_pop=1b9f1d77-f489-4473-b2f0-f22036d20060&amp;abt=0" target="_blank" rel="external">《Spring 揭秘》</a> P89）：</p>
 <figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">ResourceLoader resourceLoader = new DefaultResourceLoader();</span><br><span class="line"></span><br><span class="line">Resource fileResource1 = resourceLoader.getResource(<span class="string">"D:/Users/chenming673/Documents/spark.txt"</span>);</span><br><span class="line">System.out.println(<span class="string">"fileResource1 is FileSystemResource:"</span> + (fileResource1 instanceof FileSystemResource));</span><br><span class="line"></span><br><span class="line">Resource fileResource2 = resourceLoader.getResource(<span class="string">"/Users/chenming673/Documents/spark.txt"</span>);</span><br><span class="line">System.out.println(<span class="string">"fileResource2 is ClassPathResource:"</span> + (fileResource2 instanceof ClassPathResource));</span><br><span class="line"></span><br><span class="line">Resource urlResource1 = resourceLoader.getResource(<span class="string">"file:/Users/chenming673/Documents/spark.txt"</span>);</span><br><span class="line">System.out.println(<span class="string">"urlResource1 is UrlResource:"</span> + (urlResource1 instanceof UrlResource));</span><br><span class="line"></span><br><span class="line">Resource urlResource2 = resourceLoader.getResource(<span class="string">"http://www.baidu.com"</span>);</span><br><span class="line">System.out.println(<span class="string">"urlResource1 is urlResource:"</span> + (urlResource2 instanceof  UrlResource));</span><br></pre></td></tr></table></figure>
 <p>运行结果：</p>
@@ -449,7 +522,7 @@
 <h3 id="2-5-4-findAllClassPathResources"><a href="#2-5-4-findAllClassPathResources" class="headerlink" title="2.5.4 findAllClassPathResources"></a>2.5.4 findAllClassPathResources</h3><p>当 <code>locationPattern</code> 以 <code>&quot;classpath*:&quot;</code> 开头但是不包含通配符，则调用 <code>#findAllClassPathResources(...)</code> 方法加载资源。该方法返回 classes 路径下和所有 jar 包中的所有相匹配的资源。</p>
 <figure class="highlight haxe"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">protected Resource[] findAllClassPathResources(<span class="keyword">String</span> location) throws IOException &#123;</span><br><span class="line">	<span class="keyword">String</span> path = location;</span><br><span class="line">	<span class="comment">// 去除首个 /</span></span><br><span class="line">	<span class="keyword">if</span> (path.startsWith(<span class="string">"/"</span>)) &#123;</span><br><span class="line">		path = path.substring(<span class="number">1</span>);</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="comment">// 真正执行加载所有 classpath 资源</span></span><br><span class="line">	Set&lt;Resource&gt; result = doFindAllClassPathResources(path);</span><br><span class="line">	<span class="keyword">if</span> (logger.isTraceEnabled()) &#123;</span><br><span class="line">		logger.<span class="built_in">trace</span>(<span class="string">"Resolved classpath location ["</span> + location + <span class="string">"] to resources "</span> + result);</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="comment">// 转换成 Resource 数组返回</span></span><br><span class="line">	<span class="keyword">return</span> result.toArray(<span class="keyword">new</span> <span class="type">Resource</span>[<span class="number">0</span>]);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>真正执行加载的是在 <code>#doFindAllClassPathResources(...)</code> 方法，代码如下：</p>
-<figure class="highlight lasso"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">protected</span> <span class="built_in">Set</span>&lt;Resource&gt; doFindAllClassPathResources(<span class="built_in">String</span> path) throws IOException &#123;</span><br><span class="line">	<span class="built_in">Set</span>&lt;Resource&gt; result = <span class="literal">new</span> LinkedHashSet&lt;&gt;(<span class="number">16</span>);</span><br><span class="line">	ClassLoader cl = getClassLoader();</span><br><span class="line">	<span class="comment">// &lt;1&gt; 根据 ClassLoader 加载路径下的所有资源</span></span><br><span class="line">	Enumeration&lt;URL&gt; resourceUrls = (cl != <span class="built_in">null</span> ? cl.getResources(path) : ClassLoader.getSystemResources(path));</span><br><span class="line">	<span class="comment">// &lt;2&gt; </span></span><br><span class="line">	<span class="keyword">while</span> (resourceUrls.hasMoreElements()) &#123;</span><br><span class="line">		URL url = resourceUrls.nextElement();</span><br><span class="line">		<span class="comment">// 将 URL 转换成 UrlResource</span></span><br><span class="line">		result.add(convertClassLoaderURL(url));</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="comment">// &lt;3&gt; 加载路径下得所有 jar 包</span></span><br><span class="line">	<span class="keyword">if</span> (<span class="string">""</span>.<span class="keyword">equals</span>(path)) &#123;</span><br><span class="line">		<span class="comment">// The above result is likely to be incomplete, i.e. only containing file system references.</span></span><br><span class="line">		<span class="comment">// We need to have pointers to each of the jar files on the classpath as well...</span></span><br><span class="line">		addAllClassLoaderJarRoots(cl, result);</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> result;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight lasso"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">protected</span> <span class="built_in">Set</span>&lt;Resource&gt; doFindAllClassPathResources(<span class="built_in">String</span> path) throws IOException &#123;</span><br><span class="line">	<span class="built_in">Set</span>&lt;Resource&gt; result = <span class="literal">new</span> LinkedHashSet&lt;&gt;(<span class="number">16</span>);</span><br><span class="line">	ClassLoader cl = getClassLoader();</span><br><span class="line">	<span class="comment">// &lt;1&gt; 根据 ClassLoader 加载路径下的所有资源</span></span><br><span class="line">	Enumeration&lt;URL&gt; resourceUrls = (cl != <span class="built_in">null</span> ? cl.getResources(path) : ClassLoader.getSystemResources(path));</span><br><span class="line">	<span class="comment">// &lt;2&gt;</span></span><br><span class="line">	<span class="keyword">while</span> (resourceUrls.hasMoreElements()) &#123;</span><br><span class="line">		URL url = resourceUrls.nextElement();</span><br><span class="line">		<span class="comment">// 将 URL 转换成 UrlResource</span></span><br><span class="line">		result.add(convertClassLoaderURL(url));</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="comment">// &lt;3&gt; 加载路径下得所有 jar 包</span></span><br><span class="line">	<span class="keyword">if</span> (<span class="string">""</span>.<span class="keyword">equals</span>(path)) &#123;</span><br><span class="line">		<span class="comment">// The above result is likely to be incomplete, i.e. only containing file system references.</span></span><br><span class="line">		<span class="comment">// We need to have pointers to each of the jar files on the classpath as well...</span></span><br><span class="line">		addAllClassLoaderJarRoots(cl, result);</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> result;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <ul>
 <li><p><code>&lt;1&gt;</code> 处，根据 ClassLoader 加载路径下的所有资源。在加载资源过程时，如果在构造 PathMatchingResourcePatternResolver 实例的时候如果传入了 ClassLoader，则调用该 ClassLoader 的 <code>#getResources()</code> 方法，否则调用 <code>ClassLoader#getSystemResources(path)</code>方法。另外，<code>ClassLoader#getResources()</code> 方法，代码如下:</p>
 <figure class="highlight haxe"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// java.lang.ClassLoader.java</span></span><br><span class="line"><span class="keyword">public</span> Enumeration&lt;URL&gt; getResources(<span class="keyword">String</span> name) throws IOException &#123;</span><br><span class="line">    @SuppressWarnings(<span class="string">"unchecked"</span>)</span><br><span class="line">    Enumeration&lt;URL&gt;[] tmp = (Enumeration&lt;URL&gt;[]) <span class="keyword">new</span> <span class="type">Enumeration</span>&lt;?&gt;[<span class="number">2</span>];</span><br><span class="line">    <span class="keyword">if</span> (parent != <span class="literal">null</span>) &#123;</span><br><span class="line">        tmp[<span class="number">0</span>] = parent.getResources(name);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        tmp[<span class="number">0</span>] = getBootstrapResources(name);</span><br><span class="line">    &#125;</span><br><span class="line">    tmp[<span class="number">1</span>] = findResources(name);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> <span class="type">CompoundEnumeration</span>&lt;&gt;(tmp);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
@@ -648,7 +721,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">175</span>
+                  <span class="site-state-item-count">150</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -659,7 +732,7 @@
               
               <div class="site-state-item site-state-categories">
                 <a href="/categories/index.html">
-                  <span class="site-state-item-count">10</span>
+                  <span class="site-state-item-count">28</span>
                   <span class="site-state-item-name">分类</span>
                 </a>
               </div>
@@ -669,10 +742,10 @@
               
               
               <div class="site-state-item site-state-tags">
-                
-                  <span class="site-state-item-count">51</span>
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">43</span>
                   <span class="site-state-item-name">标签</span>
-                
+                </a>
               </div>
             
 
@@ -731,6 +804,15 @@
   </span>
   <span class="author" itemprop="copyrightHolder">周小伍 Joey</span>
 
+  
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-area-chart"></i>
+    </span>
+    
+      <span class="post-meta-item-text">Site words total count&#58;</span>
+    
+    <span title="Site words total count">270.1k</span>
   
 </div>
 
