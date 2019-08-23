@@ -249,319 +249,6 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/04/11/Spark-Pandas-UDFs/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="周小伍 Joey">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/xiaowu_avatar.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="xiaowu's blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2018/04/11/Spark-Pandas-UDFs/" itemprop="url">Spark Pandas UDFs</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-04-11T14:01:39+08:00">
-                2018-04-11
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/大数据/" itemprop="url" rel="index">
-                    <span itemprop="name">大数据</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2018/04/11/Spark-Pandas-UDFs/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count disqus-comment-count"
-                        data-disqus-identifier="2018/04/11/Spark-Pandas-UDFs/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-
-          
-
-          
-            <div class="post-wordcount">
-              
-                
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-file-word-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">字数统计&#58;</span>
-                
-                <span title="字数统计">
-                  1k
-                </span>
-              
-
-              
-                <span class="post-meta-divider">|</span>
-              
-
-              
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-clock-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
-                
-                <span title="阅读时长">
-                  4
-                </span>
-              
-            </div>
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h2 id="配置"><a href="#配置" class="headerlink" title="配置"></a>配置</h2><p>所有运行节点安装 <code>pyarrow</code> ，需要 &gt;= 0.8</p>
-<h2 id="为什么会有-pandas-UDF"><a href="#为什么会有-pandas-UDF" class="headerlink" title="为什么会有 pandas UDF"></a>为什么会有 pandas UDF</h2><p>在过去的几年中，python 正在成为数据分析师的默认语言。一些类似 <code>pandas</code>,<code>numpy</code>,<code>statsmodel</code>,<code>scikit-learn</code> 被大量使用，逐渐成为主流的工具包。同时，spark 也成为了大数据处理的标准，为了让数据分析师能够使用 spark ，Spark在 0.7 版本增加了 python api，也支持了 udf (user-defined functions)。</p>
-<p>这些 udf 对每条记录都会操作一次，同时数据需要在 JVM 和 Python 中传输，因此有了额外的序列化和调用开销。因此很多数据 pipelines 用 Java 和 Scala 中定义 UDF，然后在 python 中调用它们。</p>
-<p><img src="http://oz3qait0p.bkt.clouddn.com/20171114235146435.jpeg" alt="image"></p>
-<p>Pandas Udf 构建在 <code>Apache Arrow</code> 之上，带来了低开销，高性能的UDF。</p>
-<blockquote>
-<p>每个系统都有自己的存储格式，70%-80%的时间花费在序列化和反序列化上</p>
-<p>Apache Arrow</p>
-<ol>
-<li>一个跨平台的数据层，用来加速大数据分析速度。</li>
-<li>在内存中以列式存储。</li>
-</ol>
-</blockquote>
-<p> <img src="http://oz3qait0p.bkt.clouddn.com/192CBE87-DB83-4245-827D-7EFCF4408003.png" alt="img"></p>
-<h2 id="一些限制"><a href="#一些限制" class="headerlink" title="一些限制"></a>一些限制</h2><ol>
-<li>不支持所有的 sparkSQL 数据类型，包括 BinaryType，MapType, ArrayType，TimestampType 和嵌套的 StructType。</li>
-<li>pandas udf 和 udf 不能混用。</li>
-</ol>
-<h2 id="使用方式"><a href="#使用方式" class="headerlink" title="使用方式"></a>使用方式</h2><h3 id="1-spark-df-amp-pandas-df"><a href="#1-spark-df-amp-pandas-df" class="headerlink" title="1. spark df &amp; pandas df"></a>1. spark df &amp; pandas df</h3><p>spark df 与 pandas df 相互转化性能优化，需要开启配置，默认为关闭。</p>
-<p>配置项：</p>
-<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">spark<span class="selector-class">.sql</span><span class="selector-class">.execution</span><span class="selector-class">.arrow</span><span class="selector-class">.enabled</span> true</span><br></pre></td></tr></table></figure>
-<p>相互转化</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"><span class="keyword">import</span> pandas <span class="keyword">as</span> pd</span><br><span class="line"></span><br><span class="line">//初始化 pandas DF</span><br><span class="line">pdf = pd.DataFrame(np.random.rand(<span class="number">100000</span>, <span class="number">3</span>))</span><br><span class="line">// pdf -&gt; sdf</span><br><span class="line">%time df = spark.createDataFrame(pdf)</span><br><span class="line">// sdf -&gt; pdf</span><br><span class="line">%time result_pdf = df.select(<span class="string">"*"</span>).toPandas()</span><br></pre></td></tr></table></figure>
-<p>性能对比：</p>
-<table>
-<thead>
-<tr>
-<th>execution.arrow.enabled</th>
-<th>pdf -&gt; sdf</th>
-<th>sdf -&gt; pdf</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>false</td>
-<td>4980ms</td>
-<td>722ms</td>
-</tr>
-<tr>
-<td>true</td>
-<td>72ms</td>
-<td>79ms</td>
-</tr>
-</tbody>
-</table>
-<p>tips: 即便是提高了转化的速度，pandas df 依旧是单机在 driver 中执行的，不应该返回大量的数据。</p>
-<h3 id="2-pandas-UDFs-Vectorized-UDFs"><a href="#2-pandas-UDFs-Vectorized-UDFs" class="headerlink" title="2. pandas UDFs(Vectorized UDFs)"></a>2. pandas UDFs(Vectorized UDFs)</h3><p>pandas udf 的入参和返回值类型都为 pandas.Series</p>
-<h4 id="注册-udf"><a href="#注册-udf" class="headerlink" title="注册 udf"></a>注册 udf</h4><p>方法1：</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pyspark.sql.functions <span class="keyword">import</span> pandas_udf</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">plus_one</span><span class="params">(a)</span>:</span></span><br><span class="line">    <span class="keyword">return</span> a + <span class="number">1</span></span><br><span class="line"></span><br><span class="line">//df_udf</span><br><span class="line">plus_one_pd_udf = pandas_udf(plus_one, returnType=LongType())</span><br><span class="line">//sql udf</span><br><span class="line">spark.udf.register(<span class="string">'plus_one'</span>,plus_one_pd_udf)</span><br></pre></td></tr></table></figure>
-<p>方法2：</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pyspark.sql.functions <span class="keyword">import</span> pandas_udf</span><br><span class="line"></span><br><span class="line">//默认为 PandasUDFType.SCALAR 类型</span><br><span class="line"><span class="meta">@pandas_udf('long')</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">plus_one</span><span class="params">(a)</span>:</span></span><br><span class="line">    <span class="keyword">return</span> a + <span class="number">1</span></span><br><span class="line"></span><br><span class="line">spark.udf.register(<span class="string">'plus_one'</span>,plus_one)</span><br><span class="line"></span><br><span class="line">spark.udf.register可以接受一个 SQL_BATCHED_UDF 或 SQL_SCALAR_PANDAS_UDF 方法。</span><br></pre></td></tr></table></figure>
-<p>使用 pandas udf 后，物理执行计划会从 <code>BatchEvalPython</code> 变为 <code>ArrowEvalPython</code>，可以使用 <code>explain()</code> 检查 pandas udf 是否生效。</p>
-<h4 id="Scalar-Pandas-UDFs"><a href="#Scalar-Pandas-UDFs" class="headerlink" title="Scalar Pandas UDFs"></a>Scalar Pandas UDFs</h4><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> pandas <span class="keyword">as</span> pd</span><br><span class="line"></span><br><span class="line"><span class="keyword">from</span> pyspark.sql.functions <span class="keyword">import</span> col, pandas_udf,udf</span><br><span class="line"><span class="keyword">from</span> pyspark.sql.types <span class="keyword">import</span> LongType</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">multiply_func</span><span class="params">(a, b)</span>:</span></span><br><span class="line">    <span class="keyword">return</span> a * b</span><br><span class="line"></span><br><span class="line">multiply_pd = pandas_udf(multiply_func, returnType=LongType())</span><br><span class="line"></span><br><span class="line">multiply = udf(multiply_func, returnType=LongType())</span><br><span class="line"></span><br><span class="line">x = pd.Series([<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>] * <span class="number">10000</span>)</span><br><span class="line">df = spark.createDataFrame(pd.DataFrame(x, columns=[<span class="string">"x"</span>]))</span><br><span class="line"></span><br><span class="line">%timeit df.select(multiply_pd(col(<span class="string">"x"</span>), col(<span class="string">"x"</span>))).count()</span><br><span class="line">%timeit df.select(multiply(col(<span class="string">"x"</span>), col(<span class="string">"x"</span>))).count()</span><br></pre></td></tr></table></figure>
-<h4 id="Grouped-Map-Pandas-UDFs"><a href="#Grouped-Map-Pandas-UDFs" class="headerlink" title="Grouped Map Pandas UDFs"></a>Grouped Map Pandas UDFs</h4><p>计算均方差</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pyspark.sql.functions <span class="keyword">import</span> pandas_udf, PandasUDFType</span><br><span class="line"></span><br><span class="line">df = spark.createDataFrame(</span><br><span class="line">    [(<span class="number">1</span>, <span class="number">1.0</span>), (<span class="number">1</span>, <span class="number">2.0</span>), (<span class="number">2</span>, <span class="number">3.0</span>), (<span class="number">2</span>, <span class="number">5.0</span>), (<span class="number">2</span>, <span class="number">10.0</span>)],</span><br><span class="line">    (<span class="string">"id"</span>, <span class="string">"v"</span>))</span><br><span class="line"></span><br><span class="line"><span class="meta">@pandas_udf("id long, v double", PandasUDFType.GROUPED_MAP)</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">substract_mean</span><span class="params">(pdf)</span>:</span></span><br><span class="line">    <span class="comment"># pdf is a pandas.DataFrame</span></span><br><span class="line">    v = pdf.v</span><br><span class="line">    <span class="keyword">return</span> pdf.assign(v=v - v.mean())</span><br><span class="line"></span><br><span class="line">df.groupby(<span class="string">"id"</span>).apply(substract_mean).show()</span><br><span class="line"></span><br><span class="line">+---+----+</span><br><span class="line">| id|   v|</span><br><span class="line">+---+----+</span><br><span class="line">|  <span class="number">1</span>|<span class="number">-0.5</span>|</span><br><span class="line">|  <span class="number">1</span>| <span class="number">0.5</span>|</span><br><span class="line">|  <span class="number">2</span>|<span class="number">-3.0</span>|</span><br><span class="line">|  <span class="number">2</span>|<span class="number">-1.0</span>|</span><br><span class="line">|  <span class="number">2</span>| <span class="number">4.0</span>|</span><br><span class="line">+---+----+</span><br></pre></td></tr></table></figure>
-<h3 id="测试用例"><a href="#测试用例" class="headerlink" title="测试用例"></a>测试用例</h3><p>数据准备： 10M-row DataFrame , 2列，一列Int类型，一列Double类型</p>
-<figure class="highlight vim"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">df = spark.<span class="built_in">range</span>(<span class="number">0</span>, <span class="number">10</span> * <span class="number">1000</span> * <span class="number">1000</span>).withColumn(<span class="string">'id'</span>, (<span class="keyword">col</span>(<span class="string">'id'</span>) / <span class="number">10000</span>).cast(<span class="string">'integer'</span>)).withColumn(<span class="string">'v'</span>, rand())</span><br><span class="line">df.cache()</span><br><span class="line">df.<span class="built_in">count</span>()</span><br></pre></td></tr></table></figure>
-<h4 id="Plus-one"><a href="#Plus-one" class="headerlink" title="Plus one"></a>Plus one</h4><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pyspark.sql.functions <span class="keyword">import</span> pandas_udf, PandasUDFType</span><br><span class="line"></span><br><span class="line"><span class="comment"># 输入和输出都是 doubles 类型的 pandas.Series</span></span><br><span class="line"><span class="meta">@pandas_udf('double', PandasUDFType.SCALAR)</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">pandas_plus_one</span><span class="params">(v)</span>:</span></span><br><span class="line">    <span class="keyword">return</span> v + <span class="number">1</span></span><br><span class="line"></span><br><span class="line">df.withColumn(<span class="string">'v2'</span>, pandas_plus_one(df.v))</span><br></pre></td></tr></table></figure>
-<h3 id="Cumulative-Probability"><a href="#Cumulative-Probability" class="headerlink" title="Cumulative Probability"></a>Cumulative Probability</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="keyword">import</span> pandas <span class="keyword">as</span> pd</span><br><span class="line"><span class="keyword">from</span> scipy <span class="keyword">import</span> stats</span><br><span class="line"></span><br><span class="line"><span class="meta">@pandas_udf('double')</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">cdf</span><span class="params">(v)</span>:</span></span><br><span class="line">    <span class="keyword">return</span> pd.Series(stats.norm.cdf(v))</span><br><span class="line"></span><br><span class="line">df.withColumn(<span class="string">'cumulative_probability'</span>, cdf(df.v))</span><br></pre></td></tr></table></figure>
-<p>Subtract Mean<br><figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 输入和输出类型都是 pandas.DataFrame</span></span><br><span class="line">@pandas_udf(df.schema, PandasUDFType.GROUPED_MAP)</span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">subtract_mean</span><span class="params">(pdf)</span></span><span class="symbol">:</span></span><br><span class="line">    <span class="keyword">return</span> pdf.assign(v=pdf.v - pdf.v.mean())</span><br><span class="line"></span><br><span class="line">df.groupby(<span class="string">'id'</span>).apply(subtract_mean)</span><br></pre></td></tr></table></figure></p>
-<h3 id="Scalar-和-Grouped-map-的一些区别"><a href="#Scalar-和-Grouped-map-的一些区别" class="headerlink" title="Scalar 和 Grouped map 的一些区别"></a>Scalar 和 Grouped map 的一些区别</h3><table>
-<thead>
-<tr>
-<th>…</th>
-<th>Scalar</th>
-<th>Grouped map</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>udf 入参类型</td>
-<td>pandas.Series</td>
-<td>pandas.DataFrame</td>
-</tr>
-<tr>
-<td>udf 返回类型</td>
-<td>pandas.Series</td>
-<td>pandas.DataFrame</td>
-</tr>
-<tr>
-<td>聚合语义</td>
-<td>无</td>
-<td>groupby 的子句</td>
-</tr>
-<tr>
-<td>返回大小</td>
-<td>与输入一致</td>
-<td>rows 和 columns 都可以和入参不同</td>
-</tr>
-<tr>
-<td>返回类型声明</td>
-<td>pandas.Series 的 DataType</td>
-<td>pandas.DataFrame 的 StructType</td>
-</tr>
-</tbody>
-</table>
-<h3 id="性能对比"><a href="#性能对比" class="headerlink" title="性能对比"></a>性能对比</h3><table>
-<thead>
-<tr>
-<th>类型</th>
-<th>udf</th>
-<th>pandas udf</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>plus_one</td>
-<td>2.54s</td>
-<td>1.28s</td>
-</tr>
-<tr>
-<td>cdf</td>
-<td>2min 2s</td>
-<td>1.52s</td>
-</tr>
-<tr>
-<td>Subtract Mean</td>
-<td>1min 8s</td>
-<td>4.4s</td>
-</tr>
-</tbody>
-</table>
-<h3 id="配置和测试方法"><a href="#配置和测试方法" class="headerlink" title="配置和测试方法"></a>配置和测试方法</h3><h4 id="环境"><a href="#环境" class="headerlink" title="环境"></a>环境</h4><ul>
-<li>Spark 2.3</li>
-<li>Anaconda 4.4.0 (python 2.7.13)</li>
-<li>运行模式 local[10]</li>
-</ul>
-<h3 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h3><p><a href="http://spark.apache.org/docs/latest/sql-programming-guide.html#grouped-map" target="_blank" rel="external">http://spark.apache.org/docs/latest/sql-programming-guide.html#grouped-map</a></p>
-<p><a href="https://databricks.com/blog/2017/10/30/introducing-vectorized-udfs-for-pyspark.html" target="_blank" rel="external">https://databricks.com/blog/2017/10/30/introducing-vectorized-udfs-for-pyspark.html</a></p>
-<p><a href="https://www.slideshare.net/PyData/improving-pandas-and-pyspark-performance-and-interoperability-with-apache-arrow" target="_blank" rel="external">https://www.slideshare.net/PyData/improving-pandas-and-pyspark-performance-and-interoperability-with-apache-arrow</a></p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/04/09/Grafana-mysql体验/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -2010,239 +1697,6 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/03/24/hadoop-spark-hdfs-Hbase-hive/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="周小伍 Joey">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/xiaowu_avatar.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="xiaowu's blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2018/03/24/hadoop-spark-hdfs-Hbase-hive/" itemprop="url">hadoop spark hdfs Hbase hive </a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-03-24T21:25:41+08:00">
-                2018-03-24
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/大数据/" itemprop="url" rel="index">
-                    <span itemprop="name">大数据</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2018/03/24/hadoop-spark-hdfs-Hbase-hive/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count disqus-comment-count"
-                        data-disqus-identifier="2018/03/24/hadoop-spark-hdfs-Hbase-hive/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-
-          
-
-          
-            <div class="post-wordcount">
-              
-                
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-file-word-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">字数统计&#58;</span>
-                
-                <span title="字数统计">
-                  1.8k
-                </span>
-              
-
-              
-                <span class="post-meta-divider">|</span>
-              
-
-              
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-clock-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
-                
-                <span title="阅读时长">
-                  6
-                </span>
-              
-            </div>
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>这些都是“大数据”相关的概念，即和<strong>关系型数据库</strong>，相比较而产生的新技术。即j2ee的web开发中，<strong>数据库</strong>部分（如传统的关系型数据库的oracle），的内容</p>
-<p>1Hbase：是一个nosql数据库，和mongodb类似。</p>
-<p>2hdfs：hadoop distribut file system，hadoop的分布式文件系统。</p>
-<p>3Hive：</p>
-<p><img src="http://img.blog.csdn.net/20161204152637354?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQv/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center" alt="img"></p>
-<p>5spark</p>
-<p>6hadoop</p>
-<p>7sqoop</p>
-<p>sqoop是和Hive一起使用的。</p>
-<p>Sqoop(发音：skup)是一款开源的工具，主要用于在Hadoop(Hive)与传统的数据库(mysql、postgresql…)间进行数据的传递，可以将一个关系型数据库（例如 ： MySQL ,Oracle ,Postgres等）中的数据导进到Hadoop的HDFS中，也可以将HDFS的数据导进到关系型数据库中。</p>
-<h1 id="Hive："><a href="#Hive：" class="headerlink" title="Hive："></a><a href="http://lib.csdn.net/base/hive" target="_blank" rel="external">Hive</a>：</h1><p>Hive不支持更改数据的操作，Hive基于数据仓库，提供静态数据的动态查询。其使用类SQL语言，底层经过编译转为MapReduce程序，在<a href="http://lib.csdn.net/base/hadoop" target="_blank" rel="external">Hadoop</a>上运行，数据存储在HDFS上。</p>
-<p>不想用程序语言开发MapReduce的朋友比如DB们，熟悉SQL的朋友可以使用Hive开离线的进行数据处理与分析工作。</p>
-<p>注意Hive现在适合在离线下进行数据的操作，就是说不适合在挂在真实的生产环境中进行实时的在线查询或操作，因为一个字“慢”。相反</p>
-<p>起源于FaceBook,Hive在Hadoop中扮演数据仓库的角色。建立在Hadoop集群的最顶层，对存储在Hadoop群上的数据提供类SQL的接口进行操作。你可以用 HiveQL进行select,join,等等操作。</p>
-<p>如果你有数据仓库的需求并且你擅长写SQL并且不想写MapReduce jobs就可以用Hive代替。</p>
-<p>用来处理结构化（关系型数据库中的数据，如oracle）或者非结构化数据（如10G的txt文本中的数据）。</p>
-<p>hive是基于Hadoop的一个<a href="http://baike.baidu.com/view/19711.htm" target="_blank" rel="external">数据仓库</a>工具，可以将结构化的数据文件（或者非结构化的数据）映射为一张数据库表，并<strong>提供简单的sql查询</strong>功能，可以将<strong>sql语句转换为MapReduce任务</strong>进行运行。 其优点是学习成本低，可以通过类SQL语句快速实现简单的MapReduce统计，<strong>不必开发专门的MapReduce应用</strong>，十分适合<a href="http://baike.baidu.com/view/19711.htm" target="_blank" rel="external">数据仓库</a>的统计分析。</p>
-<p><strong>使用Hive，就不用去写MapReduce，而是写sql语句就行了。</strong></p>
-<h1 id="HDFS"><a href="#HDFS" class="headerlink" title="HDFS"></a>HDFS</h1><p>hadoop distribut file system，hadoop的分布式文件系统。</p>
-<p>HDFS是GFS的一种实现，他的完整名字是分布式文件系统，类似于FAT32，NTFS，是一种文件格式，是底层的。</p>
-<p>Hive与<a href="http://lib.csdn.net/base/hbase" target="_blank" rel="external">Hbase</a>的数据一般都存储在HDFS上。Hadoop HDFS为他们提供了高可靠性的底层存储支持。</p>
-<h1 id="Hbase"><a href="#Hbase" class="headerlink" title="Hbase:"></a>Hbase:</h1><p>是一个nosql数据库，和mongodb类似。</p>
-<p>Hbase是Hadoop database，即Hadoop<a href="http://lib.csdn.net/base/mysql" target="_blank" rel="external">数据库</a>。它是一个适合于非结构化数据存储的数据库，HBase基于列的而不是基于行的模式。</p>
-<p>HBase是Google Bigtable的开源实现，类似Google Bigtable利用GFS作为其文件存储系统，HBase利用Hadoop HDFS作为其文件存储系统；Google运行MapReduce来处理Bigtable中的海量数据，HBase同样利用Hadoop MapReduce来处理HBase中的海量数据。</p>
-<p>Hadoop HDFS为HBase提供了高可靠性的底层存储支持，Hadoop MapReduce为HBase提供了高性能的计算能力，Zookeeper为HBase提供了稳定服务和failover机制。Pig和Hive还为HBase提供了高层语言支持，使得在HBase上进行数据统计处理变的非常简单。 Sqoop则为HBase提供了方便的RDBMS（关系型数据库）数据导入功能，使得<a href="http://baike.baidu.com/view/1437981.htm" target="_blank" rel="external">传统数据库</a>数据向HBase中迁移变的非常方便。</p>
-<p>HBase作为面向列的数据库运行在HDFS之上，HDFS缺乏随即读写操作，HBase正是为此而出现。HBase以Google BigTable为蓝本，以键值对的形式存储。项目的目标就是快速在主机内数十亿行数据中定位所需的数据并访问它。</p>
-<p>HBase是一个数据库，一个NoSql的数据库，像其他数据库一样提供随即读写功能，Hadoop不能满足实时需要，HBase正可以满足。如果你需要实时访问一些数据，就把它存入HBase。</p>
-<p>你可以用Hadoop作为静态数据仓库，HBase作为数据存储，放那些进行一些操作会改变的数据。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hbase与hive都是架构在hadoop之上的。都是用hadoop作为底层存储。而hbase是作为分布式数据库，而hive是作为分布式数据仓库。当然hive还是借用hadoop的MapReduce来完成一些hive中的命令的执行。</span><br></pre></td></tr></table></figure>
-<ol>
-<li>什么场景下应用Hbase?</li>
-</ol>
-<ul>
-<li>成熟的数据分析主题，查询模式已经确立，并且不会轻易改变。</li>
-<li>传统的关系型数据库已经无法承受负荷，高速插入，大量读取。</li>
-<li>适合海量的，但同时也是简单的操作(例如：key-value)。</li>
-</ul>
-<p>官方解释：</p>
-<p>Use Apache HBase™ when you need random, realtime read/write access to your Big Data. This project’s goal is the hosting of very large tables – billions of rows X millions of columns – atop clusters of commodity hardware. Apache HBase is an open-source, distributed, versioned, non-relational database modeled after Google’s <a href="http://research.google.com/archive/bigtable.html" target="_blank" rel="external">Bigtable: A Distributed Storage System for Structured Data</a> by Chang et al. Just as Bigtable leverages the distributed data storage provided by the Google File System, Apache HBase provides Bigtable-like capabilities on top of Hadoop and HDFS.</p>
-<h1 id="Pig："><a href="#Pig：" class="headerlink" title="Pig："></a>Pig：</h1><p>Pig的语言层包括一个叫做<strong>PigLatin</strong>的<strong>文本语言</strong>,Pig Latin是面向<strong>数据流</strong>的编程方式。Pig和Hive类似更侧重于数据的查询和分析，底层都是转化成MapReduce程序运行。</p>
-<p>区别是Hive是类SQL的查询语言，要求数据存储于表中，而Pig是面向数据流的一个程序语言。</p>
-<h1 id="Sqoop"><a href="#Sqoop" class="headerlink" title="Sqoop"></a>Sqoop</h1><p>Sqoop则为HBase提供了方便的RDBMS数据导入功能，使得传统数据库数据向HBase中迁移变的非常方便。</p>
-<p>#Pig VS Hive</p>
-<p>Hive更适合于数据仓库的任务，Hive主要用于静态的结构以及需要经常分析的工作。Hive与SQL相似促使 其成为Hadoop与其他BI工具结合的理想交集。</p>
-<p>Pig赋予开发人员在大数据集领域更多的灵活性，并允许开发简洁的脚本用于转换数据流以便嵌入到较大的 应用程序。</p>
-<p>Pig相比Hive相对轻量，它主要的优势是相比于直接使用Hadoop Java APIs可大幅削减代码量。正因为如此，Pig仍然是吸引大量的软件开发人员。</p>
-<p>Hive和Pig都可以与HBase组合使用，Hive和Pig还为HBase提供了高层语言支持，使得在HBase上进行数据统计处理变的非常简单</p>
-<h1 id="Hive-VS-HBase"><a href="#Hive-VS-HBase" class="headerlink" title="Hive VS HBase"></a>Hive VS HBase</h1><p>Hive是建立在Hadoop之上为了减少MapReduce jobs编写工作的批处理系统，HBase是为了支持弥补Hadoop对实时操作的缺陷的项目 。</p>
-<p>想象你在操作RMDB数据库，如果是全表扫描，就用Hive+Hadoop,如果是索引访问，就用HBase+Hadoop 。</p>
-<p>Hive query就是MapReduce jobs可以从5分钟到数小时不止，HBase是非常高效的，肯定比Hive高效的多</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/03/23/java工程师成神之路/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -2974,6 +2428,595 @@
 
 
     
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/03/08/java范型通配符/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="周小伍 Joey">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/xiaowu_avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="xiaowu's blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/03/08/java范型通配符/" itemprop="url">java范型使用小结</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-03-08T16:33:00+08:00">
+                2018-03-08
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/java基础/" itemprop="url" rel="index">
+                    <span itemprop="name">java基础</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2018/03/08/java范型通配符/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2018/03/08/java范型通配符/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  3.6k
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  14
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="范型通配符"><a href="#范型通配符" class="headerlink" title="范型通配符"></a>范型通配符</h1><ol>
+<li>&lt;? extends Hero&gt;</li>
+</ol>
+<p>ArrayList heroList&lt;? extends Hero&gt; 表示<br>只能放子类<br>所以 可以确凿的是，从heroList取出来的对象，一定是可以转型成Hero的</p>
+<ol>
+<li>&lt;? super Hero&gt;</li>
+</ol>
+<p>ArrayList heroList&lt;? super Hero&gt; 表示<br>heroList的泛型可能是Hero<br>heroList的泛型可能是Object<br>可以往里面插入Hero以及Hero的子类<br>但是取出来有风险，因为不确定取出来是Hero还是Object</p>
+<ol>
+<li>泛型通配符?</li>
+</ol>
+<p>泛型通配符? 代表任意泛型<br>既然?代表任意泛型，那么换句话说，这个容器什么泛型都有可能<br>所以只能以Object的形式取出来<br>并且不能往里面放对象，因为不知道到底是一个什么泛型的容器</p>
+<p>一、泛型由来<br>Java语言类型包括八种基本类型(byte short int long float double boolean char)和复杂类型，复杂类型包括类和数组。<br>早期Java版本（1.4之前）如果要代指某个泛化类对象，只能使用Object，这样写出来的代码需要增加强转，而且缺少类型检查，代码缺少健壮性。在1.5之后，Java引入了泛型(Generic)的概念，提供了一套抽象的类型表示方法。利用泛型，我们可以：<br>1、表示多个可变类型之间的相互关系：HashMap<t,s>表示类型T与S的映射，HashMap<t, s="" extends="" t="">表示T的子类与T的映射关系</t,></t,s></p>
+<p>2、细化类的能力：ArrayList<t> 可以容纳任何指定类型T的数据，当T代指人，则是人的有序列表，当T代指杯子，则是杯子的有序列表，所有对象个体可以共用相同的操作行为</t></p>
+<p>3、复杂类型被细分成更多类型：List<people>和List<cup>是两种不同的类型，这意味着List<people> listP = new ArrayList<cup>()是不可编译的。后面会提到，这种检查基于编译而非运行，所以说是不可编译并非不可运行，因为运行时ArrayList不保留Cup信息。另外要注意，即使People继承自Object，List<object> listO = new ArrayList<people>()也是不可编译的，应理解为两种不同类型。因为listO可以容纳任意类型，而实例化的People列表只能接收People实例，这会破坏数据类型完整性。</people></object></cup></people></cup></people></p>
+<p>4、简化代码实现：假设有一个执行过程，对不同类型的数据，进行某些流程一致的处理，不引入泛型的实现方法为：<br>[java] view plain copy<br>public void addToArray(Integer data, Integer array[], int pos) {<br>    array[pos] = data;<br>}<br>public void addToArray(Long data, Long array[], int pos) {<br>    array[pos] = data;<br>}<br>这是一种典型的多态行为——重载，但是不够简化。引入泛型的写法更优雅：<br>[java] view plain copy<br>public <t> void addToArray(T data, T array[], int pos) {<br>    array[pos] = data;<br>}</t></p>
+<p>二、泛型定义与使用（泛型类和泛型方法）<br>1、泛型参数的命名风格：<br>1）尽量用简便的命名来命名泛型，若类型无特定意义，尽量使用一个字符<br>2）尽量使用全大写来命名泛型形参，以此与其他类型区分开<br>3）单字母的泛型建议用T命名，如果有多个泛型，可以取T周围的大写字母，注意，如果泛型本身有意义，可以不遵守这一条，比如缓存管理CacheManager<param, data="">，该类负责管理缓存查询条件与数据的映射，用单字母就不太合适，使用多字母更好<br>4）对于泛型函数或者泛型内部类在某个泛型类中出现的情况，建议泛型函数和内部类的泛型形参名称与外层类的泛型名称保持不同，否则容易引起混淆。类似这种：<br>[java] view plain copy<br>public class GenericClass<t> {<br>     public <t> void testGenericMethod(T t) {<br>     }<br>}</t></t></param,></p>
+<p>其实testGenericMethod方法的形参与外面GenericClass的形参完全没有关系。换句话说，泛型方法的泛型是优先使用方法泛型定义的。这种更应该写成：<br>[java] view plain copy<br>public class GenericClass<t> {<br>     public <s> void testGenericMethod(S s) {<br>     }<br>}</s></t></p>
+<p>2、泛型存在两种用法：泛型类和泛型方法</p>
+<p>1）泛型类<br>定义泛型类时，在类名后加&lt;&gt;，尖括号内可以定义一个或多个泛型参数，并指定泛型参数的取值范围，多个参数用逗号(,)分割<br>泛型类中定义的泛型全类可用（静态方法、静态代码块、静态成员变量除外）<br>父类定义的泛型参数子类无法继承，所以子类得自己写<br>[java] view plain copy<br>public class GenericClass<t extends="" aclass=""> {<br>    T data;<br>    void setData(T t) {<br>        data = t;<br>    }<br>    T getData() {<br>        return data;<br>    }<br>}</t></p>
+<p>2）泛型方法<br>定义泛型方法，在方法修饰符后，返回参数前加上&lt;&gt;，尖括号内可以定义一个或多个泛型参数，并指定泛型参数取值范围，多个参数用逗号(,)分割<br>泛型方法中定义的泛型作用域在方法内<br>[java] view plain copy<br>public class GenericMethodClass {<br>    public <t extends="" aclass,="" s="" t=""> T setData(T t, S s) {<br>        //do something<br>        return t;<br>    }<br>}</t></p>
+<p>定义泛型方法，更多是为了表达返回值和方法形参间的关系，本例中方法第一个参数T继承AClass，第二个参数S继承T，返回值是第一个参数。<br>如果仅仅是为了实现了多态，应优先使用通配符。类似如下：<br>[java] view plain copy<br>public void addList(List&lt;?&gt; list) {<br>    //todo<br>}</p>
+<p>3、定义了多个泛型类型参数时，一定要在使用时都指定类型，否则会编译出错。</p>
+<p>4、对泛型类的类型参数赋值包含两种方法：<br>1）类变量或实例化：<br>List<string> listS;<br>listS = new ArrayList<string>();</string></string></p>
+<p>2）继承<br>public class MyList<s> extends ArrayList<s> implements IMyInterface<s> {<br>}<br>S是对ArrayList内部定义的泛型E的赋值。</s></s></s></p>
+<p>5、对泛型方法的赋值：<br>[java] view plain copy<br>public <t> T testMethod1(T t, List<t> list) {<br>}</t></t></p>
+<p>public <t> T testMethod2(List<t> list1, List<t> list2){<br>}</t></t></t></p>
+<p>People n = null;</p>
+<p>List<people> list1 = null;<br>testMethod1(n, list1);//此时泛型参数T为People</people></p>
+<p>List<integer> list2 = null;<br>testMethod2(list1, list2);//编译报错</integer></p>
+<p>三、通配符<br>1）上述泛型赋值都是赋予泛型参数确定值，我们还可以赋予泛型参数不确定值，也就是通配符?。使用通配符?表示一个未知的类型。类似如下：<br>List&lt;?&gt; list;存放任意的对象<br>List&lt;? extends AClass&gt; listSubAClass; //存放AClass的子类<br>List&lt;? extends BClass&gt; listSuperBClass; //存放BClass的父类</p>
+<p>2）通配符通常与泛型关键字一起使用。</p>
+<p>3）在Java集合框架中，对于未知类型的容器类，只能读取其中元素，不能添加元素。这是因为，对不确定的参数类型，编译器无法识别添加元素的类型和容器的类型是否兼容，唯一的例外是NULL。同时，其读取的元素只能用Object来存储。</p>
+<p>4）通配符不能用在泛型类和泛型方法声明中，类似如下：<br>[java] view plain copy<br>public class GenericClass&lt;?&gt; { //编译错误<br>  public &lt;?&gt; void testGenericMethod(? t) { //编译错误<br>  }<br>}</p>
+<p>四、泛型关键字<br>1、泛型关键字有二个 extends和super，分别表示类型上界和类型下界<br>T extends AClass 表示T继承自AClass类<br>? super AClass 表示?是AClass的父类，注意：super只能与通配符?搭配使用，我们不能写：<br>public class GenericClass<t super="" aclass=""> { //错误<br>}<br>此例子中super换成extends是正确的，表示泛型T继承自AClass，T换成通配符?也是可以的，表示未知类型的下界是AClass。</t></p>
+<p>2、通配符与泛型关键字组合使用</p>
+<p>举两个例子：<br>下界：<br>[java] view plain copy<br>List&lt;? super People&gt; list = new ArrayList&lt;&gt;();<br>People people = new People();<br>list.add(people);<br>People data= list.get(0 ); //编译出错，报错Object不能转为People</p>
+<p>上界：<br>[java] view plain copy<br>List&lt;? extends People&gt; list = new ArrayList&lt;&gt;();<br>People people = new People();<br>list.add(people);// 编译出错，不能向容器中添加确定的元素<br>People data= list.get( 0);</p>
+<p>总结就是：上界添加(add)受限，下界查询(get)受限</p>
+<p>五、泛型实现原理<br>1、Java泛型是编译时技术，在运行时不包含类型信息，仅其实例中包含类型参数的定义信息。<br>2、Java利用编译器擦除（erasure，前端处理）实现泛型，基本上就是泛型版本源码到非泛型版本源码的转化。<br>3、擦除去掉了所有的泛型类内所有的泛型类型信息，所有在尖括号之间的类型信息都被扔掉.<br>举例来说：List<string>类型被转换为List，所有对类型变量String的引用被替换成类型变量的上限(通常是Object)。<br>而且，无论何时结果代码类型不正确，会插入一个到合适类型的转换。<br>[java] view plain copy</string></p>
+<p><t> T badCast(T t, Object o) {<br>return (T) o; // unchecked warning<br>}<br>这说明String类型参数在List运行时并不存在。它们也就不会添加任何的时间或者空间上的负担。但同时，这也意味着你不能依靠他们进行类型转换。</t></p>
+<p>4、一个泛型类被其所有调用共享<br>对于上文中的GenericClass，在编译后其内部是不存入泛型信息的，也就是说：<br>[java] view plain copy<br>GenericClass<aclass> gclassA = new GenericClass<aclass>();<br>GenericClass<bclass> gclassB = new GenericClass<bclass>();<br>gClassA.getClass() == gClassB.getClass()<br>这个判断返回的值是true，而非false，因为一个泛型类所有实例运行时具有相同的运行时类，其实际类型参数被擦除了。</bclass></bclass></aclass></aclass></p>
+<p>那么是不是GenericClass里完全不存AClass的信息呢？这个也不是，它内部存储的是泛型向上父类的引用，比如：<br>GenericClass<aclass extends="" charsequence="">, 其编译后内部存储的泛型替代是Charsequence，而不是Object。</aclass></p>
+<p>那么我们编码时的泛型的类型判断是怎么实现的呢？<br>其实这个过程是编译时检查的，也就是说限制gClassA.add(new BClass()) 这样的使用的方式的主体，不是运行时代码，而是编译时监测。</p>
+<p>泛型的意义就在于，对所有其支持的类型参数，有相同的行为，从而可以被当作不同类型使用；类的静态变量和方法在所有实例间共享使用，所以不能使用泛型。</p>
+<p>5、泛型与instanceof<br>泛型擦除了类型信息，所以使用instanceof检查某个实例是否是特定类型的泛型类是不可行的：<br>GenericClass genericClass = new GenericClass<string>();<br>if (genericClass instanceof GenericClass<string>) {} // 编译错误</string></string></p>
+<p>同时：<br>GenericClass<string> class1 = (GenericClass<string>) genericClass； //会报警告</string></string></p>
+<p>六、Class与泛型（摘自网络）<br>从Java1.5后Class类就改为了泛型实现，Class类内定义的泛型T指的是Class对象代表的类型。比如说String.class类型代表Class<string>，People.class类型代表Class<people>。<br>主要用于提高反射代码的类型安全。</people></string></p>
+<p>Class类的newInstance返回泛型T的对象，故而可以在反射时创建更精确的类型。<br>举例来说：假定你要写一个工具方法来进行一个数据库查询，给定一个SQL语句，并返回一个数据库中符合查询条件<br>的对象集合(collection)。<br>一个方法是显式的传递一个工厂对象，像下面的代码：<br>[java] view plain copy<br>interface Factory<t> {<br>    public T[] make();<br>}<br>public <t> Collection<t> select(Factory<t> factory, String statement) {<br>     Collection<t> result = new ArrayList<t>();<br>     /<em> run sql query using jdbc </em>/<br>     for ( int i=0; i&lt;10; i++ ) { /<em> iterate over jdbc results </em>/<br>         T item = factory.make();<br>         /<em> use reflection and set all of item’s fields from sql results </em>/<br>         result.add( item );<br>      }<br>      return result;<br>}</t></t></t></t></t></t></p>
+<p>你可以这样调用：<br>[java] view plain copy<br>select(new Factory<empinfo>() {<br>      public EmpInfo make() {<br>          return new EmpInfo();<br>      }<br>  } , ”selection string”);<br>也可以声明一个类 EmpInfoFactory 来支持接口 Factory：<br>[java] view plain copy<br>class EmpInfoFactory implements Factory<empinfo> {<br>      …<br>      public EmpInfo make() {<br>            return new EmpInfo();<br>      }<br>}<br>然后调用：<br>[java] view plain copy<br>select(getMyEmpInfoFactory(), “selection string”);</empinfo></empinfo></p>
+<p>这个解决方案的缺点是它需要下面的二者之一：<br>调用处那冗长的匿名工厂类，或为每个要使用的类型声明一个工厂类并传递其对象给调用的地方<br>这很不自然。<br>使用class类型参数值是非常自然的，它可以被反射使用。没有泛型的代码可能是：<br>[java] view plain copy<br>Collection emps = sqlUtility.select(EmpInfo.class, ”select <em> from emps”);<br>…<br>public static Collection select(Class c, String sqlStatement) {<br>          Collection result = new ArrayList();<br>          /</em> run sql query using jdbc <em>/<br>          for ( /</em> iterate over jdbc results <em>/ ) {<br>                Object item = c.newInstance();<br>                /</em> use reflection and set all of item’s fields from sql results */<br>                result.add(item);<br>          }<br>          return result;<br>   }<br>}</p>
+<p>但是这不能给我们返回一个我们要的精确类型的集合。现在Class是泛型的，我们可以写：<br>[java] view plain copy<br>Collection<empinfo> emps=sqlUtility.select(EmpInfo.class, ”select <em> from emps”);<br>…<br>public static <t> Collection<t> select(Class<t>c, String sqlStatement) {<br>     Collection<t> result = new ArrayList<t>();<br>     /</t></t></t></t></t></em> run sql query using jdbc <em>/<br>     for ( /</em> iterate over jdbc results <em>/ ) {<br>         T item = c.newInstance();<br>         /</em> use reflection and set all of item’s fields from sql results */<br>         result.add(item);<br>     }<br>     return result;<br>}</empinfo></p>
+<p>籍此以类型安全的方式获取我们需要的集合。<br>这项技术是一个非常有用的技巧，在处理注释(annotations)的新API中被广泛使用。</p>
+<p>七、容器与泛型<br>Java泛型的最深入人心的应用就是容器（Collections）了。容器不需要考虑它要装什么东西，它的职责就是表达它装的东西的集合所具有的功能。因此是天然的泛型支持者。<br>在没有泛型时，如果要封装一个列表，简化应该是这样的：<br>[java] view plain copy<br>public class ArrayList {<br>    Object[] array = new Object[10];<br>    int i = 0;<br>    public void add(Object object) {<br>          array[i++] = object;<br>    }</p>
+<pre><code>public Object get(int index) {
+      return array[index];
+}
+</code></pre><p>}</p>
+<p>这意味着我们把元素存进去，取出来还要强转，类型安全无法保证（存入一个Integer再存一个Long，转出时强转成Integer就崩溃了）。用泛型可以在编译时保证不能存入非泛型支持的数据，保证类型安全。<br>按照我们之前说的，ArrayList内不存储泛型信息，而是存储泛型的最近父类，对ArrayList<t>而言就是Object，所以其内部代码是：<br>[java] view plain copy<br>public class ArrayList<t> {<br>    Object[] array = new Object[10];<br>    int i = 0;<br>    public void add(T object) {<br>          array[i++] = object;<br>    }</t></t></p>
+<pre><code>public T get(int index) {
+      return (T)array[index];
+}
+</code></pre><p>}</p>
+<p>保证我们加进去和取出来的数据都是经过类型检查的。</p>
+<p>八、总结<br>1、泛型是Java为类型安全而做的一个优化，它在内部保证了数据类型一致性，细化了可变参数的类型，且能更好的表示类型间的相关性。<br>2、泛型是编译时技术，其起作用的时机是编译时，完善的编译器会报告错误的泛型使用，保证代码不能编译通过。<br>3、平常写代码时，要认真思考是否有使用泛型的必要。通常来讲，如果方法或类描述的是数据类型无关的逻辑，且其数据类型可变时，则应该使用泛型。</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/03/07/influxdb用法/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="周小伍 Joey">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/xiaowu_avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="xiaowu's blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/03/07/influxdb用法/" itemprop="url">influxdb用法</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-03-07T15:57:59+08:00">
+                2018-03-07
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/数据库/" itemprop="url" rel="index">
+                    <span itemprop="name">数据库</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2018/03/07/influxdb用法/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2018/03/07/influxdb用法/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  1.6k
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  6
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><hr>
+<p>influxdb是目前比较流行的时间序列数据库。</p>
+<ul>
+<li>何谓时间序列数据库？<br>什么是时间序列数据库，最简单的定义就是数据格式里包含Timestamp字段的数据，比如某一时间环境的温度，CPU的使用率等。但是，有什么数据不包含Timestamp呢？几乎所有的数据其实都可以打上一个Timestamp字段。时间序列数据的更重要的一个属性是如何去查询它，包括数据的过滤，计算等等。</li>
+</ul>
+<h4 id="Influxdb"><a href="#Influxdb" class="headerlink" title="Influxdb"></a>Influxdb</h4><p>Influxdb是一个开源的分布式时序、时间和指标数据库，使用go语言编写，无需外部依赖。<br>它有三大特性：</p>
+<ol>
+<li>时序性（Time Series）：与时间相关的函数的灵活使用（诸如最大、最小、求和等）；</li>
+<li>度量（Metrics）：对实时大量数据进行计算；</li>
+<li>事件（Event）：支持任意的事件数据，换句话说，任意事件的数据我们都可以做操作。</li>
+</ol>
+<p>同时，它有以下几大特点：</p>
+<ul>
+<li>schemaless(无结构)，可以是任意数量的列；</li>
+<li>min, max, sum, count, mean, median 一系列函数，方便统计；</li>
+<li>Native HTTP API, 内置http支持，使用http读写；</li>
+<li>Powerful Query Language 类似sql；</li>
+<li>Built-in Explorer 自带管理工具。</li>
+</ul>
+<h3 id="Influxdb安装"><a href="#Influxdb安装" class="headerlink" title="Influxdb安装"></a>Influxdb安装</h3><hr>
+<blockquote>
+<p>注：本文使用的influxdb version是1.0.2</p>
+</blockquote>
+<p>在讲解具体的安装步骤之前，先说说influxdb的两个http端口：8083和8086</p>
+<ul>
+<li>port 8083：管理页面端口，访问localhost:8083可以进入你本机的influxdb管理页面；</li>
+<li>port 8086：http连接influxdb client端口，一般使用该端口往本机的influxdb读写数据。</li>
+</ul>
+<p><strong>OS X</strong></p>
+<figure class="highlight mipsasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">brew </span>update</span><br><span class="line"><span class="keyword">brew </span><span class="keyword">install </span>influxdb</span><br></pre></td></tr></table></figure>
+<p><strong>Docker Image</strong></p>
+<figure class="highlight ebnf"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">docker pull influxdb</span></span><br></pre></td></tr></table></figure>
+<p><strong>Ubuntu &amp; Debian</strong></p>
+<figure class="highlight vim"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">wget http<span class="variable">s:</span>//<span class="keyword">dl</span>.influxdata.<span class="keyword">com</span>/influxdb/releases/influxdb_1.<span class="number">0.2</span>_amd64.<span class="keyword">deb</span></span><br><span class="line">sudo dpkg -i influxdb_1.<span class="number">0.2</span>_amd64.<span class="keyword">deb</span></span><br></pre></td></tr></table></figure>
+<p><strong>RedHat &amp; CentOS</strong></p>
+<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">wget https:<span class="comment">//dl.influxdata.com/influxdb/releases/influxdb-1.0.2.x86_64.rpm</span></span><br><span class="line">sudo yum localinstall influxdb-<span class="number">1.0</span>.<span class="number">2</span><span class="selector-class">.x86_64</span><span class="selector-class">.rpm</span></span><br></pre></td></tr></table></figure>
+<p><strong>Standalone Linux Binaries (64-bit)</strong></p>
+<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">wget https:<span class="comment">//dl.influxdata.com/influxdb/releases/influxdb-1.0.2_linux_amd64.tar.gz</span></span><br><span class="line">tar xvfz influxdb-<span class="number">1.0</span>.<span class="number">2</span>_linux_amd64<span class="selector-class">.tar</span><span class="selector-class">.gz</span></span><br></pre></td></tr></table></figure>
+<p><strong>Standalone Linux Binaries (32-bit)</strong></p>
+<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">wget https:<span class="comment">//dl.influxdata.com/influxdb/releases/influxdb-1.0.2_linux_i386.tar.gz</span></span><br><span class="line">tar xvfz influxdb-<span class="number">1.0</span>.<span class="number">2</span>_linux_i386<span class="selector-class">.tar</span><span class="selector-class">.gz</span></span><br></pre></td></tr></table></figure>
+<p><strong>Standalone Linux Binaries (ARM)</strong></p>
+<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">wget https:<span class="comment">//dl.influxdata.com/influxdb/releases/influxdb-1.0.2_linux_armhf.tar.gz</span></span><br><span class="line">tar xvfz influxdb-<span class="number">1.0</span>.<span class="number">2</span>_linux_armhf<span class="selector-class">.tar</span><span class="selector-class">.gz</span></span><br></pre></td></tr></table></figure>
+<p><strong>How to start？</strong><br>安装完之后，如何启动呢？</p>
+<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo<span class="built_in"> service </span>influxdb start</span><br></pre></td></tr></table></figure>
+<p>到这里influxdb安装启动完成，可以访问influxdb管理页面：<a href="https://link.jianshu.com?t=http://localhost:8083" target="_blank" rel="external">本地管理页面</a>，该版本没有登录用户及密码，可以自行设置读写的用户名和密码。</p>
+<p><strong>如何在命令行使用</strong><br>安装完毕之后，如何在命令行使用呢？</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/3994601-9cc22a93bb379d76.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/573" alt="img"></p>
+<p>influxdb在命令行中使用</p>
+<h3 id="influxdb基本操作"><a href="#influxdb基本操作" class="headerlink" title="influxdb基本操作"></a>influxdb基本操作</h3><hr>
+<h4 id="名词解释"><a href="#名词解释" class="headerlink" title="名词解释"></a>名词解释</h4><p>在具体的讲解influxdb的相关操作之前先说说influxdb的一些专有名词，这些名词代表什么。</p>
+<h5 id="influxdb相关名词"><a href="#influxdb相关名词" class="headerlink" title="influxdb相关名词"></a>influxdb相关名词</h5><ul>
+<li>database：数据库；</li>
+<li>measurement：数据库中的表；</li>
+<li>points：表里面的一行数据。</li>
+</ul>
+<h5 id="influxDB中独有的一些概念"><a href="#influxDB中独有的一些概念" class="headerlink" title="influxDB中独有的一些概念"></a>influxDB中独有的一些概念</h5><p>Point由<strong>时间戳</strong>（time）、<strong>数据</strong>（field）和<strong>标签</strong>（tags）组成。</p>
+<ul>
+<li>time：每条数据记录的时间，也是数据库自动生成的主索引；</li>
+<li>fields：各种记录的值；</li>
+<li>tags：各种有索引的属性。</li>
+</ul>
+<p>还有一个重要的名词：<strong>series</strong><br>所有在数据库中的数据，都需要通过图表来表示，series表示这个表里面的所有的数据可以在图标上画成几条线（注：线条的个数由tags排列组合计算出来）<br>举个简单的小栗子：<br>有如下数据：</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/3994601-f528ff65d64cf860.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/569" alt="img"></p>
+<p>error_time</p>
+<p>它的series为：</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/3994601-cb52cbd8bf20d41b.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/569" alt="img"></p>
+<p>error_time_series</p>
+<h4 id="influxdb基本操作-1"><a href="#influxdb基本操作-1" class="headerlink" title="influxdb基本操作"></a>influxdb基本操作</h4><ul>
+<li><strong>数据库与表的操作</strong><br>可以直接在web管理页面做操作，当然也可以命令行。</li>
+</ul>
+<figure class="highlight vala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#创建数据库</span></span><br><span class="line">create database <span class="string">"db_name"</span></span><br><span class="line"><span class="meta">#显示所有的数据库</span></span><br><span class="line">show databases</span><br><span class="line"><span class="meta">#删除数据库</span></span><br><span class="line">drop database <span class="string">"db_name"</span></span><br><span class="line"><span class="meta">#使用数据库</span></span><br><span class="line">use db_name</span><br><span class="line"><span class="meta">#显示该数据库中所有的表</span></span><br><span class="line">show measurements</span><br><span class="line"><span class="meta">#创建表，直接在插入数据的时候指定表名</span></span><br><span class="line">insert test,host=<span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>,monitor_name=test count=<span class="number">1</span></span><br><span class="line"><span class="meta">#删除表</span></span><br><span class="line">drop measurement <span class="string">"measurement_name"</span></span><br></pre></td></tr></table></figure>
+<ul>
+<li><p>增</p>
+<p>​</p>
+<p>向数据库中插入数据。</p>
+<ul>
+<li>通过命令行</li>
+</ul>
+</li>
+</ul>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">use</span> testDb</span><br><span class="line"><span class="keyword">insert</span> <span class="keyword">test</span>,host=<span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>,monitor_name=<span class="keyword">test</span> <span class="keyword">count</span>=<span class="number">1</span></span><br></pre></td></tr></table></figure>
+<ul>
+<li>通过http接口</li>
+</ul>
+<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl -<span class="selector-tag">i</span> -XPOST <span class="string">'http://127.0.0.1:8086/write?db=testDb'</span> --data-binary <span class="string">'test,host=127.0.0.1,monitor_name=test count=1'</span></span><br></pre></td></tr></table></figure>
+<p>读者看到这里可能会观察到插入的数据的格式貌似比较奇怪，这是因为influxDB存储数据采用的是Line Protocol格式。那么何谓Line Protoco格式？</p>
+<p><strong>Line Protocol格式：</strong>写入数据库的Point的固定格式。<br>在上面的两种插入数据的方法中都有这样的一部分：</p>
+<figure class="highlight lsl"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">test,host=<span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>,monitor_name=test count=<span class="number">1</span></span><br></pre></td></tr></table></figure>
+<p>其中：</p>
+<ol>
+<li>test：表名；</li>
+<li>host=127.0.0.1,monitor_name=test：tag；</li>
+<li>count=1：field</li>
+</ol>
+<p>想对此格式有详细的了解参见<a href="https://link.jianshu.com?t=https://docs.influxdata.com/influxdb/v0.10/write_protocols/line/" target="_blank" rel="external">官方文档</a></p>
+<ul>
+<li><p>查</p>
+<p>​</p>
+<p>查询数据库中的数据。</p>
+<ul>
+<li>通过命令行</li>
+</ul>
+</li>
+</ul>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> <span class="keyword">test</span> <span class="keyword">order</span> <span class="keyword">by</span> <span class="keyword">time</span> <span class="keyword">desc</span></span><br></pre></td></tr></table></figure>
+<ul>
+<li>通过http接口</li>
+</ul>
+<figure class="highlight jboss-cli"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl -G 'http:<span class="string">//localhost</span><span class="function">:8086</span>/query?pretty=<span class="literal">true</span>' <span class="params">--data-urlencode</span> <span class="string">"db=testDb"</span> <span class="params">--data-urlencode</span> <span class="string">"q=select * from test order by time desc"</span></span><br></pre></td></tr></table></figure>
+<p>influxDB是支持类sql语句的，具体的查询语法都差不多，这里就不再做详细的赘述了。</p>
+<ul>
+<li><strong>数据保存策略（Retention Policies）</strong><br>influxDB是没有提供直接删除数据记录的方法，但是提供数据保存策略，主要用于指定数据保留时间，超过指定时间，就删除这部分数据。<ul>
+<li>查看当前数据库Retention Policies</li>
+</ul>
+</li>
+</ul>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">show</span> <span class="keyword">retention</span> policies <span class="keyword">on</span> <span class="string">"db_name"</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://upload-images.jianshu.io/upload_images/3994601-4dbf9942cc0f671a.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/574" alt="img"></p>
+<p>retention_policies</p>
+<ul>
+<li>创建新的Retention Policies</li>
+</ul>
+<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">create retention<span class="built_in"> policy </span><span class="string">"rp_name"</span> on <span class="string">"db_name"</span> duration 3w replication 1 default</span><br></pre></td></tr></table></figure>
+<figure class="highlight haml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">-<span class="ruby">  rp_name：策略名；</span></span><br><span class="line"><span class="ruby">- db_name：具体的数据库名；</span></span><br><span class="line"><span class="ruby">- <span class="number">3</span>w：保存<span class="number">3</span>周，<span class="number">3</span>周之前的数据将被删除，influxdb具有各种事件参数，比如：h（小时），d（天），w（星期）；</span></span><br><span class="line"><span class="ruby">- replication <span class="number">1</span>：副本个数，一般为<span class="number">1</span>就可以了；</span></span><br><span class="line"><span class="ruby">- default：设置为默认策略</span></span><br></pre></td></tr></table></figure>
+<ul>
+<li>修改Retention Policies</li>
+</ul>
+<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">alter retention<span class="built_in"> policy </span><span class="string">"rp_name"</span> on <span class="string">"db_name"</span> duration 30d default</span><br></pre></td></tr></table></figure>
+<ul>
+<li>删除Retention Policies</li>
+</ul>
+<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">drop retention<span class="built_in"> policy </span><span class="string">"rp_name"</span></span><br></pre></td></tr></table></figure>
+<ul>
+<li><p>连续查询（Continous Queries）</p>
+<p>​</p>
+<p>当数据超过保存策略里指定的时间之后就会被删除，但是这时候可能并不想数据被完全删掉，怎么办？</p>
+<p>​</p>
+<p>influxdb提供了联系查询，可以做数据统计采样。</p>
+<ul>
+<li>查看数据库的Continous Queries</li>
+</ul>
+</li>
+</ul>
+<figure class="highlight ebnf"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">show continuous queries</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://upload-images.jianshu.io/upload_images/3994601-d0d2b55ee261869d.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/440" alt="img"></p>
+<p>continuous_queries.</p>
+<ul>
+<li>创建新的Continous Queries</li>
+</ul>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">create</span> continous <span class="keyword">query</span> cq_name <span class="keyword">on</span> db_name <span class="keyword">begin</span> <span class="keyword">select</span> <span class="keyword">sum</span>(<span class="keyword">count</span>) <span class="keyword">into</span> new_table_name <span class="keyword">from</span> table_name <span class="keyword">group</span> <span class="keyword">by</span> <span class="keyword">time</span>(<span class="number">30</span>m) <span class="keyword">end</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight haml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">-<span class="ruby"> cq_name：连续查询名字；</span></span><br><span class="line"><span class="ruby">- db_name：数据库名字；</span></span><br><span class="line"><span class="ruby">- sum(count)：计算总和；</span></span><br><span class="line"><span class="ruby">- table_name：当前表名；</span></span><br><span class="line"><span class="ruby">- new_table_name：存新的数据的表名；</span></span><br><span class="line"><span class="ruby">- <span class="number">30</span>m：时间间隔为<span class="number">30</span>分钟</span></span><br></pre></td></tr></table></figure>
+<ul>
+<li>删除Continous Queries</li>
+</ul>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">drop</span> continous <span class="keyword">query</span> cp_name <span class="keyword">on</span> db_name</span><br></pre></td></tr></table></figure>
+<ul>
+<li><strong>用户管理</strong><br>可以直接在web管理页面做操作，也可以命令行。</li>
+</ul>
+<figure class="highlight clean"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">#显示用户</span><br><span class="line">show users</span><br><span class="line">#创建用户</span><br><span class="line">create user <span class="string">"username"</span> <span class="keyword">with</span> password <span class="string">'password'</span></span><br><span class="line">#创建管理员权限用户create user <span class="string">"username"</span> <span class="keyword">with</span> password <span class="string">'password'</span> <span class="keyword">with</span> all privileges</span><br><span class="line">#删除用户</span><br><span class="line">drop user <span class="string">"username"</span></span><br></pre></td></tr></table></figure>
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
   </section>
 
   
@@ -3028,7 +3071,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">150</span>
+                  <span class="site-state-item-count">147</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -3039,7 +3082,7 @@
               
               <div class="site-state-item site-state-categories">
                 <a href="/categories/index.html">
-                  <span class="site-state-item-count">28</span>
+                  <span class="site-state-item-count">27</span>
                   <span class="site-state-item-name">分类</span>
                 </a>
               </div>
@@ -3050,7 +3093,7 @@
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">43</span>
+                  <span class="site-state-item-count">42</span>
                   <span class="site-state-item-name">标签</span>
                 </a>
               </div>
@@ -3103,7 +3146,7 @@
     
       <span class="post-meta-item-text">Site words total count&#58;</span>
     
-    <span title="Site words total count">270.1k</span>
+    <span title="Site words total count">265.9k</span>
   
 </div>
 

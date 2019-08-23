@@ -249,595 +249,6 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/03/08/java范型通配符/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="周小伍 Joey">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/xiaowu_avatar.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="xiaowu's blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2018/03/08/java范型通配符/" itemprop="url">java范型使用小结</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-03-08T16:33:00+08:00">
-                2018-03-08
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/java基础/" itemprop="url" rel="index">
-                    <span itemprop="name">java基础</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2018/03/08/java范型通配符/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count disqus-comment-count"
-                        data-disqus-identifier="2018/03/08/java范型通配符/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-
-          
-
-          
-            <div class="post-wordcount">
-              
-                
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-file-word-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">字数统计&#58;</span>
-                
-                <span title="字数统计">
-                  3.6k
-                </span>
-              
-
-              
-                <span class="post-meta-divider">|</span>
-              
-
-              
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-clock-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
-                
-                <span title="阅读时长">
-                  14
-                </span>
-              
-            </div>
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h1 id="范型通配符"><a href="#范型通配符" class="headerlink" title="范型通配符"></a>范型通配符</h1><ol>
-<li>&lt;? extends Hero&gt;</li>
-</ol>
-<p>ArrayList heroList&lt;? extends Hero&gt; 表示<br>只能放子类<br>所以 可以确凿的是，从heroList取出来的对象，一定是可以转型成Hero的</p>
-<ol>
-<li>&lt;? super Hero&gt;</li>
-</ol>
-<p>ArrayList heroList&lt;? super Hero&gt; 表示<br>heroList的泛型可能是Hero<br>heroList的泛型可能是Object<br>可以往里面插入Hero以及Hero的子类<br>但是取出来有风险，因为不确定取出来是Hero还是Object</p>
-<ol>
-<li>泛型通配符?</li>
-</ol>
-<p>泛型通配符? 代表任意泛型<br>既然?代表任意泛型，那么换句话说，这个容器什么泛型都有可能<br>所以只能以Object的形式取出来<br>并且不能往里面放对象，因为不知道到底是一个什么泛型的容器</p>
-<p>一、泛型由来<br>Java语言类型包括八种基本类型(byte short int long float double boolean char)和复杂类型，复杂类型包括类和数组。<br>早期Java版本（1.4之前）如果要代指某个泛化类对象，只能使用Object，这样写出来的代码需要增加强转，而且缺少类型检查，代码缺少健壮性。在1.5之后，Java引入了泛型(Generic)的概念，提供了一套抽象的类型表示方法。利用泛型，我们可以：<br>1、表示多个可变类型之间的相互关系：HashMap<t,s>表示类型T与S的映射，HashMap<t, s="" extends="" t="">表示T的子类与T的映射关系</t,></t,s></p>
-<p>2、细化类的能力：ArrayList<t> 可以容纳任何指定类型T的数据，当T代指人，则是人的有序列表，当T代指杯子，则是杯子的有序列表，所有对象个体可以共用相同的操作行为</t></p>
-<p>3、复杂类型被细分成更多类型：List<people>和List<cup>是两种不同的类型，这意味着List<people> listP = new ArrayList<cup>()是不可编译的。后面会提到，这种检查基于编译而非运行，所以说是不可编译并非不可运行，因为运行时ArrayList不保留Cup信息。另外要注意，即使People继承自Object，List<object> listO = new ArrayList<people>()也是不可编译的，应理解为两种不同类型。因为listO可以容纳任意类型，而实例化的People列表只能接收People实例，这会破坏数据类型完整性。</people></object></cup></people></cup></people></p>
-<p>4、简化代码实现：假设有一个执行过程，对不同类型的数据，进行某些流程一致的处理，不引入泛型的实现方法为：<br>[java] view plain copy<br>public void addToArray(Integer data, Integer array[], int pos) {<br>    array[pos] = data;<br>}<br>public void addToArray(Long data, Long array[], int pos) {<br>    array[pos] = data;<br>}<br>这是一种典型的多态行为——重载，但是不够简化。引入泛型的写法更优雅：<br>[java] view plain copy<br>public <t> void addToArray(T data, T array[], int pos) {<br>    array[pos] = data;<br>}</t></p>
-<p>二、泛型定义与使用（泛型类和泛型方法）<br>1、泛型参数的命名风格：<br>1）尽量用简便的命名来命名泛型，若类型无特定意义，尽量使用一个字符<br>2）尽量使用全大写来命名泛型形参，以此与其他类型区分开<br>3）单字母的泛型建议用T命名，如果有多个泛型，可以取T周围的大写字母，注意，如果泛型本身有意义，可以不遵守这一条，比如缓存管理CacheManager<param, data="">，该类负责管理缓存查询条件与数据的映射，用单字母就不太合适，使用多字母更好<br>4）对于泛型函数或者泛型内部类在某个泛型类中出现的情况，建议泛型函数和内部类的泛型形参名称与外层类的泛型名称保持不同，否则容易引起混淆。类似这种：<br>[java] view plain copy<br>public class GenericClass<t> {<br>     public <t> void testGenericMethod(T t) {<br>     }<br>}</t></t></param,></p>
-<p>其实testGenericMethod方法的形参与外面GenericClass的形参完全没有关系。换句话说，泛型方法的泛型是优先使用方法泛型定义的。这种更应该写成：<br>[java] view plain copy<br>public class GenericClass<t> {<br>     public <s> void testGenericMethod(S s) {<br>     }<br>}</s></t></p>
-<p>2、泛型存在两种用法：泛型类和泛型方法</p>
-<p>1）泛型类<br>定义泛型类时，在类名后加&lt;&gt;，尖括号内可以定义一个或多个泛型参数，并指定泛型参数的取值范围，多个参数用逗号(,)分割<br>泛型类中定义的泛型全类可用（静态方法、静态代码块、静态成员变量除外）<br>父类定义的泛型参数子类无法继承，所以子类得自己写<br>[java] view plain copy<br>public class GenericClass<t extends="" aclass=""> {<br>    T data;<br>    void setData(T t) {<br>        data = t;<br>    }<br>    T getData() {<br>        return data;<br>    }<br>}</t></p>
-<p>2）泛型方法<br>定义泛型方法，在方法修饰符后，返回参数前加上&lt;&gt;，尖括号内可以定义一个或多个泛型参数，并指定泛型参数取值范围，多个参数用逗号(,)分割<br>泛型方法中定义的泛型作用域在方法内<br>[java] view plain copy<br>public class GenericMethodClass {<br>    public <t extends="" aclass,="" s="" t=""> T setData(T t, S s) {<br>        //do something<br>        return t;<br>    }<br>}</t></p>
-<p>定义泛型方法，更多是为了表达返回值和方法形参间的关系，本例中方法第一个参数T继承AClass，第二个参数S继承T，返回值是第一个参数。<br>如果仅仅是为了实现了多态，应优先使用通配符。类似如下：<br>[java] view plain copy<br>public void addList(List&lt;?&gt; list) {<br>    //todo<br>}</p>
-<p>3、定义了多个泛型类型参数时，一定要在使用时都指定类型，否则会编译出错。</p>
-<p>4、对泛型类的类型参数赋值包含两种方法：<br>1）类变量或实例化：<br>List<string> listS;<br>listS = new ArrayList<string>();</string></string></p>
-<p>2）继承<br>public class MyList<s> extends ArrayList<s> implements IMyInterface<s> {<br>}<br>S是对ArrayList内部定义的泛型E的赋值。</s></s></s></p>
-<p>5、对泛型方法的赋值：<br>[java] view plain copy<br>public <t> T testMethod1(T t, List<t> list) {<br>}</t></t></p>
-<p>public <t> T testMethod2(List<t> list1, List<t> list2){<br>}</t></t></t></p>
-<p>People n = null;</p>
-<p>List<people> list1 = null;<br>testMethod1(n, list1);//此时泛型参数T为People</people></p>
-<p>List<integer> list2 = null;<br>testMethod2(list1, list2);//编译报错</integer></p>
-<p>三、通配符<br>1）上述泛型赋值都是赋予泛型参数确定值，我们还可以赋予泛型参数不确定值，也就是通配符?。使用通配符?表示一个未知的类型。类似如下：<br>List&lt;?&gt; list;存放任意的对象<br>List&lt;? extends AClass&gt; listSubAClass; //存放AClass的子类<br>List&lt;? extends BClass&gt; listSuperBClass; //存放BClass的父类</p>
-<p>2）通配符通常与泛型关键字一起使用。</p>
-<p>3）在Java集合框架中，对于未知类型的容器类，只能读取其中元素，不能添加元素。这是因为，对不确定的参数类型，编译器无法识别添加元素的类型和容器的类型是否兼容，唯一的例外是NULL。同时，其读取的元素只能用Object来存储。</p>
-<p>4）通配符不能用在泛型类和泛型方法声明中，类似如下：<br>[java] view plain copy<br>public class GenericClass&lt;?&gt; { //编译错误<br>  public &lt;?&gt; void testGenericMethod(? t) { //编译错误<br>  }<br>}</p>
-<p>四、泛型关键字<br>1、泛型关键字有二个 extends和super，分别表示类型上界和类型下界<br>T extends AClass 表示T继承自AClass类<br>? super AClass 表示?是AClass的父类，注意：super只能与通配符?搭配使用，我们不能写：<br>public class GenericClass<t super="" aclass=""> { //错误<br>}<br>此例子中super换成extends是正确的，表示泛型T继承自AClass，T换成通配符?也是可以的，表示未知类型的下界是AClass。</t></p>
-<p>2、通配符与泛型关键字组合使用</p>
-<p>举两个例子：<br>下界：<br>[java] view plain copy<br>List&lt;? super People&gt; list = new ArrayList&lt;&gt;();<br>People people = new People();<br>list.add(people);<br>People data= list.get(0 ); //编译出错，报错Object不能转为People</p>
-<p>上界：<br>[java] view plain copy<br>List&lt;? extends People&gt; list = new ArrayList&lt;&gt;();<br>People people = new People();<br>list.add(people);// 编译出错，不能向容器中添加确定的元素<br>People data= list.get( 0);</p>
-<p>总结就是：上界添加(add)受限，下界查询(get)受限</p>
-<p>五、泛型实现原理<br>1、Java泛型是编译时技术，在运行时不包含类型信息，仅其实例中包含类型参数的定义信息。<br>2、Java利用编译器擦除（erasure，前端处理）实现泛型，基本上就是泛型版本源码到非泛型版本源码的转化。<br>3、擦除去掉了所有的泛型类内所有的泛型类型信息，所有在尖括号之间的类型信息都被扔掉.<br>举例来说：List<string>类型被转换为List，所有对类型变量String的引用被替换成类型变量的上限(通常是Object)。<br>而且，无论何时结果代码类型不正确，会插入一个到合适类型的转换。<br>[java] view plain copy</string></p>
-<p><t> T badCast(T t, Object o) {<br>return (T) o; // unchecked warning<br>}<br>这说明String类型参数在List运行时并不存在。它们也就不会添加任何的时间或者空间上的负担。但同时，这也意味着你不能依靠他们进行类型转换。</t></p>
-<p>4、一个泛型类被其所有调用共享<br>对于上文中的GenericClass，在编译后其内部是不存入泛型信息的，也就是说：<br>[java] view plain copy<br>GenericClass<aclass> gclassA = new GenericClass<aclass>();<br>GenericClass<bclass> gclassB = new GenericClass<bclass>();<br>gClassA.getClass() == gClassB.getClass()<br>这个判断返回的值是true，而非false，因为一个泛型类所有实例运行时具有相同的运行时类，其实际类型参数被擦除了。</bclass></bclass></aclass></aclass></p>
-<p>那么是不是GenericClass里完全不存AClass的信息呢？这个也不是，它内部存储的是泛型向上父类的引用，比如：<br>GenericClass<aclass extends="" charsequence="">, 其编译后内部存储的泛型替代是Charsequence，而不是Object。</aclass></p>
-<p>那么我们编码时的泛型的类型判断是怎么实现的呢？<br>其实这个过程是编译时检查的，也就是说限制gClassA.add(new BClass()) 这样的使用的方式的主体，不是运行时代码，而是编译时监测。</p>
-<p>泛型的意义就在于，对所有其支持的类型参数，有相同的行为，从而可以被当作不同类型使用；类的静态变量和方法在所有实例间共享使用，所以不能使用泛型。</p>
-<p>5、泛型与instanceof<br>泛型擦除了类型信息，所以使用instanceof检查某个实例是否是特定类型的泛型类是不可行的：<br>GenericClass genericClass = new GenericClass<string>();<br>if (genericClass instanceof GenericClass<string>) {} // 编译错误</string></string></p>
-<p>同时：<br>GenericClass<string> class1 = (GenericClass<string>) genericClass； //会报警告</string></string></p>
-<p>六、Class与泛型（摘自网络）<br>从Java1.5后Class类就改为了泛型实现，Class类内定义的泛型T指的是Class对象代表的类型。比如说String.class类型代表Class<string>，People.class类型代表Class<people>。<br>主要用于提高反射代码的类型安全。</people></string></p>
-<p>Class类的newInstance返回泛型T的对象，故而可以在反射时创建更精确的类型。<br>举例来说：假定你要写一个工具方法来进行一个数据库查询，给定一个SQL语句，并返回一个数据库中符合查询条件<br>的对象集合(collection)。<br>一个方法是显式的传递一个工厂对象，像下面的代码：<br>[java] view plain copy<br>interface Factory<t> {<br>    public T[] make();<br>}<br>public <t> Collection<t> select(Factory<t> factory, String statement) {<br>     Collection<t> result = new ArrayList<t>();<br>     /<em> run sql query using jdbc </em>/<br>     for ( int i=0; i&lt;10; i++ ) { /<em> iterate over jdbc results </em>/<br>         T item = factory.make();<br>         /<em> use reflection and set all of item’s fields from sql results </em>/<br>         result.add( item );<br>      }<br>      return result;<br>}</t></t></t></t></t></t></p>
-<p>你可以这样调用：<br>[java] view plain copy<br>select(new Factory<empinfo>() {<br>      public EmpInfo make() {<br>          return new EmpInfo();<br>      }<br>  } , ”selection string”);<br>也可以声明一个类 EmpInfoFactory 来支持接口 Factory：<br>[java] view plain copy<br>class EmpInfoFactory implements Factory<empinfo> {<br>      …<br>      public EmpInfo make() {<br>            return new EmpInfo();<br>      }<br>}<br>然后调用：<br>[java] view plain copy<br>select(getMyEmpInfoFactory(), “selection string”);</empinfo></empinfo></p>
-<p>这个解决方案的缺点是它需要下面的二者之一：<br>调用处那冗长的匿名工厂类，或为每个要使用的类型声明一个工厂类并传递其对象给调用的地方<br>这很不自然。<br>使用class类型参数值是非常自然的，它可以被反射使用。没有泛型的代码可能是：<br>[java] view plain copy<br>Collection emps = sqlUtility.select(EmpInfo.class, ”select <em> from emps”);<br>…<br>public static Collection select(Class c, String sqlStatement) {<br>          Collection result = new ArrayList();<br>          /</em> run sql query using jdbc <em>/<br>          for ( /</em> iterate over jdbc results <em>/ ) {<br>                Object item = c.newInstance();<br>                /</em> use reflection and set all of item’s fields from sql results */<br>                result.add(item);<br>          }<br>          return result;<br>   }<br>}</p>
-<p>但是这不能给我们返回一个我们要的精确类型的集合。现在Class是泛型的，我们可以写：<br>[java] view plain copy<br>Collection<empinfo> emps=sqlUtility.select(EmpInfo.class, ”select <em> from emps”);<br>…<br>public static <t> Collection<t> select(Class<t>c, String sqlStatement) {<br>     Collection<t> result = new ArrayList<t>();<br>     /</t></t></t></t></t></em> run sql query using jdbc <em>/<br>     for ( /</em> iterate over jdbc results <em>/ ) {<br>         T item = c.newInstance();<br>         /</em> use reflection and set all of item’s fields from sql results */<br>         result.add(item);<br>     }<br>     return result;<br>}</empinfo></p>
-<p>籍此以类型安全的方式获取我们需要的集合。<br>这项技术是一个非常有用的技巧，在处理注释(annotations)的新API中被广泛使用。</p>
-<p>七、容器与泛型<br>Java泛型的最深入人心的应用就是容器（Collections）了。容器不需要考虑它要装什么东西，它的职责就是表达它装的东西的集合所具有的功能。因此是天然的泛型支持者。<br>在没有泛型时，如果要封装一个列表，简化应该是这样的：<br>[java] view plain copy<br>public class ArrayList {<br>    Object[] array = new Object[10];<br>    int i = 0;<br>    public void add(Object object) {<br>          array[i++] = object;<br>    }</p>
-<pre><code>public Object get(int index) {
-      return array[index];
-}
-</code></pre><p>}</p>
-<p>这意味着我们把元素存进去，取出来还要强转，类型安全无法保证（存入一个Integer再存一个Long，转出时强转成Integer就崩溃了）。用泛型可以在编译时保证不能存入非泛型支持的数据，保证类型安全。<br>按照我们之前说的，ArrayList内不存储泛型信息，而是存储泛型的最近父类，对ArrayList<t>而言就是Object，所以其内部代码是：<br>[java] view plain copy<br>public class ArrayList<t> {<br>    Object[] array = new Object[10];<br>    int i = 0;<br>    public void add(T object) {<br>          array[i++] = object;<br>    }</t></t></p>
-<pre><code>public T get(int index) {
-      return (T)array[index];
-}
-</code></pre><p>}</p>
-<p>保证我们加进去和取出来的数据都是经过类型检查的。</p>
-<p>八、总结<br>1、泛型是Java为类型安全而做的一个优化，它在内部保证了数据类型一致性，细化了可变参数的类型，且能更好的表示类型间的相关性。<br>2、泛型是编译时技术，其起作用的时机是编译时，完善的编译器会报告错误的泛型使用，保证代码不能编译通过。<br>3、平常写代码时，要认真思考是否有使用泛型的必要。通常来讲，如果方法或类描述的是数据类型无关的逻辑，且其数据类型可变时，则应该使用泛型。</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/03/07/influxdb用法/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="周小伍 Joey">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/xiaowu_avatar.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="xiaowu's blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2018/03/07/influxdb用法/" itemprop="url">influxdb用法</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-03-07T15:57:59+08:00">
-                2018-03-07
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/数据库/" itemprop="url" rel="index">
-                    <span itemprop="name">数据库</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2018/03/07/influxdb用法/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count disqus-comment-count"
-                        data-disqus-identifier="2018/03/07/influxdb用法/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-
-          
-
-          
-            <div class="post-wordcount">
-              
-                
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-file-word-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">字数统计&#58;</span>
-                
-                <span title="字数统计">
-                  1.6k
-                </span>
-              
-
-              
-                <span class="post-meta-divider">|</span>
-              
-
-              
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-clock-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
-                
-                <span title="阅读时长">
-                  6
-                </span>
-              
-            </div>
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><hr>
-<p>influxdb是目前比较流行的时间序列数据库。</p>
-<ul>
-<li>何谓时间序列数据库？<br>什么是时间序列数据库，最简单的定义就是数据格式里包含Timestamp字段的数据，比如某一时间环境的温度，CPU的使用率等。但是，有什么数据不包含Timestamp呢？几乎所有的数据其实都可以打上一个Timestamp字段。时间序列数据的更重要的一个属性是如何去查询它，包括数据的过滤，计算等等。</li>
-</ul>
-<h4 id="Influxdb"><a href="#Influxdb" class="headerlink" title="Influxdb"></a>Influxdb</h4><p>Influxdb是一个开源的分布式时序、时间和指标数据库，使用go语言编写，无需外部依赖。<br>它有三大特性：</p>
-<ol>
-<li>时序性（Time Series）：与时间相关的函数的灵活使用（诸如最大、最小、求和等）；</li>
-<li>度量（Metrics）：对实时大量数据进行计算；</li>
-<li>事件（Event）：支持任意的事件数据，换句话说，任意事件的数据我们都可以做操作。</li>
-</ol>
-<p>同时，它有以下几大特点：</p>
-<ul>
-<li>schemaless(无结构)，可以是任意数量的列；</li>
-<li>min, max, sum, count, mean, median 一系列函数，方便统计；</li>
-<li>Native HTTP API, 内置http支持，使用http读写；</li>
-<li>Powerful Query Language 类似sql；</li>
-<li>Built-in Explorer 自带管理工具。</li>
-</ul>
-<h3 id="Influxdb安装"><a href="#Influxdb安装" class="headerlink" title="Influxdb安装"></a>Influxdb安装</h3><hr>
-<blockquote>
-<p>注：本文使用的influxdb version是1.0.2</p>
-</blockquote>
-<p>在讲解具体的安装步骤之前，先说说influxdb的两个http端口：8083和8086</p>
-<ul>
-<li>port 8083：管理页面端口，访问localhost:8083可以进入你本机的influxdb管理页面；</li>
-<li>port 8086：http连接influxdb client端口，一般使用该端口往本机的influxdb读写数据。</li>
-</ul>
-<p><strong>OS X</strong></p>
-<figure class="highlight mipsasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">brew </span>update</span><br><span class="line"><span class="keyword">brew </span><span class="keyword">install </span>influxdb</span><br></pre></td></tr></table></figure>
-<p><strong>Docker Image</strong></p>
-<figure class="highlight ebnf"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">docker pull influxdb</span></span><br></pre></td></tr></table></figure>
-<p><strong>Ubuntu &amp; Debian</strong></p>
-<figure class="highlight vim"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">wget http<span class="variable">s:</span>//<span class="keyword">dl</span>.influxdata.<span class="keyword">com</span>/influxdb/releases/influxdb_1.<span class="number">0.2</span>_amd64.<span class="keyword">deb</span></span><br><span class="line">sudo dpkg -i influxdb_1.<span class="number">0.2</span>_amd64.<span class="keyword">deb</span></span><br></pre></td></tr></table></figure>
-<p><strong>RedHat &amp; CentOS</strong></p>
-<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">wget https:<span class="comment">//dl.influxdata.com/influxdb/releases/influxdb-1.0.2.x86_64.rpm</span></span><br><span class="line">sudo yum localinstall influxdb-<span class="number">1.0</span>.<span class="number">2</span><span class="selector-class">.x86_64</span><span class="selector-class">.rpm</span></span><br></pre></td></tr></table></figure>
-<p><strong>Standalone Linux Binaries (64-bit)</strong></p>
-<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">wget https:<span class="comment">//dl.influxdata.com/influxdb/releases/influxdb-1.0.2_linux_amd64.tar.gz</span></span><br><span class="line">tar xvfz influxdb-<span class="number">1.0</span>.<span class="number">2</span>_linux_amd64<span class="selector-class">.tar</span><span class="selector-class">.gz</span></span><br></pre></td></tr></table></figure>
-<p><strong>Standalone Linux Binaries (32-bit)</strong></p>
-<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">wget https:<span class="comment">//dl.influxdata.com/influxdb/releases/influxdb-1.0.2_linux_i386.tar.gz</span></span><br><span class="line">tar xvfz influxdb-<span class="number">1.0</span>.<span class="number">2</span>_linux_i386<span class="selector-class">.tar</span><span class="selector-class">.gz</span></span><br></pre></td></tr></table></figure>
-<p><strong>Standalone Linux Binaries (ARM)</strong></p>
-<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">wget https:<span class="comment">//dl.influxdata.com/influxdb/releases/influxdb-1.0.2_linux_armhf.tar.gz</span></span><br><span class="line">tar xvfz influxdb-<span class="number">1.0</span>.<span class="number">2</span>_linux_armhf<span class="selector-class">.tar</span><span class="selector-class">.gz</span></span><br></pre></td></tr></table></figure>
-<p><strong>How to start？</strong><br>安装完之后，如何启动呢？</p>
-<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo<span class="built_in"> service </span>influxdb start</span><br></pre></td></tr></table></figure>
-<p>到这里influxdb安装启动完成，可以访问influxdb管理页面：<a href="https://link.jianshu.com?t=http://localhost:8083" target="_blank" rel="external">本地管理页面</a>，该版本没有登录用户及密码，可以自行设置读写的用户名和密码。</p>
-<p><strong>如何在命令行使用</strong><br>安装完毕之后，如何在命令行使用呢？</p>
-<p><img src="http://upload-images.jianshu.io/upload_images/3994601-9cc22a93bb379d76.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/573" alt="img"></p>
-<p>influxdb在命令行中使用</p>
-<h3 id="influxdb基本操作"><a href="#influxdb基本操作" class="headerlink" title="influxdb基本操作"></a>influxdb基本操作</h3><hr>
-<h4 id="名词解释"><a href="#名词解释" class="headerlink" title="名词解释"></a>名词解释</h4><p>在具体的讲解influxdb的相关操作之前先说说influxdb的一些专有名词，这些名词代表什么。</p>
-<h5 id="influxdb相关名词"><a href="#influxdb相关名词" class="headerlink" title="influxdb相关名词"></a>influxdb相关名词</h5><ul>
-<li>database：数据库；</li>
-<li>measurement：数据库中的表；</li>
-<li>points：表里面的一行数据。</li>
-</ul>
-<h5 id="influxDB中独有的一些概念"><a href="#influxDB中独有的一些概念" class="headerlink" title="influxDB中独有的一些概念"></a>influxDB中独有的一些概念</h5><p>Point由<strong>时间戳</strong>（time）、<strong>数据</strong>（field）和<strong>标签</strong>（tags）组成。</p>
-<ul>
-<li>time：每条数据记录的时间，也是数据库自动生成的主索引；</li>
-<li>fields：各种记录的值；</li>
-<li>tags：各种有索引的属性。</li>
-</ul>
-<p>还有一个重要的名词：<strong>series</strong><br>所有在数据库中的数据，都需要通过图表来表示，series表示这个表里面的所有的数据可以在图标上画成几条线（注：线条的个数由tags排列组合计算出来）<br>举个简单的小栗子：<br>有如下数据：</p>
-<p><img src="http://upload-images.jianshu.io/upload_images/3994601-f528ff65d64cf860.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/569" alt="img"></p>
-<p>error_time</p>
-<p>它的series为：</p>
-<p><img src="http://upload-images.jianshu.io/upload_images/3994601-cb52cbd8bf20d41b.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/569" alt="img"></p>
-<p>error_time_series</p>
-<h4 id="influxdb基本操作-1"><a href="#influxdb基本操作-1" class="headerlink" title="influxdb基本操作"></a>influxdb基本操作</h4><ul>
-<li><strong>数据库与表的操作</strong><br>可以直接在web管理页面做操作，当然也可以命令行。</li>
-</ul>
-<figure class="highlight vala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#创建数据库</span></span><br><span class="line">create database <span class="string">"db_name"</span></span><br><span class="line"><span class="meta">#显示所有的数据库</span></span><br><span class="line">show databases</span><br><span class="line"><span class="meta">#删除数据库</span></span><br><span class="line">drop database <span class="string">"db_name"</span></span><br><span class="line"><span class="meta">#使用数据库</span></span><br><span class="line">use db_name</span><br><span class="line"><span class="meta">#显示该数据库中所有的表</span></span><br><span class="line">show measurements</span><br><span class="line"><span class="meta">#创建表，直接在插入数据的时候指定表名</span></span><br><span class="line">insert test,host=<span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>,monitor_name=test count=<span class="number">1</span></span><br><span class="line"><span class="meta">#删除表</span></span><br><span class="line">drop measurement <span class="string">"measurement_name"</span></span><br></pre></td></tr></table></figure>
-<ul>
-<li><p>增</p>
-<p>​</p>
-<p>向数据库中插入数据。</p>
-<ul>
-<li>通过命令行</li>
-</ul>
-</li>
-</ul>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">use</span> testDb</span><br><span class="line"><span class="keyword">insert</span> <span class="keyword">test</span>,host=<span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>,monitor_name=<span class="keyword">test</span> <span class="keyword">count</span>=<span class="number">1</span></span><br></pre></td></tr></table></figure>
-<ul>
-<li>通过http接口</li>
-</ul>
-<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl -<span class="selector-tag">i</span> -XPOST <span class="string">'http://127.0.0.1:8086/write?db=testDb'</span> --data-binary <span class="string">'test,host=127.0.0.1,monitor_name=test count=1'</span></span><br></pre></td></tr></table></figure>
-<p>读者看到这里可能会观察到插入的数据的格式貌似比较奇怪，这是因为influxDB存储数据采用的是Line Protocol格式。那么何谓Line Protoco格式？</p>
-<p><strong>Line Protocol格式：</strong>写入数据库的Point的固定格式。<br>在上面的两种插入数据的方法中都有这样的一部分：</p>
-<figure class="highlight lsl"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">test,host=<span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>,monitor_name=test count=<span class="number">1</span></span><br></pre></td></tr></table></figure>
-<p>其中：</p>
-<ol>
-<li>test：表名；</li>
-<li>host=127.0.0.1,monitor_name=test：tag；</li>
-<li>count=1：field</li>
-</ol>
-<p>想对此格式有详细的了解参见<a href="https://link.jianshu.com?t=https://docs.influxdata.com/influxdb/v0.10/write_protocols/line/" target="_blank" rel="external">官方文档</a></p>
-<ul>
-<li><p>查</p>
-<p>​</p>
-<p>查询数据库中的数据。</p>
-<ul>
-<li>通过命令行</li>
-</ul>
-</li>
-</ul>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> <span class="keyword">test</span> <span class="keyword">order</span> <span class="keyword">by</span> <span class="keyword">time</span> <span class="keyword">desc</span></span><br></pre></td></tr></table></figure>
-<ul>
-<li>通过http接口</li>
-</ul>
-<figure class="highlight jboss-cli"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl -G 'http:<span class="string">//localhost</span><span class="function">:8086</span>/query?pretty=<span class="literal">true</span>' <span class="params">--data-urlencode</span> <span class="string">"db=testDb"</span> <span class="params">--data-urlencode</span> <span class="string">"q=select * from test order by time desc"</span></span><br></pre></td></tr></table></figure>
-<p>influxDB是支持类sql语句的，具体的查询语法都差不多，这里就不再做详细的赘述了。</p>
-<ul>
-<li><strong>数据保存策略（Retention Policies）</strong><br>influxDB是没有提供直接删除数据记录的方法，但是提供数据保存策略，主要用于指定数据保留时间，超过指定时间，就删除这部分数据。<ul>
-<li>查看当前数据库Retention Policies</li>
-</ul>
-</li>
-</ul>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">show</span> <span class="keyword">retention</span> policies <span class="keyword">on</span> <span class="string">"db_name"</span></span><br></pre></td></tr></table></figure>
-<p><img src="http://upload-images.jianshu.io/upload_images/3994601-4dbf9942cc0f671a.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/574" alt="img"></p>
-<p>retention_policies</p>
-<ul>
-<li>创建新的Retention Policies</li>
-</ul>
-<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">create retention<span class="built_in"> policy </span><span class="string">"rp_name"</span> on <span class="string">"db_name"</span> duration 3w replication 1 default</span><br></pre></td></tr></table></figure>
-<figure class="highlight haml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">-<span class="ruby">  rp_name：策略名；</span></span><br><span class="line"><span class="ruby">- db_name：具体的数据库名；</span></span><br><span class="line"><span class="ruby">- <span class="number">3</span>w：保存<span class="number">3</span>周，<span class="number">3</span>周之前的数据将被删除，influxdb具有各种事件参数，比如：h（小时），d（天），w（星期）；</span></span><br><span class="line"><span class="ruby">- replication <span class="number">1</span>：副本个数，一般为<span class="number">1</span>就可以了；</span></span><br><span class="line"><span class="ruby">- default：设置为默认策略</span></span><br></pre></td></tr></table></figure>
-<ul>
-<li>修改Retention Policies</li>
-</ul>
-<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">alter retention<span class="built_in"> policy </span><span class="string">"rp_name"</span> on <span class="string">"db_name"</span> duration 30d default</span><br></pre></td></tr></table></figure>
-<ul>
-<li>删除Retention Policies</li>
-</ul>
-<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">drop retention<span class="built_in"> policy </span><span class="string">"rp_name"</span></span><br></pre></td></tr></table></figure>
-<ul>
-<li><p>连续查询（Continous Queries）</p>
-<p>​</p>
-<p>当数据超过保存策略里指定的时间之后就会被删除，但是这时候可能并不想数据被完全删掉，怎么办？</p>
-<p>​</p>
-<p>influxdb提供了联系查询，可以做数据统计采样。</p>
-<ul>
-<li>查看数据库的Continous Queries</li>
-</ul>
-</li>
-</ul>
-<figure class="highlight ebnf"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">show continuous queries</span></span><br></pre></td></tr></table></figure>
-<p><img src="http://upload-images.jianshu.io/upload_images/3994601-d0d2b55ee261869d.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/440" alt="img"></p>
-<p>continuous_queries.</p>
-<ul>
-<li>创建新的Continous Queries</li>
-</ul>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">create</span> continous <span class="keyword">query</span> cq_name <span class="keyword">on</span> db_name <span class="keyword">begin</span> <span class="keyword">select</span> <span class="keyword">sum</span>(<span class="keyword">count</span>) <span class="keyword">into</span> new_table_name <span class="keyword">from</span> table_name <span class="keyword">group</span> <span class="keyword">by</span> <span class="keyword">time</span>(<span class="number">30</span>m) <span class="keyword">end</span></span><br></pre></td></tr></table></figure>
-<figure class="highlight haml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">-<span class="ruby"> cq_name：连续查询名字；</span></span><br><span class="line"><span class="ruby">- db_name：数据库名字；</span></span><br><span class="line"><span class="ruby">- sum(count)：计算总和；</span></span><br><span class="line"><span class="ruby">- table_name：当前表名；</span></span><br><span class="line"><span class="ruby">- new_table_name：存新的数据的表名；</span></span><br><span class="line"><span class="ruby">- <span class="number">30</span>m：时间间隔为<span class="number">30</span>分钟</span></span><br></pre></td></tr></table></figure>
-<ul>
-<li>删除Continous Queries</li>
-</ul>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">drop</span> continous <span class="keyword">query</span> cp_name <span class="keyword">on</span> db_name</span><br></pre></td></tr></table></figure>
-<ul>
-<li><strong>用户管理</strong><br>可以直接在web管理页面做操作，也可以命令行。</li>
-</ul>
-<figure class="highlight clean"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">#显示用户</span><br><span class="line">show users</span><br><span class="line">#创建用户</span><br><span class="line">create user <span class="string">"username"</span> <span class="keyword">with</span> password <span class="string">'password'</span></span><br><span class="line">#创建管理员权限用户create user <span class="string">"username"</span> <span class="keyword">with</span> password <span class="string">'password'</span> <span class="keyword">with</span> all privileges</span><br><span class="line">#删除用户</span><br><span class="line">drop user <span class="string">"username"</span></span><br></pre></td></tr></table></figure>
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/03/06/Java内存模型/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -2725,6 +2136,602 @@
 
 
     
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/01/02/JVM堆内存和非堆内存/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="周小伍 Joey">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/xiaowu_avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="xiaowu's blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/01/02/JVM堆内存和非堆内存/" itemprop="url">JVM堆内存和非堆内存</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-01-02T11:04:25+08:00">
+                2018-01-02
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/java基础/" itemprop="url" rel="index">
+                    <span itemprop="name">java基础</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2018/01/02/JVM堆内存和非堆内存/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2018/01/02/JVM堆内存和非堆内存/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  2.9k
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  11
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p><strong>堆和非堆内存</strong></p>
+<p>按照官方的说法：“Java 虚拟机具有一个堆(Heap)，堆是运行时数据区域，所有类实例和数组的内存均从此处分配。堆是在 Java 虚拟机启动时创建的。”“在JVM中堆之外的内存称为非堆内存(Non-heap memory)”。</p>
+<p>JVM主要管理两种类型的内存：堆和非堆。</p>
+<p>Heap memory Code Cache</p>
+<p>Eden Space</p>
+<p>Survivor Space</p>
+<p>Tenured Gen</p>
+<p>non-heap memory Perm Gen</p>
+<p>native heap?(I guess)</p>
+<p><strong>堆内存</strong></p>
+<p>Java 虚拟机具有一个堆，堆是运行时数据区域，所有类实例和数组的内存均从此处分配。堆是在 Java 虚拟机启动时创建的。对象的堆内存由称为垃圾回收器的自动内存管理系统回收。</p>
+<p>堆的大小可以固定，也可以扩大和缩小。堆的内存不需要是连续空间。</p>
+<p><strong>非堆内存</strong></p>
+<p>Java 虚拟机管理堆之外的内存（称为非堆内存）。</p>
+<p>Java 虚拟机具有一个由所有线程共享的方法区。方法区属于非堆内存。它存储每个类结构，如运行时常数池、字段和方法数据，以及方法和构造方法的代码。它是在 Java 虚拟机启动时创建的。</p>
+<p>方法区在逻辑上属于堆，但 Java 虚拟机实现可以选择不对其进行回收或压缩。与堆类似，方法区的大小可以固定，也可以扩大和缩小。方法区的内存不需要是连续空间。</p>
+<p>除了方法区外，Java 虚拟机实现可能需要用于内部处理或优化的内存，这种内存也是非堆内存。例如，JIT 编译器需要内存来存储从 Java 虚拟机代码转换而来的本机代码，从而获得高性能。</p>
+<p><strong>几个基本概念</strong></p>
+<p>PermGen space：全称是Permanent Generation space，即永久代。就是说是永久保存的区域,用于存放Class和Meta信息，Class在被Load的时候被放入该区域，GC(Garbage Collection)应该不会对PermGen space进行清理，所以如果你的APP会LOAD很多CLASS的话，就很可能出现PermGen space错误。</p>
+<p>Heap space：存放Instance。</p>
+<p>Java Heap分为3个区，Young即新生代，Old即老生代和Permanent。</p>
+<p>Young保存刚实例化的对象。当该区被填满时，GC会将对象移到Old区。Permanent区则负责保存反射对象。</p>
+<p><strong>堆内存分配</strong></p>
+<ul>
+<li>JVM初始分配的堆内存由-Xms指定，默认是物理内存的1/64；</li>
+<li>JVM最大分配的堆内存由-Xmx指定，默认是物理内存的1/4。</li>
+<li>默认空余堆内存小于40%时，JVM就会增大堆直到-Xmx的最大限制；</li>
+<li>空余堆内存大于70%时，JVM会减少堆直到-Xms的最小限制。</li>
+<li>因此服务器一般设置-Xms、-Xmx 相等以避免在每次GC 后调整堆的大小。</li>
+<li>说明：如果-Xmx 不指定或者指定偏小，应用可能会导致java.lang.OutOfMemory错误，此错误来自JVM，不是Throwable的，无法用try…catch捕捉。</li>
+</ul>
+<p><strong>非堆内存分配</strong></p>
+<p>\1. JVM使用-XX:PermSize设置非堆内存初始值，默认是物理内存的1/64；</p>
+<p>\2. 由XX:MaxPermSize设置最大非堆内存的大小，默认是物理内存的1/4。</p>
+<ul>
+<li>还有一说：MaxPermSize缺省值和-server -client选项相关，-server选项下默认MaxPermSize为64m，-client选项下默认MaxPermSize为32m。这个我没有实验。</li>
+</ul>
+<p>\3. XX:MaxPermSize设置过小会导致java.lang.OutOfMemoryError: PermGen space 就是内存益出。</p>
+<p>\4. 为什么会内存益出：</p>
+<ul>
+<li>这一部分内存用于存放Class和Meta的信息，Class在被 Load的时候被放入PermGen space区域，它和存放Instance的Heap区域不同。</li>
+<li>GC(Garbage Collection)不会在主程序运行期对PermGen space进行清理，所以如果你的APP会LOAD很多CLASS 的话,就很可能出现PermGen space错误。</li>
+</ul>
+<p>\5. 这种错误常见在web服务器对JSP进行pre compile的时候。</p>
+<p><strong>JVM内存限制(最大值)</strong></p>
+<p>\1. 首先JVM内存限制于实际的最大物理内存，假设物理内存无限大的话，JVM内存的最大值跟操作系统有很大的关系。简单的说就32位处理器虽然可控内存空间有4GB,但是具体的操作系统会给一个限制，这个限制一般是2GB-3GB（一般来说Windows系统下为1.5G-2G，Linux系统下为2G-3G），而64bit以上的处理器就不会有限制了。</p>
+<p>\2. 为什么有的机器我将-Xmx和-XX:MaxPermSize都设置为512M之后Eclipse可以启动，而有些机器无法启动？</p>
+<p>通过上面对JVM内存管理的介绍我们已经了解到JVM内存包含两种：堆内存和非堆内存，另外JVM最大内存首先取决于实际的物理内存和操作系统。所以说设置VM参数导致程序无法启动主要有以下几种原因：</p>
+<ul>
+<li>参数中-Xms的值大于-Xmx，或者-XX:PermSize的值大于-XX:MaxPermSize；</li>
+<li>-Xmx的值和-XX:MaxPermSize的总和超过了JVM内存的最大限制，比如当前操作系统最大内存限制，或者实际的物理内存等等。说到实际物理内存这里需要说明一点的是，如果你的内存是1024MB，但实际系统中用到的并不可能是1024MB，因为有一部分被硬件占用了。</li>
+</ul>
+<p>\3. 如果你有一个双核的CPU，也许可以尝试这个参数: -XX:+UseParallelGC 让GC可以更快的执行。（只是JDK 5里对GC新增加的参数）</p>
+<p>\4. 如果你的WEB APP下都用了大量的第三方jar，其大小超过了服务器jvm默认的大小，那么就会产生内存益出问题了。解决方法： 设置MaxPermSize大小。</p>
+<ul>
+<li>增加服务器启动的JVM参数设置： -Xms128m -Xmx256m -XX:PermSize=128M -XX:MaxNewSize=256m -XX:MaxPermSize=256m</li>
+<li>如tomcat，修改TOMCAT_HOME/bin/catalina.sh，在echo “Using CATALINA_BASE: $CATALINA_BASE”上面加入以下行：JAVA_OPTS=”-server -XX:PermSize=64M -XX:MaxPermSize=128m</li>
+</ul>
+<p>\5. 建议：将相同的第三方jar文件移置到tomcat/shared/lib目录下，这样可以减少jar 文档重复占用内存</p>
+<p><strong>JVM内存设置参数</strong></p>
+<ul>
+<li>内存设置参数</li>
+</ul>
+<p><img src="/2018/01/02/JVM堆内存和非堆内存/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" alt="img"></p>
+<ul>
+<li>说明：</li>
+</ul>
+<ol>
+<li>如果-Xmx不指定或者指定偏小，应用可能会导致java.lang.OutOfMemory错误，此错误来自JVM不是Throwable的，无法用try…catch捕捉。</li>
+<li>PermSize和MaxPermSize指明虚拟机为java永久生成对象（Permanate generation）如，class对象、方法对象这些可反射（reflective）对象分配内存限制，这些内存不包括在Heap（堆内存）区之中。</li>
+<li>-XX:MaxPermSize分配过小会导致：java.lang.OutOfMemoryError: PermGen space。</li>
+<li>MaxPermSize缺省值和-server -client选项相关：-server选项下默认MaxPermSize为64m、-client选项下默认MaxPermSize为32m。</li>
+</ol>
+<ul>
+<li>申请一块内存的过程</li>
+</ul>
+<ol>
+<li>JVM会试图为相关Java对象在Eden中初始化一块内存区域</li>
+<li>当Eden空间足够时，内存申请结束。否则到下一步</li>
+<li>JVM试图释放在Eden中所有不活跃的对象（这属于1或更高级的垃圾回收）；释放后若Eden空间仍然不足以放入新对象，则试图将部分Eden中活跃对象放入Survivor区/OLD区</li>
+<li>Survivor区被用来作为Eden及OLD的中间交换区域，当OLD区空间足够时，Survivor区的对象会被移到Old区，否则会被保留在Survivor区</li>
+<li>当OLD区空间不够时，JVM会在OLD区进行完全的垃圾收集（0级）</li>
+<li>完全垃圾收集后，若Survivor及OLD区仍然无法存放从Eden复制过来的部分对象，导致JVM无法在Eden区为新对象创建内存区域，则出现”out of memory错误”</li>
+</ol>
+<p>resin服务器典型的响应时间优先型的jvm配置：</p>
+<blockquote>
+<p>-Xmx2000M -Xms2000M -Xmn500M</p>
+<p>-XX:PermSize=250M -XX:MaxPermSize=250M</p>
+<p>-Xss256K</p>
+<p>-XX:+DisableExplicitGC</p>
+<p>-XX:SurvivorRatio=1</p>
+<p>-XX:+UseConcMarkSweepGC</p>
+<p>-XX:+UseParNewGC</p>
+<p>-XX:+CMSParallelRemarkEnabled</p>
+<p>-XX:+UseCMSCompactAtFullCollection</p>
+<p>-XX:CMSFullGCsBeforeCompaction=0</p>
+<p>-XX:+CMSClassUnloadingEnabled</p>
+<p>-XX:LargePageSizeInBytes=128M</p>
+<p>-XX:+UseFastAccessorMethods</p>
+<p>-XX:+UseCMSInitiatingOccupancyOnly</p>
+<p>-XX:CMSInitiatingOccupancyFraction=60</p>
+<p>-XX:SoftRefLRUPolicyMSPerMB=0</p>
+<p>-XX:+PrintClassHistogram</p>
+<p>-XX:+PrintGCDetails</p>
+<p>-XX:+PrintGCTimeStamps</p>
+<p>-XX:+PrintHeapAtGC</p>
+<p>-Xloggc:log/gc.log</p>
+</blockquote>
+<p><strong>内存回收算法</strong></p>
+<p>Java中有四种不同的回收算法，对应的启动参数为:</p>
+<blockquote>
+<p>–XX:+UseSerialGC</p>
+<p>–XX:+UseParallelGC</p>
+<p>–XX:+UseParallelOldGC</p>
+<p>–XX:+UseConcMarkSweepGC</p>
+</blockquote>
+<p><strong>Serial Collector</strong></p>
+<p>大部分平台或者强制 java -client 默认会使用这种。</p>
+<p>young generation算法 = serial</p>
+<p>old generation算法 = serial (mark-sweep-compact)</p>
+<p>这种方法的缺点很明显, stop-the-world, 速度慢。服务器应用不推荐使用。</p>
+<p><strong>Parallel Collector</strong></p>
+<p>在linux x64上默认是这种，其他平台要加 java -server 参数才会默认选用这种。</p>
+<p>young = parallel，多个thread同时copy</p>
+<p>old = mark-sweep-compact = 1</p>
+<p>优点：新生代回收更快。因为系统大部分时间做的gc都是新生代的，这样提高了throughput(cpu用于非gc时间)</p>
+<p>缺点：当运行在8G/16G server上old generation live object太多时候pause time过长</p>
+<p><strong>Parallel Compact Collector (ParallelOld)</strong></p>
+<p>young = parallel = 2</p>
+<p>old = parallel，分成多个独立的单元，如果单元中live object少则回收，多则跳过</p>
+<p>优点：old old generation上性能较 parallel 方式有提高</p>
+<p>缺点：大部分server系统old generation内存占用会达到60%-80%, 没有那么多理想的单元live object很少方便迅速回收，同时compact方面开销比起parallel并没明显减少。</p>
+<p><strong>Concurrent Mark-Sweep(CMS) Collector</strong></p>
+<p>young generation = parallel collector = 2</p>
+<p>old = cms</p>
+<p>同时不做 compact 操作。</p>
+<p>优点：pause time会降低, pause敏感但CPU有空闲的场景需要建议使用策略4.</p>
+<p>缺点：cpu占用过多，cpu密集型服务器不适合。另外碎片太多，每个object的存储都要通过链表连续跳n个地方，空间浪费问题也会增大。</p>
+<p><strong>内存监控方法</strong></p>
+<ul>
+<li>jmap -heap 查看java 堆（heap）使用情况</li>
+</ul>
+<blockquote>
+<p>jmap -heap pid</p>
+<p>using thread-local object allocation.</p>
+<p>Parallel GC with 4 thread(s)   #GC 方式</p>
+<p>Heap Configuration:  #堆内存初始化配置</p>
+<p>MinHeapFreeRatio=40  #对应jvm启动参数-XX:MinHeapFreeRatio设置JVM堆最小空闲比率(default 40)</p>
+<p>MaxHeapFreeRatio=70  #对应jvm启动参数 -XX:MaxHeapFreeRatio设置JVM堆最大空闲比率(default 70)</p>
+<p>MaxHeapSize=512.0MB  #对应jvm启动参数-XX:MaxHeapSize=设置JVM堆的最大大小</p>
+<p>NewSize  = 1.0MB     #对应jvm启动参数-XX:NewSize=设置JVM堆的‘新生代’的默认大小</p>
+<p>MaxNewSize =4095MB   #对应jvm启动参数-XX:MaxNewSize=设置JVM堆的‘新生代’的最大大小</p>
+<p>OldSize  = 4.0MB     #对应jvm启动参数-XX:OldSize=<value>:设置JVM堆的‘老生代’的大小</value></p>
+<p>NewRatio  = 8        #对应jvm启动参数-XX:NewRatio=:‘新生代’和‘老生代’的大小比率</p>
+<p>SurvivorRatio = 8    #对应jvm启动参数-XX:SurvivorRatio=设置年轻代中Eden区与Survivor区的大小比值</p>
+<p>PermSize= 16.0MB     #对应jvm启动参数-XX:PermSize=<value>:设置JVM堆的‘永生代’的初始大小</value></p>
+<p>MaxPermSize=64.0MB   #对应jvm启动参数-XX:MaxPermSize=<value>:设置JVM堆的‘永生代’的最大大小</value></p>
+<p>Heap Usage:          #堆内存分步</p>
+<p>PS Young Generation</p>
+<p>Eden Space:         #Eden区内存分布</p>
+<p>capacity = 20381696 (19.4375MB)             #Eden区总容量</p>
+<p>used     = 20370032 (19.426376342773438MB)  #Eden区已使用</p>
+<p>free     = 11664 (0.0111236572265625MB)     #Eden区剩余容量</p>
+<p>99.94277218147106% used                     #Eden区使用比率</p>
+<p>From Space:        #其中一个Survivor区的内存分布</p>
+<p>capacity = 8519680 (8.125MB)</p>
+<p>used     = 32768 (0.03125MB)</p>
+<p>free     = 8486912 (8.09375MB)</p>
+<p>0.38461538461538464% used</p>
+<p>To Space:          #另一个Survivor区的内存分布</p>
+<p>capacity = 9306112 (8.875MB)</p>
+<p>used     = 0 (0.0MB)</p>
+<p>free     = 9306112 (8.875MB)</p>
+<p>0.0% used</p>
+<p>PS Old Generation  #当前的Old区内存分布</p>
+<p>capacity = 366280704 (349.3125MB)</p>
+<p>used     = 322179848 (307.25464630126953MB)</p>
+<p>free     = 44100856 (42.05785369873047MB)</p>
+<p>87.95982001825573% used</p>
+<p>PS Perm Generation #当前的 “永生代” 内存分布</p>
+<p>capacity = 32243712 (30.75MB)</p>
+<p>used     = 28918584 (27.57891082763672MB)</p>
+<p>free     = 3325128 (3.1710891723632812MB)</p>
+<p>89.68751488662348% used</p>
+</blockquote>
+<ul>
+<li>JVM内存监控工具</li>
+</ul>
+<blockquote>
+<p>&lt;%@ page import=”java.lang.management.*” %&gt;</p>
+<p>&lt;%@ page import=”java.util.*” %&gt;</p>
+<html><br><br><head><br><br>  <title>JVM Memory Monitor</title><br><br></head><br><br><body><br><br><table border="0" width="100%"><br><br>​    <tr><td colspan="2" align="center"><h3>Memory MXBean</h3></td></tr><br><br>​    <tr><td width="200">Heap Memory Usage</td><td>&lt;%=ManagementFactory.getMemoryMXBean().getHeapMemoryUsage()%&gt;</td></tr><br><br>​    <tr><td>Non-Heap Memory Usage</td><td>&lt;%=ManagementFactory.getMemoryMXBean().getNonHeapMemoryUsage()%&gt;</td></tr><br><br>​    <tr><td colspan="2"> </td></tr><br><br>​    <tr><td colspan="2" align="center"><h3>Memory Pool MXBeans</h3></td></tr><br><br>&lt;%<br><br>​        Iterator iter = ManagementFactory.getMemoryPoolMXBeans().iterator();<br><br>​        while (iter.hasNext()) {<br><br>​            MemoryPoolMXBean item = (MemoryPoolMXBean) iter.next();<br><br>%&gt;<br><br><tr><td colspan="2"><br><br>​    <table border="0" width="100%" style="border: 1px #98AAB1 solid;"><br><br>​        <tr><td colspan="2" align="center"><b>&lt;%= item.getName() %&gt;</b></td></tr><br><br>​        <tr><td width="200">Type</td><td>&lt;%= item.getType() %&gt;</td></tr><br><br>​        <tr><td>Usage</td><td>&lt;%= item.getUsage() %&gt;</td></tr><br><br>​        <tr><td>Peak Usage</td><td>&lt;%= item.getPeakUsage() %&gt;</td></tr><br><br>​        <tr><td>Collection Usage</td><td>&lt;%= item.getCollectionUsage() %&gt;</td></tr><br><br>​    </table><br><br></td></tr><br><br><tr><td colspan="2"> </td></tr><br><br>&lt;%} %&gt;<br><br></table><br><br></body><br><br></html></blockquote>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/12/28/MySQL-select子查询引用变量/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="周小伍 Joey">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/xiaowu_avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="xiaowu's blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2017/12/28/MySQL-select子查询引用变量/" itemprop="url">MySQL select子查询引用变量</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-12-28T14:25:39+08:00">
+                2017-12-28
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/数据库/" itemprop="url" rel="index">
+                    <span itemprop="name">数据库</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2017/12/28/MySQL-select子查询引用变量/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2017/12/28/MySQL-select子查询引用变量/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  816
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  3
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="示例一"><a href="#示例一" class="headerlink" title="示例一"></a>示例一</h1><p>前几天看别人的代码中看到在字段中使用select子查询的方法，第一次见这种写法，然后研究了一下，记录下来</p>
+<p>大概的形式是这样的:</p>
+<figure class="highlight n1ql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> a .*,(<span class="keyword">select</span> b.another_field <span class="keyword">from</span> b <span class="keyword">where</span> a.id=b.aid) another_field <span class="keyword">from</span> a <span class="keyword">where</span> <span class="number">1</span> <span class="keyword">limit</span> <span class="number">10</span>;</span><br></pre></td></tr></table></figure>
+<p>下面还是以实例来说明，要不然不好理解，新建两张表，一张是商品表，另外一张是商品的评论表</p>
+<p>商品表：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> <span class="string">`product`</span> (</span><br><span class="line"> <span class="string">`id`</span> <span class="built_in">int</span>(<span class="number">11</span>) <span class="keyword">NOT</span> <span class="literal">NULL</span> AUTO_INCREMENT,</span><br><span class="line"> <span class="string">`product_name`</span> <span class="built_in">varchar</span>(<span class="number">30</span>) <span class="built_in">CHARACTER</span> <span class="keyword">SET</span> utf8 <span class="keyword">NOT</span> <span class="literal">NULL</span>,</span><br><span class="line"> <span class="string">`price`</span> <span class="built_in">float</span> <span class="keyword">NOT</span> <span class="literal">NULL</span>,</span><br><span class="line"> PRIMARY <span class="keyword">KEY</span> (<span class="string">`id`</span>)</span><br><span class="line">) <span class="keyword">ENGINE</span>=<span class="keyword">InnoDB</span>;</span><br></pre></td></tr></table></figure>
+<p>评论表：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> <span class="string">`comment`</span> (</span><br><span class="line"> <span class="string">`id`</span> <span class="built_in">int</span>(<span class="number">11</span>) <span class="keyword">NOT</span> <span class="literal">NULL</span> AUTO_INCREMENT,</span><br><span class="line"> <span class="string">`entity_id`</span> <span class="built_in">int</span>(<span class="number">11</span>) <span class="keyword">NOT</span> <span class="literal">NULL</span>,</span><br><span class="line"> <span class="string">`content`</span> <span class="built_in">varchar</span>(<span class="number">100</span>) <span class="built_in">CHARACTER</span> <span class="keyword">SET</span> utf8 <span class="keyword">NOT</span> <span class="literal">NULL</span>,</span><br><span class="line"> PRIMARY <span class="keyword">KEY</span> (<span class="string">`id`</span>)</span><br><span class="line">) <span class="keyword">ENGINE</span>=<span class="keyword">InnoDB</span>;</span><br></pre></td></tr></table></figure>
+<p>然后插入一些数据：</p>
+<figure class="highlight n1ql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> <span class="symbol">`product`</span> (<span class="symbol">`id`</span>, <span class="symbol">`product_name`</span>, <span class="symbol">`price`</span>) <span class="keyword">VALUES</span></span><br><span class="line">(<span class="number">1</span>, <span class="string">'肉松饼'</span>, <span class="number">5</span>),</span><br><span class="line">(<span class="number">2</span>, <span class="string">'可乐'</span>, <span class="number">5</span>),</span><br><span class="line">(<span class="number">3</span>, <span class="string">'鸡翅'</span>, <span class="number">12</span>),</span><br><span class="line">(<span class="number">4</span>, <span class="string">'杯子'</span>, <span class="number">42</span>);</span><br><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> <span class="symbol">`comment`</span> (<span class="symbol">`id`</span>, <span class="symbol">`entity_id`</span>, <span class="symbol">`content`</span>) <span class="keyword">VALUES</span></span><br><span class="line">(<span class="number">1</span>, <span class="number">1</span>, <span class="string">'味道还不错'</span>),</span><br><span class="line">(<span class="number">2</span>, <span class="number">1</span>, <span class="string">'还行啊'</span>),</span><br><span class="line">(<span class="number">3</span>, <span class="number">3</span>, <span class="string">'很实用哦'</span>);</span><br></pre></td></tr></table></figure>
+<p>下面我们用子查询的方式来查出商品的信息以及每个商品的评论数量</p>
+<figure class="highlight n1ql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> product.*,(<span class="keyword">select</span> <span class="built_in">count</span>(comment.id) <span class="keyword">from</span> comment <span class="keyword">where</span> product.id=comment.entity_id) comment_count <span class="keyword">FROM</span> <span class="symbol">`product`</span> <span class="keyword">limit</span> <span class="number">5</span>;</span><br></pre></td></tr></table></figure>
+<p>查询结果如下：</p>
+<p><a href="http://www.zjj.com/phpmyadmin/sql.php?db=test&amp;table=product&amp;sql_query=SELECT+product.%2A%2C%28select+count%28comment.id%29+from+comment+where+product.id%3Dcomment.entity_id%29+comment_count+FROM+%60product%60+ORDER+BY+%60product%60.%60id%60+ASC+limit+5&amp;session_max_rows=30&amp;token=c43efc1718c35c767060bafb6158d147" target="_blank" rel="external">id</a> <a href="http://www.zjj.com/phpmyadmin/sql.php?db=test&amp;table=product&amp;sql_query=SELECT+product.%2A%2C%28select+count%28comment.id%29+from+comment+where+product.id%3Dcomment.entity_id%29+comment_count+FROM+%60product%60+ORDER+BY+%60product%60.%60product_name%60+ASC+limit+5&amp;session_max_rows=30&amp;token=c43efc1718c35c767060bafb6158d147" target="_blank" rel="external">product_name</a> <a href="http://www.zjj.com/phpmyadmin/sql.php?db=test&amp;table=product&amp;sql_query=SELECT+product.%2A%2C%28select+count%28comment.id%29+from+comment+where+product.id%3Dcomment.entity_id%29+comment_count+FROM+%60product%60+ORDER+BY+%60product%60.%60price%60+ASC+limit+5&amp;session_max_rows=30&amp;token=c43efc1718c35c767060bafb6158d147" target="_blank" rel="external">price</a> <a href="http://www.zjj.com/phpmyadmin/sql.php?db=test&amp;table=product&amp;sql_query=SELECT+product.%2A%2C%28select+count%28comment.id%29+from+comment+where+product.id%3Dcomment.entity_id%29+comment_count+FROM+%60product%60+ORDER+BY+%60comment_count%60+ASC+limit+5&amp;session_max_rows=30&amp;token=c43efc1718c35c767060bafb6158d147" target="_blank" rel="external">comment_count</a></p>
+<p>1 肉松饼 5  2</p>
+<p>2 可乐 5  0</p>
+<p>3 鸡翅 12  1</p>
+<p>4 杯子 42  0</p>
+<p><strong>对于这种查询，可以分成两部来理解，首先忽略整个select子查询，查出商品表中的数据，然后根据商品的id执行子查询，对于一个商品id,子查询只能返回一条数据，如果子查询返回多条数据则会出错，另外，每一条select子查询只能查询一个字段。</strong></p>
+<p>另外的列子，查出每个商品信息以及商品的最新评论内容：</p>
+<figure class="highlight n1ql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> product.*,(<span class="keyword">select</span> comment.content <span class="keyword">from</span> comment <span class="keyword">where</span> product.id=comment.entity_id <span class="keyword">order</span> <span class="keyword">by</span> comment.id <span class="keyword">desc</span> <span class="keyword">limit</span> <span class="number">1</span>) comment_count <span class="keyword">FROM</span> <span class="symbol">`product`</span> <span class="keyword">limit</span> <span class="number">5</span>;</span><br></pre></td></tr></table></figure>
+<p>查询结果如下：</p>
+<p><a href="http://www.zjj.com/phpmyadmin/sql.php?db=test&amp;table=product&amp;sql_query=SELECT+product.%2A%2C%28select+comment.content+from+comment+where+product.id%3Dcomment.entity_id+limit+1+%29last_comment+FROM+%60product%60+ORDER+BY+%60product%60.%60id%60+ASC+limit+5&amp;session_max_rows=30&amp;token=c43efc1718c35c767060bafb6158d147" target="_blank" rel="external">id</a> <a href="http://www.zjj.com/phpmyadmin/sql.php?db=test&amp;table=product&amp;sql_query=SELECT+product.%2A%2C%28select+comment.content+from+comment+where+product.id%3Dcomment.entity_id+limit+1+%29last_comment+FROM+%60product%60+ORDER+BY+%60product%60.%60product_name%60+ASC+limit+5&amp;session_max_rows=30&amp;token=c43efc1718c35c767060bafb6158d147" target="_blank" rel="external">product_name</a> <a href="http://www.zjj.com/phpmyadmin/sql.php?db=test&amp;table=product&amp;sql_query=SELECT+product.%2A%2C%28select+comment.content+from+comment+where+product.id%3Dcomment.entity_id+limit+1+%29last_comment+FROM+%60product%60+ORDER+BY+%60product%60.%60price%60+ASC+limit+5&amp;session_max_rows=30&amp;token=c43efc1718c35c767060bafb6158d147" target="_blank" rel="external">price</a> <a href="http://www.zjj.com/phpmyadmin/sql.php?db=test&amp;table=product&amp;sql_query=SELECT+product.%2A%2C%28select+comment.content+from+comment+where+product.id%3Dcomment.entity_id+limit+1+%29last_comment+FROM+%60product%60+ORDER+BY+%60last_comment%60+ASC+limit+5&amp;session_max_rows=30&amp;token=c43efc1718c35c767060bafb6158d147" target="_blank" rel="external">last_comment</a></p>
+<p>1 肉松饼 5  还行啊</p>
+<p>2 可乐 5  <em>NULL</em></p>
+<p>3 鸡翅 12  很实用哦</p>
+<p>4 杯子 42  <em>NULL</em></p>
+<h1 id="示例二-billing"><a href="#示例二-billing" class="headerlink" title="示例二 billing"></a>示例二 billing</h1><p>分两步看，</p>
+<ol>
+<li>不看字查询bi.id not in () , 相当于查询出所有的status为1的id，和记录</li>
+</ol>
+<ol>
+<li>SELECT substring_index(group_concat(id ORDER BY product_start_time desc) , ‘,’ , 1)<br>​                                    FROM cash_billing_item<br>​                                    WHERE status = 1<br>​                                    GROUP BY product_no, customer_no</li>
+</ol>
+<p>SELECT SUBSTRING_INDEX(‘15,151,152,16’,’,’,1); ==&gt;得到结果为： 15</p>
+<p>然后每一条记录的bi.product_no 和bi.customer_no，分别和select的结果比较</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> bi.id</span><br><span class="line"><span class="keyword">FROM</span> cash_billing_item bi</span><br><span class="line"><span class="keyword">WHERE</span> bi.id <span class="keyword">and</span> bi.status = <span class="number">1</span> <span class="keyword">and</span> bi.id</span><br><span class="line">                                  <span class="keyword">not</span> <span class="keyword">in</span></span><br><span class="line">                                  (</span><br><span class="line">                                    <span class="keyword">SELECT</span> substring_index(<span class="keyword">group_concat</span>(<span class="keyword">id</span> <span class="keyword">ORDER</span> <span class="keyword">BY</span> product_start_time <span class="keyword">desc</span>) , <span class="string">','</span> , <span class="number">1</span>)</span><br><span class="line">                                    <span class="keyword">FROM</span> cash_billing_item</span><br><span class="line">                                    <span class="keyword">WHERE</span> product_no = bi.product_no <span class="keyword">AND</span> customer_no = bi.customer_no <span class="keyword">and</span> <span class="keyword">status</span> = <span class="number">1</span></span><br><span class="line">                                    <span class="keyword">GROUP</span> <span class="keyword">BY</span> product_no, customer_no</span><br><span class="line">                                  );</span><br><span class="line"></span><br><span class="line">        <span class="keyword">UPDATE</span> cash_billing_item bi,</span><br><span class="line">          (</span><br><span class="line">            <span class="keyword">SELECT</span> bi.id</span><br><span class="line">            <span class="keyword">FROM</span> cash_billing_item bi</span><br><span class="line">            <span class="keyword">WHERE</span> bi.id <span class="keyword">and</span> bi.status = <span class="number">1</span> <span class="keyword">and</span> bi.id</span><br><span class="line">                            <span class="keyword">not</span> <span class="keyword">in</span></span><br><span class="line">                            (</span><br><span class="line">                              <span class="keyword">SELECT</span> <span class="keyword">group_concat</span>(<span class="keyword">id</span> <span class="keyword">ORDER</span> <span class="keyword">BY</span> product_start_time <span class="keyword">desc</span>)</span><br><span class="line">                              <span class="keyword">FROM</span> cash_billing_item</span><br><span class="line">                              <span class="keyword">WHERE</span> product_no = bi.product_no <span class="keyword">AND</span> customer_no = bi.customer_no</span><br><span class="line">                                <span class="keyword">and</span> <span class="keyword">status</span> = <span class="number">1</span></span><br><span class="line">                              <span class="keyword">GROUP</span> <span class="keyword">BY</span> product_no, customer_no</span><br><span class="line">                            )</span><br><span class="line">          ) temp</span><br><span class="line">        <span class="keyword">SET</span> bi.status = <span class="number">2</span></span><br><span class="line">        <span class="keyword">WHERE</span> bi.id = temp.id;</span><br></pre></td></tr></table></figure>
+<p><strong>cash_billing_item_copy</strong></p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">create</span> <span class="keyword">table</span> cash_billing_item_copy</span><br><span class="line">(</span><br><span class="line">  <span class="keyword">id</span> <span class="built_in">bigint</span>(<span class="number">11</span>) <span class="keyword">unsigned</span> auto_increment <span class="keyword">comment</span> <span class="string">'自增id'</span></span><br><span class="line">    primary <span class="keyword">key</span>,</span><br><span class="line">  customer_no <span class="built_in">varchar</span>(<span class="number">64</span>) <span class="literal">null</span> <span class="keyword">comment</span> <span class="string">'客户编号'</span>,</span><br><span class="line">  product_id <span class="built_in">int</span> <span class="keyword">not</span> <span class="literal">null</span> <span class="keyword">comment</span> <span class="string">'产品表pk'</span>,</span><br><span class="line">  product_start_time <span class="keyword">timestamp</span> <span class="literal">null</span> <span class="keyword">comment</span> <span class="string">'产品生效时间'</span>,</span><br><span class="line">  gmt_create <span class="keyword">timestamp</span> <span class="keyword">default</span> <span class="keyword">CURRENT_TIMESTAMP</span> <span class="keyword">not</span> <span class="literal">null</span> <span class="keyword">comment</span> <span class="string">'创建时间'</span>,</span><br><span class="line">  gmt_modify <span class="keyword">timestamp</span> <span class="keyword">default</span> <span class="keyword">CURRENT_TIMESTAMP</span> <span class="keyword">not</span> <span class="literal">null</span> <span class="keyword">comment</span> <span class="string">'修改时间'</span></span><br><span class="line">)</span><br><span class="line">  <span class="keyword">comment</span> <span class="string">'从账务系统推来的计费项'</span></span><br><span class="line">;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> cash_billing_item_copy (customer_no, product_id, product_start_time) <span class="keyword">VALUES</span></span><br><span class="line">  (<span class="string">'ct2'</span>,<span class="number">1</span>,<span class="string">'2017-12-27 00:00:00'</span>);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">SELECT</span> * <span class="keyword">FROM</span> cash_billing_item_copy;</span><br><span class="line"></span><br><span class="line"><span class="keyword">SELECT</span>  <span class="keyword">group_concat</span>(<span class="keyword">id</span> <span class="keyword">ORDER</span> <span class="keyword">BY</span> product_start_time <span class="keyword">DESC</span>), customer_no , product_id</span><br><span class="line"><span class="keyword">FROM</span> cash_billing_item_copy</span><br><span class="line"><span class="keyword">GROUP</span> <span class="keyword">BY</span> customer_no  , product_id;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">SELECT</span> c.id</span><br><span class="line"></span><br><span class="line">  <span class="keyword">FROM</span> cash_billing_item_copy c</span><br><span class="line"><span class="keyword">WHERE</span> c.id <span class="keyword">AND</span> c.id <span class="keyword">NOT</span> <span class="keyword">IN</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">               (</span><br><span class="line">                 <span class="keyword">SELECT</span></span><br><span class="line">                   substring_index(<span class="keyword">group_concat</span>(<span class="keyword">id</span> <span class="keyword">ORDER</span> <span class="keyword">BY</span> product_start_time <span class="keyword">DESC</span>), <span class="string">','</span>, <span class="number">1</span>)</span><br><span class="line">                 <span class="keyword">FROM</span> cash_billing_item_copy</span><br><span class="line">                 <span class="keyword">GROUP</span> <span class="keyword">BY</span> customer_no, product_id</span><br><span class="line">               );</span><br><span class="line"></span><br><span class="line"><span class="keyword">SELECT</span> SUBSTRING_INDEX(<span class="string">'15,151,152,16'</span>,<span class="string">','</span>,<span class="number">1</span>);</span><br></pre></td></tr></table></figure>
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
   </section>
 
   
@@ -2779,7 +2786,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">150</span>
+                  <span class="site-state-item-count">147</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -2790,7 +2797,7 @@
               
               <div class="site-state-item site-state-categories">
                 <a href="/categories/index.html">
-                  <span class="site-state-item-count">28</span>
+                  <span class="site-state-item-count">27</span>
                   <span class="site-state-item-name">分类</span>
                 </a>
               </div>
@@ -2801,7 +2808,7 @@
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">43</span>
+                  <span class="site-state-item-count">42</span>
                   <span class="site-state-item-name">标签</span>
                 </a>
               </div>
@@ -2854,7 +2861,7 @@
     
       <span class="post-meta-item-text">Site words total count&#58;</span>
     
-    <span title="Site words total count">270.1k</span>
+    <span title="Site words total count">265.9k</span>
   
 </div>
 

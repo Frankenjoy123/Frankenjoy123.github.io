@@ -1574,571 +1574,6 @@ mv aa logs/
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/06/20/HBase原理案例及搭建/Spring Framework 注解场景说明起始版本/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="周小伍 Joey">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/xiaowu_avatar.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="xiaowu's blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/06/20/HBase原理案例及搭建/Spring Framework 注解场景说明起始版本/" itemprop="url">未命名</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-06-20T18:02:27+08:00">
-                2019-06-20
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2019/06/20/HBase原理案例及搭建/Spring Framework 注解场景说明起始版本/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count disqus-comment-count"
-                        data-disqus-identifier="2019/06/20/HBase原理案例及搭建/Spring Framework 注解场景说明起始版本/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-
-          
-
-          
-            <div class="post-wordcount">
-              
-                
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-file-word-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">字数统计&#58;</span>
-                
-                <span title="字数统计">
-                  1.1k
-                </span>
-              
-
-              
-                <span class="post-meta-divider">|</span>
-              
-
-              
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-clock-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
-                
-                <span title="阅读时长">
-                  5
-                </span>
-              
-            </div>
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>Spring Framework 注解场景说明起始版本</p>
-<p>@Repository 数据仓储模式注解2.0</p>
-<p>@Component 通用组件模式注解2.5</p>
-<p>@Service 服务模式注解2.5</p>
-<p>@Controller Web 控制器模式注解2.5</p>
-<p>@Configuration 配置类模式注解3.0</p>
-<p>走向自动装配</p>
-<p>Spring 模式注解装配</p>
-<p>模式注解（Stereotype Annotations）</p>
-<p>A stereotype annotation is an annotation that is used to declare the role that a component plays within the</p>
-<p>application. For example, the @Repository annotation in the Spring Framework is a marker for any class that</p>
-<p>fulfills the role or stereotype of a repository (also known as Data Access Object or DAO).</p>
-<p>@Component is a generic stereotype for any Spring-managed component. Any component annotated with</p>
-<p>@Component is a candidate for component scanning. Similarly, any component annotated with an annotation</p>
-<p>that is itself meta-annotated with @Component is also a candidate for component scanning. For example,</p>
-<p>@Service is meta-annotated with @Component .</p>
-<p>模式注解是一种用于声明在应用中扮演“组件”角色的注解。如 Spring Framework 中的 @Repository 标注在任何类上 ，用</p>
-<p>于扮演仓储角色的模式注解。</p>
-<p>@Component 作为一种由 Spring 容器托管的通用模式组件，任何被 @Component 标准的组件均为组件扫描的候选对象。类</p>
-<p>似地，凡是被 @Component 元标注（meta-annotated）的注解，如 @Service ，当任何组件标注它时，也被视作组件扫</p>
-<p>描的候选对象</p>
-<p>模式注解举例</p>
-<p>装配方式</p>
-<p><context:component-scan> 方式</context:component-scan></p>
-<p>&lt;?xml version=”1.0” encoding=”UTF-8”?&gt;</p>
-<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" @componentscan="" 方式="" 自定义模式注解="" @component="" “派生性”="" @repository="" firstlevelrepository="" xmlns:context="http://www.springframework.org/schema/context" xsi:schemalocation="http://www.springframework.org/schema/beans
-
-http://www.springframework.org/schema/beans/spring-beans.xsd
-
-http://www.springframework.org/schema/context http://www.springframework.org/schema/context/springcontext.
-
-xsd"><br><br><!-- 激活注解驱动特性 --><br><br><context:annotation-config><br><br><!-- 找寻被 @Component 或者其派生 Annotation 标记的类（Class），将它们注册为 Spring Bean --><br><br><context:component-scan base-package="com.imooc.dive.in.spring.boot"><br><br></context:component-scan></context:annotation-config></beans>
-
-<p>@ComponentScan(basePackages = “com.imooc.dive.in.spring.boot”)</p>
-<p>public class SpringConfiguration {</p>
-<p>…</p>
-<p>}</p>
-<p>/**</p>
-<p>* 一级 {@link Repository @Repository}</p>
-<p>*</p>
-<p>* @author <a href="mailto:mercyblitz@gmail.com" target="_blank" rel="external">Mercy</a></p>
-<p>* @since 1.0.0</p>
-<p>*/</p>
-<p>@Target({ElementType.TYPE})</p>
-<p>@Retention(RetentionPolicy.RUNTIME)</p>
-<p>@Documented</p>
-<p>@Repository</p>
-<p>public @interface FirstLevelRepository {</p>
-<p>String value() default “”;</p>
-<p>}</p>
-<p>@Component “层次性”</p>
-<p>@Component</p>
-<p>@Repository</p>
-<p>FirstLevelRepository</p>
-<p>SecondLevelRepository</p>
-<p>Spring @Enable 模块装配</p>
-<p>Spring Framework 3.1 开始支持”@Enable 模块驱动“。所谓“模块”是指具备相同领域的功能组件集合， 组合所形成一个独立</p>
-<p>的单元。比如 Web MVC 模块、AspectJ代理模块、Caching（缓存）模块、JMX（Java 管 理扩展）模块、Async（异步处</p>
-<p>理）模块等。</p>
-<p>@Enable 注解模块举例</p>
-<p>@Target({ElementType.TYPE})</p>
-<p>@Retention(RetentionPolicy.RUNTIME)</p>
-<p>@Documented</p>
-<p>@FirstLevelRepository</p>
-<p>public @interface SecondLevelRepository {</p>
-<p>String value() default “”;</p>
-<p>}</p>
-<p>框架实现@Enable 注解模块激活模块</p>
-<p>Spring Framework @EnableWebMvc Web MVC 模块</p>
-<p>@EnableTransactionManagement 事务管理模块</p>
-<p>@EnableCaching Caching 模块</p>
-<p>@EnableMBeanExport JMX 模块</p>
-<p>@EnableAsync 异步处理模块</p>
-<p>EnableWebFlux Web Flux 模块</p>
-<p>@EnableAspectJAutoProxy AspectJ 代理模块</p>
-<p>Spring Boot @EnableAutoConfiguration 自动装配模块</p>
-<p>@EnableManagementContext Actuator 管理模块</p>
-<p>@EnableConfigurationProperties 配置属性绑定模块</p>
-<p>@EnableOAuth2Sso OAuth2 单点登录模块</p>
-<p>Spring Cloud @EnableEurekaServer Eureka服务器模块</p>
-<p>@EnableConfigServer 配置服务器模块</p>
-<p>@EnableFeignClients Feign客户端模块</p>
-<p>@EnableZuulProxy 服务网关 Zuul 模块</p>
-<p>@EnableCircuitBreaker 服务熔断模块</p>
-<p>实现方式</p>
-<p>注解驱动方式</p>
-<p>@Retention(RetentionPolicy.RUNTIME)</p>
-<p>@Target(ElementType.TYPE)</p>
-<p>@Documented</p>
-<p>@Import(DelegatingWebMvcConfiguration.class)</p>
-<p>public @interface EnableWebMvc {</p>
-<p>}</p>
-<p>接口编程方式</p>
-<p>自定义 @Enable 模块</p>
-<p>基于注解驱动实现 - @EnableHelloWorld</p>
-<p>TODO</p>
-<p>@Configuration</p>
-<p>public class DelegatingWebMvcConfiguration extends</p>
-<p>WebMvcConfigurationSupport {</p>
-<p>…</p>
-<p>}</p>
-<p>@Target(ElementType.TYPE)</p>
-<p>@Retention(RetentionPolicy.RUNTIME)</p>
-<p>@Documented</p>
-<p>@Import(CachingConfigurationSelector.class)</p>
-<p>public @interface EnableCaching {</p>
-<p>…</p>
-<p>}</p>
-<p>public class CachingConfigurationSelector extends AdviceModeImportSelector<enablecaching> {</enablecaching></p>
-<p>/**</p>
-<p>* {@inheritDoc}</p>
-<p>* @return {@link ProxyCachingConfiguration} or {@code</p>
-<p>AspectJCacheConfiguration} for</p>
-<p>* {@code PROXY} and {@code ASPECTJ} values of {@link</p>
-<p>EnableCaching#mode()}, respectively</p>
-<p>*/</p>
-<p>public String[] selectImports(AdviceMode adviceMode) {</p>
-<p>switch (adviceMode) {</p>
-<p>case PROXY:</p>
-<p>return new String[] {</p>
-<p>AutoProxyRegistrar.class.getName(),ProxyCachingConfiguration.class.getName() };</p>
-<p>case ASPECTJ:</p>
-<p>return new String[] {</p>
-<p>AnnotationConfigUtils.CACHE_ASPECT_CONFIGURATION_CLASS_NAME };</p>
-<p>default:</p>
-<p>return null;</p>
-<p>}</p>
-<p>}</p>
-<p>Spring 注解场景说明起始版本</p>
-<p>@Profile 配置化条件装配3.1</p>
-<p>@Conditional 编程条件装配4.0</p>
-<p>基于接口驱动实现 - @EnableServer</p>
-<p>HelloWorldImportSelector -&gt; HelloWorldConfiguration -&gt; HelloWorld</p>
-<p>Spring 条件装配</p>
-<p>从 Spring Framework 3.1 开始，允许在 Bean 装配时增加前置条件判断</p>
-<p>条件注解举例</p>
-<p>实现方式</p>
-<p>配置方式 - @Profile</p>
-<p>编程方式 - @Conditional</p>
-<p>@Target({ ElementType.TYPE, ElementType.METHOD })</p>
-<p>@Retention(RetentionPolicy.RUNTIME)</p>
-<p>@Documented</p>
-<p>@Conditional(OnClassCondition.class)</p>
-<p>public @interface ConditionalOnClass {</p>
-<p>/**</p>
-<p>* The classes that must be present. Since this annotation is parsed by loading class</p>
-<p>* bytecode, it is safe to specify classes here that may ultimately not be on the</p>
-<p>* classpath, only if this annotation is directly on the affected component and</p>
-<p>* <b>not</b> if this annotation is used as a composed, meta-annotation. In order to</p>
-<p>* use this annotation as a meta-annotation, only use the {@link #name} attribute.</p>
-<p>* @return the classes that must be present</p>
-<p>*/</p>
-<p>Class&lt;?&gt;[] value() default {};</p>
-<p>/**</p>
-<p>* The classes names that must be present.</p>
-<p>自定义条件装配</p>
-<p>基于配置方式实现 - @Profile</p>
-<p>计算服务，多整数求和 sum</p>
-<p>@Profile(“Java7”) : for 循环</p>
-<p>@Profile(“Java8”) : Lambda</p>
-<p>基于编程方式实现 - @ConditionalOnSystemProperty</p>
-<p>Spring Boot 自动装配</p>
-<p>在 Spring Boot 场景下，基于约定大于配置的原则，实现 Spring 组件自动装配的目的。其中使用了</p>
-<p>底层装配技术</p>
-<p>Spring 模式注解装配</p>
-<p>Spring @Enable 模块装配</p>
-<p>Spring 条件装配装配</p>
-<p>Spring 工厂加载机制</p>
-<p>实现类： SpringFactoriesLoader</p>
-<p>配置资源： META-INF/spring.factories</p>
-<p>自动装配举例</p>
-<p>参考 META-INF/spring.factories</p>
-<p>* @return the class names that must be present.</p>
-<p>*/</p>
-<p>String[] name() default {};</p>
-<p>}</p>
-<p>实现方法</p>
-<p>\1. 激活自动装配 - @EnableAutoConfiguration</p>
-<p>\2. 实现自动装配 - XXXAutoConfiguration</p>
-<p>\3. 配置自动装配实现 - META-INF/spring.factories</p>
-<p>自定义自动装配</p>
-<p>HelloWorldAutoConfiguration</p>
-<p>条件判断： user.name == “Mercy”</p>
-<p>模式注解： @Configuration</p>
-<p>@Enable 模块： @EnableHelloWorld -&gt; HelloWorldImportSelector -&gt; HelloWorldConfiguration - &gt; helloWorld</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/06/15/HBase原理案例及搭建/安装/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="周小伍 Joey">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/xiaowu_avatar.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="xiaowu's blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/06/15/HBase原理案例及搭建/安装/" itemprop="url">未命名</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-06-15T10:29:07+08:00">
-                2019-06-15
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2019/06/15/HBase原理案例及搭建/安装/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count disqus-comment-count"
-                        data-disqus-identifier="2019/06/15/HBase原理案例及搭建/安装/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-
-          
-
-          
-            <div class="post-wordcount">
-              
-                
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-file-word-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">字数统计&#58;</span>
-                
-                <span title="字数统计">
-                  1.3k
-                </span>
-              
-
-              
-                <span class="post-meta-divider">|</span>
-              
-
-              
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-clock-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
-                
-                <span title="阅读时长">
-                  7
-                </span>
-              
-            </div>
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h1 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h1><h2 id="单节点"><a href="#单节点" class="headerlink" title="单节点"></a>单节点</h2><h3 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h3><blockquote>
-<p><a href="http://flume.apache.org/releases/content/1.9.0/FlumeUserGuide.html#a-simple-example" target="_blank" rel="external">http://flume.apache.org/releases/content/1.9.0/FlumeUserGuide.html#a-simple-example</a></p>
-</blockquote>
-<h3 id="上传解压"><a href="#上传解压" class="headerlink" title="上传解压"></a>上传解压</h3><figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">scp apache-flume-<span class="number">1.6</span>.<span class="number">0</span>-bin<span class="selector-class">.tar</span><span class="selector-class">.gz</span> root@node02:/root</span><br><span class="line">tar -zxvf apache-flume-<span class="number">1.6</span>.<span class="number">0</span>-bin<span class="selector-class">.tar</span><span class="selector-class">.gz</span></span><br><span class="line">mv apache-flume-<span class="number">1.6</span>.<span class="number">0</span>-bin/ /usr/install/</span><br></pre></td></tr></table></figure>
-<h3 id="配置环境变量"><a href="#配置环境变量" class="headerlink" title="配置环境变量"></a>配置环境变量</h3><figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">vi /etc/profile</span><br><span class="line">source /etc/profile</span><br></pre></td></tr></table></figure>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">export FLUME_HOME=/usr/<span class="keyword">install</span>/apache-flume<span class="number">-1.6</span><span class="number">.0</span>-<span class="keyword">bin</span></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">PATH</span>=$<span class="keyword">PATH</span>:$ZOOKEEPER_HOME/<span class="keyword">bin</span>:$HADOOP_HOME/<span class="keyword">bin</span>:$HADOOP_HOME/sbin:$HIVE_HOME/<span class="keyword">bin</span>:$HBASE_HOME/<span class="keyword">bin</span>:$FLUME_HOME/<span class="keyword">bin</span></span><br></pre></td></tr></table></figure>
-<h3 id="修改conf-flume-env-sh-文件中的JDK目录"><a href="#修改conf-flume-env-sh-文件中的JDK目录" class="headerlink" title="修改conf/flume-env.sh  文件中的JDK目录"></a>修改conf/flume-env.sh  文件中的JDK目录</h3><figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">cp flume-env<span class="selector-class">.sh</span><span class="selector-class">.template</span> flume-env.sh</span><br><span class="line">vi flume-env.sh</span><br></pre></td></tr></table></figure>
-<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="builtin-name">export</span> <span class="attribute">JAVA_HOME</span>=/usr/install/jdk/jdk1.8.0_171</span><br></pre></td></tr></table></figure>
-<h3 id="验证安装是否成功"><a href="#验证安装是否成功" class="headerlink" title="验证安装是否成功"></a>验证安装是否成功</h3><figure class="highlight applescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">flume-ng <span class="built_in">version</span></span><br></pre></td></tr></table></figure>
-<h3 id="修改配置"><a href="#修改配置" class="headerlink" title="修改配置"></a>修改配置</h3><figure class="highlight vim"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">cd</span> <span class="keyword">conf</span>/</span><br><span class="line"><span class="keyword">vi</span> simple.<span class="keyword">conf</span></span><br></pre></td></tr></table></figure>
-<figure class="highlight mipsasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="comment"># Name the components on this agent</span></span><br><span class="line"><span class="built_in">a1</span>.sources = r1</span><br><span class="line"><span class="built_in">a1</span>.sinks = <span class="built_in">k1</span></span><br><span class="line"><span class="built_in">a1</span>.channels = c1</span><br><span class="line"></span><br><span class="line"><span class="comment"># Describe/configure the source</span></span><br><span class="line"><span class="built_in">a1</span>.sources.r1.type = netcat</span><br><span class="line"><span class="built_in">a1</span>.sources.r1.<span class="keyword">bind </span>= node02</span><br><span class="line"><span class="built_in">a1</span>.sources.r1.port = <span class="number">44444</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Describe the sink</span></span><br><span class="line"><span class="built_in">a1</span>.sinks.k1.type = logger</span><br><span class="line"></span><br><span class="line"><span class="comment"># Use a channel which buffers events in memory</span></span><br><span class="line"><span class="built_in">a1</span>.channels.c1.type = memory</span><br><span class="line"><span class="built_in">a1</span>.channels.c1.capacity = <span class="number">1000</span></span><br><span class="line"><span class="built_in">a1</span>.channels.c1.transactionCapacity = <span class="number">100</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Bind the source and sink to the channel</span></span><br><span class="line"><span class="built_in">a1</span>.sources.r1.channels = c1</span><br><span class="line"><span class="built_in">a1</span>.sinks.k1.channel = c1</span><br></pre></td></tr></table></figure>
-<h3 id="启动flume"><a href="#启动flume" class="headerlink" title="启动flume"></a>启动flume</h3><figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">flume-ng agent -n a1 -c conf -f simple<span class="selector-class">.conf</span> -Dflume<span class="selector-class">.root</span><span class="selector-class">.logger</span>=INFO,console</span><br></pre></td></tr></table></figure>
-<h3 id="发送数据"><a href="#发送数据" class="headerlink" title="发送数据"></a>发送数据</h3><figure class="highlight dns"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">telnet node<span class="number">02 44444</span></span><br></pre></td></tr></table></figure>
-<h2 id="两个flume做集群"><a href="#两个flume做集群" class="headerlink" title="两个flume做集群"></a>两个flume做集群</h2><h3 id="参考文档-1"><a href="#参考文档-1" class="headerlink" title="参考文档"></a>参考文档</h3><blockquote>
-<p><a href="http://flume.apache.org/releases/content/1.9.0/FlumeUserGuide.html#setting-multi-agent-flow" target="_blank" rel="external">http://flume.apache.org/releases/content/1.9.0/FlumeUserGuide.html#setting-multi-agent-flow</a></p>
-</blockquote>
-<h3 id="右侧节点-node03"><a href="#右侧节点-node03" class="headerlink" title="右侧节点(node03)"></a>右侧节点(node03)</h3><h4 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h4><blockquote>
-<p><a href="http://flume.apache.org/releases/content/1.9.0/FlumeUserGuide.html#avro-source" target="_blank" rel="external">http://flume.apache.org/releases/content/1.9.0/FlumeUserGuide.html#avro-source</a></p>
-</blockquote>
-<figure class="highlight vim"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">vi</span> double-flume.<span class="keyword">conf</span></span><br></pre></td></tr></table></figure>
-<figure class="highlight mipsasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Name the components on this agent</span></span><br><span class="line"><span class="built_in">a1</span>.sources = r1</span><br><span class="line"><span class="built_in">a1</span>.sinks = <span class="built_in">k1</span></span><br><span class="line"><span class="built_in">a1</span>.channels = c1</span><br><span class="line"></span><br><span class="line"><span class="comment"># Describe/configure the source</span></span><br><span class="line"><span class="built_in">a1</span>.sources.r1.type = avro</span><br><span class="line"><span class="built_in">a1</span>.sources.r1.<span class="keyword">bind </span>= node03</span><br><span class="line"><span class="built_in">a1</span>.sources.r1.port = <span class="number">60000</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Describe the sink</span></span><br><span class="line"><span class="built_in">a1</span>.sinks.k1.type = logger</span><br><span class="line"></span><br><span class="line"><span class="comment"># Use a channel which buffers events in memory</span></span><br><span class="line"><span class="built_in">a1</span>.channels.c1.type = memory</span><br><span class="line"><span class="built_in">a1</span>.channels.c1.capacity = <span class="number">1000</span></span><br><span class="line"><span class="built_in">a1</span>.channels.c1.transactionCapacity = <span class="number">100</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Bind the source and sink to the channel</span></span><br><span class="line"><span class="built_in">a1</span>.sources.r1.channels = c1</span><br><span class="line"><span class="built_in">a1</span>.sinks.k1.channel = c1</span><br></pre></td></tr></table></figure>
-<h4 id="启动"><a href="#启动" class="headerlink" title="启动"></a>启动</h4><figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">flume-ng agent  -n a1 -c conf -f double-flume<span class="selector-class">.conf</span> -Dflume<span class="selector-class">.root</span><span class="selector-class">.logger</span>=INFO,console</span><br></pre></td></tr></table></figure>
-<h3 id="左侧节点-node02"><a href="#左侧节点-node02" class="headerlink" title="左侧节点(node02)"></a>左侧节点(node02)</h3><h4 id="参考-1"><a href="#参考-1" class="headerlink" title="参考"></a>参考</h4><blockquote>
-<p><a href="http://flume.apache.org/releases/content/1.9.0/FlumeUserGuide.html#avro-sink" target="_blank" rel="external">http://flume.apache.org/releases/content/1.9.0/FlumeUserGuide.html#avro-sink</a></p>
-</blockquote>
-<figure class="highlight elixir"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">scp -r apache-flume-<span class="number">1.6</span>.<span class="number">0</span>-bin/ root<span class="variable">@node03</span><span class="symbol">:/usr/install</span></span><br></pre></td></tr></table></figure>
-<figure class="highlight vim"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">vi</span> double-flume.<span class="keyword">conf</span></span><br></pre></td></tr></table></figure>
-<figure class="highlight mipsasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">a1</span>.sources = r1</span><br><span class="line"><span class="built_in">a1</span>.sinks = <span class="built_in">k1</span></span><br><span class="line"><span class="built_in">a1</span>.channels = c1</span><br><span class="line"></span><br><span class="line"><span class="comment"># Describe/configure the source</span></span><br><span class="line"><span class="built_in">a1</span>.sources.r1.type = netcat</span><br><span class="line"><span class="built_in">a1</span>.sources.r1.<span class="keyword">bind </span>= node02</span><br><span class="line"><span class="built_in">a1</span>.sources.r1.port = <span class="number">44444</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Describe the sink</span></span><br><span class="line"><span class="built_in">a1</span>.sinks.k1.type = avro</span><br><span class="line"><span class="built_in">a1</span>.sinks.k1.hostname = node03</span><br><span class="line"><span class="built_in">a1</span>.sinks.k1.port = <span class="number">60000</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># Use a channel which buffers events in memory</span></span><br><span class="line"><span class="built_in">a1</span>.channels.c1.type = memory</span><br><span class="line"><span class="built_in">a1</span>.channels.c1.capacity = <span class="number">1000</span></span><br><span class="line"><span class="built_in">a1</span>.channels.c1.transactionCapacity = <span class="number">100</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Bind the source and sink to the channel</span></span><br><span class="line"><span class="built_in">a1</span>.sources.r1.channels = c1</span><br><span class="line"><span class="built_in">a1</span>.sinks.k1.channel = c1</span><br></pre></td></tr></table></figure>
-<h4 id="启动-1"><a href="#启动-1" class="headerlink" title="启动"></a>启动</h4><figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">flume-ng agent  -n a1 -c conf -f double-flume<span class="selector-class">.conf</span> -Dflume<span class="selector-class">.root</span><span class="selector-class">.logger</span>=INFO,console</span><br></pre></td></tr></table></figure>
-<h3 id="发送数据-1"><a href="#发送数据-1" class="headerlink" title="发送数据"></a>发送数据</h3><figure class="highlight dns"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">telnet node<span class="number">02 44444</span></span><br></pre></td></tr></table></figure>
-<h2 id="Exec-Source方式，监控文件tail命令"><a href="#Exec-Source方式，监控文件tail命令" class="headerlink" title="Exec Source方式，监控文件tail命令"></a>Exec Source方式，监控文件tail命令</h2><h3 id="参考-2"><a href="#参考-2" class="headerlink" title="参考"></a>参考</h3><blockquote>
-<p><a href="http://flume.apache.org/releases/content/1.9.0/FlumeUserGuide.html#exec-source" target="_blank" rel="external">http://flume.apache.org/releases/content/1.9.0/FlumeUserGuide.html#exec-source</a></p>
-</blockquote>
-<h3 id="配置"><a href="#配置" class="headerlink" title="配置"></a>配置</h3><figure class="highlight vim"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">vi</span> exec.<span class="keyword">conf</span></span><br></pre></td></tr></table></figure>
-<figure class="highlight nix"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">a1.<span class="attr">sources</span> = r1</span><br><span class="line">a1.<span class="attr">sinks</span> = k1</span><br><span class="line">a1.<span class="attr">channels</span> = c1</span><br><span class="line"></span><br><span class="line"><span class="comment"># Describe/configure the source</span></span><br><span class="line">a1.sources.r1.<span class="attr">type</span> = exec</span><br><span class="line">a1.sources.r1.<span class="attr">command</span> = tail -F /root/test.txt</span><br><span class="line"></span><br><span class="line"><span class="comment"># Describe the sink</span></span><br><span class="line">a1.sinks.k1.<span class="attr">type</span> = logger</span><br><span class="line"></span><br><span class="line"><span class="comment"># Use a channel which buffers events in memory</span></span><br><span class="line">a1.channels.c1.<span class="attr">type</span> = memory</span><br><span class="line">a1.channels.c1.<span class="attr">capacity</span> = <span class="number">1000</span></span><br><span class="line">a1.channels.c1.<span class="attr">transactionCapacity</span> = <span class="number">100</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Bind the source and sink to the channel</span></span><br><span class="line">a1.sources.r1.<span class="attr">channels</span> = c1</span><br><span class="line">a1.sinks.k1.<span class="attr">channel</span> = c1</span><br></pre></td></tr></table></figure>
-<h3 id="启动-2"><a href="#启动-2" class="headerlink" title="启动"></a>启动</h3><figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">flume-ng agent -n a1 -c conf -f exec<span class="selector-class">.conf</span> -Dflume<span class="selector-class">.root</span><span class="selector-class">.logger</span>=INFO,console</span><br></pre></td></tr></table></figure>
-<h3 id="添加数据"><a href="#添加数据" class="headerlink" title="添加数据"></a>添加数据</h3><p>循环添加数据</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> &#123;1..50&#125;; <span class="keyword">do</span> <span class="built_in">echo</span> <span class="string">"<span class="variable">$i</span> hi flume"</span> &gt;&gt; /root/test.txt ; sleep 0.1; <span class="keyword">done</span></span><br></pre></td></tr></table></figure>
-<h2 id="Spooling-Directory-Source监控目录"><a href="#Spooling-Directory-Source监控目录" class="headerlink" title="Spooling Directory Source监控目录"></a>Spooling Directory Source监控目录</h2><h3 id="参考-3"><a href="#参考-3" class="headerlink" title="参考"></a>参考</h3><blockquote>
-<p><a href="http://flume.apache.org/releases/content/1.9.0/FlumeUserGuide.html#spooling-directory-source" target="_blank" rel="external">http://flume.apache.org/releases/content/1.9.0/FlumeUserGuide.html#spooling-directory-source</a></p>
-</blockquote>
-<h3 id="配置-1"><a href="#配置-1" class="headerlink" title="配置"></a>配置</h3><figure class="highlight vim"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">vi</span> spool.<span class="keyword">conf</span></span><br></pre></td></tr></table></figure>
-<figure class="highlight nix"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">a1.<span class="attr">sources</span> = r1</span><br><span class="line">a1.<span class="attr">sinks</span> = k1</span><br><span class="line">a1.<span class="attr">channels</span> = c1</span><br><span class="line"></span><br><span class="line"><span class="comment"># Describe/configure the source</span></span><br><span class="line">a1.sources.r1.<span class="attr">type</span> = spooldir</span><br><span class="line">a1.sources.r1.<span class="attr">spoolDir</span> = /root/logs</span><br><span class="line">a1.sources.r1.<span class="attr">fileHeader</span> = <span class="literal">true</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Describe the sink</span></span><br><span class="line">a1.sinks.k1.<span class="attr">type</span> = logger</span><br><span class="line"></span><br><span class="line"><span class="comment"># Use a channel which buffers events in memory</span></span><br><span class="line">a1.channels.c1.<span class="attr">type</span> = memory</span><br><span class="line">a1.channels.c1.<span class="attr">capacity</span> = <span class="number">1000</span></span><br><span class="line">a1.channels.c1.<span class="attr">transactionCapacity</span> = <span class="number">100</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Bind the source and sink to the channel</span></span><br><span class="line">a1.sources.r1.<span class="attr">channels</span> = c1</span><br><span class="line">a1.sinks.k1.<span class="attr">channel</span> = c1</span><br></pre></td></tr></table></figure>
-<h3 id="启动-3"><a href="#启动-3" class="headerlink" title="启动"></a>启动</h3><figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">flume-ng agent -n a1 -c conf -f spool<span class="selector-class">.conf</span> -Dflume<span class="selector-class">.root</span><span class="selector-class">.logger</span>=INFO,console</span><br></pre></td></tr></table></figure>
-<h3 id="拷贝文件演示"><a href="#拷贝文件演示" class="headerlink" title="拷贝文件演示"></a>拷贝文件演示</h3><pre><code>mkdir logs
-mv aa logs/
-</code></pre><h2 id="flume和kafka"><a href="#flume和kafka" class="headerlink" title="flume和kafka"></a>flume和kafka</h2><p>两者经常配对使用，谁在前后都可以</p>
-<h2 id="hdfs-sink方式"><a href="#hdfs-sink方式" class="headerlink" title="hdfs sink方式"></a>hdfs sink方式</h2><h3 id="参考-4"><a href="#参考-4" class="headerlink" title="参考"></a>参考</h3><blockquote>
-<p><a href="http://flume.apache.org/releases/content/1.9.0/FlumeUserGuide.html#hdfs-sink" target="_blank" rel="external">http://flume.apache.org/releases/content/1.9.0/FlumeUserGuide.html#hdfs-sink</a></p>
-</blockquote>
-<h3 id="配置-2"><a href="#配置-2" class="headerlink" title="配置"></a>配置</h3><figure class="highlight vim"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">vi</span> hdfs-sink.<span class="keyword">conf</span></span><br></pre></td></tr></table></figure>
-<figure class="highlight nix"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">a1.<span class="attr">sources</span> = r1</span><br><span class="line">a1.<span class="attr">sinks</span> = k1</span><br><span class="line">a1.<span class="attr">channels</span> = c1</span><br><span class="line"></span><br><span class="line"><span class="comment"># Describe/configure the source</span></span><br><span class="line">a1.sources.r1.<span class="attr">type</span> = spooldir</span><br><span class="line">a1.sources.r1.<span class="attr">spoolDir</span> = /root/logs</span><br><span class="line">a1.sources.r1.<span class="attr">fileHeader</span> = <span class="literal">true</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Describe the sink 文件目录格式</span></span><br><span class="line">a1.sinks.k1.<span class="attr">type=hdfs</span></span><br><span class="line">a1.sinks.k1.hdfs.<span class="attr">path=hdfs://mycluster/flume/%Y-%m-%d/%H%M</span></span><br><span class="line"></span><br><span class="line"><span class="comment">##每隔60s或者文件大小超过10M的时候产生新文件，roll对文件设置</span></span><br><span class="line"><span class="comment"># hdfs有多少条消息时新建文件，0不基于消息个数</span></span><br><span class="line">a1.sinks.k1.hdfs.<span class="attr">rollCount=0</span></span><br><span class="line"><span class="comment"># hdfs创建多长时间新建文件，0不基于时间</span></span><br><span class="line">a1.sinks.k1.hdfs.<span class="attr">rollInterval=60</span></span><br><span class="line"><span class="comment"># hdfs多大时新建文件，0不基于文件大小</span></span><br><span class="line">a1.sinks.k1.hdfs.<span class="attr">rollSize=10240</span></span><br><span class="line"><span class="comment"># 当目前被打开的临时文件在该参数指定的时间（秒）内，没有任何数据写入，则将该临时文件关闭并重命名成目标文件</span></span><br><span class="line">a1.sinks.k1.hdfs.<span class="attr">idleTimeout=3</span></span><br><span class="line"></span><br><span class="line">a1.sinks.k1.hdfs.<span class="attr">fileType=DataStream</span></span><br><span class="line">a1.sinks.k1.hdfs.<span class="attr">useLocalTimeStamp=true</span></span><br><span class="line"></span><br><span class="line"><span class="comment">## 每五分钟生成一个目录，round对目录设置</span></span><br><span class="line"><span class="comment"># 是否启用时间上的”舍弃”，这里的”舍弃”，类似于”四舍五入”，后面再介绍。如果启用，则会影响除了%t的其他所有时间表达式</span></span><br><span class="line">a1.sinks.k1.hdfs.<span class="attr">round=true</span></span><br><span class="line"><span class="comment"># 时间上进行“舍弃”的值；</span></span><br><span class="line">a1.sinks.k1.hdfs.<span class="attr">roundValue=5</span></span><br><span class="line"><span class="comment"># 时间上进行”舍弃”的单位，包含：second,minute,hour</span></span><br><span class="line">a1.sinks.k1.hdfs.<span class="attr">roundUnit=minute</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Use a channel which buffers events in memory</span></span><br><span class="line">a1.channels.c1.<span class="attr">type</span> = memory</span><br><span class="line">a1.channels.c1.<span class="attr">capacity</span> = <span class="number">1000</span></span><br><span class="line">a1.channels.c1.<span class="attr">transactionCapacity</span> = <span class="number">100</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Bind the source and sink to the channel</span></span><br><span class="line">a1.sources.r1.<span class="attr">channels</span> = c1</span><br><span class="line">a1.sinks.k1.<span class="attr">channel</span> = c1</span><br></pre></td></tr></table></figure>
-<h3 id="启动-4"><a href="#启动-4" class="headerlink" title="启动"></a>启动</h3><figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">flume-ng agent -n a1 -c conf -f hdfs-sink<span class="selector-class">.conf</span> -Dflume<span class="selector-class">.root</span><span class="selector-class">.logger</span>=INFO,console</span><br></pre></td></tr></table></figure>
-<h3 id="拷贝文件演示-1"><a href="#拷贝文件演示-1" class="headerlink" title="拷贝文件演示"></a>拷贝文件演示</h3><figure class="highlight arduino"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">mkdir</span> logs</span><br><span class="line">mv aa logs/</span><br></pre></td></tr></table></figure>
-<h2 id="tengine和flume集成项目"><a href="#tengine和flume集成项目" class="headerlink" title="tengine和flume集成项目"></a>tengine和flume集成项目</h2><h3 id="配置-3"><a href="#配置-3" class="headerlink" title="配置"></a>配置</h3><figure class="highlight vim"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">vi</span> tengine_project.<span class="keyword">conf</span></span><br></pre></td></tr></table></figure>
-<figure class="highlight nix"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">a1.<span class="attr">sources</span> = r1</span><br><span class="line">a1.<span class="attr">sinks</span> = k1</span><br><span class="line">a1.<span class="attr">channels</span> = c1</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">## 监听tengine的access log文件</span></span><br><span class="line">a1.sources.r1.<span class="attr">type</span> = exec</span><br><span class="line">a1.sources.r1.<span class="attr">command</span> = tail -F /opt/data/access.log</span><br><span class="line"></span><br><span class="line">a1.sinks.k1.<span class="attr">type=hdfs</span></span><br><span class="line">a1.sinks.k1.hdfs.<span class="attr">path=hdfs://mycluster/log/%Y%m%d</span></span><br><span class="line">a1.sinks.k1.hdfs.<span class="attr">rollCount=0</span></span><br><span class="line">a1.sinks.k1.hdfs.<span class="attr">rollInterval=0</span></span><br><span class="line">a1.sinks.k1.hdfs.<span class="attr">rollSize=10240</span></span><br><span class="line">a1.sinks.k1.hdfs.<span class="attr">idleTimeout=5</span></span><br><span class="line">a1.sinks.k1.hdfs.<span class="attr">fileType=DataStream</span></span><br><span class="line">a1.sinks.k1.hdfs.<span class="attr">useLocalTimeStamp=true</span></span><br><span class="line">a1.sinks.k1.hdfs.<span class="attr">callTimeout=40000</span></span><br><span class="line"></span><br><span class="line">a1.channels.c1.<span class="attr">type</span> = memory</span><br><span class="line">a1.channels.c1.<span class="attr">capacity</span> = <span class="number">1000</span></span><br><span class="line">a1.channels.c1.<span class="attr">transactionCapacity</span> = <span class="number">100</span></span><br><span class="line"></span><br><span class="line">a1.sources.r1.<span class="attr">channels</span> = c1</span><br><span class="line">a1.sinks.k1.<span class="attr">channel</span> = c1</span><br></pre></td></tr></table></figure>
-<h3 id="启动-5"><a href="#启动-5" class="headerlink" title="启动"></a>启动</h3><figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">flume-ng agent -n a1 -c conf -f tengine_project<span class="selector-class">.conf</span> -Dflume<span class="selector-class">.root</span><span class="selector-class">.logger</span>=INFO,console</span><br></pre></td></tr></table></figure>
-<h3 id="拷贝文件演示-2"><a href="#拷贝文件演示-2" class="headerlink" title="拷贝文件演示"></a>拷贝文件演示</h3><figure class="highlight arduino"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">mkdir</span> logs</span><br><span class="line">mv aa logs/</span><br></pre></td></tr></table></figure>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/06/12/java线程池设置指南/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -3531,6 +2966,427 @@ mv aa logs/
 
 
     
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/05/15/Spring-framwork技术体系目录/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="周小伍 Joey">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/xiaowu_avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="xiaowu's blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/05/15/Spring-framwork技术体系目录/" itemprop="url">Spring framwork技术体系目录</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-05-15T12:58:56+08:00">
+                2019-05-15
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Spring/" itemprop="url" rel="index">
+                    <span itemprop="name">Spring</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2019/05/15/Spring-framwork技术体系目录/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2019/05/15/Spring-framwork技术体系目录/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  393
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  1
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="异常处理"><a href="#异常处理" class="headerlink" title="异常处理"></a>异常处理</h2><p>在Spring中常见的全局异常处理，主要有三种：</p>
+<ul>
+<li>注解 @ExceptionHandler</li>
+</ul>
+<blockquote>
+<p>在 Controller 内部，用 <code>@ExceptionHandler</code>注解的方法，就会作为该Controller内部的异常处理方法。</p>
+<p>该方式需要在每个类中处理异常，不适合全局异常处理。</p>
+</blockquote>
+<ul>
+<li>继承HandlerExceptionResolver接口</li>
+</ul>
+<figure class="highlight aspectj"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="meta">@Slf</span>4j</span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">CustomHandlerExceptionResolver</span> <span class="keyword">implements</span> <span class="title">HandlerExceptionResolver</span> </span>&#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="function">ModelAndView <span class="title">resolveException</span><span class="params">(HttpServletRequest request, HttpServletResponse response, Object <span class="keyword">handler</span>, Exception ex)</span> </span>&#123;</span><br><span class="line">        Method method = <span class="keyword">null</span>;</span><br><span class="line">        <span class="keyword">if</span> (<span class="keyword">handler</span> != <span class="keyword">null</span> &amp;&amp; <span class="keyword">handler</span> <span class="keyword">instanceof</span> HandlerMethod) &#123;</span><br><span class="line">            method = ((HandlerMethod) <span class="keyword">handler</span>).getMethod();</span><br><span class="line">        &#125;</span><br><span class="line">        log.<span class="keyword">error</span>(<span class="string">"[&#123;&#125;] system error"</span>, method, ex);</span><br><span class="line">        ResponseDTO response = ResponseDTO.builder()</span><br><span class="line">        .errorCode(ErrorCode.SYSTEM_ERROR)</span><br><span class="line">        .build();</span><br><span class="line">        <span class="keyword">byte</span>[] bytes = JSON.toJSONString(response).getBytes(StandardCharsets.UTF_8));</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            FileCopyUtils.copy(bytes, response.getOutputStream());</span><br><span class="line">        &#125; <span class="keyword">catch</span> (IOException e) &#123;</span><br><span class="line">            log.<span class="keyword">error</span>(<span class="string">"error"</span>, e);</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> RuntimeException(e);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> ModelAndView();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>函数还可以返回一个 ModelAndView 对象，表示渲染一个视图，比方说错误页面。不过，在前后端分离为主流架构的今天，这个很少用了。如果函数返回的视图为空，则表示不需要视图。</p>
+</blockquote>
+<ul>
+<li>注解 @ControllerAdvice</li>
+</ul>
+<figure class="highlight less"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">@ControllerAdvice</span>(assignableTypes = &#123;GlobalExceptionHandlerMixin.class&#125;)</span><br><span class="line">public class ExceptionAdvice &#123;</span><br><span class="line">    <span class="variable">@ExceptionHandler</span>(ErrorCodeWrapperException.class)</span><br><span class="line">    <span class="variable">@ResponseBody</span></span><br><span class="line">    public ResponseDTO&lt;?&gt; exceptionHandler(ErrorCodeWrapperException e) &#123;</span><br><span class="line">        <span class="selector-tag">if</span> ((errCodeException.getErrorCode().equals(ErrorCode.SYSTEM_ERROR))) &#123;</span><br><span class="line">            <span class="selector-tag">log</span><span class="selector-class">.error</span>(e);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="selector-tag">return</span> <span class="selector-tag">ResponseDTO</span><span class="selector-class">.ofErroCodeWrapperException</span>(errCodeException);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>ControllerAdvice 支持的限定范围</p>
+<ol>
+<li>按注解：<code>@ControllerAdvice(annotations = RestController.class)</code></li>
+<li>按包名：<code>@ControllerAdvice(&quot;org.example.controllers&quot;)</code></li>
+<li>按类型：<code>@ControllerAdvice(assignableTypes = {ControllerInterface.class, AbstractController.class})</code></li>
+</ol>
+</blockquote>
+<h3 id="源码对应"><a href="#源码对应" class="headerlink" title="源码对应"></a>源码对应</h3><ul>
+<li>ExceptionHandlerExceptionResolver<ul>
+<li>@ExceptionHandler<ul>
+<li>@ControllerAdvice</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>ResponseStatusExceptionResolver</li>
+<li>DefaultHandlerExceptionResolver</li>
+<li>MyHandlerExceptionResolver</li>
+</ul>
+<h3 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h3><blockquote>
+<p>常见的Spring异常分析及处理 <a href="https://my.oschina.net/u/4007037/blog/3049044" target="_blank" rel="external">https://my.oschina.net/u/4007037/blog/3049044</a></p>
+<p>Spring中的统一异常处理  <a href="http://www.importnew.com/29962.html" target="_blank" rel="external">http://www.importnew.com/29962.html</a></p>
+<p>Spring全局异常处理的三种方式  <a href="https://www.jianshu.com/p/f968b8dcf95a" target="_blank" rel="external">https://www.jianshu.com/p/f968b8dcf95a</a></p>
+<p>Spring RestFul API统一异常处理 <a href="http://daobin.wang/2017/05/spring-restful-api/" target="_blank" rel="external">http://daobin.wang/2017/05/spring-restful-api/</a></p>
+</blockquote>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/04/16/单点登录实现——基于OAuth2-0协议的接入方案/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="周小伍 Joey">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/xiaowu_avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="xiaowu's blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/04/16/单点登录实现——基于OAuth2-0协议的接入方案/" itemprop="url">单点登录实现——基于OAuth2.0协议的接入方案</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-04-16T11:49:04+08:00">
+                2019-04-16
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/单点登录/" itemprop="url" rel="index">
+                    <span itemprop="name">单点登录</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2019/04/16/单点登录实现——基于OAuth2-0协议的接入方案/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2019/04/16/单点登录实现——基于OAuth2-0协议的接入方案/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  61
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  1
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h3 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h3><ul>
+<li><p><a href="https://m635674608.iteye.com/blog/2313142" target="_blank" rel="external">单点登录实现——基于OAuth2.0协议的接入方案</a></p>
+</li>
+<li><p><a href="https://www.cnblogs.com/xifengxiaoma/p/10043173.html" target="_blank" rel="external">Spring Security Oauth2 单点登录案例实现和执行流程剖析</a></p>
+</li>
+<li><p><a href="https://www.cnblogs.com/ywlaker/p/6113927.html" target="_blank" rel="external">单点登录原理与简单实现</a></p>
+</li>
+<li><p><a href="https://blog.csdn.net/javaloveiphone/article/details/52439613" target="_blank" rel="external">CAS实现单点登录SSO执行原理探究</a></p>
+</li>
+</ul>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
   </section>
 
   
@@ -3585,7 +3441,7 @@ mv aa logs/
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">150</span>
+                  <span class="site-state-item-count">147</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -3596,7 +3452,7 @@ mv aa logs/
               
               <div class="site-state-item site-state-categories">
                 <a href="/categories/index.html">
-                  <span class="site-state-item-count">28</span>
+                  <span class="site-state-item-count">27</span>
                   <span class="site-state-item-name">分类</span>
                 </a>
               </div>
@@ -3607,7 +3463,7 @@ mv aa logs/
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">43</span>
+                  <span class="site-state-item-count">42</span>
                   <span class="site-state-item-name">标签</span>
                 </a>
               </div>
@@ -3660,7 +3516,7 @@ mv aa logs/
     
       <span class="post-meta-item-text">Site words total count&#58;</span>
     
-    <span title="Site words total count">270.1k</span>
+    <span title="Site words total count">265.9k</span>
   
 </div>
 

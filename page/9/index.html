@@ -249,307 +249,6 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/05/13/教你如何成为Java的OOM-Killer/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="周小伍 Joey">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/xiaowu_avatar.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="xiaowu's blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2018/05/13/教你如何成为Java的OOM-Killer/" itemprop="url">教你如何成为Java的OOM Killer</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-05-13T14:47:38+08:00">
-                2018-05-13
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/线上故障排查/" itemprop="url" rel="index">
-                    <span itemprop="name">线上故障排查</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2018/05/13/教你如何成为Java的OOM-Killer/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count disqus-comment-count"
-                        data-disqus-identifier="2018/05/13/教你如何成为Java的OOM-Killer/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-
-          
-
-          
-            <div class="post-wordcount">
-              
-                
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-file-word-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">字数统计&#58;</span>
-                
-                <span title="字数统计">
-                  5k
-                </span>
-              
-
-              
-                <span class="post-meta-divider">|</span>
-              
-
-              
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-clock-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
-                
-                <span title="阅读时长">
-                  21
-                </span>
-              
-            </div>
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h2 id="Become-OOM-Killer"><a href="#Become-OOM-Killer" class="headerlink" title="Become OOM Killer"></a>Become OOM Killer</h2><p>我们都知道JVM的内存管理是自动化的，Java语言的程序指针也不需要开发人员手工释放，JVM的GC会自动的进行回收，但是，如果编程不当，JVM仍然会发生内存泄露，导致Java程序产生了OutOfMemoryError（OOM）错误。</p>
-<p>产生OutOfMemoryError错误的原因包括：</p>
-<blockquote>
-<ol>
-<li>java.lang.OutOfMemoryError: Java heap space</li>
-<li>java.lang.OutOfMemoryError: PermGen space及其解决方法</li>
-<li>java.lang.OutOfMemoryError: unable to create new native thread</li>
-<li>java.lang.OutOfMemoryError：GC overhead limit exceeded</li>
-</ol>
-</blockquote>
-<p>对于第1种异常，表示Java堆空间不够，当应用程序申请更多的内存，而Java堆内存已经无法满足应用程序对内存的需要，将抛出这种异常。</p>
-<p>对于第2种异常，表示Java永久带（方法区）空间不够，永久带用于存放类的字节码和长常量池，类的字节码加载后存放在这个区域，这和存放对象实例的堆区是不同的，大多数JVM的实现都不会对永久带进行垃圾回收，因此，只要类加载的过多就会出现这个问题。一般的应用程序都不会产生这个错误，然而，对于Web服务器来讲，会产生有大量的JSP，JSP在运行时被动态的编译成Java Servlet类，然后加载到方法区，因此，太多的JSP的Web工程可能产生这个异常。</p>
-<p>对于第3种异常，本质原因是创建了太多的线程，而能创建的线程数是有限制的，导致了这种异常的发生。</p>
-<p>对于第4种异常，是在并行或者并发回收器在GC回收时间过长、超过98%的时间用来做GC并且回收了不到2%的堆内存，然后抛出这种异常进行提前预警，用来避免内存过小造成应用不能正常工作。</p>
-<p>下面两个异常与OOM有关系，但是，又没有绝对关系。</p>
-<blockquote>
-<ol>
-<li>java.lang.StackOverflowError …</li>
-<li>java.net.SocketException: Too many open files</li>
-</ol>
-</blockquote>
-<p>对于第1种异常，是JVM的线程由于递归或者方法调用层次太多，占满了线程堆栈而导致的，线程堆栈默认大小为1M。</p>
-<p>对于第2种异常，是由于系统对文件句柄的使用是有限制的，而某个应用程序使用的文件句柄超过了这个限制，就会导致这个问题。</p>
-<p>上面介绍了OOM相关的基础知识，接下来我们开始讲述笔者经历的一次OOM问题的定位和解决的过程。</p>
-<p><strong>1. 产生问题的现象</strong></p>
-<p>在某一段时间内，我们发现不同的业务服务开始偶发的报OOM的异常，有的时候是白天发生，有的时候是晚上发生，有的时候是基础服务A发生，有的时候是上层服务B发生，有的时候是上层服务C发生，有的时候是下层服务D发生，丝毫看不到一点规律。</p>
-<p>产生问题的异常如下：</p>
-<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Caused by: java<span class="selector-class">.lang</span><span class="selector-class">.OutOfMemoryError</span>: unable to create new native thread at java<span class="selector-class">.lang</span><span class="selector-class">.Thread</span><span class="selector-class">.start0</span>(Native Method)</span><br><span class="line">at java<span class="selector-class">.lang</span><span class="selector-class">.Thread</span><span class="selector-class">.start</span>(Thread<span class="selector-class">.java</span>:<span class="number">597</span>)</span><br><span class="line">at java<span class="selector-class">.util</span><span class="selector-class">.Timer</span>.&lt;init&gt;(Timer<span class="selector-class">.java</span>:<span class="number">154</span>)</span><br></pre></td></tr></table></figure>
-<p><strong>2. 解决问题的思路和过程</strong></p>
-<p>经过细心观察发现，产生问题虽然在不同的时间发生在不同的服务池，但是，晚上0点发生的时候概率较大，也有其他时间偶发，但是都在整点。</p>
-<p>这个规律很重要，虽然不是一个时间，但是基本都在整点左右发生，并且晚上0点居多。从这个角度思考，整点或者0点系统是否有定时，与出问题的每个业务系统技术负责人核实，0点没有定时任务，其他时间的整点有定时任务，但是与发生问题的时间不吻合，这个思路行不通。</p>
-<p>到现在为止，从现象的规律上我们已经没法继续分析下去了，那我们回顾一下错误本身：</p>
-<blockquote>
-<p>java.lang.OutOfMemoryError: unable to create new native thread</p>
-</blockquote>
-<p>顾名思义，错误产生的原因就是应用不能创建线程了，但是，应用还需要创建线程。为什么程序不能创建线程呢？</p>
-<p>有两个具体原因造成这个异常:</p>
-<blockquote>
-<ol>
-<li>由于线程使用的资源过多，操作系统已经不能再提供给应用资源了。</li>
-<li>操作系统设置了应用创建线程的最大数量，并且已经达到了最大允许数量。</li>
-</ol>
-</blockquote>
-<p>上面第1条资源指的是内存，而第2条中，在Linux下线程使用轻量级进程实现的，因此线程的最大数量也是操作系统允许的进程的最大数量。</p>
-<p><em>内存计算</em></p>
-<p>操作系统中的最大可用内存除去操作系统本身使用的部分，剩下的都可以为某一个进程服务，在JVM进程中，内存又被分为堆、本地内存和栈等三大块，Java堆是JVM自动管理的内存，应用的对象的创建和销毁、类的装载等都发生在这里，本地内存是Java应用使用的一种特殊内存，JVM并不直接管理其生命周期，每个线程也会有一个栈，是用来存储线程工作过程中产生的方法局部变量、方法参数和返回值的，每个线程对应的栈的默认大小为1M。</p>
-<p>Linux和JVM的内存管理示意图如下：</p>
-<p><img src="http://mmbiz.qpic.cn/mmbiz_jpg/odp4zTVAogo5XkPb5f7cibDtDbGb5HUqBhBLwQDAFPtTbjwhCXrTDaf7KQjCASp4XJ896CaP7wYPwUNCWYicEeUw/640?wx_fmt=jpeg&amp;tp=webp&amp;wxfrom=5&amp;wx_lazy=1" alt="img"></p>
-<p>因此，从内存角度来看创建线程需要内存空间，如果JVM进程正当一个应用创建线程，而操作系统没有剩余的内存分配给此JVM进程，则会抛出问题中的OOM异常：unable to create new native thread。</p>
-<p>如下公式可以用来从内存角度计算允许创建的最大线程数：</p>
-<blockquote>
-<p>最大线程数 = （操作系统最大可用内存 - JVM内存 - 操作系统预留内存）/ 线程栈大小</p>
-</blockquote>
-<p>根据这个公式，我们可以通过剩余内存计算可以创建线程的数量。</p>
-<p>下面是问题出现的时候，从生产机器上执行前面小节介绍的Linux命令free的输出：</p>
-<figure class="highlight tap"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">free -m &gt;&gt; /tmp/free.log</span><br><span class="line">             total       used       free     shared    buffers     cached</span><br><span class="line">Mem:         <span class="number"> 7872 </span>     <span class="number"> 7163 </span>      <span class="number"> 709 </span>        <span class="number"> 0 </span>       <span class="number"> 31 </span>      3807-/+ buffers/cache:      <span class="number"> 3324 </span>      4547Swap:        <span class="number"> 4095 </span>      <span class="number"> 173 </span>      3922Tue Jul<span class="number"> 5 </span>00:27:51 CST 2016</span><br></pre></td></tr></table></figure>
-<p>从上面输出可以得出，生产机器8G内存，使用了7G，剩余700M可用，其中操作系统cache使用3.8G。操作系统cache使用的3.8G是用来缓存IO数据的，如果进程内存不够用，这些内存是可以释放出来优先分配给进程使用。然而，我们暂时并不需要考虑这块内存，剩余的700M空间完全可以继续用来创建线程数：</p>
-<blockquote>
-<p>700M / 1M = 700个线程</p>
-</blockquote>
-<p>因此，根据内存可用计算，当OOM异常：unable to create new native thread问题发生的时候，还有700M可用内存，可以创建700个线程。</p>
-<p>到现在为止可以证明此次OOM异常不是因为线程吃光所有的内存而导致的。</p>
-<p><em>线程数对比</em></p>
-<p>上面提到，有两个具体原因造成这个异常，我们上面已经排除了第1个原因，那我们现在从第2个原因入手，评估是否操作系统设置了应用创建线程的最大数量，并且已经达到了最大允许数量。</p>
-<p>在问题出现的生产机器上使用ulimit -a来显示当前的各种系统对用户使用资源的限制：</p>
-<figure class="highlight mel"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">robert@robert-ubuntu1410：~$ ulimit -acore <span class="keyword">file</span> <span class="keyword">size</span>          (blocks, -c) <span class="number">0</span>data seg <span class="keyword">size</span>           (kbytes, -d) unlimited</span><br><span class="line">scheduling priority             (-e) <span class="number">0</span><span class="keyword">file</span> <span class="keyword">size</span>               (blocks, -f) unlimited</span><br><span class="line">pending signals                 (-i) <span class="number">62819</span><span class="keyword">max</span> locked <span class="keyword">memory</span>       (kbytes, -l) <span class="number">64</span><span class="keyword">max</span> <span class="keyword">memory</span> <span class="keyword">size</span>         (kbytes, -m) unlimited</span><br><span class="line">open files                      (-n) <span class="number">65535</span>pipe <span class="keyword">size</span>            (<span class="number">512</span> bytes, -p) <span class="number">8</span>POSIX message queues     (bytes, -q) <span class="number">819200</span>real-time priority              (-r) <span class="number">0</span>stack <span class="keyword">size</span>              (kbytes, -s) <span class="number">10240</span>cpu time               (seconds, -t) unlimited</span><br><span class="line"><span class="keyword">max</span> user processes              (-u) <span class="number">1024</span>virtual <span class="keyword">memory</span>          (kbytes, -v) unlimited</span><br><span class="line"><span class="keyword">file</span> locks                      (-x) unlimited</span><br></pre></td></tr></table></figure>
-<p>这里面我们看到生产机器设置的允许使用的最大用户进程数为1024：</p>
-<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">max<span class="built_in"> user </span>processes              (-u) 1024</span><br></pre></td></tr></table></figure>
-<p>现在，我们必须获得问题出现的时候，用户下创建的线程情况。</p>
-<p>在问题产生的时候，我们使用前面小结介绍的JVM监控命令jstack命令打印出了Java线程情况,jstack命令的示例输出如下：</p>
-<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">robert@robert-ubuntu1410:~$ jstack <span class="number">2743</span></span><br><span class="line"></span><br><span class="line"><span class="number">2017</span>-<span class="number">04</span>-<span class="number">09</span> <span class="number">12</span>:<span class="number">06</span>:<span class="number">51</span>Full thread dump Java HotSpot(TM) Server VM (<span class="number">25.20</span>-b23 mixed mode):<span class="string">"Attach Listener"</span> #<span class="number">23</span> daemon prio=<span class="number">9</span> os_prio=<span class="number">0</span> tid=<span class="number">0</span>xc09adc00 nid=<span class="number">0</span>xb4c waiting on condition [<span class="number">0</span>x00000000]</span><br><span class="line">   java<span class="selector-class">.lang</span><span class="selector-class">.Thread</span><span class="selector-class">.State</span>: RUNNABLE<span class="string">"http-nio-8080-Acceptor-0"</span> #<span class="number">22</span> daemon prio=<span class="number">5</span> os_prio=<span class="number">0</span> tid=<span class="number">0</span>xc3341000 nid=<span class="number">0</span>xb02 runnable [<span class="number">0</span>xbf1bd000]</span><br><span class="line">   java<span class="selector-class">.lang</span><span class="selector-class">.Thread</span><span class="selector-class">.State</span>: RUNNABLE</span><br><span class="line">    at sun<span class="selector-class">.nio</span><span class="selector-class">.ch</span><span class="selector-class">.ServerSocketChannelImpl</span><span class="selector-class">.accept0</span>(Native Method)</span><br><span class="line">    at sun<span class="selector-class">.nio</span><span class="selector-class">.ch</span><span class="selector-class">.ServerSocketChannelImpl</span><span class="selector-class">.accept</span>(ServerSocketChannelImpl<span class="selector-class">.java</span>:<span class="number">241</span>)</span><br><span class="line">    - locked &lt;<span class="number">0</span>xcf8938d8&gt; (<span class="selector-tag">a</span> java<span class="selector-class">.lang</span><span class="selector-class">.Object</span>)</span><br><span class="line">    at org<span class="selector-class">.apache</span><span class="selector-class">.tomcat</span><span class="selector-class">.util</span><span class="selector-class">.net</span><span class="selector-class">.NioEndpoint</span><span class="variable">$Acceptor</span>.run(NioEndpoint<span class="selector-class">.java</span>:<span class="number">688</span>)</span><br><span class="line">    at java<span class="selector-class">.lang</span><span class="selector-class">.Thread</span><span class="selector-class">.run</span>(Thread<span class="selector-class">.java</span>:<span class="number">745</span>)<span class="string">"http-nio-8080-ClientPoller-1"</span> #<span class="number">21</span> daemon prio=<span class="number">5</span> os_prio=<span class="number">0</span> tid=<span class="number">0</span>xc35bc400 nid=<span class="number">0</span>xb01 runnable [<span class="number">0</span>xbf1fe000]</span><br><span class="line">   java<span class="selector-class">.lang</span><span class="selector-class">.Thread</span><span class="selector-class">.State</span>: RUNNABLE</span><br><span class="line">    at sun<span class="selector-class">.nio</span><span class="selector-class">.ch</span><span class="selector-class">.EPollArrayWrapper</span><span class="selector-class">.epollWait</span>(Native Method)</span><br><span class="line">    at sun<span class="selector-class">.nio</span><span class="selector-class">.ch</span><span class="selector-class">.EPollArrayWrapper</span><span class="selector-class">.poll</span>(EPollArrayWrapper<span class="selector-class">.java</span>:<span class="number">269</span>)</span><br><span class="line">    at sun<span class="selector-class">.nio</span><span class="selector-class">.ch</span><span class="selector-class">.EPollSelectorImpl</span><span class="selector-class">.doSelect</span>(EPollSelectorImpl<span class="selector-class">.java</span>:<span class="number">79</span>)</span><br><span class="line">    at sun<span class="selector-class">.nio</span><span class="selector-class">.ch</span><span class="selector-class">.SelectorImpl</span><span class="selector-class">.lockAndDoSelect</span>(SelectorImpl<span class="selector-class">.java</span>:<span class="number">86</span>)</span><br><span class="line">    - locked &lt;<span class="number">0</span>xcf99b100&gt; (<span class="selector-tag">a</span> sun<span class="selector-class">.nio</span><span class="selector-class">.ch</span><span class="selector-class">.Util</span>$<span class="number">2</span>)</span><br><span class="line">    - locked &lt;<span class="number">0</span>xcf99b0f0&gt; (<span class="selector-tag">a</span> java<span class="selector-class">.util</span><span class="selector-class">.Collections</span><span class="variable">$UnmodifiableSet</span>)</span><br><span class="line">    - locked &lt;<span class="number">0</span>xcf99aff8&gt; (<span class="selector-tag">a</span> sun<span class="selector-class">.nio</span><span class="selector-class">.ch</span><span class="selector-class">.EPollSelectorImpl</span>)</span><br><span class="line">    at sun<span class="selector-class">.nio</span><span class="selector-class">.ch</span><span class="selector-class">.SelectorImpl</span><span class="selector-class">.select</span>(SelectorImpl<span class="selector-class">.java</span>:<span class="number">97</span>)</span><br><span class="line">    at org<span class="selector-class">.apache</span><span class="selector-class">.tomcat</span><span class="selector-class">.util</span><span class="selector-class">.net</span><span class="selector-class">.NioEndpoint</span><span class="variable">$Poller</span>.run(NioEndpoint<span class="selector-class">.java</span>:<span class="number">1052</span>)</span><br><span class="line">    at java<span class="selector-class">.lang</span><span class="selector-class">.Thread</span><span class="selector-class">.run</span>(Thread<span class="selector-class">.java</span>:<span class="number">745</span>)</span><br><span class="line">......</span><br></pre></td></tr></table></figure>
-<p>从jstack命令的输出并统计后，我们得知，JVM一共创建了904个线程，但是，这还没有到最大的进程限制1024。</p>
-<figure class="highlight autoit"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">robert<span class="symbol">@robert</span>-ubuntu1410:~$ grep <span class="string">"Thread "</span> js.<span class="built_in">log</span> | wc -l</span><br><span class="line">     <span class="number">904</span></span><br></pre></td></tr></table></figure>
-<p>这是我们思考，除了JVM创建的应用层线程，JVM本身可能会有一些管理线程存在，而且操作系统内用户下可能也会有守护线程在运行。</p>
-<p>我们继续从操作系统的角度来统计线程数，我们使用上面小结介绍的Linux操作系统命令pstack，并得到如下的输出：</p>
-<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">PID   LWP<span class="built_in"> USER </span>    %CPU %MEM CMD    1     1 root      0.0  0.0 /sbin/init    2     2 root      0.0  0.0 [kthreadd]    3     3 root      0.0  0.0 [migration/0]    4     4 root      0.0  0.0 [ksoftirqd/0]    5     5 root      0.0  0.0 [migration/0]    6     6 root      0.0  0.0 [watchdog/0]    7     7 root      0.0  0.0 [migration/1]    8     8 root      0.0  0.0 [migration/1]    9     9 root      0.0  0.0 [ksoftirqd/1]   10    10 root      0.0  0.0 [watchdog/1]   11    11 root      0.0  0.0 [migration/2]   12    12 root      0.0  0.0 [migration/2]   13    13 root      0.0  0.0 [ksoftirqd/2]   14    14 root      0.0  0.0 [watchdog/2]   15    15 root      0.0  0.0 [migration/3]   16    16 root      0.0  0.0 [migration/3]   17    17 root      0.0  0.0 [ksoftirqd/3]   18    18 root      0.0  0.0 [watchdog/3]   19    19 root      0.0  0.0 [events/0]   20    20 root      0.0  0.0 [events/1]   21    21 root      0.0  0.0 [events/2]   22    22 root      0.0  0.0 [events/3]   23    23 root      0.0  0.0 [cgroup]   24    24 root      0.0  0.0 [khelper]</span><br><span class="line"></span><br><span class="line"> <span class="built_in">..</span><span class="built_in">..</span><span class="built_in">..</span> 7257  7257 zabbix    0.0  0.0 /usr/local/zabbix/sbin/zabbix_agentd: active checks #2 [idle 1 sec]</span><br><span class="line"> 7258  7258 zabbix    0.0  0.0 /usr/local/zabbix/sbin/zabbix_agentd: active checks #3 [idle 1 sec]</span><br><span class="line"> 7259  7259 zabbix    0.0  0.0 /usr/local/zabbix/sbin/zabbix_agentd: active checks #4 [idle 1 sec]</span><br><span class="line"></span><br><span class="line"> <span class="built_in">..</span><span class="built_in">..</span><span class="built_in">..</span> 9040  9040 app       0.0 30.5 /apps/prod/jdk1.6.0_24/bin/java -Dnop -Djava.util.logging.<span class="attribute">manager</span>=org.apache.juli.ClassLoaderLogManager <span class="attribute">-Ddbconfigpath</span>=/apps/dbconfig/ -Djava.io.<span class="attribute">tmpdir</span>=/apps/data/java-tmpdir -server -Xms2048m -Xmx2048m -XX:<span class="attribute">PermSize</span>=128m -XX:<span class="attribute">MaxPermSize</span>=512m -Dcom.sun.management.jmxremote -Djava.rmi.server.<span class="attribute">hostname</span>=192.168.10.194 -Dcom.sun.management.jmxremote.<span class="attribute">port</span>=6969 -Dcom.sun.management.jmxremote.<span class="attribute">ssl</span>=<span class="literal">false</span> -Dcom.sun.management.jmxremote.<span class="attribute">authenticate</span>=<span class="literal">false</span> -XX:+HeapDumpOnOutOfMemoryError -XX:<span class="attribute">HeapDumpPath</span>=/tmp -Xshare:off <span class="attribute">-Dhostname</span>=sjsa-trade04 -Djute.<span class="attribute">maxbuffer</span>=41943040 -Djava.net.<span class="attribute">preferIPv4Stack</span>=<span class="literal">true</span> -Dfile.<span class="attribute">encoding</span>=UTF-8 <span class="attribute">-Dworkdir</span>=/apps/data/tomcat-work -Djava.endorsed.<span class="attribute">dirs</span>=/apps/product/tomcat-trade/endorsed -classpath commonlib:/apps/product/tomcat-trade/bin/bootstrap.jar:/apps/product/tomcat-trade/bin/tomcat-juli.jar -Dcatalina.<span class="attribute">base</span>=/apps/product/tomcat-trade -Dcatalina.<span class="attribute">home</span>=/apps/product/tomcat-trade -Djava.io.<span class="attribute">tmpdir</span>=/apps/data/tomcat-temp/ org.apache.catalina.startup.Bootstrap start 9040  9041 app       0.0 30.5 /apps/prod/jdk1.6.0_24/bin/java -Dnop -Djava.util.logging.<span class="attribute">manager</span>=org.apache.juli.ClassLoaderLogManager <span class="attribute">-Ddbconfigpath</span>=/apps/dbconfig/ -Djava.io.<span class="attribute">tmpdir</span>=/apps/data/java-tmpdir -server -Xms2048m -Xmx2048m -XX:<span class="attribute">PermSize</span>=128m -XX:<span class="attribute">MaxPermSize</span>=512m -Dcom.sun.management.jmxremote -Djava.rmi.server.<span class="attribute">hostname</span>=192.168.10.194 -Dcom.sun.management.jmxremote.<span class="attribute">port</span>=6969 -Dcom.sun.management.jmxremote.<span class="attribute">ssl</span>=<span class="literal">false</span> -Dcom.sun.management.jmxremote.<span class="attribute">authenticate</span>=<span class="literal">false</span> -XX:+HeapDumpOnOutOfMemoryError -XX:<span class="attribute">HeapDumpPath</span>=/tmp -Xshare:off <span class="attribute">-Dhostname</span>=sjsa-trade04 -Djute.<span class="attribute">maxbuffer</span>=41943040 -Djava.net.<span class="attribute">preferIPv4Stack</span>=<span class="literal">true</span> -Dfile.<span class="attribute">encoding</span>=UTF-8 <span class="attribute">-Dworkdir</span>=/apps/data/tomcat-work -Djava.endorsed.<span class="attribute">dirs</span>=/apps/product/tomcat-trade/endorsed -classpath commonlib:/apps/product/tomcat-trade/bin/bootstrap.jar:/apps/product/tomcat-trade/bin/tomcat-juli.jar -Dcatalina.<span class="attribute">base</span>=/apps/product/tomcat-trade -Dcatalina.<span class="attribute">home</span>=/apps/product/tomcat-trade -Djava.io.<span class="attribute">tmpdir</span>=/apps/data/tomcat-temp/ org.apache.catalina.startup.Bootstrap start</span><br><span class="line"></span><br><span class="line"><span class="built_in">..</span><span class="built_in">..</span><span class="built_in">..</span></span><br></pre></td></tr></table></figure>
-<p>通过命令统计用户下已经创建的线程数为1021。</p>
-<figure class="highlight 1c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ grep app pthreads.<span class="built_in">log</span> <span class="string">| wc -l</span></span><br><span class="line">    <span class="number">1021</span></span><br></pre></td></tr></table></figure>
-<p>现在我们确定，1021的数字已经相当的接近1021的最大进程数了，正如前面我们提到，在Linux操作系统里，线程是通过轻量级的进程实现的，因此，限制用户的最大进程数，就是限制用户的最大线程数，至于为什么没有精确达到1024这个最大值就已经报出异常，应该是系统的自我保护功能，在还剩下3个线程的前提下，就开始报错。</p>
-<p>到此为止，我们已经通过分析来找到问题的原因，但是，我们还是不知道为什么会创建这么多的线程，从第一个输出得知，JVM已经创建的应用线程有907个，那么他们都在做什么事情呢？</p>
-<p>于是，在问题发生的时候，我们又使用JVM的jstack命令，查看输出得知，每个线程都阻塞在打印日志的语句上，log4j中打印日志的代码实现如下：</p>
-<figure class="highlight cs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">callAppenders</span>(<span class="params">LoggingEvent <span class="keyword">event</span></span>) </span>&#123;    <span class="keyword">int</span> writes = <span class="number">0</span>;    <span class="keyword">for</span>(Category c = <span class="keyword">this</span>; c != <span class="literal">null</span>; c=c.parent) &#123;        <span class="comment">// Protected against simultaneous call to addAppender, removeAppender,...</span></span><br><span class="line">        synchronized(c) &#123;         </span><br><span class="line">        <span class="keyword">if</span>(c.aai != <span class="literal">null</span>) &#123;</span><br><span class="line">                writes += c.aai.appendLoopOnAppenders(<span class="keyword">event</span>);</span><br><span class="line">            &#125;            <span class="keyword">if</span>(!c.additive) &#123;                <span class="keyword">break</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;    <span class="keyword">if</span>(writes == <span class="number">0</span>) &#123;</span><br><span class="line">        repository.emitNoAppenderWarning(<span class="keyword">this</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>在log4j中，打印日志有一个锁，锁的作用是让打印日志可以串行，保证日志在日志文件中的正确性和顺序性。</p>
-<p>那么，新的问题又来了，为什么只有凌晨0点会出现打印日志阻塞，其他时间会偶尔发生呢？这时，我们带着新的线索又回到问题开始的思路，凌晨12点应用没有定时任务，系统会不会有其他的IO密集型的任务，比如说归档日志、磁盘备份等？</p>
-<p>经过与运维部门碰头，基本确定是每天凌晨0点日志切割导致磁盘IO被占用，于是堵塞打印日志，日志是每个工作任务都必须的，日志阻塞，线程池就阻塞，线程池阻塞就导致线程池被撑大，线程池里面的线程数超过1024就会报错。</p>
-<p>到这里，我们基本确定了问题的原因，但是还需要对日志切割导致IO增大进行分析和论证。</p>
-<p>首先我们使用前面小结介绍的vmstat查看问题发生时IO等待数据：</p>
-<figure class="highlight brainfuck"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">vmstat</span> <span class="comment">2</span> <span class="comment">1</span> &gt;&gt; <span class="comment">/tmp/vm</span><span class="string">.</span><span class="comment">log</span></span><br><span class="line"><span class="comment">procs</span> <span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="comment">memory</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span> <span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="comment">swap</span><span class="literal">-</span><span class="literal">-</span> <span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="comment">io</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">system</span><span class="literal">-</span><span class="literal">-</span> <span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="comment">cpu</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span></span><br><span class="line"> <span class="comment">r</span>  <span class="comment">b</span>   <span class="comment">swpd</span>   <span class="comment">free</span>   <span class="comment">buff</span>  <span class="comment">cache</span>   <span class="comment">si</span>   <span class="comment">so</span>    <span class="comment">bi</span>    <span class="comment">bo</span>   <span class="comment">in</span>   <span class="comment">cs</span> <span class="comment">us</span> <span class="comment">sy</span> <span class="comment">id</span> <span class="comment">wa</span> <span class="comment">st</span> <span class="comment">3</span>  <span class="comment">0</span> <span class="comment">177608</span> <span class="comment">725636</span>  <span class="comment">31856</span> <span class="comment">3899144</span>    <span class="comment">0</span>    <span class="comment">0</span>     <span class="comment">2</span>    <span class="comment">10</span>    <span class="comment">0</span>    <span class="comment">0</span>  <span class="comment">39</span>  <span class="comment">1</span> <span class="comment">1</span>  <span class="comment">59</span>  <span class="comment">0</span>    <span class="comment">Tue</span> <span class="comment">Jul</span> <span class="comment">5</span> <span class="comment">00:27:51</span> <span class="comment">CST</span> <span class="comment">2016</span></span><br></pre></td></tr></table></figure>
-<p>可见，问题发生的时候，CPU的IO等待为59%，同时又与运维部门同事复盘，运维同事确认，脚本切割通过cat命令方法，先把日志文件cat后，通过管道打印到另外一个文件，再清空原文件，因此，一定会导致IO的上升。</p>
-<p>其实，问题的过程中，还有一个疑惑，我们认为线程被IO阻塞，线程池被撑开，导致线程增多，于是，我们查看了一下Tomcat线程池的设置，我们发现Tomcat线程池设置了800，按理说，永远不会超过1024。</p>
-<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&lt;Connector <span class="attribute">port</span>=<span class="string">"8080"</span>     </span><br><span class="line">               <span class="attribute">maxThreads</span>=<span class="string">"800"</span> <span class="attribute">minSpareThreads</span>=<span class="string">"25"</span> <span class="attribute">maxSpareThreads</span>=<span class="string">"75"</span>     </span><br><span class="line">               <span class="attribute">enableLookups</span>=<span class="string">"false"</span> <span class="attribute">redirectPort</span>=<span class="string">"8443"</span> <span class="attribute">acceptCount</span>=<span class="string">"100"</span>     </span><br><span class="line">               <span class="attribute">debug</span>=<span class="string">"0"</span> <span class="attribute">connectionTimeout</span>=<span class="string">"20000"</span>      </span><br><span class="line">               <span class="attribute">disableUploadTimeout</span>=<span class="string">"true"</span> /&gt;</span><br></pre></td></tr></table></figure>
-<p>关键在于，笔者所在的支付平台服务化架构中，使用了两套服务化框架，一个是基于dubbo的框架，一个是点对点的RPC，用来紧急情况下dubbo服务出现问题，服务降级使用。</p>
-<p>每个服务都配置了点对点的RPC服务，并且独享一个线程池：</p>
-<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&lt;Connector <span class="attribute">port</span>=<span class="string">"8090"</span>     </span><br><span class="line">               <span class="attribute">maxThreads</span>=<span class="string">"800"</span> <span class="attribute">minSpareThreads</span>=<span class="string">"25"</span> <span class="attribute">maxSpareThreads</span>=<span class="string">"75"</span>     </span><br><span class="line">               <span class="attribute">enableLookups</span>=<span class="string">"false"</span> <span class="attribute">redirectPort</span>=<span class="string">"8443"</span> <span class="attribute">acceptCount</span>=<span class="string">"100"</span>     </span><br><span class="line">               <span class="attribute">debug</span>=<span class="string">"0"</span> <span class="attribute">connectionTimeout</span>=<span class="string">"20000"</span>      </span><br><span class="line">               <span class="attribute">disableUploadTimeout</span>=<span class="string">"true"</span> /&gt;</span><br></pre></td></tr></table></figure>
-<p>由于我们在对dubbo服务框架进行定制化的时候，设计了自动降级原则，如果dubbo服务负载变高，会自动切换到点对点的RPC框架，这也符合微服务的失效转移原则，但是设计中没有进行全面的考虑，一旦一部分服务切换到了点对点的RPC，而一部分的服务没有切换，就导致两个现场池都被撑满，于是超过了1024的限制，就出了问题。</p>
-<p>到这里，我们基本可以验证，问题的根源是日志切割导致IO负载增加，然后阻塞线程池，最后发生OOM：unable to create new native thread。</p>
-<p>剩下的任务就是最小化重现的问题，通过实践来验证问题的原因。我们与性能压测部门沟通，提出压测需求：</p>
-<blockquote>
-<ol>
-<li>Tomcat线程池最大设置为1500.</li>
-<li>操作系统允许的最大用户进程数1024.</li>
-<li>在给服务加压的过程中，需要人工制造繁忙的IO操作，IO等待不得低于50%。</li>
-</ol>
-</blockquote>
-<p>经过压测压测部门的一下午努力，环境搞定，结果证明完全可以重现此问题。</p>
-<p>最后，与所有相关部门讨论和复盘，应用解决方案，解决方案包括：</p>
-<blockquote>
-<ol>
-<li>全部应用改成按照小时切割，或者直接使用log4j的日志滚动功能。</li>
-<li>Tomcat线程池的线程数设置与操作系统的线程数设置不合理，适当的减少Tomcat线程池线程数量的大小。</li>
-<li>升级log4j日志，使用logback或者log4j2。</li>
-</ol>
-</blockquote>
-<p>这次OOM问题的可以归结为“多个因、多个果、多台机器、多个服务池、不同时间”，针对这个问题，与运维部、监控部和性能压测部门的同事奋斗了几天几夜，终于通过在线上抓取信息、分析问题、在性能压测部门同事的帮助下，最小化重现问题并找到问题的根源原因，最后，针对问题产生的根源提供了有效的方案。</p>
-<p><strong>3. 与监控同事现场编写的脚本</strong></p>
-<p>本节提供一个笔者在实践过程中解决OOM问题的一个简单脚本，这个脚本是为了解决OOM（unable to create native thread)的问题而在问题机器上临时编写，并临时使用的，脚本并没有写的很专业，笔者也没有进行优化，保持原汁原味的风格，这样能让读者有种身临其境的感觉，只是为了抓取需要的信息并解决问题，但是在线上问题十分火急的情况下，这个脚本会有大用处。</p>
-<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#!/bin/bashps -Leo pid,lwp,user,pcpu,pmem,cmd &gt;&gt; /tmp/pthreads.logecho "ps -Leo pid,lwp,user,pcpu,pmem,cmd &gt;&gt; /tmp/pthreads.log" &gt;&gt; /tmp/pthreads.logecho `date` &gt;&gt; /tmp/pthreads.logecho 1pid=`ps aux|grep tomcat|grep cwh|awk -F ' ' '&#123;print $2&#125;'`echo 2echo "pstack $pid &gt;&gt; /tmp/pstack.log" &gt;&gt; /tmp/pstack.log</span></span><br><span class="line">pstack $pid <span class="meta">&gt;&gt; </span>/tmp/pstack.logecho <span class="string">`date`</span> &gt;&gt; <span class="regexp">/tmp/pstack</span>.logecho <span class="number">3</span>echo <span class="string">"lsof &gt;&gt; /tmp/sys-o-files.log"</span> &gt;&gt; <span class="regexp">/tmp/sys</span>-o-files.log</span><br><span class="line">lsof <span class="meta">&gt;&gt; </span>/tmp/sys-o-files.logecho <span class="string">`date`</span> &gt;&gt; <span class="regexp">/tmp/sys</span>-o-files.logecho <span class="number">4</span>echo <span class="string">"lsof -p $pid &gt;&gt; /tmp/service-o-files.log"</span> &gt;&gt; <span class="regexp">/tmp/service</span>-o-files.log</span><br><span class="line">lsof -p $pid <span class="meta">&gt;&gt; </span>/tmp/service-o-files.logecho <span class="string">`date`</span> &gt;&gt; <span class="regexp">/tmp/service</span>-o-files.logecho <span class="number">5</span>echo <span class="string">"jstack -l $pid  &gt;&gt; /tmp/js.log"</span> &gt;&gt; <span class="regexp">/tmp/js</span>.log</span><br><span class="line">jstack -l -F $pid  <span class="meta">&gt;&gt; </span>/tmp/js.logecho <span class="string">`date`</span> &gt;&gt; <span class="regexp">/tmp/js</span>.logecho <span class="number">6</span> echo <span class="string">"free -m &gt;&gt; /tmp/free.log"</span> &gt;&gt; <span class="regexp">/tmp/free</span>.log</span><br><span class="line">free -m <span class="meta">&gt;&gt; </span>/tmp/free.logecho <span class="string">`date`</span> &gt;&gt; <span class="regexp">/tmp/free</span>.logecho <span class="number">7</span>echo <span class="string">"vmstat 2 1 &gt;&gt; /tmp/vm.log"</span> &gt;&gt; <span class="regexp">/tmp/vm</span>.log</span><br><span class="line">vmstat <span class="number">2</span> <span class="number">1</span> <span class="meta">&gt;&gt; </span>/tmp/vm.logecho <span class="string">`date`</span> &gt;&gt; <span class="regexp">/tmp/vm</span>.logecho <span class="number">8</span>echo <span class="string">"jmap -dump:format=b,file=/tmp/heap.hprof 2743"</span> &gt;&gt; <span class="regexp">/tmp/jmap</span>.log</span><br><span class="line">jmap -<span class="symbol">dump:</span>format=b,file=<span class="regexp">/tmp/heap</span>.hprof <span class="meta">&gt;&gt; </span>/tmp/jmap.logecho <span class="string">`date`</span> &gt;&gt; <span class="regexp">/tmp/jmap</span>.logecho <span class="number">9</span>echo end</span><br></pre></td></tr></table></figure>
-<p>如果读者在线上已经遇到了OOM的问题，可以顺着这个看似简陋而又信息满满的Java服务的监控脚本的思路，利用本文提供的各种脚本和命令来深挖问题的根本原因。</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/05/13/线上服务内存OOM问题定位三板斧/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -814,6 +513,247 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/05/13/java线上问题排查/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="周小伍 Joey">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/xiaowu_avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="xiaowu's blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/05/13/java线上问题排查/" itemprop="url">java线上问题排查</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-05-13T14:11:17+08:00">
+                2018-05-13
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/线上故障排查/" itemprop="url" rel="index">
+                    <span itemprop="name">线上故障排查</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2018/05/13/java线上问题排查/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2018/05/13/java线上问题排查/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  592
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  2
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="常用命令"><a href="#常用命令" class="headerlink" title="常用命令"></a>常用命令</h1><h2 id="【优先】top"><a href="#【优先】top" class="headerlink" title="【优先】top"></a>【优先】top</h2><p>查看负载，找到CPU过高的程序进程</p>
+<h2 id="【优先】top-Hp-进程id"><a href="#【优先】top-Hp-进程id" class="headerlink" title="【优先】top -Hp [进程id]"></a>【优先】top -Hp [进程id]</h2><p>查看该进程的所有线程，找到占用cpu较高的线程</p>
+<h2 id="【优先】jstack-进程id-gt-js-txt"><a href="#【优先】jstack-进程id-gt-js-txt" class="headerlink" title="【优先】jstack [进程id] &gt; js.txt"></a>【优先】jstack [进程id] &gt; js.txt</h2><p>打印当前线程堆栈，根据线程id（转换为16进制 <code>printf %x</code> ）找到CPU较高的线程堆栈</p>
+<h2 id="jstat-gcutil-进程id-1000"><a href="#jstat-gcutil-进程id-1000" class="headerlink" title="jstat -gcutil [进程id] 1000"></a>jstat -gcutil [进程id] 1000</h2><p>每隔1000秒打印jvm内存GC信息</p>
+<h2 id="jmap-histo-进程id-gt-jmap-txt"><a href="#jmap-histo-进程id-gt-jmap-txt" class="headerlink" title="jmap -histo [进程id] &gt; jmap.txt"></a>jmap -histo [进程id] &gt; jmap.txt</h2><p>查看当前jvm内存里对象的实例数和内存数</p>
+<h2 id="【优先】jmap-dump-format-b-file-dump-bin-进程id"><a href="#【优先】jmap-dump-format-b-file-dump-bin-进程id" class="headerlink" title="【优先】jmap -dump:format=b,file=dump.bin [进程id]"></a>【优先】jmap -dump:format=b,file=dump.bin [进程id]</h2><p>查看当前jvm内存里对象的实例数和内存数</p>
+<p>堆内存dump文件分析</p>
+<p>命令：jmap -dump:format=b,file=dump.bin [进程id]</p>
+<p>工具：MAT</p>
+<h1 id="FULL-GC问题定位"><a href="#FULL-GC问题定位" class="headerlink" title="FULL_GC问题定位"></a>FULL_GC问题定位</h1><ol>
+<li>top</li>
+</ol>
+<p>查看负载，找到CPU过高的程序进程</p>
+<ol>
+<li>top -Hp [进程id]</li>
+</ol>
+<p>查看该进程的所有线程，找到占用cpu较高的线程<br><img src="/2018/05/13/java线上问题排查/01.jpeg" alt=""></p>
+<ol>
+<li>jstack [进程id] &gt; js.txt</li>
+</ol>
+<p>打印当前线程堆栈，根据线程id（转换为16进制 printf %x ）找到CPU较高的线程堆栈</p>
+<p>三部基本可以定位到程序的一些问题。</p>
+<p>当时发现，占用cpu较高的线程，基本都是GC线程</p>
+<p><img src="http://p9.pstatp.com/large/pgc-image/152612606538764cd3e3892" alt="JAVA线上问题之Full GC问题定位"></p>
+<p>4、jstat -gcutil [进程id] 1000</p>
+<p>每隔1000秒打印jvm内存GC信息，</p>
+<p><img src="http://p3.pstatp.com/large/pgc-image/15261261147838154393d49" alt="JAVA线上问题之Full GC问题定位"></p>
+<p>S0 年轻代中第一个survivor（幸存区）已使用的占当前容量百分比</p>
+<p>S1 年轻代中第二个survivor（幸存区）已使用的占当前容量百分比</p>
+<p>E 年轻代中Eden（伊甸园）已使用的占当前容量百分比</p>
+<p>O old代已使用的占当前容量百分比</p>
+<p>P perm代已使用的占当前容量百分比</p>
+<p>YGC 从应用程序启动到采样时年轻代中gc次数</p>
+<p>YGCT 从应用程序启动到采样时年轻代中gc所用时间(s)</p>
+<p>FGC 从应用程序启动到采样时old代(全gc)gc次数</p>
+<p>FGCT 从应用程序启动到采样时old代(全gc)gc所用时间(s)</p>
+<p>GCT 从应用程序启动到采样时gc用的总时间(s)</p>
+<ol>
+<li>jmap -histo [进程id] &gt; jmap.txt</li>
+</ol>
+<p>查看当前jvm内存里对象的实例数和内存数</p>
+<p><img src="http://p1.pstatp.com/large/pgc-image/152612613793539642763b2" alt="JAVA线上问题之Full GC问题定位"></p>
+<p>6、看GC日志</p>
+<p><img src="http://p1.pstatp.com/large/pgc-image/1526126169250debf46265b" alt="JAVA线上问题之Full GC问题定位"></p>
+<p>启动脚本里添加gclog配置 -XX:+PrintGCDetails  -XX:+PrintGCDateStamps  -XX:+PrintHeapAtGC  -Xloggc:gc.log</p>
+<p><img src="http://p3.pstatp.com/large/pgc-image/152612618950506d35201b5" alt="JAVA线上问题之Full GC问题定位"></p>
+<p>筛选Full GC log</p>
+<p><img src="http://p1.pstatp.com/large/pgc-image/15261262185599cc3c4ea45" alt="JAVA线上问题之Full GC问题定位"></p>
+<p>堆内存dump文件分析</p>
+<p>命令：jmap -dump:format=b,file=aa.bin 1232134</p>
+<p>工具：MAT</p>
+<p><img src="http://p1.pstatp.com/large/pgc-image/152612633912428c60eda0f" alt="JAVA线上问题之Full GC问题定位"></p>
+<p><img src="http://p9.pstatp.com/large/pgc-image/15261263392389c6212ec66" alt="JAVA线上问题之Full GC问题定位"></p>
+<p><img src="http://p3.pstatp.com/large/pgc-image/1526126339342d8bf3abf3d" alt="JAVA线上问题之Full GC问题定位"></p>
+<p><img src="http://p3.pstatp.com/large/pgc-image/152612633943779fb54a261" alt="JAVA线上问题之Full GC问题定位"></p>
+<p><img src="http://p1.pstatp.com/large/pgc-image/1526126339495120c75d16c" alt="JAVA线上问题之Full GC问题定位"></p>
+<p><img src="http://p3.pstatp.com/large/pgc-image/15261263395674e4fef7ca8" alt="JAVA线上问题之Full GC问题定位"></p>
+<p><img src="http://p1.pstatp.com/large/pgc-image/1526126339671715eb9134d" alt="JAVA线上问题之Full GC问题定位"></p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/05/13/常用脚本/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -975,6 +915,427 @@
 </ol>
 <h3 id="watch-VCS相关脚本"><a href="#watch-VCS相关脚本" class="headerlink" title=":watch: VCS相关脚本"></a>:watch: <a href="docs/vcs.md"><code>VCS</code>相关脚本</a></h3><p>目前<code>VCS</code>的脚本都是<code>svn</code>分支相关的操作。使用更现代的<code>Git</code>吧！ :boom:</p>
 <p>因为不推荐使用<code>svn</code>，这里不再列出有哪些脚本了，如果你有兴趣可以点上面链接去看。</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/05/13/服务器异常案例/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="周小伍 Joey">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/xiaowu_avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="xiaowu's blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/05/13/服务器异常案例/" itemprop="url">服务器异常案例</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-05-13T14:11:17+08:00">
+                2018-05-13
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/线上故障排查/" itemprop="url" rel="index">
+                    <span itemprop="name">线上故障排查</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2018/05/13/服务器异常案例/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2018/05/13/服务器异常案例/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  529
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  1
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>####1.某应用load&gt;7,ssh感到输入命令后,要等待1、2秒 才开始执行</p>
+<ul>
+<li>top命令查看cpu占用率,约70%,不至于导致ssh中命令响应变慢</li>
+<li>tsar查看最近的网络流量，正常</li>
+<li>iostat 1，发现(虚拟机)磁盘tps达到500+非常高</li>
+<li>jstack观察java中一个线程频繁操作磁盘</li>
+<li>lsof命令观察打开文件，并排查代码发现配置项有误导致磁盘上出现很多小的零碎文件，引发频繁的随机访问，修改配置项后问题解决<br>￼￼</li>
+</ul>
+<p>####2.应用Load&gt;10，GC正常，活跃线程数很多，CPU 100%</p>
+<ul>
+<li>ps -efL， 显示所有活跃线程ID和对应时间</li>
+<li>根据对应线程SPID找出jstack中的执行栈</li>
+<li>定位到问题代码，发现一个没同步保护的HashMap频繁并发put/get导致死循环</li>
+</ul>
+<figure class="highlight erlang-repl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">注意：</span><br><span class="line">通常cpu使用率达到了<span class="number">100</span><span class="comment">%，一般是某些线程在某种条件下进入死循环，退不出来</span></span><br></pre></td></tr></table></figure>
+<p>####3.容灾演习之后服务无法启动</p>
+<ul>
+<li>df –h 命令 /home 100%占用，日志文件巨大</li>
+<li>删掉由于断网引起的大量重连日志，重启</li>
+</ul>
+<p>####4.￼某应用机器load狂飙100+，报警不断</p>
+<ul>
+<li>收集各个系统指标，发现除了load之外没有异常，load&gt;进程数，应用响应正常</li>
+<li>jstack中Runnable状态线程很多“at<br>java.io.UnixFileSystem.getBooleanAttributes0(Native Method)”</li>
+<li>ps –Tel 打印所有线程状态，发现大量怨妇进程（状态D，既无法中断又无法继续）</li>
+<li>根据僵尸进程ID再次查找jstack中对应代码，为blocked的文件访问栈</li>
+<li>df命令hang住</li>
+<li>联系PE同学得知NAS故障,修复后重启OK</li>
+</ul>
+<p>####5.Java进程健在，应用运行一段时间失去响应</p>
+<ul>
+<li>jstat各个区域内存正常，应用服务器系统资源正常</li>
+<li>查看应用默认日志文件发现一行“WARN [common] 服务器 已停止运行:12201”</li>
+<li>jstack发现有线程“JBoss Shutdown Hook”健在，查找代码发现居然有二方包代码在抛出异常后调用system.exit(0)</li>
+</ul>
+<p>￼￼￼</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/05/13/java服务器load飚高排查思路/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="周小伍 Joey">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/xiaowu_avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="xiaowu's blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/05/13/java服务器load飚高排查思路/" itemprop="url">java服务器load飙高排查思路</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-05-13T14:11:17+08:00">
+                2018-05-13
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/线上故障排查/" itemprop="url" rel="index">
+                    <span itemprop="name">线上故障排查</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2018/05/13/java服务器load飚高排查思路/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2018/05/13/java服务器load飚高排查思路/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  605
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  3
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>Load 是指对计算机干活多少的度量（WikiPedia：the system load is a measure of the amount of work that a computer system is doing），简单的说是进程队列的长度。Load Average 就是一段时间 (1 分钟、5分钟、15分钟) 内平均 Load</p>
+<p><strong>通过uptime命令可以查看当前的load，如果值很高。一般情况是java某些线程长期占用资源、死锁、死循环等导致某个进程占用的CPU资源过高。大致可以从以下几个角度来排查：</strong><br><br><br></p>
+<p>1.首先通过jps命令，查看当前进程id，如id为 28174</p>
+<p>2.查看该进程下的线程资源使用情况</p>
+<figure class="highlight coq"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">top</span> -p <span class="number">28174</span> –H</span><br></pre></td></tr></table></figure>
+<figure class="highlight basic"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="symbol">32694 </span>root      <span class="number">20</span>   <span class="number">0</span> <span class="number">3249</span>m <span class="number">2.0</span>g  <span class="number">11</span>m S    <span class="number">2</span>  <span class="number">6.4</span>   <span class="number">3</span>:<span class="number">31.12</span> java</span><br><span class="line"><span class="symbol">28175 </span>root      <span class="number">20</span>   <span class="number">0</span> <span class="number">3249</span>m <span class="number">2.0</span>g  <span class="number">11</span>m S    <span class="number">0</span>  <span class="number">6.4</span>   <span class="number">0</span>:<span class="number">00.06</span> java</span><br><span class="line"><span class="symbol">28176 </span>root      <span class="number">20</span>   <span class="number">0</span> <span class="number">3249</span>m <span class="number">2.0</span>g  <span class="number">11</span>m S    <span class="number">0</span>  <span class="number">6.4</span>   <span class="number">1</span>:<span class="number">40.79</span> java</span><br><span class="line"><span class="symbol">28177 </span>root      <span class="number">20</span>   <span class="number">0</span> <span class="number">3249</span>m <span class="number">2.0</span>g  <span class="number">11</span>m S    <span class="number">0</span>  <span class="number">6.4</span>   <span class="number">1</span>:<span class="number">41.12</span> java</span><br><span class="line"><span class="symbol">28178 </span>root      <span class="number">20</span>   <span class="number">0</span> <span class="number">3249</span>m <span class="number">2.0</span>g  <span class="number">11</span>m S    <span class="number">0</span>  <span class="number">6.4</span>   <span class="number">1</span>:<span class="number">41.11</span> java</span><br><span class="line"><span class="symbol">28179 </span>root      <span class="number">20</span>   <span class="number">0</span> <span class="number">3249</span>m <span class="number">2.0</span>g  <span class="number">11</span>m S    <span class="number">0</span>  <span class="number">6.4</span>   <span class="number">1</span>:<span class="number">41.33</span> java</span><br><span class="line"><span class="symbol">28180 </span>root      <span class="number">20</span>   <span class="number">0</span> <span class="number">3249</span>m <span class="number">2.0</span>g  <span class="number">11</span>m S    <span class="number">0</span>  <span class="number">6.4</span>   <span class="number">1</span>:<span class="number">41.58</span> java</span><br><span class="line"><span class="symbol">28181 </span>root      <span class="number">20</span>   <span class="number">0</span> <span class="number">3249</span>m <span class="number">2.0</span>g  <span class="number">11</span>m S    <span class="number">0</span>  <span class="number">6.4</span>   <span class="number">1</span>:<span class="number">40.36</span> java</span><br><span class="line"><span class="symbol">28182 </span>root      <span class="number">20</span>   <span class="number">0</span> <span class="number">3249</span>m <span class="number">2.0</span>g  <span class="number">11</span>m S    <span class="number">0</span>  <span class="number">6.4</span>   <span class="number">1</span>:<span class="number">41.02</span> java</span><br><span class="line"><span class="symbol">28183 </span>root      <span class="number">20</span>   <span class="number">0</span> <span class="number">3249</span>m <span class="number">2.0</span>g  <span class="number">11</span>m S    <span class="number">0</span>  <span class="number">6.4</span>   <span class="number">1</span>:<span class="number">40.96</span> java</span><br><span class="line"><span class="symbol">28184 </span>root      <span class="number">20</span>   <span class="number">0</span> <span class="number">3249</span>m <span class="number">2.0</span>g  <span class="number">11</span>m S    <span class="number">0</span>  <span class="number">6.4</span>   <span class="number">4</span>:<span class="number">38.30</span> java</span><br><span class="line"><span class="symbol">28185 </span>root      <span class="number">20</span>   <span class="number">0</span> <span class="number">3249</span>m <span class="number">2.0</span>g  <span class="number">11</span>m S    <span class="number">0</span>  <span class="number">6.4</span>   <span class="number">0</span>:<span class="number">00.46</span> java</span><br><span class="line"><span class="symbol">28186 </span>root      <span class="number">20</span>   <span class="number">0</span> <span class="number">3249</span>m <span class="number">2.0</span>g  <span class="number">11</span>m S    <span class="number">0</span>  <span class="number">6.4</span>   <span class="number">0</span>:<span class="number">01.83</span> java</span><br><span class="line"><span class="symbol">28187 </span>root      <span class="number">20</span>   <span class="number">0</span> <span class="number">3249</span>m <span class="number">2.0</span>g  <span class="number">11</span>m S    <span class="number">0</span>  <span class="number">6.4</span>   <span class="number">0</span>:<span class="number">00.00</span> java</span><br><span class="line"><span class="symbol">28189 </span>root      <span class="number">20</span>   <span class="number">0</span> <span class="number">3249</span>m <span class="number">2.0</span>g  <span class="number">11</span>m S    <span class="number">0</span>  <span class="number">6.4</span>   <span class="number">0</span>:<span class="number">00.01</span> java</span><br><span class="line"><span class="symbol">28190 </span>root      <span class="number">20</span>   <span class="number">0</span> <span class="number">3249</span>m <span class="number">2.0</span>g  <span class="number">11</span>m S    <span class="number">0</span>  <span class="number">6.4</span>   <span class="number">0</span>:<span class="number">49.01</span> java</span><br></pre></td></tr></table></figure>
+<p>3.打印JAVA进程28174的堆栈信息</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">jstack <span class="number">28174</span> &gt;&gt; <span class="built_in">stack</span>.<span class="built_in">log</span></span><br></pre></td></tr></table></figure>
+<p>4.将cpu消耗高的线程的pid换算为16进制</p>
+<figure class="highlight llvm"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">printf <span class="number">0</span><span class="keyword">x</span><span class="symbol">%x</span> <span class="number">32694</span></span><br></pre></td></tr></table></figure>
+<p>转换后的16进制为 0x7fb6</p>
+<p>5.从刚才的栈日志中查找该线程正在运行的方法</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">grep <span class="number">0x7fb6</span>  <span class="built_in">stack</span>.<span class="built_in">log</span> -a3</span><br></pre></td></tr></table></figure>
+<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">"MSXMLProcessorThread"</span> prio=<span class="number">10</span> tid=<span class="number">0</span>x00002b469923a800 [<span class="attribute">color</span>=darkred]nid=<span class="number">0</span>x7fb6[/color] sleeping[<span class="number">0</span>x00002b46b0200000]</span><br><span class="line">   java<span class="selector-class">.lang</span><span class="selector-class">.Thread</span><span class="selector-class">.State</span>: TIMED_WAITING (sleeping)</span><br><span class="line">        at java<span class="selector-class">.lang</span><span class="selector-class">.Thread</span><span class="selector-class">.sleep</span>(Native Method)</span><br><span class="line">        at com<span class="selector-class">.adventnet</span><span class="selector-class">.management</span><span class="selector-class">.xml</span><span class="selector-class">.MSXmlProcessor</span><span class="selector-class">.listen</span>(MSXmlProcessor<span class="selector-class">.java</span>:<span class="number">279</span>)</span><br><span class="line">        at com<span class="selector-class">.adventnet</span><span class="selector-class">.management</span><span class="selector-class">.xml</span><span class="selector-class">.MSXmlProcessor</span><span class="selector-class">.run</span>(MSXmlProcessor<span class="selector-class">.java</span>:<span class="number">264</span>)</span><br><span class="line">        at java<span class="selector-class">.lang</span><span class="selector-class">.Thread</span><span class="selector-class">.run</span>(Thread<span class="selector-class">.java</span>:<span class="number">619</span>)</span><br></pre></td></tr></table></figure>
+<p>6.另外也可以查找正在运行的线程，及线程处于运行状态的位置，从这些线程中来查找资源消耗过高的代码。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">grep RUNNABLE <span class="built_in">stack</span>.<span class="built_in">log</span>  -a1</span><br></pre></td></tr></table></figure>
+<p><img src="/2018/05/13/java服务器load飚高排查思路/1364394978_1570.jpg" alt="image"></p>
+<figure class="highlight stata"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">less a.<span class="keyword">log</span> |awk '&#123;FS=<span class="string">"java.lang.Thread.State:"</span>;<span class="keyword">print</span> <span class="variable">$2&#125;</span>'|<span class="keyword">sort</span> |uniq -c |<span class="keyword">sort</span> -nr</span><br></pre></td></tr></table></figure>
+<p><img src="/2018/05/13/java服务器load飚高排查思路/20130812130234781.jpeg" alt="image"></p>
 
           
         
@@ -1544,661 +1905,6 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/05/13/anatomy/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="周小伍 Joey">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/xiaowu_avatar.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="xiaowu's blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2018/05/13/anatomy/" itemprop="url">anatomy</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-05-13T14:11:17+08:00">
-                2018-05-13
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2018/05/13/anatomy/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count disqus-comment-count"
-                        data-disqus-identifier="2018/05/13/anatomy/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-
-          
-
-          
-            <div class="post-wordcount">
-              
-                
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-file-word-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">字数统计&#58;</span>
-                
-                <span title="字数统计">
-                  685
-                </span>
-              
-
-              
-                <span class="post-meta-divider">|</span>
-              
-
-              
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-clock-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
-                
-                <span title="阅读时长">
-                  2
-                </span>
-              
-            </div>
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h4 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h4><p>anatomy 是阿里同学开发的一款用于JVM进程执行过程中的异常诊断工具，可以在不中断程序执行的情况下轻松完成问题排查工作。</p>
-<ul>
-<li>纯Java实现的开源项目</li>
-<li>安装使用便捷</li>
-<li>方法级问题诊断</li>
-<li>Groovy表达式展开变对象，方便你观察入参、出参、异常、当前对象的各种属性细节</li>
-</ul>
-<h4 id="接下来结合线上应用，列举常用的几个排查问题命令如何使用"><a href="#接下来结合线上应用，列举常用的几个排查问题命令如何使用" class="headerlink" title="接下来结合线上应用，列举常用的几个排查问题命令如何使用"></a>接下来结合线上应用，列举常用的几个排查问题命令如何使用</h4><p>1、安装：</p>
-<figure class="highlight vim"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl -sLk http://ompc.oss.aliyuncs.<span class="keyword">com</span>/greys/install.<span class="keyword">sh</span>|<span class="keyword">sh</span></span><br></pre></td></tr></table></figure>
-<p>2、启动</p>
-<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">greys<span class="selector-class">.sh</span>  &lt;PID&gt;</span><br><span class="line"></span><br><span class="line">注：PID：目标Java进程ID</span><br></pre></td></tr></table></figure>
-<p>3、help</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">help</span>  </span><br><span class="line"></span><br><span class="line">注：所有命令</span><br><span class="line"></span><br><span class="line"><span class="built_in">help</span> watch</span><br><span class="line"></span><br><span class="line">注：<span class="built_in">help</span>命令同时也支持对其他命令的一个解释说明，比如我们键入<span class="built_in">help</span> watch，包含（用途说明、参数列表、实际例子）</span><br></pre></td></tr></table></figure>
-<p>4、sc 搜索所有已经加载到JVM中的Class信息。</p>
-<figure class="highlight mipsasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">sc </span>-d *RecommendManagerImpl</span><br></pre></td></tr></table></figure>
-<p><strong>使用场景：</strong></p>
-<p>主要是用于排查一个应用可能存在同一个jar包的多个版本，而不同版本的类的方法可能会有实现上的差异，可以通过这种方式确认JVM中加载的是哪一个jar下的类。</p>
-<p><img src="/2018/05/13/anatomy/Snip20161002_1.png" alt="image"></p>
-<p>5、monitor 方法层面的性能监控，非实时返回的命令，则是不断的等待目标Java进程返回信息，直到用户输入Ctrl+D为止</p>
-<figure class="highlight llvm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">monitor -<span class="keyword">c</span> <span class="number">5</span>  *TimelineReadServiceImpl getEditorRecPost</span><br><span class="line"></span><br><span class="line">注：-<span class="keyword">c</span> : 统计周期，默认值为<span class="number">120</span>秒</span><br></pre></td></tr></table></figure>
-<p><strong>使用场景：</strong></p>
-<p>线上反馈某个接口突然响应较慢，但又缺乏全链路维度节点的监控，可以通过该命令能定位到具体哪个方法耗时较长，有效缩小排查范围。</p>
-<p><img src="/2018/05/13/anatomy/Snip20161002_2.png" alt="image"></p>
-<p>6、trace 统计整个调用链路上的所有性能开销和追踪调用链路。</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">trace -n <span class="number">2</span> *TimelineReadServiceImpl <span class="keyword">query</span>RecPageTimeLine</span><br></pre></td></tr></table></figure>
-<p><strong>使用场景：</strong></p>
-<p>定位查找某一接口响应较慢，主要是损耗在哪一个环节。</p>
-<p>另外也可以做为性能优化的参考标准，了解一个接口下面每个环节的消耗时间，从而判断是否合理，有没有优化的空间</p>
-<p>7、watch 观察到指定方法的调用情况</p>
-<p>能观察到的范围：入参、返回值、抛出异常，通过编写groovy表达式进行对应变量的查看。详细使用手册可以通过命令help watch</p>
-<figure class="highlight lsl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">watch -b  *TimelineReadServiceImpl queryRecPageTimeLine  params[<span class="number">0</span>]</span><br><span class="line"></span><br><span class="line">注：打印完整的入参信息</span><br><span class="line"></span><br><span class="line">watch -b  *TimelineReadServiceImpl queryRecPageTimeLine  params[<span class="number">0</span>] 'params[<span class="number">0</span>].uid&gt;<span class="number">2894731</span>' </span><br><span class="line"></span><br><span class="line">注：带上groovy表达式，uid&gt;<span class="number">2894731</span></span><br><span class="line"></span><br><span class="line">watch -s  *TimelineReadServiceImpl queryRecPageTimeLine  params[<span class="number">0</span>]+returnObj 'params[<span class="number">0</span>].uid==<span class="number">3680667</span>'</span><br><span class="line"></span><br><span class="line">注：当请求的uid为<span class="number">3680667</span>时，打印入参和返回结果</span><br></pre></td></tr></table></figure>
-<p>8、 jvm</p>
-<p>查看当前JVM的信息，无参数</p>
-<h3 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h3><p><a href="https://github.com/oldmanpushcart/greys-anatomy/wiki/Commands#help" target="_blank" rel="external">https://github.com/oldmanpushcart/greys-anatomy/wiki/Commands#help</a></p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/05/13/java线上问题排查/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="周小伍 Joey">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/xiaowu_avatar.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="xiaowu's blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2018/05/13/java线上问题排查/" itemprop="url">java线上问题排查</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-05-13T14:11:17+08:00">
-                2018-05-13
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/线上故障排查/" itemprop="url" rel="index">
-                    <span itemprop="name">线上故障排查</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2018/05/13/java线上问题排查/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count disqus-comment-count"
-                        data-disqus-identifier="2018/05/13/java线上问题排查/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-
-          
-
-          
-            <div class="post-wordcount">
-              
-                
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-file-word-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">字数统计&#58;</span>
-                
-                <span title="字数统计">
-                  592
-                </span>
-              
-
-              
-                <span class="post-meta-divider">|</span>
-              
-
-              
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-clock-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
-                
-                <span title="阅读时长">
-                  2
-                </span>
-              
-            </div>
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h1 id="常用命令"><a href="#常用命令" class="headerlink" title="常用命令"></a>常用命令</h1><h2 id="【优先】top"><a href="#【优先】top" class="headerlink" title="【优先】top"></a>【优先】top</h2><p>查看负载，找到CPU过高的程序进程</p>
-<h2 id="【优先】top-Hp-进程id"><a href="#【优先】top-Hp-进程id" class="headerlink" title="【优先】top -Hp [进程id]"></a>【优先】top -Hp [进程id]</h2><p>查看该进程的所有线程，找到占用cpu较高的线程</p>
-<h2 id="【优先】jstack-进程id-gt-js-txt"><a href="#【优先】jstack-进程id-gt-js-txt" class="headerlink" title="【优先】jstack [进程id] &gt; js.txt"></a>【优先】jstack [进程id] &gt; js.txt</h2><p>打印当前线程堆栈，根据线程id（转换为16进制 <code>printf %x</code> ）找到CPU较高的线程堆栈</p>
-<h2 id="jstat-gcutil-进程id-1000"><a href="#jstat-gcutil-进程id-1000" class="headerlink" title="jstat -gcutil [进程id] 1000"></a>jstat -gcutil [进程id] 1000</h2><p>每隔1000秒打印jvm内存GC信息</p>
-<h2 id="jmap-histo-进程id-gt-jmap-txt"><a href="#jmap-histo-进程id-gt-jmap-txt" class="headerlink" title="jmap -histo [进程id] &gt; jmap.txt"></a>jmap -histo [进程id] &gt; jmap.txt</h2><p>查看当前jvm内存里对象的实例数和内存数</p>
-<h2 id="【优先】jmap-dump-format-b-file-dump-bin-进程id"><a href="#【优先】jmap-dump-format-b-file-dump-bin-进程id" class="headerlink" title="【优先】jmap -dump:format=b,file=dump.bin [进程id]"></a>【优先】jmap -dump:format=b,file=dump.bin [进程id]</h2><p>查看当前jvm内存里对象的实例数和内存数</p>
-<p>堆内存dump文件分析</p>
-<p>命令：jmap -dump:format=b,file=dump.bin [进程id]</p>
-<p>工具：MAT</p>
-<h1 id="FULL-GC问题定位"><a href="#FULL-GC问题定位" class="headerlink" title="FULL_GC问题定位"></a>FULL_GC问题定位</h1><ol>
-<li>top</li>
-</ol>
-<p>查看负载，找到CPU过高的程序进程</p>
-<ol>
-<li>top -Hp [进程id]</li>
-</ol>
-<p>查看该进程的所有线程，找到占用cpu较高的线程<br><img src="/2018/05/13/java线上问题排查/01.jpeg" alt=""></p>
-<ol>
-<li>jstack [进程id] &gt; js.txt</li>
-</ol>
-<p>打印当前线程堆栈，根据线程id（转换为16进制 printf %x ）找到CPU较高的线程堆栈</p>
-<p>三部基本可以定位到程序的一些问题。</p>
-<p>当时发现，占用cpu较高的线程，基本都是GC线程</p>
-<p><img src="http://p9.pstatp.com/large/pgc-image/152612606538764cd3e3892" alt="JAVA线上问题之Full GC问题定位"></p>
-<p>4、jstat -gcutil [进程id] 1000</p>
-<p>每隔1000秒打印jvm内存GC信息，</p>
-<p><img src="http://p3.pstatp.com/large/pgc-image/15261261147838154393d49" alt="JAVA线上问题之Full GC问题定位"></p>
-<p>S0 年轻代中第一个survivor（幸存区）已使用的占当前容量百分比</p>
-<p>S1 年轻代中第二个survivor（幸存区）已使用的占当前容量百分比</p>
-<p>E 年轻代中Eden（伊甸园）已使用的占当前容量百分比</p>
-<p>O old代已使用的占当前容量百分比</p>
-<p>P perm代已使用的占当前容量百分比</p>
-<p>YGC 从应用程序启动到采样时年轻代中gc次数</p>
-<p>YGCT 从应用程序启动到采样时年轻代中gc所用时间(s)</p>
-<p>FGC 从应用程序启动到采样时old代(全gc)gc次数</p>
-<p>FGCT 从应用程序启动到采样时old代(全gc)gc所用时间(s)</p>
-<p>GCT 从应用程序启动到采样时gc用的总时间(s)</p>
-<ol>
-<li>jmap -histo [进程id] &gt; jmap.txt</li>
-</ol>
-<p>查看当前jvm内存里对象的实例数和内存数</p>
-<p><img src="http://p1.pstatp.com/large/pgc-image/152612613793539642763b2" alt="JAVA线上问题之Full GC问题定位"></p>
-<p>6、看GC日志</p>
-<p><img src="http://p1.pstatp.com/large/pgc-image/1526126169250debf46265b" alt="JAVA线上问题之Full GC问题定位"></p>
-<p>启动脚本里添加gclog配置 -XX:+PrintGCDetails  -XX:+PrintGCDateStamps  -XX:+PrintHeapAtGC  -Xloggc:gc.log</p>
-<p><img src="http://p3.pstatp.com/large/pgc-image/152612618950506d35201b5" alt="JAVA线上问题之Full GC问题定位"></p>
-<p>筛选Full GC log</p>
-<p><img src="http://p1.pstatp.com/large/pgc-image/15261262185599cc3c4ea45" alt="JAVA线上问题之Full GC问题定位"></p>
-<p>堆内存dump文件分析</p>
-<p>命令：jmap -dump:format=b,file=aa.bin 1232134</p>
-<p>工具：MAT</p>
-<p><img src="http://p1.pstatp.com/large/pgc-image/152612633912428c60eda0f" alt="JAVA线上问题之Full GC问题定位"></p>
-<p><img src="http://p9.pstatp.com/large/pgc-image/15261263392389c6212ec66" alt="JAVA线上问题之Full GC问题定位"></p>
-<p><img src="http://p3.pstatp.com/large/pgc-image/1526126339342d8bf3abf3d" alt="JAVA线上问题之Full GC问题定位"></p>
-<p><img src="http://p3.pstatp.com/large/pgc-image/152612633943779fb54a261" alt="JAVA线上问题之Full GC问题定位"></p>
-<p><img src="http://p1.pstatp.com/large/pgc-image/1526126339495120c75d16c" alt="JAVA线上问题之Full GC问题定位"></p>
-<p><img src="http://p3.pstatp.com/large/pgc-image/15261263395674e4fef7ca8" alt="JAVA线上问题之Full GC问题定位"></p>
-<p><img src="http://p1.pstatp.com/large/pgc-image/1526126339671715eb9134d" alt="JAVA线上问题之Full GC问题定位"></p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/05/13/服务器异常案例/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="周小伍 Joey">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/xiaowu_avatar.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="xiaowu's blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2018/05/13/服务器异常案例/" itemprop="url">服务器异常案例</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-05-13T14:11:17+08:00">
-                2018-05-13
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/线上故障排查/" itemprop="url" rel="index">
-                    <span itemprop="name">线上故障排查</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2018/05/13/服务器异常案例/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count disqus-comment-count"
-                        data-disqus-identifier="2018/05/13/服务器异常案例/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-
-          
-
-          
-            <div class="post-wordcount">
-              
-                
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-file-word-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">字数统计&#58;</span>
-                
-                <span title="字数统计">
-                  529
-                </span>
-              
-
-              
-                <span class="post-meta-divider">|</span>
-              
-
-              
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-clock-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
-                
-                <span title="阅读时长">
-                  1
-                </span>
-              
-            </div>
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>####1.某应用load&gt;7,ssh感到输入命令后,要等待1、2秒 才开始执行</p>
-<ul>
-<li>top命令查看cpu占用率,约70%,不至于导致ssh中命令响应变慢</li>
-<li>tsar查看最近的网络流量，正常</li>
-<li>iostat 1，发现(虚拟机)磁盘tps达到500+非常高</li>
-<li>jstack观察java中一个线程频繁操作磁盘</li>
-<li>lsof命令观察打开文件，并排查代码发现配置项有误导致磁盘上出现很多小的零碎文件，引发频繁的随机访问，修改配置项后问题解决<br>￼￼</li>
-</ul>
-<p>####2.应用Load&gt;10，GC正常，活跃线程数很多，CPU 100%</p>
-<ul>
-<li>ps -efL， 显示所有活跃线程ID和对应时间</li>
-<li>根据对应线程SPID找出jstack中的执行栈</li>
-<li>定位到问题代码，发现一个没同步保护的HashMap频繁并发put/get导致死循环</li>
-</ul>
-<figure class="highlight erlang-repl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">注意：</span><br><span class="line">通常cpu使用率达到了<span class="number">100</span><span class="comment">%，一般是某些线程在某种条件下进入死循环，退不出来</span></span><br></pre></td></tr></table></figure>
-<p>####3.容灾演习之后服务无法启动</p>
-<ul>
-<li>df –h 命令 /home 100%占用，日志文件巨大</li>
-<li>删掉由于断网引起的大量重连日志，重启</li>
-</ul>
-<p>####4.￼某应用机器load狂飙100+，报警不断</p>
-<ul>
-<li>收集各个系统指标，发现除了load之外没有异常，load&gt;进程数，应用响应正常</li>
-<li>jstack中Runnable状态线程很多“at<br>java.io.UnixFileSystem.getBooleanAttributes0(Native Method)”</li>
-<li>ps –Tel 打印所有线程状态，发现大量怨妇进程（状态D，既无法中断又无法继续）</li>
-<li>根据僵尸进程ID再次查找jstack中对应代码，为blocked的文件访问栈</li>
-<li>df命令hang住</li>
-<li>联系PE同学得知NAS故障,修复后重启OK</li>
-</ul>
-<p>####5.Java进程健在，应用运行一段时间失去响应</p>
-<ul>
-<li>jstat各个区域内存正常，应用服务器系统资源正常</li>
-<li>查看应用默认日志文件发现一行“WARN [common] 服务器 已停止运行:12201”</li>
-<li>jstack发现有线程“JBoss Shutdown Hook”健在，查找代码发现居然有二方包代码在抛出异常后调用system.exit(0)</li>
-</ul>
-<p>￼￼￼</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/05/13/jvm堆参数调整/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -2398,7 +2104,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/05/13/java服务器load飚高排查思路/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/05/13/anatomy/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="周小伍 Joey">
@@ -2417,7 +2123,7 @@
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2018/05/13/java服务器load飚高排查思路/" itemprop="url">java服务器load飙高排查思路</a></h1>
+                <a class="post-title-link" href="/2018/05/13/anatomy/" itemprop="url">anatomy</a></h1>
         
 
         <div class="post-meta">
@@ -2440,28 +2146,6 @@
           </span>
 
           
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/线上故障排查/" itemprop="url" rel="index">
-                    <span itemprop="name">线上故障排查</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
 
           
             
@@ -2470,9 +2154,9 @@
                 <span class="post-meta-item-icon">
                   <i class="fa fa-comment-o"></i>
                 </span>
-                <a href="/2018/05/13/java服务器load飚高排查思路/#comments" itemprop="discussionUrl">
+                <a href="/2018/05/13/anatomy/#comments" itemprop="discussionUrl">
                   <span class="post-comments-count disqus-comment-count"
-                        data-disqus-identifier="2018/05/13/java服务器load飚高排查思路/" itemprop="commentCount"></span>
+                        data-disqus-identifier="2018/05/13/anatomy/" itemprop="commentCount"></span>
                 </a>
               </span>
             
@@ -2494,7 +2178,7 @@
                   <span class="post-meta-item-text">字数统计&#58;</span>
                 
                 <span title="字数统计">
-                  605
+                  685
                 </span>
               
 
@@ -2510,7 +2194,7 @@
                   <span class="post-meta-item-text">阅读时长 &asymp;</span>
                 
                 <span title="阅读时长">
-                  3
+                  2
                 </span>
               
             </div>
@@ -2533,25 +2217,40 @@
       
         
           
-            <p>Load 是指对计算机干活多少的度量（WikiPedia：the system load is a measure of the amount of work that a computer system is doing），简单的说是进程队列的长度。Load Average 就是一段时间 (1 分钟、5分钟、15分钟) 内平均 Load</p>
-<p><strong>通过uptime命令可以查看当前的load，如果值很高。一般情况是java某些线程长期占用资源、死锁、死循环等导致某个进程占用的CPU资源过高。大致可以从以下几个角度来排查：</strong><br><br><br></p>
-<p>1.首先通过jps命令，查看当前进程id，如id为 28174</p>
-<p>2.查看该进程下的线程资源使用情况</p>
-<figure class="highlight coq"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">top</span> -p <span class="number">28174</span> –H</span><br></pre></td></tr></table></figure>
-<figure class="highlight basic"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="symbol">32694 </span>root      <span class="number">20</span>   <span class="number">0</span> <span class="number">3249</span>m <span class="number">2.0</span>g  <span class="number">11</span>m S    <span class="number">2</span>  <span class="number">6.4</span>   <span class="number">3</span>:<span class="number">31.12</span> java</span><br><span class="line"><span class="symbol">28175 </span>root      <span class="number">20</span>   <span class="number">0</span> <span class="number">3249</span>m <span class="number">2.0</span>g  <span class="number">11</span>m S    <span class="number">0</span>  <span class="number">6.4</span>   <span class="number">0</span>:<span class="number">00.06</span> java</span><br><span class="line"><span class="symbol">28176 </span>root      <span class="number">20</span>   <span class="number">0</span> <span class="number">3249</span>m <span class="number">2.0</span>g  <span class="number">11</span>m S    <span class="number">0</span>  <span class="number">6.4</span>   <span class="number">1</span>:<span class="number">40.79</span> java</span><br><span class="line"><span class="symbol">28177 </span>root      <span class="number">20</span>   <span class="number">0</span> <span class="number">3249</span>m <span class="number">2.0</span>g  <span class="number">11</span>m S    <span class="number">0</span>  <span class="number">6.4</span>   <span class="number">1</span>:<span class="number">41.12</span> java</span><br><span class="line"><span class="symbol">28178 </span>root      <span class="number">20</span>   <span class="number">0</span> <span class="number">3249</span>m <span class="number">2.0</span>g  <span class="number">11</span>m S    <span class="number">0</span>  <span class="number">6.4</span>   <span class="number">1</span>:<span class="number">41.11</span> java</span><br><span class="line"><span class="symbol">28179 </span>root      <span class="number">20</span>   <span class="number">0</span> <span class="number">3249</span>m <span class="number">2.0</span>g  <span class="number">11</span>m S    <span class="number">0</span>  <span class="number">6.4</span>   <span class="number">1</span>:<span class="number">41.33</span> java</span><br><span class="line"><span class="symbol">28180 </span>root      <span class="number">20</span>   <span class="number">0</span> <span class="number">3249</span>m <span class="number">2.0</span>g  <span class="number">11</span>m S    <span class="number">0</span>  <span class="number">6.4</span>   <span class="number">1</span>:<span class="number">41.58</span> java</span><br><span class="line"><span class="symbol">28181 </span>root      <span class="number">20</span>   <span class="number">0</span> <span class="number">3249</span>m <span class="number">2.0</span>g  <span class="number">11</span>m S    <span class="number">0</span>  <span class="number">6.4</span>   <span class="number">1</span>:<span class="number">40.36</span> java</span><br><span class="line"><span class="symbol">28182 </span>root      <span class="number">20</span>   <span class="number">0</span> <span class="number">3249</span>m <span class="number">2.0</span>g  <span class="number">11</span>m S    <span class="number">0</span>  <span class="number">6.4</span>   <span class="number">1</span>:<span class="number">41.02</span> java</span><br><span class="line"><span class="symbol">28183 </span>root      <span class="number">20</span>   <span class="number">0</span> <span class="number">3249</span>m <span class="number">2.0</span>g  <span class="number">11</span>m S    <span class="number">0</span>  <span class="number">6.4</span>   <span class="number">1</span>:<span class="number">40.96</span> java</span><br><span class="line"><span class="symbol">28184 </span>root      <span class="number">20</span>   <span class="number">0</span> <span class="number">3249</span>m <span class="number">2.0</span>g  <span class="number">11</span>m S    <span class="number">0</span>  <span class="number">6.4</span>   <span class="number">4</span>:<span class="number">38.30</span> java</span><br><span class="line"><span class="symbol">28185 </span>root      <span class="number">20</span>   <span class="number">0</span> <span class="number">3249</span>m <span class="number">2.0</span>g  <span class="number">11</span>m S    <span class="number">0</span>  <span class="number">6.4</span>   <span class="number">0</span>:<span class="number">00.46</span> java</span><br><span class="line"><span class="symbol">28186 </span>root      <span class="number">20</span>   <span class="number">0</span> <span class="number">3249</span>m <span class="number">2.0</span>g  <span class="number">11</span>m S    <span class="number">0</span>  <span class="number">6.4</span>   <span class="number">0</span>:<span class="number">01.83</span> java</span><br><span class="line"><span class="symbol">28187 </span>root      <span class="number">20</span>   <span class="number">0</span> <span class="number">3249</span>m <span class="number">2.0</span>g  <span class="number">11</span>m S    <span class="number">0</span>  <span class="number">6.4</span>   <span class="number">0</span>:<span class="number">00.00</span> java</span><br><span class="line"><span class="symbol">28189 </span>root      <span class="number">20</span>   <span class="number">0</span> <span class="number">3249</span>m <span class="number">2.0</span>g  <span class="number">11</span>m S    <span class="number">0</span>  <span class="number">6.4</span>   <span class="number">0</span>:<span class="number">00.01</span> java</span><br><span class="line"><span class="symbol">28190 </span>root      <span class="number">20</span>   <span class="number">0</span> <span class="number">3249</span>m <span class="number">2.0</span>g  <span class="number">11</span>m S    <span class="number">0</span>  <span class="number">6.4</span>   <span class="number">0</span>:<span class="number">49.01</span> java</span><br></pre></td></tr></table></figure>
-<p>3.打印JAVA进程28174的堆栈信息</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">jstack <span class="number">28174</span> &gt;&gt; <span class="built_in">stack</span>.<span class="built_in">log</span></span><br></pre></td></tr></table></figure>
-<p>4.将cpu消耗高的线程的pid换算为16进制</p>
-<figure class="highlight llvm"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">printf <span class="number">0</span><span class="keyword">x</span><span class="symbol">%x</span> <span class="number">32694</span></span><br></pre></td></tr></table></figure>
-<p>转换后的16进制为 0x7fb6</p>
-<p>5.从刚才的栈日志中查找该线程正在运行的方法</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">grep <span class="number">0x7fb6</span>  <span class="built_in">stack</span>.<span class="built_in">log</span> -a3</span><br></pre></td></tr></table></figure>
-<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">"MSXMLProcessorThread"</span> prio=<span class="number">10</span> tid=<span class="number">0</span>x00002b469923a800 [<span class="attribute">color</span>=darkred]nid=<span class="number">0</span>x7fb6[/color] sleeping[<span class="number">0</span>x00002b46b0200000]</span><br><span class="line">   java<span class="selector-class">.lang</span><span class="selector-class">.Thread</span><span class="selector-class">.State</span>: TIMED_WAITING (sleeping)</span><br><span class="line">        at java<span class="selector-class">.lang</span><span class="selector-class">.Thread</span><span class="selector-class">.sleep</span>(Native Method)</span><br><span class="line">        at com<span class="selector-class">.adventnet</span><span class="selector-class">.management</span><span class="selector-class">.xml</span><span class="selector-class">.MSXmlProcessor</span><span class="selector-class">.listen</span>(MSXmlProcessor<span class="selector-class">.java</span>:<span class="number">279</span>)</span><br><span class="line">        at com<span class="selector-class">.adventnet</span><span class="selector-class">.management</span><span class="selector-class">.xml</span><span class="selector-class">.MSXmlProcessor</span><span class="selector-class">.run</span>(MSXmlProcessor<span class="selector-class">.java</span>:<span class="number">264</span>)</span><br><span class="line">        at java<span class="selector-class">.lang</span><span class="selector-class">.Thread</span><span class="selector-class">.run</span>(Thread<span class="selector-class">.java</span>:<span class="number">619</span>)</span><br></pre></td></tr></table></figure>
-<p>6.另外也可以查找正在运行的线程，及线程处于运行状态的位置，从这些线程中来查找资源消耗过高的代码。</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">grep RUNNABLE <span class="built_in">stack</span>.<span class="built_in">log</span>  -a1</span><br></pre></td></tr></table></figure>
-<p><img src="/2018/05/13/java服务器load飚高排查思路/1364394978_1570.jpg" alt="image"></p>
-<figure class="highlight stata"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">less a.<span class="keyword">log</span> |awk '&#123;FS=<span class="string">"java.lang.Thread.State:"</span>;<span class="keyword">print</span> <span class="variable">$2&#125;</span>'|<span class="keyword">sort</span> |uniq -c |<span class="keyword">sort</span> -nr</span><br></pre></td></tr></table></figure>
-<p><img src="/2018/05/13/java服务器load飚高排查思路/20130812130234781.jpeg" alt="image"></p>
+            <h4 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h4><p>anatomy 是阿里同学开发的一款用于JVM进程执行过程中的异常诊断工具，可以在不中断程序执行的情况下轻松完成问题排查工作。</p>
+<ul>
+<li>纯Java实现的开源项目</li>
+<li>安装使用便捷</li>
+<li>方法级问题诊断</li>
+<li>Groovy表达式展开变对象，方便你观察入参、出参、异常、当前对象的各种属性细节</li>
+</ul>
+<h4 id="接下来结合线上应用，列举常用的几个排查问题命令如何使用"><a href="#接下来结合线上应用，列举常用的几个排查问题命令如何使用" class="headerlink" title="接下来结合线上应用，列举常用的几个排查问题命令如何使用"></a>接下来结合线上应用，列举常用的几个排查问题命令如何使用</h4><p>1、安装：</p>
+<figure class="highlight vim"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl -sLk http://ompc.oss.aliyuncs.<span class="keyword">com</span>/greys/install.<span class="keyword">sh</span>|<span class="keyword">sh</span></span><br></pre></td></tr></table></figure>
+<p>2、启动</p>
+<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">greys<span class="selector-class">.sh</span>  &lt;PID&gt;</span><br><span class="line"></span><br><span class="line">注：PID：目标Java进程ID</span><br></pre></td></tr></table></figure>
+<p>3、help</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">help</span>  </span><br><span class="line"></span><br><span class="line">注：所有命令</span><br><span class="line"></span><br><span class="line"><span class="built_in">help</span> watch</span><br><span class="line"></span><br><span class="line">注：<span class="built_in">help</span>命令同时也支持对其他命令的一个解释说明，比如我们键入<span class="built_in">help</span> watch，包含（用途说明、参数列表、实际例子）</span><br></pre></td></tr></table></figure>
+<p>4、sc 搜索所有已经加载到JVM中的Class信息。</p>
+<figure class="highlight mipsasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">sc </span>-d *RecommendManagerImpl</span><br></pre></td></tr></table></figure>
+<p><strong>使用场景：</strong></p>
+<p>主要是用于排查一个应用可能存在同一个jar包的多个版本，而不同版本的类的方法可能会有实现上的差异，可以通过这种方式确认JVM中加载的是哪一个jar下的类。</p>
+<p><img src="/2018/05/13/anatomy/Snip20161002_1.png" alt="image"></p>
+<p>5、monitor 方法层面的性能监控，非实时返回的命令，则是不断的等待目标Java进程返回信息，直到用户输入Ctrl+D为止</p>
+<figure class="highlight llvm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">monitor -<span class="keyword">c</span> <span class="number">5</span>  *TimelineReadServiceImpl getEditorRecPost</span><br><span class="line"></span><br><span class="line">注：-<span class="keyword">c</span> : 统计周期，默认值为<span class="number">120</span>秒</span><br></pre></td></tr></table></figure>
+<p><strong>使用场景：</strong></p>
+<p>线上反馈某个接口突然响应较慢，但又缺乏全链路维度节点的监控，可以通过该命令能定位到具体哪个方法耗时较长，有效缩小排查范围。</p>
+<p><img src="/2018/05/13/anatomy/Snip20161002_2.png" alt="image"></p>
+<p>6、trace 统计整个调用链路上的所有性能开销和追踪调用链路。</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">trace -n <span class="number">2</span> *TimelineReadServiceImpl <span class="keyword">query</span>RecPageTimeLine</span><br></pre></td></tr></table></figure>
+<p><strong>使用场景：</strong></p>
+<p>定位查找某一接口响应较慢，主要是损耗在哪一个环节。</p>
+<p>另外也可以做为性能优化的参考标准，了解一个接口下面每个环节的消耗时间，从而判断是否合理，有没有优化的空间</p>
+<p>7、watch 观察到指定方法的调用情况</p>
+<p>能观察到的范围：入参、返回值、抛出异常，通过编写groovy表达式进行对应变量的查看。详细使用手册可以通过命令help watch</p>
+<figure class="highlight lsl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">watch -b  *TimelineReadServiceImpl queryRecPageTimeLine  params[<span class="number">0</span>]</span><br><span class="line"></span><br><span class="line">注：打印完整的入参信息</span><br><span class="line"></span><br><span class="line">watch -b  *TimelineReadServiceImpl queryRecPageTimeLine  params[<span class="number">0</span>] 'params[<span class="number">0</span>].uid&gt;<span class="number">2894731</span>' </span><br><span class="line"></span><br><span class="line">注：带上groovy表达式，uid&gt;<span class="number">2894731</span></span><br><span class="line"></span><br><span class="line">watch -s  *TimelineReadServiceImpl queryRecPageTimeLine  params[<span class="number">0</span>]+returnObj 'params[<span class="number">0</span>].uid==<span class="number">3680667</span>'</span><br><span class="line"></span><br><span class="line">注：当请求的uid为<span class="number">3680667</span>时，打印入参和返回结果</span><br></pre></td></tr></table></figure>
+<p>8、 jvm</p>
+<p>查看当前JVM的信息，无参数</p>
+<h3 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h3><p><a href="https://github.com/oldmanpushcart/greys-anatomy/wiki/Commands#help" target="_blank" rel="external">https://github.com/oldmanpushcart/greys-anatomy/wiki/Commands#help</a></p>
 
           
         
@@ -4873,6 +4572,191 @@
 
 
     
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/05/08/LinkedBlockingQueue/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="周小伍 Joey">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/xiaowu_avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="xiaowu's blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/05/08/LinkedBlockingQueue/" itemprop="url">LinkedBlockingQueue</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-05-08T10:23:22+08:00">
+                2018-05-08
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/java基础/" itemprop="url" rel="index">
+                    <span itemprop="name">java基础</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2018/05/08/LinkedBlockingQueue/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2018/05/08/LinkedBlockingQueue/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  57
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  1
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="锁分离"><a href="#锁分离" class="headerlink" title="锁分离"></a>锁分离</h2><p>take和put分别两个ReentrantLock锁</p>
+<figure class="highlight haxe"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/** Lock held by take, poll, etc */</span></span><br><span class="line"><span class="keyword">private</span> final ReentrantLock takeLock = <span class="keyword">new</span> <span class="type">ReentrantLock</span>();</span><br><span class="line"></span><br><span class="line"><span class="comment">/** Wait queue for waiting takes */</span></span><br><span class="line"><span class="keyword">private</span> final Condition notEmpty = takeLock.<span class="keyword">new</span><span class="type">Condition</span>();</span><br><span class="line"></span><br><span class="line"><span class="comment">/** Lock held by put, offer, etc */</span></span><br><span class="line"><span class="keyword">private</span> final ReentrantLock putLock = <span class="keyword">new</span> <span class="type">ReentrantLock</span>();</span><br><span class="line"></span><br><span class="line"><span class="comment">/** Wait queue for waiting puts */</span></span><br><span class="line"><span class="keyword">private</span> final Condition notFull = putLock.<span class="keyword">new</span><span class="type">Condition</span>();</span><br></pre></td></tr></table></figure>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
   </section>
 
   
@@ -4927,7 +4811,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">150</span>
+                  <span class="site-state-item-count">147</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -4938,7 +4822,7 @@
               
               <div class="site-state-item site-state-categories">
                 <a href="/categories/index.html">
-                  <span class="site-state-item-count">28</span>
+                  <span class="site-state-item-count">27</span>
                   <span class="site-state-item-name">分类</span>
                 </a>
               </div>
@@ -4949,7 +4833,7 @@
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">43</span>
+                  <span class="site-state-item-count">42</span>
                   <span class="site-state-item-name">标签</span>
                 </a>
               </div>
@@ -5002,7 +4886,7 @@
     
       <span class="post-meta-item-text">Site words total count&#58;</span>
     
-    <span title="Site words total count">270.1k</span>
+    <span title="Site words total count">265.9k</span>
   
 </div>
 
