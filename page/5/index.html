@@ -293,6 +293,231 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://zhouxiaowu.coding.me/2018/11/15/MySQL查看和修改字符集的方法/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="周小伍 Joey">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/xiaowu_avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="xiaowu's blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/11/15/MySQL查看和修改字符集的方法/" itemprop="url">MySQL查看和修改字符集的方法</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-11-15T14:05:40+08:00">
+                2018-11-15
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/数据库/" itemprop="url" rel="index">
+                    <span itemprop="name">数据库</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2018/11/15/MySQL查看和修改字符集的方法/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2018/11/15/MySQL查看和修改字符集的方法/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  1.1k
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  5
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="一、查看字符集"><a href="#一、查看字符集" class="headerlink" title="一、查看字符集"></a><strong>一、查看字符集</strong></h2><h3 id="1-查看MYSQL数据库服务器和数据库字符集"><a href="#1-查看MYSQL数据库服务器和数据库字符集" class="headerlink" title="1.查看MYSQL数据库服务器和数据库字符集"></a>1.查看MYSQL数据库服务器和数据库字符集</h3><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">方法一：<span class="keyword">show</span> <span class="keyword">variables</span> <span class="keyword">like</span> <span class="string">'%character%'</span>;</span><br><span class="line">方法二：<span class="keyword">show</span> <span class="keyword">variables</span> <span class="keyword">like</span> <span class="string">'collation%'</span>;</span><br></pre></td></tr></table></figure>
+<figure class="highlight asciidoc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; show variables like <span class="emphasis">'collation%'</span>;</span><br><span class="line"><span class="code">+----------------------+</span>-----------------+</span><br><span class="line">| Variable<span class="emphasis">_name        | Value           |</span></span><br><span class="line"><span class="emphasis">+----------------------+-----------------+</span></span><br><span class="line"><span class="emphasis">| collation_</span>connection | utf8<span class="emphasis">_general_</span>ci |</span><br><span class="line">| collation<span class="emphasis">_database   | utf8_</span>general<span class="emphasis">_ci |</span></span><br><span class="line"><span class="emphasis">| collation_</span>server     | utf8<span class="emphasis">_general_</span>ci |</span><br><span class="line"><span class="code">+----------------------+</span>-----------------+</span><br><span class="line">rows in set (0.00 sec)</span><br></pre></td></tr></table></figure>
+<figure class="highlight asciidoc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; show variables like <span class="emphasis">'collation%'</span>;</span><br><span class="line"><span class="code">+----------------------+</span>-----------------+</span><br><span class="line">| Variable<span class="emphasis">_name        | Value           |</span></span><br><span class="line"><span class="emphasis">+----------------------+-----------------+</span></span><br><span class="line"><span class="emphasis">| collation_</span>connection | utf8<span class="emphasis">_general_</span>ci |</span><br><span class="line">| collation<span class="emphasis">_database   | utf8_</span>general<span class="emphasis">_ci |</span></span><br><span class="line"><span class="emphasis">| collation_</span>server     | utf8<span class="emphasis">_general_</span>ci |</span><br><span class="line"><span class="code">+----------------------+</span>-----------------+</span><br><span class="line">3 rows in set (0.00 sec)</span><br></pre></td></tr></table></figure>
+<h3 id="2-查看MYSQL所支持的字符集"><a href="#2-查看MYSQL所支持的字符集" class="headerlink" title="2.查看MYSQL所支持的字符集"></a>2.查看MYSQL所支持的字符集</h3><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">show</span> <span class="keyword">charset</span>;</span><br></pre></td></tr></table></figure>
+<figure class="highlight gherkin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; show charset;</span><br><span class="line">+----------+-----------------------------+---------------------+--------+</span><br><span class="line">|<span class="string"> Charset  </span>|<span class="string"> Description                 </span>|<span class="string"> Default collation   </span>|<span class="string"> Maxlen </span>|</span><br><span class="line">+----------+-----------------------------+---------------------+--------+</span><br><span class="line">|<span class="string"> big5     </span>|<span class="string"> Big5 Traditional Chinese    </span>|<span class="string"> big5_chinese_ci     </span>|<span class="string">      2 </span>|</span><br><span class="line">|<span class="string"> dec8     </span>|<span class="string"> DEC West European           </span>|<span class="string"> dec8_swedish_ci     </span>|<span class="string">      1 </span>|</span><br><span class="line">|<span class="string"> cp850    </span>|<span class="string"> DOS West European           </span>|<span class="string"> cp850_general_ci    </span>|<span class="string">      1 </span>|</span><br><span class="line">|<span class="string"> hp8      </span>|<span class="string"> HP West European            </span>|<span class="string"> hp8_english_ci      </span>|<span class="string">      1 </span>|</span><br><span class="line">|<span class="string"> koi8r    </span>|<span class="string"> KOI8-R Relcom Russian       </span>|<span class="string"> koi8r_general_ci    </span>|<span class="string">      1 </span>|</span><br><span class="line">|<span class="string"> latin1   </span>|<span class="string"> cp1252 West European        </span>|<span class="string"> latin1_swedish_ci   </span>|<span class="string">      1 </span>|</span><br><span class="line">|<span class="string"> latin2   </span>|<span class="string"> ISO 8859-2 Central European </span>|<span class="string"> latin2_general_ci   </span>|<span class="string">      1 </span>|</span><br><span class="line">|<span class="string"> swe7     </span>|<span class="string"> 7bit Swedish                </span>|<span class="string"> swe7_swedish_ci     </span>|<span class="string">      1 </span>|</span><br><span class="line">|<span class="string"> ascii    </span>|<span class="string"> US ASCII                    </span>|<span class="string"> ascii_general_ci    </span>|<span class="string">      1 </span>|</span><br><span class="line">|<span class="string"> ujis     </span>|<span class="string"> EUC-JP Japanese             </span>|<span class="string"> ujis_japanese_ci    </span>|<span class="string">      3 </span>|</span><br><span class="line">|<span class="string"> sjis     </span>|<span class="string"> Shift-JIS Japanese          </span>|<span class="string"> sjis_japanese_ci    </span>|<span class="string">      2 </span>|</span><br><span class="line">|<span class="string"> hebrew   </span>|<span class="string"> ISO 8859-8 Hebrew           </span>|<span class="string"> hebrew_general_ci   </span>|<span class="string">      1 </span>|</span><br><span class="line">|<span class="string"> tis620   </span>|<span class="string"> TIS620 Thai                 </span>|<span class="string"> tis620_thai_ci      </span>|<span class="string">      1 </span>|</span><br><span class="line">|<span class="string"> euckr    </span>|<span class="string"> EUC-KR Korean               </span>|<span class="string"> euckr_korean_ci     </span>|<span class="string">      2 </span>|</span><br><span class="line">|<span class="string"> koi8u    </span>|<span class="string"> KOI8-U Ukrainian            </span>|<span class="string"> koi8u_general_ci    </span>|<span class="string">      1 </span>|</span><br><span class="line">|<span class="string"> gb2312   </span>|<span class="string"> GB2312 Simplified Chinese   </span>|<span class="string"> gb2312_chinese_ci   </span>|<span class="string">      2 </span>|</span><br><span class="line">|<span class="string"> greek    </span>|<span class="string"> ISO 8859-7 Greek            </span>|<span class="string"> greek_general_ci    </span>|<span class="string">      1 </span>|</span><br><span class="line">|<span class="string"> cp1250   </span>|<span class="string"> Windows Central European    </span>|<span class="string"> cp1250_general_ci   </span>|<span class="string">      1 </span>|</span><br><span class="line">|<span class="string"> gbk      </span>|<span class="string"> GBK Simplified Chinese      </span>|<span class="string"> gbk_chinese_ci      </span>|<span class="string">      2 </span>|</span><br><span class="line">|<span class="string"> latin5   </span>|<span class="string"> ISO 8859-9 Turkish          </span>|<span class="string"> latin5_turkish_ci   </span>|<span class="string">      1 </span>|</span><br><span class="line">|<span class="string"> armscii8 </span>|<span class="string"> ARMSCII-8 Armenian          </span>|<span class="string"> armscii8_general_ci </span>|<span class="string">      1 </span>|</span><br><span class="line">|<span class="string"> utf8     </span>|<span class="string"> UTF-8 Unicode               </span>|<span class="string"> utf8_general_ci     </span>|<span class="string">      3 </span>|</span><br><span class="line">|<span class="string"> ucs2     </span>|<span class="string"> UCS-2 Unicode               </span>|<span class="string"> ucs2_general_ci     </span>|<span class="string">      2 </span>|</span><br><span class="line">|<span class="string"> cp866    </span>|<span class="string"> DOS Russian                 </span>|<span class="string"> cp866_general_ci    </span>|<span class="string">      1 </span>|</span><br><span class="line">|<span class="string"> keybcs2  </span>|<span class="string"> DOS Kamenicky Czech-Slovak  </span>|<span class="string"> keybcs2_general_ci  </span>|<span class="string">      1 </span>|</span><br><span class="line">|<span class="string"> macce    </span>|<span class="string"> Mac Central European        </span>|<span class="string"> macce_general_ci    </span>|<span class="string">      1 </span>|</span><br><span class="line">|<span class="string"> macroman </span>|<span class="string"> Mac West European           </span>|<span class="string"> macroman_general_ci </span>|<span class="string">      1 </span>|</span><br><span class="line">|<span class="string"> cp852    </span>|<span class="string"> DOS Central European        </span>|<span class="string"> cp852_general_ci    </span>|<span class="string">      1 </span>|</span><br><span class="line">|<span class="string"> latin7   </span>|<span class="string"> ISO 8859-13 Baltic          </span>|<span class="string"> latin7_general_ci   </span>|<span class="string">      1 </span>|</span><br><span class="line">|<span class="string"> utf8mb4  </span>|<span class="string"> UTF-8 Unicode               </span>|<span class="string"> utf8mb4_general_ci  </span>|<span class="string">      4 </span>|</span><br><span class="line">|<span class="string"> cp1251   </span>|<span class="string"> Windows Cyrillic            </span>|<span class="string"> cp1251_general_ci   </span>|<span class="string">      1 </span>|</span><br><span class="line">|<span class="string"> utf16    </span>|<span class="string"> UTF-16 Unicode              </span>|<span class="string"> utf16_general_ci    </span>|<span class="string">      4 </span>|</span><br><span class="line">|<span class="string"> cp1256   </span>|<span class="string"> Windows Arabic              </span>|<span class="string"> cp1256_general_ci   </span>|<span class="string">      1 </span>|</span><br><span class="line">|<span class="string"> cp1257   </span>|<span class="string"> Windows Baltic              </span>|<span class="string"> cp1257_general_ci   </span>|<span class="string">      1 </span>|</span><br><span class="line">|<span class="string"> utf32    </span>|<span class="string"> UTF-32 Unicode              </span>|<span class="string"> utf32_general_ci    </span>|<span class="string">      4 </span>|</span><br><span class="line">|<span class="string"> binary   </span>|<span class="string"> Binary pseudo charset       </span>|<span class="string"> binary              </span>|<span class="string">      1 </span>|</span><br><span class="line">|<span class="string"> geostd8  </span>|<span class="string"> GEOSTD8 Georgian            </span>|<span class="string"> geostd8_general_ci  </span>|<span class="string">      1 </span>|</span><br><span class="line">|<span class="string"> cp932    </span>|<span class="string"> SJIS for Windows Japanese   </span>|<span class="string"> cp932_japanese_ci   </span>|<span class="string">      2 </span>|</span><br><span class="line">|<span class="string"> eucjpms  </span>|<span class="string"> UJIS for Windows Japanese   </span>|<span class="string"> eucjpms_japanese_ci </span>|<span class="string">      3 </span>|</span><br><span class="line">+----------+-----------------------------+---------------------+--------+</span><br><span class="line">39 rows in set (0.00 sec)</span><br></pre></td></tr></table></figure>
+<h3 id="3-查看库的字符集"><a href="#3-查看库的字符集" class="headerlink" title="3.查看库的字符集"></a>3.查看库的字符集</h3><p>语法：show database status from 库名 like  表名;</p>
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; show create database shiyan\G</span><br><span class="line"><span class="strong">*****</span><span class="strong">*****</span><span class="strong">*****</span><span class="strong">*****</span><span class="strong">*****</span><span class="strong">** 1. row **</span><span class="strong">*****</span><span class="strong">*****</span><span class="strong">*****</span><span class="strong">*****</span><span class="strong">*****</span></span><br><span class="line"><span class="code">       Database: shiyan</span></span><br><span class="line">Create Database: CREATE DATABASE <span class="code">`shiyan`</span> /<span class="emphasis">*!40100 DEFAULT CHARACTER SET gbk *</span>/</span><br><span class="line">1 row in set (0.00 sec)</span><br></pre></td></tr></table></figure>
+<h3 id="4-查看表的字符集"><a href="#4-查看表的字符集" class="headerlink" title="4.查看表的字符集"></a>4.查看表的字符集</h3><p>语法：show table status from 库名 like  表名;</p>
+<figure class="highlight gams"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; show <span class="keyword">table</span> status <span class="comment">from class_7 like</span> <span class="comment">'test_info'</span>;</span><br></pre></td></tr></table></figure>
+<figure class="highlight jboss-cli"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; show table status from class_7 like 'test_info';</span><br><span class="line">+<span class="params">-----------</span>+<span class="params">--------</span>+<span class="params">---------</span>+<span class="params">------------</span>+<span class="params">------</span>+<span class="params">----------------</span>+<span class="params">-------------------------</span>+<span class="params">-------------</span>+<span class="params">------------</span>+<span class="params">-----------------</span>+<span class="params">----------</span>+-</span><br><span class="line">| Name      | Engine | Version | Row_format | Rows | Avg_row_length | Data_leate_time         | Update_time | Check_time | Collation       | Checksum |</span><br><span class="line">+<span class="params">-----------</span>+<span class="params">--------</span>+<span class="params">---------</span>+<span class="params">------------</span>+<span class="params">------</span>+<span class="params">----------------</span>+<span class="params">-------------------------</span>+<span class="params">-------------</span>+<span class="params">------------</span>+<span class="params">-----------------</span>+<span class="params">----------</span>+-</span><br><span class="line">| test_info | InnoDB |      10 | Compact    |   10 |           1638 |       17-12-05 19<span class="function">:01</span><span class="function">:55</span> | NULL        | NULL       | utf8_general_ci |     NULL |</span><br><span class="line">+<span class="params">-----------</span>+<span class="params">--------</span>+<span class="params">---------</span>+<span class="params">------------</span>+<span class="params">------</span>+<span class="params">----------------</span>+<span class="params">-------------------------</span>+<span class="params">-------------</span>+<span class="params">------------</span>+<span class="params">-----------------</span>+<span class="params">----------</span>+-</span><br><span class="line">1 row in <span class="keyword">set</span> <span class="params">(0.00 sec)</span></span><br></pre></td></tr></table></figure>
+<h3 id="5-查看表中所有列的字符集"><a href="#5-查看表中所有列的字符集" class="headerlink" title="5.查看表中所有列的字符集"></a>5.查看表中所有列的字符集</h3><p>语法：show full columns from 表名;</p>
+<figure class="highlight maxima"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; <span class="built_in">show</span> full <span class="built_in">columns</span> from test_info;</span><br></pre></td></tr></table></figure>
+<figure class="highlight gherkin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; show full columns from test_info;</span><br><span class="line">+-------+----------+-----------------+------+-----+---------+-------+---------------------------------+---------+</span><br><span class="line">|<span class="string"> Field </span>|<span class="string"> Type     </span>|<span class="string"> Collation       </span>|<span class="string"> Null </span>|<span class="string"> Key </span>|<span class="string"> Default </span>|<span class="string"> Extra </span>|<span class="string"> Privileges                      </span>|<span class="string"> Comment </span>|</span><br><span class="line">+-------+----------+-----------------+------+-----+---------+-------+---------------------------------+---------+</span><br><span class="line">|<span class="string"> id    </span>|<span class="string"> int(3)   </span>|<span class="string"> NULL            </span>|<span class="string"> NO   </span>|<span class="string"> PRI </span>|<span class="string"> NULL    </span>|<span class="string">       </span>|<span class="string"> select,insert,update,references </span>|<span class="string">         </span>|</span><br><span class="line">|<span class="string"> name  </span>|<span class="string"> char(12) </span>|<span class="string"> utf8_general_ci </span>|<span class="string"> YES  </span>|<span class="string">     </span>|<span class="string"> NULL    </span>|<span class="string">       </span>|<span class="string"> select,insert,update,references </span>|<span class="string">         </span>|</span><br><span class="line">|<span class="string"> dorm  </span>|<span class="string"> char(10) </span>|<span class="string"> utf8_general_ci </span>|<span class="string"> YES  </span>|<span class="string">     </span>|<span class="string"> NULL    </span>|<span class="string">       </span>|<span class="string"> select,insert,update,references </span>|<span class="string">         </span>|</span><br><span class="line">|<span class="string"> addr  </span>|<span class="string"> char(12) </span>|<span class="string"> utf8_general_ci </span>|<span class="string"> YES  </span>|<span class="string">     </span>|<span class="string"> 未知    </span>|<span class="string">       </span>|<span class="string"> select,insert,update,references </span>|<span class="string">         </span>|</span><br><span class="line">|<span class="string"> score </span>|<span class="string"> int(3)   </span>|<span class="string"> NULL            </span>|<span class="string"> YES  </span>|<span class="string">     </span>|<span class="string"> NULL    </span>|<span class="string">       </span>|<span class="string"> select,insert,update,references </span>|<span class="string">         </span>|</span><br><span class="line">+-------+----------+-----------------+------+-----+---------+-------+---------------------------------+---------+</span><br><span class="line">5 rows in set (0.00 sec)</span><br></pre></td></tr></table></figure>
+<h2 id="二、设置字符集"><a href="#二、设置字符集" class="headerlink" title="二、设置字符集"></a><strong>二、设置字符集</strong></h2><p>设置字符集一般有两种方法，一种是在创建表的时候设置字符集，另一种是表建成之后修改字符集。</p>
+<h3 id="1-创建时指定字符集"><a href="#1-创建时指定字符集" class="headerlink" title="1.创建时指定字符集"></a>1.创建时指定字符集</h3><p>创建库的时候指定字符集：</p>
+<p>语法：create database 库名 default character set=字符集；</p>
+<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">create database db2<span class="built_in"> default </span>character <span class="attribute">set</span>=utf8</span><br></pre></td></tr></table></figure>
+<p>创建表的时候指定字符集：</p>
+<p>语法：create table 表名（属性）default character set = 字符集；</p>
+<figure class="highlight cs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; <span class="function">create table <span class="title">test1</span>(<span class="params">id <span class="keyword">int</span>(<span class="number">6</span></span>),name <span class="title">char</span>(<span class="params"><span class="number">10</span></span>)) <span class="keyword">default</span> character <span class="keyword">set</span> </span>= <span class="string">'gbk'</span>;</span><br><span class="line">Query OK, <span class="number">0</span> <span class="function">rows <span class="title">affected</span> (<span class="params"><span class="number">0.39</span> sec</span>)</span></span><br></pre></td></tr></table></figure>
+<h3 id="2-修改字符集"><a href="#2-修改字符集" class="headerlink" title="2.修改字符集"></a>2.修改字符集</h3><h4 id="修改全局字符集"><a href="#修改全局字符集" class="headerlink" title="修改全局字符集"></a>修改全局字符集</h4><figure class="highlight gams"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*建立连接使用的编码*/</span></span><br><span class="line"><span class="keyword">set</span> character_set_connection=utf8;</span><br><span class="line"><span class="comment">/*数据库的编码*/</span></span><br><span class="line"><span class="keyword">set</span> character_set_database=utf8;</span><br><span class="line"><span class="comment">/*结果集的编码*/</span></span><br><span class="line"><span class="keyword">set</span> character_set_results=utf8;</span><br><span class="line"><span class="comment">/*数据库服务器的编码*/</span></span><br><span class="line"><span class="keyword">set</span> character_set_server=utf8;</span><br><span class="line"></span><br><span class="line"><span class="keyword">set</span> character_set_system=utf8;</span><br><span class="line"></span><br><span class="line"><span class="keyword">set</span> collation_connection=utf8;</span><br><span class="line"></span><br><span class="line"><span class="keyword">set</span> collation_database=utf8;</span><br><span class="line"></span><br><span class="line"><span class="keyword">set</span> collation_server=utf8;</span><br><span class="line"></span><br><span class="line">修改全局字符集</span><br></pre></td></tr></table></figure>
+<h4 id="修改库的字符集"><a href="#修改库的字符集" class="headerlink" title="修改库的字符集"></a>修改库的字符集</h4><p>语法：alter database 库名 default character set 字符集;</p>
+<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">alter database shiyan<span class="built_in"> default </span>character <span class="builtin-name">set</span> gbk;</span><br></pre></td></tr></table></figure>
+<h4 id="修改表的字符集"><a href="#修改表的字符集" class="headerlink" title="修改表的字符集"></a>修改表的字符集</h4><p>语法：alter table 表名 convert to character set 字符集;</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">alter</span> <span class="keyword">table</span> test1 <span class="keyword">convert</span> <span class="keyword">to</span> <span class="built_in">character</span> <span class="keyword">set</span> utf8;</span><br></pre></td></tr></table></figure>
+<h4 id="修改字段的字符集"><a href="#修改字段的字符集" class="headerlink" title="修改字段的字符集"></a>修改字段的字符集</h4><p>语法：alter table 表名 modify 字段名 字段属性 character set gbk；</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">alter</span> <span class="keyword">table</span> test1 <span class="keyword">modify</span> <span class="keyword">name</span> <span class="built_in">char</span>(<span class="number">10</span>) <span class="built_in">character</span> <span class="keyword">set</span> gbk;</span><br></pre></td></tr></table></figure>
+<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; show full columns <span class="keyword">from</span> test1;</span><br><span class="line">+-------+----------+-----------------+------+-----+---------+-------+---------------------------------+---------+</span><br><span class="line">| Field |<span class="built_in"> Type </span>    | Collation       | <span class="literal">Null</span> | Key |<span class="built_in"> Default </span>| Extra | Privileges                      | Comment |</span><br><span class="line">+-------+----------+-----------------+------+-----+---------+-------+---------------------------------+---------+</span><br><span class="line">| id    | int(6)   | <span class="literal">NULL</span>            | <span class="literal">YES</span>  |     | <span class="literal">NULL</span>    |       | select,insert,update,references |         |</span><br><span class="line">| name  | char(10) | utf8_general_ci | <span class="literal">YES</span>  |     | <span class="literal">NULL</span>    |       | select,insert,update,references |         |</span><br><span class="line">+-------+----------+-----------------+------+-----+---------+-------+---------------------------------+---------+</span><br><span class="line">2 rows <span class="keyword">in</span> <span class="builtin-name">set</span> (0.01 sec)</span><br><span class="line"></span><br><span class="line">mysql&gt; alter table test1 modify name char(10) character <span class="builtin-name">set</span> gbk;</span><br><span class="line">Query OK, 0 rows affected (0.58 sec)</span><br><span class="line">Records: 0  Duplicates: 0  Warnings: 0</span><br><span class="line"></span><br><span class="line">mysql&gt; show full columns <span class="keyword">from</span> test1;</span><br><span class="line">+-------+----------+----------------+------+-----+---------+-------+---------------------------------+---------+</span><br><span class="line">| Field |<span class="built_in"> Type </span>    | Collation      | <span class="literal">Null</span> | Key |<span class="built_in"> Default </span>| Extra | Privileges                      | Comment |</span><br><span class="line">+-------+----------+----------------+------+-----+---------+-------+---------------------------------+---------+</span><br><span class="line">| id    | int(6)   | <span class="literal">NULL</span>           | <span class="literal">YES</span>  |     | <span class="literal">NULL</span>    |       | select,insert,update,references |         |</span><br><span class="line">| name  | char(10) | gbk_chinese_ci | <span class="literal">YES</span>  |     | <span class="literal">NULL</span>    |       | select,insert,update,references |         |</span><br><span class="line">+-------+----------+----------------+------+-----+---------+-------+---------------------------------+---------+</span><br><span class="line">2 rows <span class="keyword">in</span> <span class="builtin-name">set</span> (0.01 sec)</span><br></pre></td></tr></table></figure>
+<p><strong>character set即字符集</strong></p>
+<p>我们常看到的UTF-8、GB2312、GB18030都是相互独立的character set。即对Unicode的一套编码。</p>
+<p><strong>collation即比对方法</strong></p>
+<p>用于指定数据集如何排序，以及字符串的比对规则。</p>
+<p>collation名字的规则可以归纳为这两类：</p>
+<ul>
+<li><character set=""><em><language other=""></language></em><ci cs=""></ci></character></li>
+<li><character set="">_bin</character></li>
+</ul>
+<p>例如：</p>
+<p>utf8_danish_ci</p>
+<p>ci是case insensitive的缩写，cs是case sensitive的缩写。即，指定大小写是否敏感。</p>
+<p>utf8_bin是将字符串中的每一个字符用二进制数据存储，区分大小写。</p>
+<p>奇怪的是utf8字符集对应的collation居然没有一个是cs的。</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="https://zhouxiaowu.coding.me/2018/11/09/浅谈springMVC中的设计模式——组合模式/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -2375,199 +2600,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://zhouxiaowu.coding.me/2018/09/06/kafka原理详解/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="周小伍 Joey">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/xiaowu_avatar.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="xiaowu's blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2018/09/06/kafka原理详解/" itemprop="url">kafka原理详解</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-09-06T21:54:39+08:00">
-                2018-09-06
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/消息中间件/" itemprop="url" rel="index">
-                    <span itemprop="name">消息中间件</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2018/09/06/kafka原理详解/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count disqus-comment-count"
-                        data-disqus-identifier="2018/09/06/kafka原理详解/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-
-          
-
-          
-            <div class="post-wordcount">
-              
-                
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-file-word-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">字数统计&#58;</span>
-                
-                <span title="字数统计">
-                  239
-                </span>
-              
-
-              
-                <span class="post-meta-divider">|</span>
-              
-
-              
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-clock-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
-                
-                <span title="阅读时长">
-                  1
-                </span>
-              
-            </div>
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h2 id="kafka提供的基本脚本"><a href="#kafka提供的基本脚本" class="headerlink" title="kafka提供的基本脚本"></a>kafka提供的基本脚本</h2><h3 id="启动broker-server"><a href="#启动broker-server" class="headerlink" title="启动broker server"></a>启动broker server</h3><figure class="highlight axapta"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">bin/kafka-<span class="keyword">server</span>-start.sh config/<span class="keyword">server</span>.properties</span><br></pre></td></tr></table></figure>
-<h3 id="创建topic"><a href="#创建topic" class="headerlink" title="创建topic"></a>创建topic</h3><figure class="highlight brainfuck"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">bin/kafka</span><span class="literal">-</span><span class="comment">topics</span><span class="string">.</span><span class="comment">sh</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">create</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">zookeeper</span> <span class="comment">localhost:2181</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">replication</span><span class="literal">-</span><span class="comment">factor</span> <span class="comment">2</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">partitions</span> <span class="comment">3</span> <span class="literal">-</span><span class="literal">-</span> <span class="comment">topic</span> <span class="comment">testReplicaTopic</span></span><br></pre></td></tr></table></figure>
-<p>当broker节点本身只有1个，少于副本数2时，报错</p>
-<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[<span class="number">2018</span>-<span class="number">09</span>-<span class="number">06</span> <span class="number">23</span>:<span class="number">13</span>:<span class="number">38</span>,<span class="number">288</span>] ERROR org<span class="selector-class">.apache</span><span class="selector-class">.kafka</span><span class="selector-class">.common</span><span class="selector-class">.errors</span><span class="selector-class">.InvalidReplicationFactorException</span>: Replication factor: <span class="number">2</span> larger than available brokers: <span class="number">1</span>.</span><br><span class="line"> (kafka<span class="selector-class">.admin</span><span class="selector-class">.TopicCommand</span>$)</span><br></pre></td></tr></table></figure>
-<h3 id="查看某个topic的信息"><a href="#查看某个topic的信息" class="headerlink" title="查看某个topic的信息"></a>查看某个topic的信息</h3><figure class="highlight brainfuck"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">bin/kafka</span><span class="literal">-</span><span class="comment">topics</span><span class="string">.</span><span class="comment">sh</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">describe</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">zookeeper</span> <span class="comment">localhost:2181</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">topic</span> <span class="comment">xiaowu</span><span class="literal">-</span><span class="comment">topic</span></span><br></pre></td></tr></table></figure>
-<h3 id="生产者发送消息"><a href="#生产者发送消息" class="headerlink" title="生产者发送消息"></a>生产者发送消息</h3><figure class="highlight vim"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">bin/kafka-console-producer.<span class="keyword">sh</span> --broker-<span class="keyword">list</span> localhos<span class="variable">t:9092</span> --topic xiaowu-topic</span><br></pre></td></tr></table></figure>
-<h3 id="消费者消费消息"><a href="#消费者消费消息" class="headerlink" title="消费者消费消息"></a>消费者消费消息</h3><figure class="highlight brainfuck"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">bin/kafka</span><span class="literal">-</span><span class="comment">console</span><span class="literal">-</span><span class="comment">consumer</span><span class="string">.</span><span class="comment">sh</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">bootstrap</span><span class="literal">-</span><span class="comment">server</span> <span class="comment">localhost:9092</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">topic</span> <span class="comment">xiaowu</span><span class="literal">-</span><span class="comment">topic</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">from</span><span class="literal">-</span><span class="comment">beginning</span></span><br></pre></td></tr></table></figure>
-<h3 id="查看消息日志文件"><a href="#查看消息日志文件" class="headerlink" title="查看消息日志文件"></a>查看消息日志文件</h3><figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">bin/kafka-run-class<span class="selector-class">.sh</span> kafka<span class="selector-class">.tools</span><span class="selector-class">.DumpLogSegments</span> --files /Users/zhouxiaowu/install/kafka/kafka-data/xiaowu-topic-<span class="number">0</span>/<span class="number">00000000000000000000</span><span class="selector-class">.log</span> --print-data-log</span><br></pre></td></tr></table></figure>
-<h3 id="查看索引文件内容"><a href="#查看索引文件内容" class="headerlink" title="查看索引文件内容"></a>查看索引文件内容</h3><figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">bin/kafka-run-class<span class="selector-class">.sh</span> kafka<span class="selector-class">.tools</span><span class="selector-class">.DumpLogSegments</span> --files /Users/zhouxiaowu/install/kafka/kafka-data/xiaowu-topic-<span class="number">0</span>/<span class="number">00000000000000000000</span><span class="selector-class">.index</span> --print-data-log</span><br></pre></td></tr></table></figure>
-<h2 id="zookeeper状态"><a href="#zookeeper状态" class="headerlink" title="zookeeper状态"></a>zookeeper状态</h2><h3 id="查看某个topic的某个分区的状态"><a href="#查看某个topic的某个分区的状态" class="headerlink" title="查看某个topic的某个分区的状态"></a>查看某个topic的某个分区的状态</h3><figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[<span class="string">zk:</span> <span class="string">localhost:</span><span class="number">2181</span>(CONNECTED) <span class="number">16</span>] get  <span class="regexp">/brokers/</span>topics<span class="regexp">/xiaowu-topic/</span>partitions<span class="regexp">/0/</span>state</span><br><span class="line">&#123;<span class="string">"controller_epoch"</span>:<span class="number">4</span>,<span class="string">"leader"</span>:<span class="number">0</span>,<span class="string">"version"</span>:<span class="number">1</span>,<span class="string">"leader_epoch"</span>:<span class="number">0</span>,<span class="string">"isr"</span>:[<span class="number">0</span>]&#125;</span><br></pre></td></tr></table></figure>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -2622,7 +2654,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">149</span>
+                  <span class="site-state-item-count">150</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -2697,7 +2729,7 @@
     
       <span class="post-meta-item-text">Site words total count&#58;</span>
     
-    <span title="Site words total count">275.8k</span>
+    <span title="Site words total count">276.8k</span>
   
 </div>
 

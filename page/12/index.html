@@ -293,6 +293,407 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://zhouxiaowu.coding.me/2018/03/13/MySQL开发规范/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="周小伍 Joey">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/xiaowu_avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="xiaowu's blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/03/13/MySQL开发规范/" itemprop="url">MySQL开发规范</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-03-13T14:14:53+08:00">
+                2018-03-13
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/数据库/" itemprop="url" rel="index">
+                    <span itemprop="name">数据库</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2018/03/13/MySQL开发规范/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2018/03/13/MySQL开发规范/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  4.5k
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  16
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="一-命名规范"><a href="#一-命名规范" class="headerlink" title="一. 命名规范"></a>一. 命名规范</h2><ol>
+<li><h3 id="库名、表名、字段名必须使用小写字母，并采用下划线分割"><a href="#库名、表名、字段名必须使用小写字母，并采用下划线分割" class="headerlink" title="库名、表名、字段名必须使用小写字母，并采用下划线分割"></a>库名、表名、字段名必须使用小写字母，并采用下划线分割</h3><ul>
+<li>为了统一规范， 库名、表名、字段名使用小写字母，禁用关键字（index,order等）。</li>
+</ul>
+</li>
+<li><h3 id="前缀命令规范"><a href="#前缀命令规范" class="headerlink" title="前缀命令规范"></a>前缀命令规范</h3><ul>
+<li>视图以<code>view_</code>开头，事件以<code>event_</code>开头，触发器以<code>trig_</code>开头，存储过程以<code>proc_</code>开头，函数以<code>func_</code>开头，应用上面禁用</li>
+<li>普通索引以<code>idx_各个列名简称</code>，唯一索引以<code>uk_各个列名简称</code>命名，中间用<code>_</code>隔开。如 <code>idx_col1_col2_col3(col1,col2,col3)</code>，如果列过长，用简写</li>
+<li>临时表以<code>tmp_实体表名</code>，线上禁用，备份表以<code>bak_日期_实体表名</code>，尽可能备份至HDFS</li>
+</ul>
+</li>
+<li><h3 id="库名、表名、字段名禁止超过32个字符，需见名知意"><a href="#库名、表名、字段名禁止超过32个字符，需见名知意" class="headerlink" title="库名、表名、字段名禁止超过32个字符，需见名知意"></a>库名、表名、字段名禁止超过32个字符，需见名知意</h3><p>库名、表名、字段名支持最多32个字符，但为了统一规范、易于辨识以及减少传输量，禁止超过32个字符，例：业务名称/实体_表作用</p>
+</li>
+<li><h3 id="按日期时间分表须符合-YYYYMMDD格式"><a href="#按日期时间分表须符合-YYYYMMDD格式" class="headerlink" title="按日期时间分表须符合_YYYYMMDD格式"></a>按日期时间分表须符合_YYYYMMDD格式</h3><p>按月或日生成的表，以<code>_YYYYMM[DD]</code>方式命名。</p>
+</li>
+</ol>
+<h2 id="二-库表基础规范"><a href="#二-库表基础规范" class="headerlink" title="二. 库表基础规范"></a>二. 库表基础规范</h2><ol>
+<li><h3 id="使用Innodb存储引擎"><a href="#使用Innodb存储引擎" class="headerlink" title="使用Innodb存储引擎"></a>使用Innodb存储引擎</h3><p>所有表必须使用默认存储引擎InnoDB。</p>
+</li>
+<li><h3 id="表编码方式统一使用UTF8或UTF8MB4的"><a href="#表编码方式统一使用UTF8或UTF8MB4的" class="headerlink" title="表编码方式统一使用UTF8或UTF8MB4的"></a>表编码方式统一使用UTF8或UTF8MB4的</h3><p>创建索引时utf8比utf8mb4少一个字节，所以明确没有emoj时，尽量使用utf8。</p>
+</li>
+<li><h3 id="所有表都要添加注释"><a href="#所有表都要添加注释" class="headerlink" title="所有表都要添加注释"></a>所有表都要添加注释</h3><p>所有字段必需要有注释，包括表注释，并标注简单意义</p>
+</li>
+<li><h3 id="控制单表字段数量"><a href="#控制单表字段数量" class="headerlink" title="控制单表字段数量"></a>控制单表字段数量</h3><ul>
+<li>单表字段数上限50左右，再多的话考虑垂直分表，一是冷热数据分离，二是大字段分离，三是常在一起做条件和返回列的不分离。</li>
+<li>表字段控制少而精，可以提高IO效率，内存缓存更多有效数据，从而提高响应速度和并发能力，后续 alter table 也更快。</li>
+</ul>
+</li>
+<li><h3 id="所有表都必须要显式指定主键"><a href="#所有表都必须要显式指定主键" class="headerlink" title="所有表都必须要显式指定主键"></a>所有表都必须要显式指定主键</h3><ul>
+<li>双活的表必须禁用自增主键【snowflake】，InnoDB表实际是一棵索引组织表，顺序存储可以提高存取效率，充分利用磁盘空间。还有对一些复杂查询可能需要自连接来优化时需要用到。</li>
+<li>需要全局唯一主键时，gmt_create这类的能使用主键排序的尽量使用主键做分页排序，不浪费索引</li>
+<li>少数情况可以使用联合唯一主键，需与DBA协商</li>
+</ul>
+</li>
+<li><h3 id="不使用外键"><a href="#不使用外键" class="headerlink" title="不使用外键"></a>不使用外键</h3><p>外键严重影响数据库性能，增加表维护复杂度，所以线上禁用外键</p>
+</li>
+<li><h3 id="字段名称统一"><a href="#字段名称统一" class="headerlink" title="字段名称统一"></a>字段名称统一</h3><ul>
+<li>每张表原则上必须含有gmt_create,gmt_modify，gmt_create为创建时间。gmt_modify属性为NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP，gmt_create属性为NOT NULL DEFAULT CURRENT_TIMESTAMP，统一放至字段最后</li>
+<li>所有相同意义的表采用统一字段名称，并且字段类型一致，这样应用与维护人员见字段知其含义，方便理解</li>
+</ul>
+</li>
+<li><h3 id="简单单表数据量控制在1000w以内"><a href="#简单单表数据量控制在1000w以内" class="headerlink" title="简单单表数据量控制在1000w以内"></a>简单单表数据量控制在1000w以内</h3></li>
+<li><h3 id="尽量保证单表存储空间小于10GB"><a href="#尽量保证单表存储空间小于10GB" class="headerlink" title="尽量保证单表存储空间小于10GB"></a>尽量保证单表存储空间小于10GB</h3></li>
+<li><p><strong>建表时不要加入COLLATE相关内容</strong></p>
+</li>
+</ol>
+<h2 id="三-字段规范"><a href="#三-字段规范" class="headerlink" title="三. 字段规范"></a>三. 字段规范</h2><ol>
+<li><h3 id="char、varchar、text等字符串类型定义"><a href="#char、varchar、text等字符串类型定义" class="headerlink" title="char、varchar、text等字符串类型定义"></a>char、varchar、text等字符串类型定义</h3><ul>
+<li>对于长度基本固定的列，如果该列恰好更新又特别频繁，适合char</li>
+<li>varchar虽然存储变长字符串，但不可太小也不可太大。UTF8最多能存21844个汉字，或65532个英文</li>
+<li>TEXT类型与VARCHAR都类似，存储可变长度，最大限制也是2^16，但是它20bytes以后的内容是在数据页以外的空间存储（row_format=dynamic），对它的使用需要多一次寻址，没有默认值。</li>
+<li>把text/blob拆到另一个表中，如果只存不读的禁用，建议直接存HDFS</li>
+<li>BLOB可以看出varbinary的扩展版本，内容以二进制字符串存储，无字符集，区分大小写，有一种经常提但不用的场景：不要在数据库里存储图片。</li>
+<li>字符集为utf8，varchar类型最大只能创建索引为前255字节；字符集为utf8mb4，varchar类型最大只能创建索引为前191字节。所以字段造型时首选int，如果varchar时字段做查询的越小越好，长度不要超过191。</li>
+</ul>
+</li>
+<li><h3 id="int、tinyint、decimal等数字类型定义"><a href="#int、tinyint、decimal等数字类型定义" class="headerlink" title="int、tinyint、decimal等数字类型定义"></a>int、tinyint、decimal等数字类型定义</h3><ul>
+<li>使用tinyint来代替 enum和booleanENUM类型在需要修改或增加枚举值时，需要在线DDL，成本较高；ENUM列值如果含有数字类型，可能会引起默认值混淆tinyint使用1个字节，一般用于status,type,flag的列</li>
+<li>建议使用 UNSIGNED 存储非负数值相比不使用 unsigned，可以扩大一倍使用数值范围</li>
+<li>int使用固定4个字节存储，int(11)与int(4)只是显示宽度的区别</li>
+<li>使用int存储IPv4地址，可节省 9%+的数据存储空间</li>
+<li>使用Decimal 代替float/double存储精确浮点数对于货币、金额这样的类型，可以使用（货币使用bigint+币种+最小单位），如果精度不高，可以使用decimal(9,2)。float默认只能能精确到6位有效数字</li>
+</ul>
+</li>
+<li><h3 id="timestamp与datetime选择"><a href="#timestamp与datetime选择" class="headerlink" title="timestamp与datetime选择"></a>timestamp与datetime选择</h3><ul>
+<li>datetime 和 timestamp类型所占的存储空间不同，前者8个字节，后者4个字节，这样造成的后果是两者能表示的时间范围不同。前者范围为1000-01-01 00:00:00 ~ 9999-12-31 23:59:59，后者范围为 1970-01-01 00:00:00 到 2037-12-31 23:59:59。所以 TIMESTAMP 支持的范围比 DATATIME 要小。</li>
+<li>timestamp可以在insert/update行时，自动更新时间字段（如 NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP），但一个表只能有一个这样的定义。</li>
+<li>timestamp显示与时区有关，内部总是以 UTC 毫秒 来存的。还受到严格模式的限制</li>
+<li>优先使用timestamp，datetime也没问题，timestamp精度可以到秒后6位，即timestamp(6)</li>
+<li>where条件里不要对时间列上使用时间函数</li>
+</ul>
+</li>
+<li><h3 id="建议字段都定义为NOT-NULL加上default值"><a href="#建议字段都定义为NOT-NULL加上default值" class="headerlink" title="建议字段都定义为NOT NULL加上default值"></a>建议字段都定义为NOT NULL加上default值</h3><ul>
+<li>如果是索引字段，一定要定义为not null 。因为null值会影响cordinate统计，影响优化器对索引的选择</li>
+<li>如果不能保证insert时一定有值过来，定义时使用default ‘’ ，或 0</li>
+<li>上面两条如果需要双机房同步，那同步的表新增或更改必须为NULL，再行初始化数据</li>
+</ul>
+</li>
+<li><h3 id="类型选择原则"><a href="#类型选择原则" class="headerlink" title="类型选择原则"></a>类型选择原则</h3><p>Int-&gt;char-&gt;varchar-&gt;text，从左到右性能越差</p>
+</li>
+</ol>
+<h2 id="四-索引规范"><a href="#四-索引规范" class="headerlink" title="四. 索引规范"></a>四. 索引规范</h2><ol>
+<li><h3 id="索引个数限制"><a href="#索引个数限制" class="headerlink" title="索引个数限制"></a>索引个数限制</h3><ul>
+<li>索引是双刃剑，会增加维护负担，增大IO压力，索引占用空间是成倍增加的</li>
+<li>单张表的索引数量控制在5个以内，索引的大小尽量比表小。若单张表多个字段在查询需求上都要单独用到索引，需要经过DBA评估。</li>
+</ul>
+</li>
+<li><h3 id="避免冗余索引"><a href="#避免冗余索引" class="headerlink" title="避免冗余索引"></a>避免冗余索引</h3><ul>
+<li>InnoDB表是一棵索引组织表，主键是和数据放在一起的聚集索引，普通索引最终指向的是主键地址，所以把主键做最后一列是多余的。如id作为主键，联合索引(user_id,id)上的id就完全多余</li>
+<li>(a,b,c)、(a,b)，后者为冗余索引。可以利用前缀索引来达到加速目的，减轻维护负担</li>
+</ul>
+</li>
+<li><h3 id="索引创建原则"><a href="#索引创建原则" class="headerlink" title="索引创建原则"></a>索引创建原则</h3><ul>
+<li>尽可能选择过滤效果好的列上创建索引</li>
+<li>索引选择性计算方法（基数 ÷ 数据行数）Selectivity = Cardinality / Total Rows = select count(distinct col1)/count(*) from tbname，越接近1说明col1上使用索引的过滤效果越好</li>
+<li>如果某列为sex，数据倾斜比较大，male占比99%，female占比1%，而每次查询都为female，则需要创建该列的索引</li>
+</ul>
+</li>
+<li><h3 id="最左前缀原则"><a href="#最左前缀原则" class="headerlink" title="最左前缀原则"></a>最左前缀原则</h3><ul>
+<li>mysql使用联合索引时，从左向右匹配，遇到断开或者范围查询时，无法用到后续的索引列比如索引idx_c1<em>c2</em>c3 (c1,c2,c3)，相当于创建了(c1)、(c1,c2)、(c1,c2,c3)三个索引，where条件包含上面三种情况的字段比较则可以用到索引，但像 where c1=a and c3=c 只能用到c1列的索引，像 c2=b and c3=c等情况就完全用不到这个索引</li>
+<li>遇到范围查询(&gt;、&lt;、between、like)也会停止索引匹配，比如 c1=a and c2 &gt; 2 and c3=c，只有c1,c2列上的比较能用到索引，(c1,c2,c3)排列的索引才可能会都用上</li>
+<li>where条件里面字段的顺序与索引顺序无关，mysql优化器会自动调整顺序</li>
+<li>mysql的optimizer_switch，可以配置icp，mrr等特性。mrr为多个字段做合并，如已存在c1,c2,c3索引，查询时c1=’a’ and/or c2=’b’，则会使用到索引合并，如果大部分查询没有c1和c2同时存在，则建议创建单列索引</li>
+</ul>
+</li>
+<li><h3 id="前缀索引"><a href="#前缀索引" class="headerlink" title="前缀索引"></a>前缀索引</h3><ul>
+<li>前缀索引尽量第一列区分度高，这样如果优化器判断时会比较准确 ,A列1000个不同值，B列有100000个不同值，这样建议索引创建时idx_B_A(B,A)</li>
+</ul>
+</li>
+<li><h3 id="合理使用覆盖索引减少IO"><a href="#合理使用覆盖索引减少IO" class="headerlink" title="合理使用覆盖索引减少IO"></a>合理使用覆盖索引减少IO</h3><p>INNODB存储引擎中，secondary index(非主键索引，又称为辅助索引、二级索引)没有直接存储行地址，而是存储主键值。如果用户需要查询secondary index中所不包含的数据列，则需要先通过secondary index查找到主键值，然后再通过主键查询到其他数据列，因此需要查询两次。覆盖索引则可以在一个索引中获取所有需要的数据列，从而避免回表进行二次查找，节省IO因此效率较高。例如SELECT email，uid FROM user_email WHERE uid=xx，如果uid不是主键，适当时候可以将索引添加为index(uid，email)，以获得性能提升。</p>
+</li>
+<li><h3 id="不要在频繁更新的列上创建索引"><a href="#不要在频繁更新的列上创建索引" class="headerlink" title="不要在频繁更新的列上创建索引"></a>不要在频繁更新的列上创建索引</h3></li>
+</ol>
+<h2 id="五-SQL设计"><a href="#五-SQL设计" class="headerlink" title="五. SQL设计"></a>五. SQL设计</h2><ol>
+<li><h3 id="杜绝直接-SELECT-读取全部字段"><a href="#杜绝直接-SELECT-读取全部字段" class="headerlink" title="杜绝直接 SELECT * 读取全部字段"></a>杜绝直接 SELECT * 读取全部字段</h3><p>即使需要所有字段，减少网络带宽消耗，能有效利用覆盖索引，表结构变更对程序基本无影响</p>
+</li>
+<li><h3 id="能确定返回结果只有一条时，使用-limit-1"><a href="#能确定返回结果只有一条时，使用-limit-1" class="headerlink" title="能确定返回结果只有一条时，使用 limit 1"></a>能确定返回结果只有一条时，使用 limit 1</h3><p><strong>在保证数据不会有误的前提下</strong>，能确定结果集数量时，多使用limit，尽快的返回结果。</p>
+</li>
+<li><h3 id="建议不要使用隐式类型转换"><a href="#建议不要使用隐式类型转换" class="headerlink" title="建议不要使用隐式类型转换"></a>建议不要使用隐式类型转换</h3></li>
+<li><h3 id="禁止在where条件列上使用函数"><a href="#禁止在where条件列上使用函数" class="headerlink" title="禁止在where条件列上使用函数"></a>禁止在where条件列上使用函数</h3><ul>
+<li>会导致索引失效，如lower(email)，f_qq % 4。可放到右边的常量上计算</li>
+<li>返回小结果集不是很大的情况下，可以对返回列使用函数，简化程序开发，但尽量不要使用函数索引</li>
+</ul>
+</li>
+<li><h3 id="使用like模糊匹配，-不要放首位"><a href="#使用like模糊匹配，-不要放首位" class="headerlink" title="使用like模糊匹配，%不要放首位"></a>使用like模糊匹配，%不要放首位</h3><p>会导致索引失效，有这种搜索需求是，考虑其它方案，如es全文搜索</p>
+</li>
+<li><h3 id="使用join时，where条件尽量使用充分利用同一表上的索引"><a href="#使用join时，where条件尽量使用充分利用同一表上的索引" class="headerlink" title="使用join时，where条件尽量使用充分利用同一表上的索引"></a>使用join时，where条件尽量使用充分利用同一表上的索引</h3><ul>
+<li>如 select t1.a,t2.b * from t1,t2 where t1.a=t2.a and t1.b=123 and t2.c= 4 ，如果t1.c与t2.c字段相同，那么t1上的索引(b,c)就只用到b了。此时如果把where条件中的t2.c=4改成t1.c=4，那么可以用到完整的索引</li>
+<li>这种情况可能会在字段冗余设计（反范式）时出现</li>
+<li>正确选取inner join和left join</li>
+</ul>
+</li>
+<li><h3 id="少用或不用子查询，改用join"><a href="#少用或不用子查询，改用join" class="headerlink" title="少用或不用子查询，改用join"></a>少用或不用子查询，改用join</h3><p>mysql 5.6版本只支持nest loop，让mysql自已判断需要使用的索引</p>
+</li>
+<li><h3 id="考虑使用union-all，少使用union，注意考虑去重"><a href="#考虑使用union-all，少使用union，注意考虑去重" class="headerlink" title="考虑使用union all，少使用union，注意考虑去重"></a>考虑使用union all，少使用union，注意考虑去重</h3><ul>
+<li>union all不去重，而少了排序操作，速度相对比union要快，如果没有去重的需求，优先使用union all</li>
+<li>如果UNION结果中有使用limit，在2个子SQL可能有许多返回值的情况下，各自加上limit。如果还有order by，请找DBA。</li>
+</ul>
+</li>
+<li><h3 id="IN的内容尽量不超过200个"><a href="#IN的内容尽量不超过200个" class="headerlink" title="IN的内容尽量不超过200个"></a>IN的内容尽量不超过200个</h3><p>超过200个值使用批量的方式，否则一次执行会影响数据库的并发能力，因为单SQL只能且一直占用单CPU，而且可能导致主从复制延迟</p>
+</li>
+<li><h3 id="拒绝大事务"><a href="#拒绝大事务" class="headerlink" title="拒绝大事务"></a>拒绝大事务</h3><p>比如在一个事务里进行多个select，多个update，如果是高频事务，会严重影响MySQL并发能力，因为事务持有的锁等资源只在事务rollback/commit时才能释放。但同时也要权衡数据写入的一致性。</p>
+</li>
+<li><h3 id="避免使用is-null-is-not-null这样的比较"><a href="#避免使用is-null-is-not-null这样的比较" class="headerlink" title="避免使用is null, is not null这样的比较"></a>避免使用is null, is not null这样的比较</h3></li>
+<li><h3 id="杜绝危险SQL"><a href="#杜绝危险SQL" class="headerlink" title="杜绝危险SQL"></a>杜绝危险SQL</h3></li>
+<li><ul>
+<li>去掉where 1=1 这样无意义或恒真的条件，如果遇到update/delete或遭到sql注入就恐怖了</li>
+<li>SQL中不允许出现DDL语句。一般也不给予create/alter这类权限</li>
+</ul>
+</li>
+<li><p>编写SQL 慎用分组、聚合</p>
+<p>​</p>
+<p>在编写SQL中，原则上不能使用以下方法，尽可能将这些逻辑交由应用实现</p>
+<p>​</p>
+<p>1、group by having<br>2、count/sum/avg etc.<br>3、order by 非id<br>4、3张及3张以上表做嵌套<br>5、left join/ right join<br>6、select * from<br>7、无where条件的查询</p>
+</li>
+</ol>
+<h2 id="使用建议"><a href="#使用建议" class="headerlink" title="使用建议"></a>使用建议</h2><ol>
+<li><h3 id="order-by-limit"><a href="#order-by-limit" class="headerlink" title="order by .. limit"></a>order by .. limit</h3><p>这种查询更多的是通过索引去优化，但order by的字段有讲究，比如主键id与gmt_create都是顺序递增，那就可以考虑order by id而非 gmt_create 。</p>
+</li>
+<li><h3 id="c1-lt-a-order-by-c2"><a href="#c1-lt-a-order-by-c2" class="headerlink" title="c1 &lt; a order by c2"></a>c1 &lt; a order by c2</h3><p>与上面不同的是，order by之前有个范围查询，由前面的内容可知，用不到类似(c1,c2)的索引，但是可以利用(c2,c1)索引。另外还可以改写成join的方式实现。</p>
+</li>
+<li><h3 id="分页优化"><a href="#分页优化" class="headerlink" title="分页优化"></a>分页优化</h3><p>建议使用合理的分页方式以提高分页效率，大页情况下不使用跳跃式分页假如有类似下面分页语句:SELECT <em>FROM table1 ORDER BY ftime DESC LIMIT 10000,10;这种分页方式会导致大量的io，因为MySQL使用的是提前读取策略。推荐分页方式：SELECT </em>FROM table1 WHERE ftime &lt; last_time ORDER BY ftime DESC LIMIT 10即传入上一次分页的界值</p>
+<p>SELECT * FROM table as t1 inner JOIN (SELECT id FROM table ORDER BY time LIMIT 10000，10) as t2 ON <a href="http://t1.id/" target="_blank" rel="external">t1.id</a>=<a href="http://t2.id/" target="_blank" rel="external">t2.id</a></p>
+</li>
+<li><h3 id="count计数"><a href="#count计数" class="headerlink" title="count计数"></a>count计数</h3><ul>
+<li>首先count(<em>)、count(1)、count(col1)是有区别的，count(</em>)表示整个结果集有多少条记录，count(1)表示结果集里以primary key统计数量，绝大多数情况下count(<em>)与count(1)效果一样的，但count(col1)表示的是结果集里 col1 列 NOT null 的记录数。优先采用count(</em>)</li>
+<li>大数据量count是消耗资源的操作，甚至会拖慢整个库，查询性能问题无法解决的，应从产品设计上进行重构。例如当频繁需要count的查询，考虑使用汇总表</li>
+<li>遇到distinct的情况，group by方式可能效率更高。</li>
+</ul>
+</li>
+<li><h3 id="delete-update语句改成select再explain"><a href="#delete-update语句改成select再explain" class="headerlink" title="delete,update语句改成select再explain"></a>delete,update语句改成select再explain</h3></li>
+<li><h3 id="涉及到复杂sql时，务必先参考已有索引设计，先explain"><a href="#涉及到复杂sql时，务必先参考已有索引设计，先explain" class="headerlink" title="涉及到复杂sql时，务必先参考已有索引设计，先explain"></a>涉及到复杂sql时，务必先参考已有索引设计，先explain</h3><ul>
+<li>简单SQL拆分，不以代码处理复杂为由。</li>
+<li>比如 OR 条件： f_phone=’10000’ or f_mobile=’10000’，两个字段各自有索引，可以使用索引合并使用两个索引。不过建议拆分成2个sql，或者union all，如果非要用mysql索引实现，则需要创建两列单列索引，打开index_merge_union后会转义成union。</li>
+<li>先explain的好处是可以为了利用索引，增加更多查询限制条件</li>
+</ul>
+</li>
+<li><h3 id="减少与数据库交互的次数，尽量采用批量SQL语句"><a href="#减少与数据库交互的次数，尽量采用批量SQL语句" class="headerlink" title="减少与数据库交互的次数，尽量采用批量SQL语句"></a>减少与数据库交互的次数，尽量采用批量SQL语句</h3><ul>
+<li><code>INSERT ... ON DUPLICATE KEY UPDATE ...</code>，插入行后会导致在一个UNIQUE索引或PRIMARY KEY中出现重复值，则执行旧行UPDATE，如果不重复则直接插入，影响1行。</li>
+<li><code>REPLACE INTO</code>类似，但它是冲突时删除旧行。<code>INSERT IGNORE</code>相反，保留旧行，丢弃要插入的新行。</li>
+<li>INSERT INTO VALUES(),(),()，合并插入。</li>
+</ul>
+</li>
+<li><h3 id="隐式类型使用注意事项"><a href="#隐式类型使用注意事项" class="headerlink" title="隐式类型使用注意事项"></a>隐式类型使用注意事项</h3><ul>
+<li><p>两个参数至少有一个是 NULL 时，比较的结果也是 NULL，例外是使用 &lt;=&gt; 对两个 NULL 做比较时会返回 1，这两种情况都不需要做类型转换</p>
+</li>
+<li><p>两个参数都是字符串，会按照字符串来比较，不做类型转换</p>
+</li>
+<li><p>两个参数都是整数，按照整数来比较，不做类型转换</p>
+</li>
+<li><p>十六进制的值和非数字做比较时，会被当做二进制串</p>
+</li>
+<li><p>有一个参数是 TIMESTAMP 或 DATETIME，并且另外一个参数是常量，常量会被转换为 timestamp</p>
+</li>
+<li><p>有一个参数是 decimal 类型，如果另外一个参数是 decimal 或者整数，会将整数转换为 decimal 后进行比较，如果另外一个参数是浮点数，则会把 decimal 转换为浮点数进行比较</p>
+</li>
+<li><p>所有其他情况下，两个参数都会被转换为浮点数再进行比较。</p>
+<p>例：A列为int类型时，A=’123’隐式转换后可以使用索引；A为char类型时，A=123隐式转换后无法使用索引</p>
+</li>
+</ul>
+</li>
+<li><h3 id="任何新的select-update-delete上线，建议都要先explain，看索引使用情况"><a href="#任何新的select-update-delete上线，建议都要先explain，看索引使用情况" class="headerlink" title="任何新的select,update,delete上线，建议都要先explain，看索引使用情况"></a>任何新的select,update,delete上线，建议都要先explain，看索引使用情况</h3><p>尽量避免extra列出现：Using File Sort，Using Temporary，rows超过1000的要谨慎上线。explain解读</p>
+</li>
+<li><ul>
+<li><code>type</code>：ALL, index, range, ref, eq_ref, const, system（从左到右，性能从差到好）</li>
+<li><code>possible_keys</code>：指出MySQL能使用哪个索引在表中找到记录，查询涉及到的字段上若存在索引，则该索引将被列出，但不一定被查询使用</li>
+<li><code>key</code>：表示MySQL实际决定使用的键（索引）如果没有选择索引，键是NULL。要想强制MySQL使用或忽视possible_keys列中的索引，在查询中使用FORCE INDEX、USE INDEX或者IGNORE INDEX</li>
+<li><code>ref</code>：表示选择 <code>key</code> 列上的索引，哪些列或常量被用于查找索引列上的值</li>
+<li><code>rows</code>：根据表统计信息及索引选用情况，估算的找到所需的记录所需要读取的行数</li>
+<li><code>Extra``Using temporary</code>：表示MySQL需要使用临时表来存储结果集，常见于排序和分组查询<code>Using filesort</code>：MySQL中无法利用索引完成的排序操作称为“文件排序”</li>
+</ul>
+</li>
+</ol>
+<p><strong>查询条件（包括DML中的条件）及每个条件占比数据量：</strong></p>
+<p>where login_id=1 100%不同值 算法：count(distinct login_id) / count(1)</p>
+<p>where user_name=1 and status=1 order by id desc limit 5 80%不同值，算法：count(distinct user_name,status) / count(1)</p>
+<p>原则上大于20%以上就要创建下索引</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="https://zhouxiaowu.coding.me/2018/03/08/java范型通配符/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -2148,7 +2549,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://zhouxiaowu.coding.me/2018/01/27/kubernates-docker-常用命令/">
+    <link itemprop="mainEntityOfPage" href="https://zhouxiaowu.coding.me/2018/01/27/docker运维与kubernates实战/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="周小伍 Joey">
@@ -2167,7 +2568,7 @@
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2018/01/27/kubernates-docker-常用命令/" itemprop="url">kubernates docker 常用命令</a></h1>
+                <a class="post-title-link" href="/2018/01/27/docker运维与kubernates实战/" itemprop="url">docker运维与kubernates实战</a></h1>
         
 
         <div class="post-meta">
@@ -2220,9 +2621,9 @@
                 <span class="post-meta-item-icon">
                   <i class="fa fa-comment-o"></i>
                 </span>
-                <a href="/2018/01/27/kubernates-docker-常用命令/#comments" itemprop="discussionUrl">
+                <a href="/2018/01/27/docker运维与kubernates实战/#comments" itemprop="discussionUrl">
                   <span class="post-comments-count disqus-comment-count"
-                        data-disqus-identifier="2018/01/27/kubernates-docker-常用命令/" itemprop="commentCount"></span>
+                        data-disqus-identifier="2018/01/27/docker运维与kubernates实战/" itemprop="commentCount"></span>
                 </a>
               </span>
             
@@ -2244,7 +2645,7 @@
                   <span class="post-meta-item-text">字数统计&#58;</span>
                 
                 <span title="字数统计">
-                  1.2k
+                  1.9k
                 </span>
               
 
@@ -2260,7 +2661,7 @@
                   <span class="post-meta-item-text">阅读时长 &asymp;</span>
                 
                 <span title="阅读时长">
-                  6
+                  9
                 </span>
               
             </div>
@@ -2283,7 +2684,83 @@
       
         
           
-            <h1 id="minikube命令"><a href="#minikube命令" class="headerlink" title="minikube命令"></a>minikube命令</h1><figure class="highlight crmsh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#启动虚拟机</span></span><br><span class="line">minikube <span class="literal">start</span></span><br><span class="line"></span><br><span class="line">minikube <span class="literal">stop</span></span><br></pre></td></tr></table></figure>
+            <h1 id="docker"><a href="#docker" class="headerlink" title="docker"></a>docker</h1><h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><ul>
+<li>官方文档  <a href="https://docs.docker.com" target="_blank" rel="external">https://docs.docker.com</a></li>
+</ul>
+<blockquote>
+<p><a href="https://docs.docker.com/docker-for-mac/#explore-the-application-and-run-examples" target="_blank" rel="external">https://docs.docker.com/docker-for-mac/#explore-the-application-and-run-examples</a></p>
+</blockquote>
+<h2 id="中文镜像配置"><a href="#中文镜像配置" class="headerlink" title="中文镜像配置"></a>中文镜像配置</h2><p><strong>1. 下载Docker for Mac。</strong></p>
+<p>官方下载链接：<a href="https://download.docker.com/mac/stable/Docker.dmg" target="_blank" rel="external">https://download.docker.com/mac/stable/Docker.dmg</a></p>
+<p><strong>2. 安装Docker for Mac并启动。</strong></p>
+<p><strong>3. 检查版本信息。</strong></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> docker --version1</span></span><br></pre></td></tr></table></figure>
+<p><strong>配置</strong></p>
+<ol>
+<li>进入<a href="https://cr.console.aliyun.com/?spm=5176.100239.blogcont29941.12.R6mUIX" target="_blank" rel="external">阿里云容器Hub服务</a>的控制台，并申请成为开发者。</li>
+<li>点击左侧的<strong>加速器</strong>帮助页面就会显示<strong>您的专属加速器地址</strong>。</li>
+<li>复制地址您的专属加速器地址，将地址填入Docker的配置中，路径如下：<strong>Preferences–&gt;Daemon–&gt;Basic–&gt;Registry mirrors</strong>，然后重启。</li>
+</ol>
+<p><strong>确认Docker是否安装成功</strong></p>
+<figure class="highlight dockerfile"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker <span class="keyword">run</span><span class="bash"> hello-world</span></span><br></pre></td></tr></table></figure>
+<h2 id="命令"><a href="#命令" class="headerlink" title="命令"></a>命令</h2><h3 id="镜像命令"><a href="#镜像命令" class="headerlink" title="镜像命令"></a>镜像命令</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 信息</span></span><br><span class="line">docker info</span><br><span class="line"><span class="meta">#</span><span class="bash"> 版本</span></span><br><span class="line">docker version</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 帮助，通过帮助命令学习其他命令</span></span><br><span class="line">docker --help</span><br><span class="line">docker COMMAND --help</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 查看镜像列表, -a所有信息， -q静默信息， --digests摘要信息</span></span><br><span class="line">docker images</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash">搜索镜像 -s 10 标星数</span></span><br><span class="line">docker search nginx</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash">下载镜像</span></span><br><span class="line">docker pull nginx</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash">删除镜像</span></span><br><span class="line">docker rmi nginx:latest</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash">删除正在运行的镜像</span></span><br><span class="line">docker rmi $&#123;docker ps&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash">删除全部镜像</span></span><br><span class="line">docker rmi -f $(docker images -q)</span><br><span class="line"></span><br><span class="line">docker run -d -p 80:80 --name webserver nginx</span><br><span class="line">docker stop webserver</span><br><span class="line">docker start webserver</span><br><span class="line">docker ps -a</span><br><span class="line"><span class="meta">#</span><span class="bash">删除容器 stop and remove the running container</span></span><br><span class="line">docker rm -f webserver</span><br></pre></td></tr></table></figure>
+<h3 id="容器命令"><a href="#容器命令" class="headerlink" title="容器命令"></a>容器命令</h3><figure class="highlight vala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#新建并启动容器 </span></span><br><span class="line"><span class="meta">#options:(-d后台运行 -i交互方式 -t启动为终端)</span></span><br><span class="line"><span class="meta">#options:(-p指定端口(宿主机:容器)映射 -P随机端口映射)</span></span><br><span class="line"><span class="meta">#options:(--name 为容器指定名称)</span></span><br><span class="line"><span class="meta">#options:(-v 数据卷挂载)</span></span><br><span class="line">docker run [OPTIONS] IMAGE [COMMAND] [ARG...]</span><br><span class="line">docker run -it ee48881b3e82</span><br><span class="line">docker run -d -p <span class="number">7777</span>:<span class="number">8080</span> --name mytomcat ee48881b3e82</span><br><span class="line">docker run -d -p <span class="number">8888</span>:<span class="number">8080</span> --name tomcat-docs2 tomcat2:<span class="number">2.0</span></span><br><span class="line">docker run -it -v ~/mydata:/datacontainer centos</span><br><span class="line"></span><br><span class="line"><span class="meta">#列出容器（-l最近一次 -n 3最近n次 -a全部）</span></span><br><span class="line">docker ps</span><br><span class="line">docker ps -n <span class="number">3</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#查看日志，排查错误</span></span><br><span class="line">docker logs [OPTIONS] CONTAINER [flags]</span><br><span class="line"></span><br><span class="line"><span class="meta">#退出并停止容器</span></span><br><span class="line">exit</span><br><span class="line"></span><br><span class="line"><span class="meta">#退出不停止容器</span></span><br><span class="line">ctrl + p + q</span><br><span class="line"></span><br><span class="line"><span class="meta">#启动容器</span></span><br><span class="line">docker start [OPTIONS] CONTAINER [CONTAINER...]</span><br><span class="line">docker start e5fbd89ce11b</span><br><span class="line"></span><br><span class="line"><span class="meta">#重启容器</span></span><br><span class="line">docker restart [OPTIONS] CONTAINER [CONTAINER...]</span><br><span class="line"></span><br><span class="line"><span class="meta">#停止容器</span></span><br><span class="line">docker stop 容器id 或容器名称</span><br><span class="line"></span><br><span class="line"><span class="meta">#强制停止容器</span></span><br><span class="line">docker kill 容器id 或容器名称</span><br><span class="line"></span><br><span class="line"><span class="meta">#删除容器</span></span><br><span class="line">docker rm 容器id</span><br><span class="line"></span><br><span class="line"><span class="meta">#删除多个容器</span></span><br><span class="line">docker rm -f $(docker ps -a -q)</span><br><span class="line"><span class="meta">#可变参数删除</span></span><br><span class="line">docker ps -a -q | xargs docker rm</span><br><span class="line"></span><br><span class="line"><span class="meta">#进入容器，不产生新的进程</span></span><br><span class="line">docker attach [OPTIONS] CONTAINER</span><br><span class="line"></span><br><span class="line"><span class="meta">#容器中执行命令</span></span><br><span class="line">docker exec [OPTIONS] CONTAINER COMMAND [ARG...]</span><br><span class="line">docker exec -it <span class="number">7220e09</span>b7c04 /bin/bash</span><br><span class="line"></span><br><span class="line"><span class="meta">#从容器中创建镜像,OPTIONS:(-a作者 -m消息)</span></span><br><span class="line">docker commit [OPTIONS] CONTAINER [REPOSITORY[:TAG]]</span><br><span class="line">docker commit -a=<span class="string">"xiaowu"</span> -m=<span class="string">"hello,world"</span> <span class="number">98696</span>deb2879 <span class="string">"tomcat2:2.0"</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#文件复制，从容器到宿主机</span></span><br><span class="line">docker cp [OPTIONS] CONTAINER:SRC_PATH DEST_PATH</span><br><span class="line">docker cp <span class="number">2</span>b8b669f4f45:/usr/local/tomcat/CONTRIBUTING.md ~/test/</span><br><span class="line"></span><br><span class="line"><span class="meta">#文件复制，从宿主机到容器</span></span><br><span class="line">docker cp [OPTIONS] SRC_PATH|- CONTAINER:DEST_PATH</span><br></pre></td></tr></table></figure>
+<h2 id="docker数据卷"><a href="#docker数据卷" class="headerlink" title="docker数据卷"></a>docker数据卷</h2><p>比喻：U盘就是数据卷</p>
+<h3 id="用途"><a href="#用途" class="headerlink" title="用途"></a>用途</h3><ul>
+<li>数据持久化</li>
+<li>容器间共享数据</li>
+</ul>
+<figure class="highlight applescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker <span class="built_in">run</span> -<span class="keyword">it</span> -v ~/mydata:/datacontainer centos</span><br></pre></td></tr></table></figure>
+<h2 id="数据容器卷"><a href="#数据容器卷" class="headerlink" title="数据容器卷"></a>数据容器卷</h2><ul>
+<li>通过容器挂载数据卷</li>
+<li>只要有一个容器在使用数据卷，就不会回收</li>
+</ul>
+<figure class="highlight applescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker <span class="built_in">run</span> -<span class="keyword">it</span> <span class="comment">--name n1 --volumes-from distracted_galileo centos</span></span><br></pre></td></tr></table></figure>
+<h2 id="Dockerfile"><a href="#Dockerfile" class="headerlink" title="Dockerfile"></a>Dockerfile</h2><ul>
+<li>用来构建镜像的构建文件</li>
+<li>docker hub 搜索，查看Dockerfile文件</li>
+</ul>
+<p>参考 <a href="https://github.com/docker-library/tomcat/blob/7cdbab2ce07c1593fc657fd6fac7821a5472dfd2/9.0/jdk8/openjdk/Dockerfile" target="_blank" rel="external">https://github.com/docker-library/tomcat/blob/7cdbab2ce07c1593fc657fd6fac7821a5472dfd2/9.0/jdk8/openjdk/Dockerfile</a></p>
+<figure class="highlight dockerfile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">FROM</span> 当前新镜像基于哪个镜像</span><br><span class="line">CONTAINER 维护者</span><br><span class="line"><span class="keyword">RUN</span><span class="bash"> 镜像构建时需要运行的命令</span></span><br><span class="line"><span class="bash">WORKDIR 工作目录</span></span><br><span class="line"><span class="bash">EXPOSE 当前容器对外暴露的端口</span></span><br><span class="line"><span class="bash">ENV 环境变量</span></span><br><span class="line"><span class="bash">ADD 宿主机的文件copy到镜像，会自动解压</span></span><br><span class="line"><span class="bash">COPY 复制</span></span><br><span class="line"><span class="bash">COLUME 容器数据卷，用于保存和持久化</span></span><br></pre></td></tr></table></figure>
+<ul>
+<li>CMD</li>
+</ul>
+<p>CMD 指定容器启动过程中，运行的命令</p>
+<p><strong>坑：多条CMD只有最后一条生效。CMD命令会被docker run 之后的参数替换。</strong></p>
+<ul>
+<li>ENTRYPOINT</li>
+</ul>
+<p>会把docker run 命令的参数追加到后面</p>
+<h3 id="tomcat9案例"><a href="#tomcat9案例" class="headerlink" title="tomcat9案例"></a>tomcat9案例</h3><ul>
+<li>Dockerfile</li>
+</ul>
+<figure class="highlight dockerfile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">FROM</span> centos</span><br><span class="line"><span class="keyword">MAINTAINER</span> xiaowu&lt;zhouxiaowu.<span class="number">12345</span>@<span class="number">163</span>.com&gt;</span><br><span class="line"></span><br><span class="line"><span class="keyword">COPY</span><span class="bash"> test.txt /usr/<span class="built_in">local</span>/testincontainer.txt</span></span><br><span class="line"><span class="bash">ADD apache-tomcat-9.0.24.tar.gz /usr/<span class="built_in">local</span>/</span></span><br><span class="line"><span class="bash">ADD jre-8u201-linux-x64.tar.gz /usr/<span class="built_in">local</span>/</span></span><br><span class="line"><span class="bash">RUN yum -y install vim</span></span><br><span class="line"><span class="bash"></span></span><br><span class="line"><span class="bash">ENV MYPATH /usr/<span class="built_in">local</span></span></span><br><span class="line"><span class="bash"></span></span><br><span class="line"><span class="bash">WORKDIR <span class="variable">$MYPATH</span></span></span><br><span class="line"><span class="bash"></span></span><br><span class="line"><span class="bash">ENV JAVA_HOME /usr/<span class="built_in">local</span>/jre1.8.0_201</span></span><br><span class="line"><span class="bash">ENV CLASSPATH <span class="variable">$JAVA_HOME</span>/lib/dt.jar:<span class="variable">$JAVA_HOME</span>/lib/tools.jar</span></span><br><span class="line"><span class="bash">ENV CATALINA_HOME /usr/<span class="built_in">local</span>/apache-tomcat-9.0.24</span></span><br><span class="line"><span class="bash">ENV CATALINA_BASE /usr/<span class="built_in">local</span>/apache-tomcat-9.0.24</span></span><br><span class="line"><span class="bash">ENV PATH <span class="variable">$PATH</span>:<span class="variable">$JAVA_HOME</span>/bin:<span class="variable">$CATALINA_HOME</span>/lib:<span class="variable">$CATALINA_HOME</span>/bin</span></span><br><span class="line"><span class="bash"></span></span><br><span class="line"><span class="bash">EXPOSE 8080</span></span><br><span class="line"><span class="bash"></span></span><br><span class="line"><span class="bash">CMD /usr/<span class="built_in">local</span>/apache-tomcat-9.0.24/bin/startup.sh &amp;&amp; tail -F /usr/<span class="built_in">local</span>/apache-tomcat-9.0.24/logs/catalina.out</span></span><br></pre></td></tr></table></figure>
+<ul>
+<li>构建镜像</li>
+</ul>
+<figure class="highlight n1ql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">docker <span class="keyword">build</span> [OPTIONS] <span class="keyword">PATH</span> | URL | -</span><br><span class="line">docker <span class="keyword">build</span> -f Dockerfile -t mytomcat9 .</span><br></pre></td></tr></table></figure>
+<ul>
+<li>启动容器</li>
+</ul>
+<figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">docker run -d -p <span class="number">9092</span>:<span class="number">8080</span> --name mytomcat92 \</span><br><span class="line">-v <span class="regexp">/Users/</span>zhouxiaowu<span class="regexp">/Dropbox/</span>Dockerfile<span class="regexp">/tomcat/</span><span class="string">app1:</span><span class="regexp">/usr/</span>local<span class="regexp">/apache-tomcat-9.0.24/</span>webapps/app1 \</span><br><span class="line">-v <span class="regexp">/Users/</span>zhouxiaowu<span class="regexp">/Dropbox/</span>Dockerfile<span class="regexp">/tomcat/</span><span class="string">logs:</span><span class="regexp">/usr/</span>local<span class="regexp">/apache-tomcat-9.0.24/</span>webapps/logs \</span><br><span class="line">mytomcat9</span><br></pre></td></tr></table></figure>
+<h2 id="原理"><a href="#原理" class="headerlink" title="原理"></a>原理</h2><p>docker没有内核，交给宿主机</p>
+<h1 id="docker体系架构"><a href="#docker体系架构" class="headerlink" title="docker体系架构"></a>docker体系架构</h1><p>CS</p>
+<p>docker Server</p>
+<p>reset</p>
+<p>client</p>
+<p>数据卷</p>
+<p>network</p>
+<p>镜像</p>
+<p>rootfs 文件和元数据的集合</p>
+<p>分层的文件系统</p>
+<p>同层共享</p>
+<p>kernel -&gt; centos -&gt; jdk -&gt; tomcat</p>
+<h2 id="quick-start"><a href="#quick-start" class="headerlink" title="quick start"></a>quick start</h2><h3 id="docker-container"><a href="#docker-container" class="headerlink" title="docker container"></a>docker container</h3><figure class="highlight crmsh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">docker build -t friendlyhello .  <span class="comment"># Create image using this directory's Dockerfile</span></span><br><span class="line">docker run -p <span class="number">4000</span>:<span class="number">80</span> friendlyhello  <span class="comment"># Run "friendlyname" mapping port 4000 to 80</span></span><br><span class="line">docker run -d -p <span class="number">4000</span>:<span class="number">80</span> friendlyhello         <span class="comment"># Same thing, but in detached mode</span></span><br><span class="line">docker container ls                                <span class="comment"># List all running containers</span></span><br><span class="line">docker container ls -a             <span class="comment"># List all containers, even those not running</span></span><br><span class="line">docker container <span class="literal">stop</span> <span class="tag">&lt;hash&gt;</span>           <span class="comment"># Gracefully stop the specified container</span></span><br><span class="line">docker container kill <span class="tag">&lt;hash&gt;</span>         <span class="comment"># Force shutdown of the specified container</span></span><br><span class="line">docker container rm <span class="tag">&lt;hash&gt;</span>        <span class="comment"># Remove specified container from this machine</span></span><br><span class="line">docker container rm $(docker container ls -a -q)         <span class="comment"># Remove all containers</span></span><br><span class="line">docker image ls -a                             <span class="comment"># List all images on this machine</span></span><br><span class="line">docker image rm <span class="tag">&lt;image id&gt;</span>            <span class="comment"># Remove specified image from this machine</span></span><br><span class="line">docker image rm $(docker image ls -a -q)   <span class="comment"># Remove all images from this machine</span></span><br><span class="line">docker login             <span class="comment"># Log in this CLI session using your Docker credentials</span></span><br><span class="line">docker <span class="keyword">tag</span> <span class="title">&lt;image</span>&gt; username/repository:<span class="keyword">tag</span>  <span class="title"># Tag</span> <span class="tag">&lt;image&gt;</span> for upload to registry</span><br><span class="line">docker push username/repository:<span class="keyword">tag</span>            <span class="title"># Upload</span> tagged image to registry</span><br><span class="line">docker run username/repository:<span class="keyword">tag</span>                   <span class="title"># Run</span> image from a registry</span><br></pre></td></tr></table></figure>
+<h3 id="docker-service"><a href="#docker-service" class="headerlink" title="docker service"></a>docker service</h3><figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">docker stack ls                                            # List stacks <span class="keyword">or</span> apps</span><br><span class="line">docker stack deploy -c &lt;composefile&gt; &lt;appname&gt;  # <span class="builtin-name">Run</span> the specified Compose file</span><br><span class="line">docker<span class="built_in"> service </span>ls                 # List running services associated with an app</span><br><span class="line">docker<span class="built_in"> service </span>ps &lt;service&gt;                  # List tasks associated with an app</span><br><span class="line">docker inspect &lt;task <span class="keyword">or</span> container&gt;                   # Inspect task <span class="keyword">or</span> container</span><br><span class="line">docker container ls -q                                      # List container IDs</span><br><span class="line">docker stack rm &lt;appname&gt;                             # Tear down an application</span><br><span class="line">docker swarm leave --force      # Take down a single node swarm <span class="keyword">from</span> the manager</span><br></pre></td></tr></table></figure>
+<p>需要<a href="https://api.github.com/repos/boot2docker/boot2docker/releases/latest" target="_blank" rel="external">https://api.github.com/repos/boot2docker/boot2docker/releases/latest</a> 下载，”html_url”: “<a href="https://github.com/boot2docker/boot2docker/releases/tag/v17.07.0-ce" target="_blank" rel="external">https://github.com/boot2docker/boot2docker/releases/tag/v17.07.0-ce</a>“</p>
+<h3 id="swarm集群"><a href="#swarm集群" class="headerlink" title="swarm集群"></a>swarm集群</h3><figure class="highlight lsl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line">docker-machine create --virtualbox-boot2docker-url ~/.docker/machine/cache/boot2docker.iso manager1</span><br><span class="line"></span><br><span class="line">mv boot2docker.iso /Users/zhouxiaowu/.docker/machine/cache/</span><br><span class="line">docker-machine create --virtualbox-boot2docker-url ~/.docker/machine/cache/boot2docker.iso  myvm1</span><br><span class="line">docker-machine create --virtualbox-boot2docker-url ~/.docker/machine/cache/boot2docker.iso  myvm2</span><br><span class="line"></span><br><span class="line"><span class="number">10513</span>  docker-machine ssh myvm1 <span class="string">"docker swarm init --advertise-addr 192.168.99.101"</span></span><br><span class="line"></span><br><span class="line"><span class="number">10514</span>  docker-machine ls</span><br><span class="line"></span><br><span class="line"><span class="number">10515</span>  docker-machine ssh myvm2 <span class="string">"    docker swarm join --token SWMTKN-1-13x2fyyubrz6b0k0p86bpt0rjydu59ze8a7g4q6n4yn1aip7so-96zlikwtz3h7mmpa18ilu0i6g 192.168.99.101:2377"</span></span><br><span class="line"></span><br><span class="line"><span class="number">10516</span>  docker-machine ssh myvm1 <span class="string">"docker node ls"</span></span><br><span class="line"></span><br><span class="line"><span class="number">10520</span>  docker-machine env myvm1</span><br><span class="line"><span class="number">10521</span>  eval $(docker-machine env myvm1)</span><br><span class="line"></span><br><span class="line"><span class="number">10526</span>  docker stack deploy -c docker-compose.yml getstartedlab</span><br><span class="line"><span class="number">10527</span>  docker stack ls</span><br><span class="line"></span><br><span class="line"><span class="number">10529</span>  docker stack ps getstartedlab</span><br><span class="line"></span><br><span class="line"><span class="number">10530</span>  docker container ls</span><br><span class="line"></span><br><span class="line"><span class="number">10569</span>  docker stack ls</span><br><span class="line"><span class="number">10570</span>  docker stack rm getstartedlab</span><br><span class="line"><span class="number">10571</span>  docker-machine env -u</span><br><span class="line"></span><br><span class="line"><span class="number">10572</span>  eval $(docker-machine env -u)</span><br></pre></td></tr></table></figure>
+<h1 id="笔记"><a href="#笔记" class="headerlink" title="笔记"></a>笔记</h1><figure class="highlight vim"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">find</span> name</span><br><span class="line"></span><br><span class="line">lsof</span><br><span class="line"></span><br><span class="line">lsof -<span class="keyword">p</span> <span class="number">2951</span></span><br><span class="line"><span class="keyword">view</span></span><br><span class="line">ulimit -n <span class="number">1000</span></span><br><span class="line"><span class="keyword">cd</span> var/<span class="built_in">log</span></span><br><span class="line">minikube logs &gt;aa</span><br><span class="line"><span class="keyword">vim</span> aa</span><br><span class="line">kubectl <span class="built_in">get</span> pods --<span class="keyword">all</span>-namespaces</span><br></pre></td></tr></table></figure>
+<h1 id="minikube命令"><a href="#minikube命令" class="headerlink" title="minikube命令"></a>minikube命令</h1><figure class="highlight crmsh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#启动虚拟机</span></span><br><span class="line">minikube <span class="literal">start</span></span><br><span class="line"></span><br><span class="line">minikube <span class="literal">stop</span></span><br></pre></td></tr></table></figure>
 <h1 id="k8s命令"><a href="#k8s命令" class="headerlink" title="k8s命令"></a>k8s命令</h1><figure class="highlight maxima"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line">kubectl pod</span><br><span class="line"></span><br><span class="line">kubectl <span class="built_in">get</span> pod</span><br><span class="line">kubectl <span class="built_in">get</span> pod XXX &gt; aa</span><br><span class="line">vim aa</span><br><span class="line"></span><br><span class="line">kubectl <span class="built_in">get</span> pod hello-minikube-5df766f774-ws8fk -o yaml</span><br><span class="line">kubectl edit  pod hello-minikube-5df766f774-ws8fk</span><br><span class="line"></span><br><span class="line">kubectl <span class="built_in">describe</span> pod XXX   //结合pod和event</span><br><span class="line"></span><br><span class="line">kubectl <span class="built_in">get</span> event</span><br><span class="line"></span><br><span class="line">kubectl <span class="built_in">get</span> services</span><br><span class="line">kubectl <span class="built_in">get</span> services hello-minikube -o yaml</span><br><span class="line"></span><br><span class="line">kubectl <span class="built_in">get</span> rs</span><br><span class="line">kubectl <span class="built_in">describe</span> rs</span><br><span class="line"></span><br><span class="line">kubectl config <span class="built_in">rename</span>-<span class="built_in">context</span> mini minikube2</span><br><span class="line"></span><br><span class="line">kubectl create -f .<span class="comment">/**.yaml -f ***.yaml</span></span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment">wget https://.../k8s.tar.gz</span></span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment">example guestbook</span></span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment">sudo docker images</span></span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment">front-images  换成nginx</span></span><br></pre></td></tr></table></figure>
 <figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">1 api<span class="built_in"> service </span>、2etcd 步 create_timestamp</span><br><span class="line">3 schedule -&gt; api service</span><br><span class="line"></span><br><span class="line">6 启动docker</span><br><span class="line"></span><br><span class="line">1. 3 node 1node down</span><br><span class="line">  load balancer -&gt; api<span class="built_in"> server </span>分发到另外两台</span><br><span class="line">  etcd</span><br><span class="line"></span><br><span class="line">2. scheduler/CM</span><br><span class="line">   死的node主，需要选举</span><br><span class="line"></span><br><span class="line">3. kubelet</span><br><span class="line">  		sysmtem 进程死掉自动拉起</span><br><span class="line"></span><br><span class="line">vimdiff aa bb</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">kubectl <span class="builtin-name">get</span> rs</span><br><span class="line">kubectl <span class="builtin-name">get</span> deployment</span><br><span class="line"><span class="comment">##扩容或缩容</span></span><br><span class="line">kubectl scale <span class="attribute">--replicas</span>=2 deployment/frontend</span><br><span class="line"></span><br><span class="line">sudo docker <span class="builtin-name">run</span> XXX</span><br><span class="line"></span><br><span class="line">kubectl <span class="builtin-name">get</span> pod --all-name-space</span><br><span class="line"></span><br><span class="line">kubectl logs xxx</span><br><span class="line"></span><br><span class="line"><span class="comment">##寻取帮助</span></span><br><span class="line">kubectl logs -h</span><br><span class="line"></span><br><span class="line"><span class="comment">## busybox终端</span></span><br><span class="line">kubectl <span class="builtin-name">run</span> -i --tty busybox</span><br><span class="line"></span><br><span class="line">kubectl attach XXX -i</span><br><span class="line"></span><br><span class="line">kubectl top pod</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">kubectl delete deployment XXX</span><br><span class="line">kubectl delete pod XXX</span><br><span class="line"></span><br><span class="line">用于查错s</span><br><span class="line">kubectl cluster-<span class="builtin-name">info</span> dump <span class="attribute">--out-directory</span>=tmp</span><br></pre></td></tr></table></figure>
 <h1 id="k8s"><a href="#k8s" class="headerlink" title="k8s"></a>k8s</h1><ol>
@@ -2306,33 +2783,7 @@
 <p><a href="https://mirrors.ustc.edu.cn/kubernetes/apt/pool/" target="_blank" rel="external">https://mirrors.ustc.edu.cn/kubernetes/apt/pool/</a></p>
 <p>安装和设置kubectl</p>
 <p><a href="https://www.kubernetes.org.cn/installkubectl" target="_blank" rel="external">https://www.kubernetes.org.cn/installkubectl</a></p>
-<p>#</p>
 <h1 id="Kubectl-客户端的下载和配置"><a href="#Kubectl-客户端的下载和配置" class="headerlink" title="Kubectl 客户端的下载和配置"></a>Kubectl 客户端的下载和配置</h1><p><a href="http://blog.csdn.net/csdn_duomaomao/article/details/76159874" target="_blank" rel="external">http://blog.csdn.net/csdn_duomaomao/article/details/76159874</a></p>
-<h1 id="docker"><a href="#docker" class="headerlink" title="docker"></a>docker</h1><p>quick start</p>
-<p><a href="https://docs.docker.com/docker-for-mac/#explore-the-application-and-run-examples" target="_blank" rel="external">https://docs.docker.com/docker-for-mac/#explore-the-application-and-run-examples</a></p>
-<figure class="highlight dockerfile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">docker info</span><br><span class="line">docker version</span><br><span class="line">docker ps</span><br><span class="line">docker images</span><br><span class="line">docker <span class="keyword">run</span><span class="bash"> hello-world</span></span><br><span class="line"><span class="bash"></span></span><br><span class="line"><span class="bash">docker run -d -p 80:80 --name webserver nginx</span></span><br><span class="line"><span class="bash">docker stop webserver</span></span><br><span class="line"><span class="bash">docker start webserver</span></span><br><span class="line"><span class="bash">docker ps -a</span></span><br><span class="line"><span class="bash"><span class="comment">#删除容器 stop and remove the running container</span></span></span><br><span class="line"><span class="bash">docker rm -f webserver</span></span><br><span class="line"><span class="bash"><span class="comment">#删除镜像</span></span></span><br><span class="line"><span class="bash">docker rmi nginx</span></span><br></pre></td></tr></table></figure>
-<p>Some good commands to try are <code>docker version</code> to check that you have the latest release installed, and <code>docker ps</code> and <code>docker run hello-world</code> to verify that Docker is running.</p>
-<h2 id="docker-中文镜像"><a href="#docker-中文镜像" class="headerlink" title="docker 中文镜像"></a>docker 中文镜像</h2><h3 id="安装环境：Apple-macOS-Sierra-10-12-3"><a href="#安装环境：Apple-macOS-Sierra-10-12-3" class="headerlink" title="安装环境：Apple macOS Sierra 10.12.3"></a>安装环境：Apple macOS Sierra 10.12.3</h3><h3 id="安装步骤："><a href="#安装步骤：" class="headerlink" title="安装步骤："></a>安装步骤：</h3><h4 id="1-下载Docker-for-Mac。"><a href="#1-下载Docker-for-Mac。" class="headerlink" title="1. 下载Docker for Mac。"></a><strong>1. 下载Docker for Mac。</strong></h4><p>官方下载链接：<a href="https://download.docker.com/mac/stable/Docker.dmg" target="_blank" rel="external">https://download.docker.com/mac/stable/Docker.dmg</a></p>
-<h4 id="2-安装Docker-for-Mac并启动。"><a href="#2-安装Docker-for-Mac并启动。" class="headerlink" title="2. 安装Docker for Mac并启动。"></a><strong>2. 安装Docker for Mac并启动。</strong></h4><h4 id="3-检查版本信息。"><a href="#3-检查版本信息。" class="headerlink" title="3. 检查版本信息。"></a><strong>3. 检查版本信息。</strong></h4><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> docker --version1</span></span><br></pre></td></tr></table></figure>
-<h4 id="4-配置阿里云Docker镜像加速器。"><a href="#4-配置阿里云Docker镜像加速器。" class="headerlink" title="4. 配置阿里云Docker镜像加速器。"></a><strong>4. 配置阿里云Docker镜像加速器。</strong></h4><p>Docker在国内下载镜像的速度太慢，经常失败，所以使用阿里云提供的容器镜像仓库服务。<strong>如果不愿意配置镜像，直接进入<a href="https://dev.aliyun.com/search.html中寻找镜像使用。" target="_blank" rel="external">https://dev.aliyun.com/search.html中寻找镜像使用。</a></strong> 接下来介绍阿里云Docker镜像加速器，使用加速器将会提升您在国内获取Docker官方镜像的速度！</p>
-<ol>
-<li>进入<a href="https://cr.console.aliyun.com/?spm=5176.100239.blogcont29941.12.R6mUIX" target="_blank" rel="external">阿里云容器Hub服务</a>的控制台，并申请成为开发者。</li>
-<li>点击左侧的<strong>加速器</strong>帮助页面就会显示<strong>您的专属加速器地址</strong>。</li>
-<li>复制地址您的专属加速器地址，将地址填入Docker的配置中，路径如下：<strong>Preferences–&gt;Daemon–&gt;Basic–&gt;Registry mirrors</strong>，然后重启。</li>
-<li>分享两个自己的加速器地址：<br><a href="https://7r4uvc15.mirror.aliyuncs.com/" target="_blank" rel="external">https://7r4uvc15.mirror.aliyuncs.com</a><br><a href="http://5ae05a04.m.daocloud.io/" target="_blank" rel="external">http://5ae05a04.m.daocloud.io</a></li>
-</ol>
-<h4 id="7-确认Docker是否安装成功。"><a href="#7-确认Docker是否安装成功。" class="headerlink" title="7. 确认Docker是否安装成功。"></a><strong>7. 确认Docker是否安装成功。</strong></h4><figure class="highlight dockerfile"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ sudo docker <span class="keyword">run</span><span class="bash"> hello-world1</span></span><br></pre></td></tr></table></figure>
-<blockquote>
-<p>这个命令会下载一个测试用的镜像并启动一个容器运行它。</p>
-</blockquote>
-<h2 id="quick-start"><a href="#quick-start" class="headerlink" title="quick start"></a>quick start</h2><p>###docker container</p>
-<figure class="highlight crmsh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">docker build -t friendlyhello .  <span class="comment"># Create image using this directory's Dockerfile</span></span><br><span class="line">docker run -p <span class="number">4000</span>:<span class="number">80</span> friendlyhello  <span class="comment"># Run "friendlyname" mapping port 4000 to 80</span></span><br><span class="line">docker run -d -p <span class="number">4000</span>:<span class="number">80</span> friendlyhello         <span class="comment"># Same thing, but in detached mode</span></span><br><span class="line">docker container ls                                <span class="comment"># List all running containers</span></span><br><span class="line">docker container ls -a             <span class="comment"># List all containers, even those not running</span></span><br><span class="line">docker container <span class="literal">stop</span> <span class="tag">&lt;hash&gt;</span>           <span class="comment"># Gracefully stop the specified container</span></span><br><span class="line">docker container kill <span class="tag">&lt;hash&gt;</span>         <span class="comment"># Force shutdown of the specified container</span></span><br><span class="line">docker container rm <span class="tag">&lt;hash&gt;</span>        <span class="comment"># Remove specified container from this machine</span></span><br><span class="line">docker container rm $(docker container ls -a -q)         <span class="comment"># Remove all containers</span></span><br><span class="line">docker image ls -a                             <span class="comment"># List all images on this machine</span></span><br><span class="line">docker image rm <span class="tag">&lt;image id&gt;</span>            <span class="comment"># Remove specified image from this machine</span></span><br><span class="line">docker image rm $(docker image ls -a -q)   <span class="comment"># Remove all images from this machine</span></span><br><span class="line">docker login             <span class="comment"># Log in this CLI session using your Docker credentials</span></span><br><span class="line">docker <span class="keyword">tag</span> <span class="title">&lt;image</span>&gt; username/repository:<span class="keyword">tag</span>  <span class="title"># Tag</span> <span class="tag">&lt;image&gt;</span> for upload to registry</span><br><span class="line">docker push username/repository:<span class="keyword">tag</span>            <span class="title"># Upload</span> tagged image to registry</span><br><span class="line">docker run username/repository:<span class="keyword">tag</span>                   <span class="title"># Run</span> image from a registry</span><br></pre></td></tr></table></figure>
-<p>###docker service</p>
-<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">docker stack ls                                            # List stacks <span class="keyword">or</span> apps</span><br><span class="line">docker stack deploy -c &lt;composefile&gt; &lt;appname&gt;  # <span class="builtin-name">Run</span> the specified Compose file</span><br><span class="line">docker<span class="built_in"> service </span>ls                 # List running services associated with an app</span><br><span class="line">docker<span class="built_in"> service </span>ps &lt;service&gt;                  # List tasks associated with an app</span><br><span class="line">docker inspect &lt;task <span class="keyword">or</span> container&gt;                   # Inspect task <span class="keyword">or</span> container</span><br><span class="line">docker container ls -q                                      # List container IDs</span><br><span class="line">docker stack rm &lt;appname&gt;                             # Tear down an application</span><br><span class="line">docker swarm leave --force      # Take down a single node swarm <span class="keyword">from</span> the manager</span><br></pre></td></tr></table></figure>
-<p>需要<a href="https://api.github.com/repos/boot2docker/boot2docker/releases/latest" target="_blank" rel="external">https://api.github.com/repos/boot2docker/boot2docker/releases/latest</a> 下载，”html_url”: “<a href="https://github.com/boot2docker/boot2docker/releases/tag/v17.07.0-ce" target="_blank" rel="external">https://github.com/boot2docker/boot2docker/releases/tag/v17.07.0-ce</a>“</p>
-<p>###swarm集群</p>
-<figure class="highlight lsl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line">docker-machine create --virtualbox-boot2docker-url ~/.docker/machine/cache/boot2docker.iso manager1</span><br><span class="line"></span><br><span class="line">mv boot2docker.iso /Users/zhouxiaowu/.docker/machine/cache/</span><br><span class="line">docker-machine create --virtualbox-boot2docker-url ~/.docker/machine/cache/boot2docker.iso  myvm1</span><br><span class="line">docker-machine create --virtualbox-boot2docker-url ~/.docker/machine/cache/boot2docker.iso  myvm2</span><br><span class="line"></span><br><span class="line"><span class="number">10513</span>  docker-machine ssh myvm1 <span class="string">"docker swarm init --advertise-addr 192.168.99.101"</span></span><br><span class="line"></span><br><span class="line"><span class="number">10514</span>  docker-machine ls</span><br><span class="line"></span><br><span class="line"><span class="number">10515</span>  docker-machine ssh myvm2 <span class="string">"    docker swarm join --token SWMTKN-1-13x2fyyubrz6b0k0p86bpt0rjydu59ze8a7g4q6n4yn1aip7so-96zlikwtz3h7mmpa18ilu0i6g 192.168.99.101:2377"</span></span><br><span class="line"></span><br><span class="line"><span class="number">10516</span>  docker-machine ssh myvm1 <span class="string">"docker node ls"</span></span><br><span class="line"></span><br><span class="line"><span class="number">10520</span>  docker-machine env myvm1</span><br><span class="line"><span class="number">10521</span>  eval $(docker-machine env myvm1)</span><br><span class="line"></span><br><span class="line"><span class="number">10526</span>  docker stack deploy -c docker-compose.yml getstartedlab</span><br><span class="line"><span class="number">10527</span>  docker stack ls</span><br><span class="line"></span><br><span class="line"><span class="number">10529</span>  docker stack ps getstartedlab</span><br><span class="line"></span><br><span class="line"><span class="number">10530</span>  docker container ls</span><br><span class="line"></span><br><span class="line"><span class="number">10569</span>  docker stack ls</span><br><span class="line"><span class="number">10570</span>  docker stack rm getstartedlab</span><br><span class="line"><span class="number">10571</span>  docker-machine env -u</span><br><span class="line"></span><br><span class="line"><span class="number">10572</span>  eval $(docker-machine env -u)</span><br></pre></td></tr></table></figure>
-<h1 id="笔记"><a href="#笔记" class="headerlink" title="笔记"></a>笔记</h1><figure class="highlight vim"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">find</span> name</span><br><span class="line"></span><br><span class="line">lsof</span><br><span class="line"></span><br><span class="line">lsof -<span class="keyword">p</span> <span class="number">2951</span></span><br><span class="line"><span class="keyword">view</span></span><br><span class="line">ulimit -n <span class="number">1000</span></span><br><span class="line"><span class="keyword">cd</span> var/<span class="built_in">log</span></span><br><span class="line">minikube logs &gt;aa</span><br><span class="line"><span class="keyword">vim</span> aa</span><br><span class="line">kubectl <span class="built_in">get</span> pods --<span class="keyword">all</span>-namespaces</span><br></pre></td></tr></table></figure>
 
           
         
@@ -2579,196 +3030,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://zhouxiaowu.coding.me/2018/01/11/Mysql-update使用子查询/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="周小伍 Joey">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/xiaowu_avatar.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="xiaowu's blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2018/01/11/Mysql-update使用子查询/" itemprop="url">Mysql update使用子查询</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-01-11T15:20:54+08:00">
-                2018-01-11
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/数据库/" itemprop="url" rel="index">
-                    <span itemprop="name">数据库</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2018/01/11/Mysql-update使用子查询/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count disqus-comment-count"
-                        data-disqus-identifier="2018/01/11/Mysql-update使用子查询/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-
-          
-
-          
-            <div class="post-wordcount">
-              
-                
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-file-word-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">字数统计&#58;</span>
-                
-                <span title="字数统计">
-                  164
-                </span>
-              
-
-              
-                <span class="post-meta-divider">|</span>
-              
-
-              
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-clock-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
-                
-                <span title="阅读时长">
-                  1
-                </span>
-              
-            </div>
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>今天我像以前操作Oracle写了一个update sql:</p>
-<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">update device_user a <span class="builtin-name">set</span> a.<span class="attribute">scene_id</span>=<span class="literal">null</span></span><br><span class="line">where a.id <span class="keyword">not</span> <span class="keyword">in</span>(select min(t.id) <span class="keyword">from</span> device_user t<span class="built_in"> group </span>by t.device_id);12</span><br></pre></td></tr></table></figure>
-<p>根据子查询的结果，更新表中的一个字段。</p>
-<p>在mysql数据库中执行后报错：</p>
-<figure class="highlight subunit"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">Error </span>Code: 1093. You can't specify target table 'a' for update in FROM clause</span><br><span class="line">12</span><br></pre></td></tr></table></figure>
-<p>一直没弄明白这个错误，然后经过多次度娘后，发现mysql update时，更新的表不能在set和where中用于子查询。</p>
-<p>修改上面的sql为mysql数据库支持的方式：</p>
-<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">update device_user du,</span><br><span class="line">(select id <span class="keyword">from</span> device_user where id <span class="keyword">not</span> <span class="keyword">in</span>(select min(t.id) <span class="keyword">from</span> device_user t<span class="built_in"> group </span>by t.device_id)) b</span><br><span class="line"><span class="builtin-name">set</span> du.<span class="attribute">scene_id</span>=<span class="literal">null</span></span><br><span class="line">where du.<span class="attribute">id</span>=b.id;</span><br></pre></td></tr></table></figure>
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -2823,7 +3084,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">149</span>
+                  <span class="site-state-item-count">150</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -2898,7 +3159,7 @@
     
       <span class="post-meta-item-text">Site words total count&#58;</span>
     
-    <span title="Site words total count">275.8k</span>
+    <span title="Site words total count">276.8k</span>
   
 </div>
 

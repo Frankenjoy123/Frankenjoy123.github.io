@@ -293,6 +293,261 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://zhouxiaowu.coding.me/2019/02/09/RxJava/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="周小伍 Joey">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/xiaowu_avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="xiaowu's blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/02/09/RxJava/" itemprop="url">RxJava</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-02-09T21:12:53+08:00">
+                2019-02-09
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/java基础/" itemprop="url" rel="index">
+                    <span itemprop="name">java基础</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2019/02/09/RxJava/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2019/02/09/RxJava/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  1.9k
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  9
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="RxJava是什么"><a href="#RxJava是什么" class="headerlink" title="RxJava是什么"></a>RxJava是什么</h1><p>a library for composing asynchronous and event-based programs using observable sequences for the Java VM（一个对于构成使用的Java虚拟机观察序列异步和基于事件的程序库）。<br>github：<a href="https://github.com/ReactiveX/RxJava" target="_blank" rel="external">https://github.com/ReactiveX/RxJava</a></p>
+<h2 id="观察者模式"><a href="#观察者模式" class="headerlink" title="观察者模式"></a>观察者模式</h2><p>RxJava的世界里，我们有四种角色：<br>Observable(被观察者)、Observer(观察者)<br>Subscriber(订阅者)、Subject<br>Observable和Subject是两个“生产”实体，Observer和Subscriber是两个“消费”实体。Observable 和 Observer 通过 subscribe() 方法实现订阅关系，从而 Observable 可以在需要的时候发出事件来通知 Observer。</p>
+<h2 id="回调方法"><a href="#回调方法" class="headerlink" title="回调方法"></a>回调方法</h2><p>Subscribe方法用于将观察者连接到Observable，你的观察者需要实现以下方法：</p>
+<ul>
+<li>onNext(T item)<br>Observable调用这个方法发射数据，方法的参数就是Observable发射的数据，这个方法可能会被调用多次，取决于你的实现。</li>
+<li>onError(Exception ex)<br>当Observable遇到错误或者无法返回期望的数据时会调用这个方法，这个调用会终止Observable，后续不会再调用onNext和onCompleted，onError方法的参数是抛出的异常。</li>
+<li>onComplete<br>正常终止，如果没有遇到错误，Observable在最后一次调用onNext之后调用此方法。</li>
+</ul>
+<h1 id="添加依赖"><a href="#添加依赖" class="headerlink" title="添加依赖"></a>添加依赖</h1><figure class="highlight gradle"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">compile</span> <span class="string">'io.reactivex:rxandroid:1.1.0'</span></span><br><span class="line"><span class="keyword">compile</span> <span class="string">'io.reactivex:rxjava:1.1.0'</span></span><br></pre></td></tr></table></figure>
+<h1 id="创建操作"><a href="#创建操作" class="headerlink" title="创建操作"></a>创建操作</h1><h2 id="create"><a href="#create" class="headerlink" title="create"></a>create</h2><figure class="highlight aspectj"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">Observable.create(<span class="keyword">new</span> Observable.OnSubscribe&lt;String&gt;() &#123;</span><br><span class="line">           <span class="meta">@Override</span></span><br><span class="line">           <span class="keyword">public</span> <span class="function"><span class="keyword">void</span> <span class="title">call</span><span class="params">(Subscriber&lt;? <span class="keyword">super</span> String&gt; subscriber)</span> </span>&#123;</span><br><span class="line">               subscriber.onNext(<span class="string">"Hello"</span>);</span><br><span class="line">               subscriber.onNext(<span class="string">"RxJava"</span>);</span><br><span class="line">               subscriber.onCompleted();</span><br><span class="line">           &#125;</span><br><span class="line">       &#125;)</span><br><span class="line">       .subscribe(<span class="keyword">new</span> Observer&lt;String&gt;() &#123;</span><br><span class="line">           <span class="meta">@Override</span></span><br><span class="line">           <span class="keyword">public</span> <span class="function"><span class="keyword">void</span> <span class="title">onCompleted</span><span class="params">()</span> </span>&#123;</span><br><span class="line">               Log.i(<span class="string">"wxl"</span>, <span class="string">"onCompleted"</span>);</span><br><span class="line">           &#125;</span><br><span class="line"></span><br><span class="line">           <span class="meta">@Override</span></span><br><span class="line">           <span class="keyword">public</span> <span class="function"><span class="keyword">void</span> <span class="title">onError</span><span class="params">(Throwable e)</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">           &#125;</span><br><span class="line"></span><br><span class="line">           <span class="meta">@Override</span></span><br><span class="line">           <span class="keyword">public</span> <span class="function"><span class="keyword">void</span> <span class="title">onNext</span><span class="params">(String s)</span> </span>&#123;</span><br><span class="line">               Log.i(<span class="string">"wxl"</span>, <span class="string">"onNext="</span> + s);</span><br><span class="line">           &#125;</span><br><span class="line">       &#125;);</span><br></pre></td></tr></table></figure>
+<p>除了 Observer 接口之外，RxJava 还内置了一个实现了 Observer 的抽象类：Subscriber。 Subscriber 对 Observer 接口进行了一些扩展，但他们的基本使用方式是完全一样的：</p>
+<figure class="highlight less"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="selector-class">.subscribe</span>(new Subscriber() &#123;</span><br><span class="line">           <span class="variable">@Override</span></span><br><span class="line">           public void onCompleted() &#123;</span><br><span class="line">               <span class="selector-tag">Log</span><span class="selector-class">.i</span>(<span class="string">"wxl"</span>, <span class="string">"onCompleted"</span>);</span><br><span class="line">           &#125;</span><br><span class="line"></span><br><span class="line">           @<span class="selector-tag">Override</span></span><br><span class="line">           <span class="selector-tag">public</span> <span class="selector-tag">void</span> <span class="selector-tag">onError</span>(Throwable e) &#123;</span><br><span class="line"></span><br><span class="line">           &#125;</span><br><span class="line"></span><br><span class="line">           <span class="variable">@Override</span></span><br><span class="line">           public void onNext(Object o) &#123;</span><br><span class="line">               <span class="selector-tag">Log</span><span class="selector-class">.i</span>(<span class="string">"wxl"</span>, <span class="string">"onNext="</span> + o);</span><br><span class="line">           &#125;</span><br><span class="line">       &#125;);</span><br></pre></td></tr></table></figure>
+<h2 id="from"><a href="#from" class="headerlink" title="from"></a>from</h2><p>接受数组，返回一个按参数列表顺序发射这些数据的Observable。</p>
+<figure class="highlight aspectj"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">String[] froms=&#123;<span class="string">"Hello"</span>,<span class="string">"RxJava"</span>&#125;;</span><br><span class="line">Observable.from(froms)</span><br><span class="line">.subscribe(<span class="keyword">new</span> Observer&lt;String&gt;() &#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">void</span> <span class="title">onCompleted</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        Log.i(<span class="string">"wxl"</span>, <span class="string">"onCompleted"</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">void</span> <span class="title">onError</span><span class="params">(Throwable e)</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">void</span> <span class="title">onNext</span><span class="params">(String s)</span> </span>&#123;</span><br><span class="line">        Log.i(<span class="string">"wxl"</span>, <span class="string">"onNext="</span> + s);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<h2 id="just"><a href="#just" class="headerlink" title="just"></a>just</h2><p>just函数，它接受一至九个参数，返回一个按参数列表顺序发射这些数据的Observable。</p>
+<figure class="highlight less"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="selector-tag">Observable</span><span class="selector-class">.just</span>(<span class="string">"Hello"</span>,<span class="string">"RxJava"</span>)</span><br><span class="line">          <span class="selector-class">.subscribe</span>(new Observer&lt;String&gt;() &#123;</span><br><span class="line">            <span class="variable">@Override</span></span><br><span class="line">            public void onCompleted() &#123;</span><br><span class="line">                <span class="selector-tag">Log</span><span class="selector-class">.i</span>(<span class="string">"wxl"</span>, <span class="string">"onCompleted"</span>);</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            @<span class="selector-tag">Override</span></span><br><span class="line">            <span class="selector-tag">public</span> <span class="selector-tag">void</span> <span class="selector-tag">onError</span>(Throwable e) &#123;</span><br><span class="line"></span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            <span class="variable">@Override</span></span><br><span class="line">            public void onNext(String s) &#123;</span><br><span class="line">                <span class="selector-tag">Log</span><span class="selector-class">.i</span>(<span class="string">"wxl"</span>, <span class="string">"onNext="</span> + s);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;);</span><br></pre></td></tr></table></figure>
+<p>以上打印结果都是：</p>
+<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">com<span class="selector-class">.wuxiaolong</span><span class="selector-class">.apksample</span> I/wxl: onNext=Hello</span><br><span class="line">com<span class="selector-class">.wuxiaolong</span><span class="selector-class">.apksample</span> I/wxl: onNext=RxJava</span><br><span class="line">com<span class="selector-class">.wuxiaolong</span><span class="selector-class">.apksample</span> I/wxl: onCompleted</span><br></pre></td></tr></table></figure>
+<h1 id="变换操作"><a href="#变换操作" class="headerlink" title="变换操作"></a>变换操作</h1><h2 id="Map"><a href="#Map" class="headerlink" title="Map"></a>Map</h2><p>操作符对原始Observable发射的每一项数据应用一个你选择的函数，然后返回一个发射这些结果。<br>如下，将原始Observable数据转化成大写，再发射：</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">Observable.just(<span class="string">"Hello"</span>, <span class="string">"RxJava"</span>)</span><br><span class="line">               .map(<span class="keyword">new</span> Func1&lt;<span class="built_in">String</span>, <span class="built_in">String</span>&gt;() &#123;</span><br><span class="line">                   <span class="meta">@Override</span></span><br><span class="line">                   <span class="keyword">public</span> <span class="built_in">String</span> call(<span class="built_in">String</span> s) &#123;</span><br><span class="line">                       <span class="keyword">return</span> s.toUpperCase();</span><br><span class="line">                   &#125;</span><br><span class="line">               &#125;)</span><br><span class="line">               .subscribe(<span class="keyword">new</span> Observer&lt;<span class="built_in">String</span>&gt;() &#123;</span><br><span class="line">                   <span class="meta">@Override</span></span><br><span class="line">                   <span class="keyword">public</span> <span class="built_in">void</span> onCompleted() &#123;</span><br><span class="line">                       Log.i(<span class="string">"wxl"</span>, <span class="string">"onCompleted"</span>);</span><br><span class="line">                   &#125;</span><br><span class="line"></span><br><span class="line">                   <span class="meta">@Override</span></span><br><span class="line">                   <span class="keyword">public</span> <span class="built_in">void</span> onError(Throwable e) &#123;</span><br><span class="line"></span><br><span class="line">                   &#125;</span><br><span class="line"></span><br><span class="line">                   <span class="meta">@Override</span></span><br><span class="line">                   <span class="keyword">public</span> <span class="built_in">void</span> onNext(<span class="built_in">String</span> s) &#123;</span><br><span class="line">                       Log.i(<span class="string">"wxl"</span>, <span class="string">"onNext="</span> + s);</span><br><span class="line">                   &#125;</span><br><span class="line">               &#125;);</span><br></pre></td></tr></table></figure>
+<p>打印结果：</p>
+<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">com<span class="selector-class">.wuxiaolong</span><span class="selector-class">.apksample</span> I/wxl: onNext=HELLO</span><br><span class="line">com<span class="selector-class">.wuxiaolong</span><span class="selector-class">.apksample</span> I/wxl: onNext=RXJAVA</span><br><span class="line">com<span class="selector-class">.wuxiaolong</span><span class="selector-class">.apksample</span> I/wxl: onCompleted</span><br></pre></td></tr></table></figure>
+<h2 id="flatMap"><a href="#flatMap" class="headerlink" title="flatMap"></a>flatMap</h2><p>flatMap()接收一个Observable的输出作为输入，然后作为一个新的Observable再发射。理解flatMap的关键点在于，flatMap输出的新的Observable正是我们在Subscriber想要接收的，比如这里输出单个的字符串。</p>
+<figure class="highlight lasso"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">List</span>&lt;<span class="built_in">String</span>&gt; <span class="built_in">list</span> = <span class="literal">new</span> ArrayList&lt;&gt;();</span><br><span class="line">        <span class="built_in">list</span>.add(<span class="string">"Hello"</span>);</span><br><span class="line">        <span class="built_in">list</span>.add(<span class="string">"RxJava"</span>);</span><br><span class="line">Observable.from(<span class="built_in">list</span>)</span><br><span class="line">                .flatMap(<span class="literal">new</span> Func1&lt;<span class="built_in">String</span>, Observable&lt;<span class="built_in">String</span>&gt;&gt;() &#123;</span><br><span class="line">                    @Override</span><br><span class="line">                    <span class="keyword">public</span> Observable&lt;<span class="built_in">String</span>&gt; call(<span class="built_in">String</span> s) &#123;</span><br><span class="line">                        <span class="keyword">return</span> Observable.just(s.toUpperCase());</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;)</span><br><span class="line">                .subscribe(<span class="literal">new</span> Observer&lt;<span class="built_in">String</span>&gt;() &#123;</span><br><span class="line">                    @Override</span><br><span class="line">                    <span class="keyword">public</span> <span class="literal">void</span> onCompleted() &#123;</span><br><span class="line">                        <span class="keyword">Log</span>.i(<span class="string">"wxl"</span>, <span class="string">"onCompleted"</span>);</span><br><span class="line">                    &#125;</span><br><span class="line"></span><br><span class="line">                    @Override</span><br><span class="line">                    <span class="keyword">public</span> <span class="literal">void</span> onError(Throwable e) &#123;</span><br><span class="line"></span><br><span class="line">                    &#125;</span><br><span class="line"></span><br><span class="line">                    @Override</span><br><span class="line">                    <span class="keyword">public</span> <span class="literal">void</span> onNext(<span class="built_in">String</span> s) &#123;</span><br><span class="line">                        <span class="keyword">Log</span>.i(<span class="string">"wxl"</span>, <span class="string">"onNext="</span> + s);</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;);</span><br></pre></td></tr></table></figure>
+<p>打印结果：</p>
+<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">com<span class="selector-class">.wuxiaolong</span><span class="selector-class">.apksample</span> I/wxl: onNext=HELLO</span><br><span class="line">com<span class="selector-class">.wuxiaolong</span><span class="selector-class">.apksample</span> I/wxl: onNext=RXJAVA</span><br><span class="line">com<span class="selector-class">.wuxiaolong</span><span class="selector-class">.apksample</span> I/wxl: onCompleted</span><br></pre></td></tr></table></figure>
+<h1 id="Scan"><a href="#Scan" class="headerlink" title="Scan"></a>Scan</h1><p>一个累加器函数，操作符对原始Observable发射的第一项数据应用一个函数，然后将那个函数的结果作为自己的第一项数据发射。</p>
+<figure class="highlight lasso"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">Observable.just(<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>)</span><br><span class="line">        .scan(<span class="literal">new</span> Func2&lt;<span class="built_in">Integer</span>, <span class="built_in">Integer</span>, <span class="built_in">Integer</span>&gt;() &#123;</span><br><span class="line">            @Override</span><br><span class="line">            <span class="keyword">public</span> <span class="built_in">Integer</span> call(<span class="built_in">Integer</span> <span class="built_in">integer</span>, <span class="built_in">Integer</span> integer2) &#123;</span><br><span class="line">                <span class="keyword">return</span> <span class="built_in">integer</span> + integer2;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;)</span><br><span class="line">        .subscribe(<span class="literal">new</span> Observer&lt;<span class="built_in">Integer</span>&gt;() &#123;</span><br><span class="line">            @Override</span><br><span class="line">            <span class="keyword">public</span> <span class="literal">void</span> onCompleted() &#123;</span><br><span class="line">                <span class="keyword">Log</span>.i(<span class="string">"wxl"</span>, <span class="string">"onCompleted"</span>);</span><br><span class="line">            &#125;</span><br><span class="line">            @Override</span><br><span class="line">            <span class="keyword">public</span> <span class="literal">void</span> onError(Throwable e) &#123;</span><br><span class="line">            &#125;</span><br><span class="line">            @Override</span><br><span class="line">            <span class="keyword">public</span> <span class="literal">void</span> onNext(<span class="built_in">Integer</span> <span class="built_in">integer</span>) &#123;</span><br><span class="line">                <span class="keyword">Log</span>.i(<span class="string">"wxl"</span>, <span class="string">"onNext="</span> + <span class="built_in">integer</span>);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;);</span><br></pre></td></tr></table></figure>
+<p>第一次发射得到1，作为结果与2相加；发射得到3，作为结果与3相加，以此类推，打印结果：</p>
+<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">I/wxl: <span class="attribute">onNext</span>=1</span><br><span class="line">I/wxl: <span class="attribute">onNext</span>=3</span><br><span class="line">I/wxl: <span class="attribute">onNext</span>=6</span><br><span class="line">I/wxl: <span class="attribute">onNext</span>=10</span><br><span class="line">I/wxl: <span class="attribute">onNext</span>=15</span><br><span class="line">I/wxl: onCompleted</span><br></pre></td></tr></table></figure>
+<h2 id="GroupBy"><a href="#GroupBy" class="headerlink" title="GroupBy"></a>GroupBy</h2><p>按照指定的规则来分组元素。</p>
+<h1 id="过滤操作"><a href="#过滤操作" class="headerlink" title="过滤操作"></a>过滤操作</h1><h2 id="Filter"><a href="#Filter" class="headerlink" title="Filter"></a>Filter</h2><p>观测序列中只有通过的数据才会被发射。</p>
+<figure class="highlight lasso"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">Observable.just(<span class="number">4</span>, <span class="number">2</span>, <span class="number">1</span>, <span class="number">7</span>, <span class="number">5</span>)</span><br><span class="line">        .filter(<span class="literal">new</span> Func1&lt;<span class="built_in">Integer</span>, <span class="built_in">Boolean</span>&gt;() &#123;</span><br><span class="line">            @Override</span><br><span class="line">            <span class="keyword">public</span> <span class="built_in">Boolean</span> call(<span class="built_in">Integer</span> <span class="built_in">integer</span>) &#123;</span><br><span class="line">                <span class="keyword">return</span> <span class="built_in">integer</span> &gt; <span class="number">3</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;)</span><br><span class="line">        .subscribe(<span class="literal">new</span> Observer&lt;<span class="built_in">Integer</span>&gt;() &#123;</span><br><span class="line">            @Override</span><br><span class="line">            <span class="keyword">public</span> <span class="literal">void</span> onCompleted() &#123;</span><br><span class="line">                <span class="keyword">Log</span>.i(<span class="string">"wxl"</span>, <span class="string">"onCompleted"</span>);</span><br><span class="line">            &#125;</span><br><span class="line">            @Override</span><br><span class="line">            <span class="keyword">public</span> <span class="literal">void</span> onError(Throwable e) &#123;</span><br><span class="line">            &#125;</span><br><span class="line">            @Override</span><br><span class="line">            <span class="keyword">public</span> <span class="literal">void</span> onNext(<span class="built_in">Integer</span> <span class="built_in">integer</span>) &#123;</span><br><span class="line">                <span class="keyword">Log</span>.i(<span class="string">"wxl"</span>, <span class="string">"onNext="</span> + <span class="built_in">integer</span>);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;);</span><br></pre></td></tr></table></figure>
+<p>过滤小于3的，打印结果：</p>
+<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">I/wxl: <span class="attribute">onNext</span>=4</span><br><span class="line">I/wxl: <span class="attribute">onNext</span>=7</span><br><span class="line">I/wxl: <span class="attribute">onNext</span>=5</span><br><span class="line">I/wxl: onCompleted</span><br></pre></td></tr></table></figure>
+<h2 id="take-、takeLast"><a href="#take-、takeLast" class="headerlink" title="take()、takeLast()"></a>take()、takeLast()</h2><figure class="highlight asciidoc"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="title">.take(3)</span></span><br></pre></td></tr></table></figure>
+<p>只发射前N个元素</p>
+<figure class="highlight asciidoc"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="title">.takeLast(3)</span></span><br></pre></td></tr></table></figure>
+<p>只发射最后N个元素</p>
+<h2 id="First、last"><a href="#First、last" class="headerlink" title="First、last"></a>First、last</h2><p>只发射第一个元素或者最后一个元素</p>
+<h2 id="Skip、SkipLast"><a href="#Skip、SkipLast" class="headerlink" title="Skip、SkipLast"></a>Skip、SkipLast</h2><figure class="highlight asciidoc"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="title">.skip(2)</span></span><br></pre></td></tr></table></figure>
+<p>来创建一个不发射前两个元素而是发射它后面的那些数据的序列</p>
+<h2 id="distinct"><a href="#distinct" class="headerlink" title="distinct"></a>distinct</h2><p>仅处理一次，可以处理去除重复的数据</p>
+<h2 id="ElementAt"><a href="#ElementAt" class="headerlink" title="ElementAt"></a>ElementAt</h2><p>仅从一个序列中发射第n个元素然后就完成了，这里是从0开始计的。</p>
+<figure class="highlight lsl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Observable.just(<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>)</span><br><span class="line">                .elementAt(<span class="number">3</span>)</span><br><span class="line">                .subscribe(……);</span><br></pre></td></tr></table></figure>
+<p>打印结果：4</p>
+<h2 id="Sample"><a href="#Sample" class="headerlink" title="Sample"></a>Sample</h2><p>定期发射Observable最近发射的数据项</p>
+<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="selector-class">.sample</span>(1000, <span class="selector-tag">TimeUnit</span><span class="selector-class">.MILLISECONDS</span>)</span><br></pre></td></tr></table></figure>
+<h1 id="合并操作"><a href="#合并操作" class="headerlink" title="合并操作"></a>合并操作</h1><h2 id="Merge"><a href="#Merge" class="headerlink" title="Merge"></a>Merge</h2><p>合并多个Observables的发射物，多输入，单输出</p>
+<figure class="highlight lasso"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">Observable&lt;<span class="built_in">Integer</span>&gt; observable1 = Observable.just(<span class="number">1</span>, <span class="number">3</span>, <span class="number">5</span>);</span><br><span class="line">Observable&lt;<span class="built_in">Integer</span>&gt; observable2 = Observable.just(<span class="number">2</span>, <span class="number">4</span>, <span class="number">6</span>);</span><br><span class="line">Observable.merge(observable1,observable2)</span><br><span class="line">        .subscribe(<span class="literal">new</span> Observer&lt;<span class="built_in">Integer</span>&gt;() &#123;</span><br><span class="line">            @Override</span><br><span class="line">            <span class="keyword">public</span> <span class="literal">void</span> onCompleted() &#123;</span><br><span class="line">                <span class="keyword">Log</span>.i(<span class="string">"wxl"</span>, <span class="string">"onCompleted"</span>);</span><br><span class="line">            &#125;</span><br><span class="line">            @Override</span><br><span class="line">            <span class="keyword">public</span> <span class="literal">void</span> onError(Throwable e) &#123;</span><br><span class="line">            &#125;</span><br><span class="line">            @Override</span><br><span class="line">            <span class="keyword">public</span> <span class="literal">void</span> onNext(<span class="built_in">Integer</span> <span class="built_in">integer</span>) &#123;</span><br><span class="line">                <span class="keyword">Log</span>.i(<span class="string">"wxl"</span>, <span class="string">"onNext="</span> + <span class="built_in">integer</span>);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;);</span><br></pre></td></tr></table></figure>
+<p>打印结果：</p>
+<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">I/wxl: <span class="attribute">onNext</span>=1</span><br><span class="line">I/wxl: <span class="attribute">onNext</span>=3</span><br><span class="line">I/wxl: <span class="attribute">onNext</span>=5</span><br><span class="line">I/wxl: <span class="attribute">onNext</span>=2</span><br><span class="line">I/wxl: <span class="attribute">onNext</span>=4</span><br><span class="line">I/wxl: <span class="attribute">onNext</span>=6</span><br><span class="line">I/wxl: onCompleted</span><br></pre></td></tr></table></figure>
+<h2 id="zip"><a href="#zip" class="headerlink" title="zip"></a>zip</h2><p>合并两个或者多个Observables发射出的数据项，根据指定的函数Func2变换它们，并发射一个新值。</p>
+<figure class="highlight lasso"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">Observable&lt;<span class="built_in">Integer</span>&gt; observable1 = Observable.just(<span class="number">1</span>, <span class="number">3</span>, <span class="number">5</span>);</span><br><span class="line">Observable&lt;<span class="built_in">Integer</span>&gt; observable2 = Observable.just(<span class="number">2</span>, <span class="number">4</span>, <span class="number">6</span>, <span class="number">9</span>);</span><br><span class="line">Observable.zip(observable1, observable2, <span class="literal">new</span> Func2&lt;<span class="built_in">Integer</span>, <span class="built_in">Integer</span>, <span class="built_in">Integer</span>&gt;</span><br><span class="line">    @Override</span><br><span class="line">    <span class="keyword">public</span> <span class="built_in">Integer</span> call(<span class="built_in">Integer</span> <span class="built_in">integer</span>, <span class="built_in">Integer</span> integer2) &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="built_in">integer</span> + integer2;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;)</span><br><span class="line">        .subscribe(<span class="literal">new</span> Observer&lt;<span class="built_in">Integer</span>&gt;() &#123;</span><br><span class="line">            @Override</span><br><span class="line">            <span class="keyword">public</span> <span class="literal">void</span> onCompleted() &#123;</span><br><span class="line">                <span class="keyword">Log</span>.i(<span class="string">"wxl"</span>, <span class="string">"onCompleted"</span>);</span><br><span class="line">            &#125;</span><br><span class="line">            @Override</span><br><span class="line">            <span class="keyword">public</span> <span class="literal">void</span> onError(Throwable e) &#123;</span><br><span class="line">            &#125;</span><br><span class="line">            @Override</span><br><span class="line">            <span class="keyword">public</span> <span class="literal">void</span> onNext(<span class="built_in">Integer</span> <span class="built_in">integer</span>) &#123;</span><br><span class="line">                <span class="keyword">Log</span>.i(<span class="string">"wxl"</span>, <span class="string">"onNext="</span> + <span class="built_in">integer</span>);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;);</span><br></pre></td></tr></table></figure>
+<p>打印结果：</p>
+<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">I/wxl: <span class="attribute">onNext</span>=3</span><br><span class="line">I/wxl: <span class="attribute">onNext</span>=7</span><br><span class="line">I/wxl: <span class="attribute">onNext</span>=11</span><br><span class="line">I/wxl: onCompleted</span><br></pre></td></tr></table></figure>
+<h2 id="join"><a href="#join" class="headerlink" title="join"></a>join</h2><h2 id="startWith"><a href="#startWith" class="headerlink" title="startWith"></a>startWith</h2><figure class="highlight asciidoc"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="title">.startWith(1)</span></span><br></pre></td></tr></table></figure>
+<p>在数据序列的开头插入一条指定的项1</p>
+<h1 id="Schedulers"><a href="#Schedulers" class="headerlink" title="Schedulers"></a>Schedulers</h1><p>调度器，解决Android主线程问题，有5种：</p>
+<ul>
+<li><p>Schedulers.io()<br>这个调度器时用于I/O操作（读写文件、读写数据库、网络信息交互等）</p>
+</li>
+<li><p>Schedulers.computation()<br>这个是计算工作默认的调度器，它与I/O操作无关。它也是许多RxJava方法的默认调度器：buffer()，debounce()，delay()，interval()，sample()，skip()</p>
+</li>
+<li><p>Schedulers.immediate()<br>这个调度器允许你立即在当前线程执行你指定的工作。它是timeout()，timeInterval()，以及timestamp()方法默认的调度器。</p>
+</li>
+<li><p>Schedulers.newThread()<br>它为指定任务启动一个新的线程。</p>
+</li>
+<li><p>Schedulers.trampoline()<br>当我们想在当前线程执行一个任务时，并不是立即，我们可以用.trampoline()将它入队。这个调度器将会处理它的队列并且按序运行队列中每一个任务。它是repeat()和retry()方法默认的调度器。</p>
+<h2 id="SubscribeOn、ObserveOn"><a href="#SubscribeOn、ObserveOn" class="headerlink" title="SubscribeOn、ObserveOn"></a>SubscribeOn、ObserveOn</h2><p>subscribeOn()：事件产生的线程<br>observeOn()：事件消费的线程，AndroidSchedulers.mainThread()，它指定的操作将在 Android 主线程运行。</p>
+<figure class="highlight jboss-cli"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">.subscribeOn</span><span class="params">(Schedulers.io()</span>) <span class="string">//</span> 指定 subscribe<span class="params">()</span> 发生在 IO 线程</span><br></pre></td></tr></table></figure></li>
+</ul>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="https://zhouxiaowu.coding.me/2019/01/28/Tomcat性能优化/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -2026,231 +2281,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://zhouxiaowu.coding.me/2018/11/15/MySQL查看和修改字符集的方法/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="周小伍 Joey">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/xiaowu_avatar.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="xiaowu's blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2018/11/15/MySQL查看和修改字符集的方法/" itemprop="url">MySQL查看和修改字符集的方法</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-11-15T14:05:40+08:00">
-                2018-11-15
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/数据库/" itemprop="url" rel="index">
-                    <span itemprop="name">数据库</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2018/11/15/MySQL查看和修改字符集的方法/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count disqus-comment-count"
-                        data-disqus-identifier="2018/11/15/MySQL查看和修改字符集的方法/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-
-          
-
-          
-            <div class="post-wordcount">
-              
-                
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-file-word-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">字数统计&#58;</span>
-                
-                <span title="字数统计">
-                  1.1k
-                </span>
-              
-
-              
-                <span class="post-meta-divider">|</span>
-              
-
-              
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-clock-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
-                
-                <span title="阅读时长">
-                  5
-                </span>
-              
-            </div>
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h2 id="一、查看字符集"><a href="#一、查看字符集" class="headerlink" title="一、查看字符集"></a><strong>一、查看字符集</strong></h2><h3 id="1-查看MYSQL数据库服务器和数据库字符集"><a href="#1-查看MYSQL数据库服务器和数据库字符集" class="headerlink" title="1.查看MYSQL数据库服务器和数据库字符集"></a>1.查看MYSQL数据库服务器和数据库字符集</h3><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">方法一：<span class="keyword">show</span> <span class="keyword">variables</span> <span class="keyword">like</span> <span class="string">'%character%'</span>;</span><br><span class="line">方法二：<span class="keyword">show</span> <span class="keyword">variables</span> <span class="keyword">like</span> <span class="string">'collation%'</span>;</span><br></pre></td></tr></table></figure>
-<figure class="highlight asciidoc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; show variables like <span class="emphasis">'collation%'</span>;</span><br><span class="line"><span class="code">+----------------------+</span>-----------------+</span><br><span class="line">| Variable<span class="emphasis">_name        | Value           |</span></span><br><span class="line"><span class="emphasis">+----------------------+-----------------+</span></span><br><span class="line"><span class="emphasis">| collation_</span>connection | utf8<span class="emphasis">_general_</span>ci |</span><br><span class="line">| collation<span class="emphasis">_database   | utf8_</span>general<span class="emphasis">_ci |</span></span><br><span class="line"><span class="emphasis">| collation_</span>server     | utf8<span class="emphasis">_general_</span>ci |</span><br><span class="line"><span class="code">+----------------------+</span>-----------------+</span><br><span class="line">rows in set (0.00 sec)</span><br></pre></td></tr></table></figure>
-<figure class="highlight asciidoc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; show variables like <span class="emphasis">'collation%'</span>;</span><br><span class="line"><span class="code">+----------------------+</span>-----------------+</span><br><span class="line">| Variable<span class="emphasis">_name        | Value           |</span></span><br><span class="line"><span class="emphasis">+----------------------+-----------------+</span></span><br><span class="line"><span class="emphasis">| collation_</span>connection | utf8<span class="emphasis">_general_</span>ci |</span><br><span class="line">| collation<span class="emphasis">_database   | utf8_</span>general<span class="emphasis">_ci |</span></span><br><span class="line"><span class="emphasis">| collation_</span>server     | utf8<span class="emphasis">_general_</span>ci |</span><br><span class="line"><span class="code">+----------------------+</span>-----------------+</span><br><span class="line">3 rows in set (0.00 sec)</span><br></pre></td></tr></table></figure>
-<h3 id="2-查看MYSQL所支持的字符集"><a href="#2-查看MYSQL所支持的字符集" class="headerlink" title="2.查看MYSQL所支持的字符集"></a>2.查看MYSQL所支持的字符集</h3><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">show</span> <span class="keyword">charset</span>;</span><br></pre></td></tr></table></figure>
-<figure class="highlight gherkin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; show charset;</span><br><span class="line">+----------+-----------------------------+---------------------+--------+</span><br><span class="line">|<span class="string"> Charset  </span>|<span class="string"> Description                 </span>|<span class="string"> Default collation   </span>|<span class="string"> Maxlen </span>|</span><br><span class="line">+----------+-----------------------------+---------------------+--------+</span><br><span class="line">|<span class="string"> big5     </span>|<span class="string"> Big5 Traditional Chinese    </span>|<span class="string"> big5_chinese_ci     </span>|<span class="string">      2 </span>|</span><br><span class="line">|<span class="string"> dec8     </span>|<span class="string"> DEC West European           </span>|<span class="string"> dec8_swedish_ci     </span>|<span class="string">      1 </span>|</span><br><span class="line">|<span class="string"> cp850    </span>|<span class="string"> DOS West European           </span>|<span class="string"> cp850_general_ci    </span>|<span class="string">      1 </span>|</span><br><span class="line">|<span class="string"> hp8      </span>|<span class="string"> HP West European            </span>|<span class="string"> hp8_english_ci      </span>|<span class="string">      1 </span>|</span><br><span class="line">|<span class="string"> koi8r    </span>|<span class="string"> KOI8-R Relcom Russian       </span>|<span class="string"> koi8r_general_ci    </span>|<span class="string">      1 </span>|</span><br><span class="line">|<span class="string"> latin1   </span>|<span class="string"> cp1252 West European        </span>|<span class="string"> latin1_swedish_ci   </span>|<span class="string">      1 </span>|</span><br><span class="line">|<span class="string"> latin2   </span>|<span class="string"> ISO 8859-2 Central European </span>|<span class="string"> latin2_general_ci   </span>|<span class="string">      1 </span>|</span><br><span class="line">|<span class="string"> swe7     </span>|<span class="string"> 7bit Swedish                </span>|<span class="string"> swe7_swedish_ci     </span>|<span class="string">      1 </span>|</span><br><span class="line">|<span class="string"> ascii    </span>|<span class="string"> US ASCII                    </span>|<span class="string"> ascii_general_ci    </span>|<span class="string">      1 </span>|</span><br><span class="line">|<span class="string"> ujis     </span>|<span class="string"> EUC-JP Japanese             </span>|<span class="string"> ujis_japanese_ci    </span>|<span class="string">      3 </span>|</span><br><span class="line">|<span class="string"> sjis     </span>|<span class="string"> Shift-JIS Japanese          </span>|<span class="string"> sjis_japanese_ci    </span>|<span class="string">      2 </span>|</span><br><span class="line">|<span class="string"> hebrew   </span>|<span class="string"> ISO 8859-8 Hebrew           </span>|<span class="string"> hebrew_general_ci   </span>|<span class="string">      1 </span>|</span><br><span class="line">|<span class="string"> tis620   </span>|<span class="string"> TIS620 Thai                 </span>|<span class="string"> tis620_thai_ci      </span>|<span class="string">      1 </span>|</span><br><span class="line">|<span class="string"> euckr    </span>|<span class="string"> EUC-KR Korean               </span>|<span class="string"> euckr_korean_ci     </span>|<span class="string">      2 </span>|</span><br><span class="line">|<span class="string"> koi8u    </span>|<span class="string"> KOI8-U Ukrainian            </span>|<span class="string"> koi8u_general_ci    </span>|<span class="string">      1 </span>|</span><br><span class="line">|<span class="string"> gb2312   </span>|<span class="string"> GB2312 Simplified Chinese   </span>|<span class="string"> gb2312_chinese_ci   </span>|<span class="string">      2 </span>|</span><br><span class="line">|<span class="string"> greek    </span>|<span class="string"> ISO 8859-7 Greek            </span>|<span class="string"> greek_general_ci    </span>|<span class="string">      1 </span>|</span><br><span class="line">|<span class="string"> cp1250   </span>|<span class="string"> Windows Central European    </span>|<span class="string"> cp1250_general_ci   </span>|<span class="string">      1 </span>|</span><br><span class="line">|<span class="string"> gbk      </span>|<span class="string"> GBK Simplified Chinese      </span>|<span class="string"> gbk_chinese_ci      </span>|<span class="string">      2 </span>|</span><br><span class="line">|<span class="string"> latin5   </span>|<span class="string"> ISO 8859-9 Turkish          </span>|<span class="string"> latin5_turkish_ci   </span>|<span class="string">      1 </span>|</span><br><span class="line">|<span class="string"> armscii8 </span>|<span class="string"> ARMSCII-8 Armenian          </span>|<span class="string"> armscii8_general_ci </span>|<span class="string">      1 </span>|</span><br><span class="line">|<span class="string"> utf8     </span>|<span class="string"> UTF-8 Unicode               </span>|<span class="string"> utf8_general_ci     </span>|<span class="string">      3 </span>|</span><br><span class="line">|<span class="string"> ucs2     </span>|<span class="string"> UCS-2 Unicode               </span>|<span class="string"> ucs2_general_ci     </span>|<span class="string">      2 </span>|</span><br><span class="line">|<span class="string"> cp866    </span>|<span class="string"> DOS Russian                 </span>|<span class="string"> cp866_general_ci    </span>|<span class="string">      1 </span>|</span><br><span class="line">|<span class="string"> keybcs2  </span>|<span class="string"> DOS Kamenicky Czech-Slovak  </span>|<span class="string"> keybcs2_general_ci  </span>|<span class="string">      1 </span>|</span><br><span class="line">|<span class="string"> macce    </span>|<span class="string"> Mac Central European        </span>|<span class="string"> macce_general_ci    </span>|<span class="string">      1 </span>|</span><br><span class="line">|<span class="string"> macroman </span>|<span class="string"> Mac West European           </span>|<span class="string"> macroman_general_ci </span>|<span class="string">      1 </span>|</span><br><span class="line">|<span class="string"> cp852    </span>|<span class="string"> DOS Central European        </span>|<span class="string"> cp852_general_ci    </span>|<span class="string">      1 </span>|</span><br><span class="line">|<span class="string"> latin7   </span>|<span class="string"> ISO 8859-13 Baltic          </span>|<span class="string"> latin7_general_ci   </span>|<span class="string">      1 </span>|</span><br><span class="line">|<span class="string"> utf8mb4  </span>|<span class="string"> UTF-8 Unicode               </span>|<span class="string"> utf8mb4_general_ci  </span>|<span class="string">      4 </span>|</span><br><span class="line">|<span class="string"> cp1251   </span>|<span class="string"> Windows Cyrillic            </span>|<span class="string"> cp1251_general_ci   </span>|<span class="string">      1 </span>|</span><br><span class="line">|<span class="string"> utf16    </span>|<span class="string"> UTF-16 Unicode              </span>|<span class="string"> utf16_general_ci    </span>|<span class="string">      4 </span>|</span><br><span class="line">|<span class="string"> cp1256   </span>|<span class="string"> Windows Arabic              </span>|<span class="string"> cp1256_general_ci   </span>|<span class="string">      1 </span>|</span><br><span class="line">|<span class="string"> cp1257   </span>|<span class="string"> Windows Baltic              </span>|<span class="string"> cp1257_general_ci   </span>|<span class="string">      1 </span>|</span><br><span class="line">|<span class="string"> utf32    </span>|<span class="string"> UTF-32 Unicode              </span>|<span class="string"> utf32_general_ci    </span>|<span class="string">      4 </span>|</span><br><span class="line">|<span class="string"> binary   </span>|<span class="string"> Binary pseudo charset       </span>|<span class="string"> binary              </span>|<span class="string">      1 </span>|</span><br><span class="line">|<span class="string"> geostd8  </span>|<span class="string"> GEOSTD8 Georgian            </span>|<span class="string"> geostd8_general_ci  </span>|<span class="string">      1 </span>|</span><br><span class="line">|<span class="string"> cp932    </span>|<span class="string"> SJIS for Windows Japanese   </span>|<span class="string"> cp932_japanese_ci   </span>|<span class="string">      2 </span>|</span><br><span class="line">|<span class="string"> eucjpms  </span>|<span class="string"> UJIS for Windows Japanese   </span>|<span class="string"> eucjpms_japanese_ci </span>|<span class="string">      3 </span>|</span><br><span class="line">+----------+-----------------------------+---------------------+--------+</span><br><span class="line">39 rows in set (0.00 sec)</span><br></pre></td></tr></table></figure>
-<h3 id="3-查看库的字符集"><a href="#3-查看库的字符集" class="headerlink" title="3.查看库的字符集"></a>3.查看库的字符集</h3><p>语法：show database status from 库名 like  表名;</p>
-<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; show create database shiyan\G</span><br><span class="line"><span class="strong">*****</span><span class="strong">*****</span><span class="strong">*****</span><span class="strong">*****</span><span class="strong">*****</span><span class="strong">** 1. row **</span><span class="strong">*****</span><span class="strong">*****</span><span class="strong">*****</span><span class="strong">*****</span><span class="strong">*****</span></span><br><span class="line"><span class="code">       Database: shiyan</span></span><br><span class="line">Create Database: CREATE DATABASE <span class="code">`shiyan`</span> /<span class="emphasis">*!40100 DEFAULT CHARACTER SET gbk *</span>/</span><br><span class="line">1 row in set (0.00 sec)</span><br></pre></td></tr></table></figure>
-<h3 id="4-查看表的字符集"><a href="#4-查看表的字符集" class="headerlink" title="4.查看表的字符集"></a>4.查看表的字符集</h3><p>语法：show table status from 库名 like  表名;</p>
-<figure class="highlight gams"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; show <span class="keyword">table</span> status <span class="comment">from class_7 like</span> <span class="comment">'test_info'</span>;</span><br></pre></td></tr></table></figure>
-<figure class="highlight jboss-cli"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; show table status from class_7 like 'test_info';</span><br><span class="line">+<span class="params">-----------</span>+<span class="params">--------</span>+<span class="params">---------</span>+<span class="params">------------</span>+<span class="params">------</span>+<span class="params">----------------</span>+<span class="params">-------------------------</span>+<span class="params">-------------</span>+<span class="params">------------</span>+<span class="params">-----------------</span>+<span class="params">----------</span>+-</span><br><span class="line">| Name      | Engine | Version | Row_format | Rows | Avg_row_length | Data_leate_time         | Update_time | Check_time | Collation       | Checksum |</span><br><span class="line">+<span class="params">-----------</span>+<span class="params">--------</span>+<span class="params">---------</span>+<span class="params">------------</span>+<span class="params">------</span>+<span class="params">----------------</span>+<span class="params">-------------------------</span>+<span class="params">-------------</span>+<span class="params">------------</span>+<span class="params">-----------------</span>+<span class="params">----------</span>+-</span><br><span class="line">| test_info | InnoDB |      10 | Compact    |   10 |           1638 |       17-12-05 19<span class="function">:01</span><span class="function">:55</span> | NULL        | NULL       | utf8_general_ci |     NULL |</span><br><span class="line">+<span class="params">-----------</span>+<span class="params">--------</span>+<span class="params">---------</span>+<span class="params">------------</span>+<span class="params">------</span>+<span class="params">----------------</span>+<span class="params">-------------------------</span>+<span class="params">-------------</span>+<span class="params">------------</span>+<span class="params">-----------------</span>+<span class="params">----------</span>+-</span><br><span class="line">1 row in <span class="keyword">set</span> <span class="params">(0.00 sec)</span></span><br></pre></td></tr></table></figure>
-<h3 id="5-查看表中所有列的字符集"><a href="#5-查看表中所有列的字符集" class="headerlink" title="5.查看表中所有列的字符集"></a>5.查看表中所有列的字符集</h3><p>语法：show full columns from 表名;</p>
-<figure class="highlight maxima"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; <span class="built_in">show</span> full <span class="built_in">columns</span> from test_info;</span><br></pre></td></tr></table></figure>
-<figure class="highlight gherkin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; show full columns from test_info;</span><br><span class="line">+-------+----------+-----------------+------+-----+---------+-------+---------------------------------+---------+</span><br><span class="line">|<span class="string"> Field </span>|<span class="string"> Type     </span>|<span class="string"> Collation       </span>|<span class="string"> Null </span>|<span class="string"> Key </span>|<span class="string"> Default </span>|<span class="string"> Extra </span>|<span class="string"> Privileges                      </span>|<span class="string"> Comment </span>|</span><br><span class="line">+-------+----------+-----------------+------+-----+---------+-------+---------------------------------+---------+</span><br><span class="line">|<span class="string"> id    </span>|<span class="string"> int(3)   </span>|<span class="string"> NULL            </span>|<span class="string"> NO   </span>|<span class="string"> PRI </span>|<span class="string"> NULL    </span>|<span class="string">       </span>|<span class="string"> select,insert,update,references </span>|<span class="string">         </span>|</span><br><span class="line">|<span class="string"> name  </span>|<span class="string"> char(12) </span>|<span class="string"> utf8_general_ci </span>|<span class="string"> YES  </span>|<span class="string">     </span>|<span class="string"> NULL    </span>|<span class="string">       </span>|<span class="string"> select,insert,update,references </span>|<span class="string">         </span>|</span><br><span class="line">|<span class="string"> dorm  </span>|<span class="string"> char(10) </span>|<span class="string"> utf8_general_ci </span>|<span class="string"> YES  </span>|<span class="string">     </span>|<span class="string"> NULL    </span>|<span class="string">       </span>|<span class="string"> select,insert,update,references </span>|<span class="string">         </span>|</span><br><span class="line">|<span class="string"> addr  </span>|<span class="string"> char(12) </span>|<span class="string"> utf8_general_ci </span>|<span class="string"> YES  </span>|<span class="string">     </span>|<span class="string"> 未知    </span>|<span class="string">       </span>|<span class="string"> select,insert,update,references </span>|<span class="string">         </span>|</span><br><span class="line">|<span class="string"> score </span>|<span class="string"> int(3)   </span>|<span class="string"> NULL            </span>|<span class="string"> YES  </span>|<span class="string">     </span>|<span class="string"> NULL    </span>|<span class="string">       </span>|<span class="string"> select,insert,update,references </span>|<span class="string">         </span>|</span><br><span class="line">+-------+----------+-----------------+------+-----+---------+-------+---------------------------------+---------+</span><br><span class="line">5 rows in set (0.00 sec)</span><br></pre></td></tr></table></figure>
-<h2 id="二、设置字符集"><a href="#二、设置字符集" class="headerlink" title="二、设置字符集"></a><strong>二、设置字符集</strong></h2><p>设置字符集一般有两种方法，一种是在创建表的时候设置字符集，另一种是表建成之后修改字符集。</p>
-<h3 id="1-创建时指定字符集"><a href="#1-创建时指定字符集" class="headerlink" title="1.创建时指定字符集"></a>1.创建时指定字符集</h3><p>创建库的时候指定字符集：</p>
-<p>语法：create database 库名 default character set=字符集；</p>
-<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">create database db2<span class="built_in"> default </span>character <span class="attribute">set</span>=utf8</span><br></pre></td></tr></table></figure>
-<p>创建表的时候指定字符集：</p>
-<p>语法：create table 表名（属性）default character set = 字符集；</p>
-<figure class="highlight cs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; <span class="function">create table <span class="title">test1</span>(<span class="params">id <span class="keyword">int</span>(<span class="number">6</span></span>),name <span class="title">char</span>(<span class="params"><span class="number">10</span></span>)) <span class="keyword">default</span> character <span class="keyword">set</span> </span>= <span class="string">'gbk'</span>;</span><br><span class="line">Query OK, <span class="number">0</span> <span class="function">rows <span class="title">affected</span> (<span class="params"><span class="number">0.39</span> sec</span>)</span></span><br></pre></td></tr></table></figure>
-<h3 id="2-修改字符集"><a href="#2-修改字符集" class="headerlink" title="2.修改字符集"></a>2.修改字符集</h3><h4 id="修改全局字符集"><a href="#修改全局字符集" class="headerlink" title="修改全局字符集"></a>修改全局字符集</h4><figure class="highlight gams"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*建立连接使用的编码*/</span></span><br><span class="line"><span class="keyword">set</span> character_set_connection=utf8;</span><br><span class="line"><span class="comment">/*数据库的编码*/</span></span><br><span class="line"><span class="keyword">set</span> character_set_database=utf8;</span><br><span class="line"><span class="comment">/*结果集的编码*/</span></span><br><span class="line"><span class="keyword">set</span> character_set_results=utf8;</span><br><span class="line"><span class="comment">/*数据库服务器的编码*/</span></span><br><span class="line"><span class="keyword">set</span> character_set_server=utf8;</span><br><span class="line"></span><br><span class="line"><span class="keyword">set</span> character_set_system=utf8;</span><br><span class="line"></span><br><span class="line"><span class="keyword">set</span> collation_connection=utf8;</span><br><span class="line"></span><br><span class="line"><span class="keyword">set</span> collation_database=utf8;</span><br><span class="line"></span><br><span class="line"><span class="keyword">set</span> collation_server=utf8;</span><br><span class="line"></span><br><span class="line">修改全局字符集</span><br></pre></td></tr></table></figure>
-<h4 id="修改库的字符集"><a href="#修改库的字符集" class="headerlink" title="修改库的字符集"></a>修改库的字符集</h4><p>语法：alter database 库名 default character set 字符集;</p>
-<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">alter database shiyan<span class="built_in"> default </span>character <span class="builtin-name">set</span> gbk;</span><br></pre></td></tr></table></figure>
-<h4 id="修改表的字符集"><a href="#修改表的字符集" class="headerlink" title="修改表的字符集"></a>修改表的字符集</h4><p>语法：alter table 表名 convert to character set 字符集;</p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">alter</span> <span class="keyword">table</span> test1 <span class="keyword">convert</span> <span class="keyword">to</span> <span class="built_in">character</span> <span class="keyword">set</span> utf8;</span><br></pre></td></tr></table></figure>
-<h4 id="修改字段的字符集"><a href="#修改字段的字符集" class="headerlink" title="修改字段的字符集"></a>修改字段的字符集</h4><p>语法：alter table 表名 modify 字段名 字段属性 character set gbk；</p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">alter</span> <span class="keyword">table</span> test1 <span class="keyword">modify</span> <span class="keyword">name</span> <span class="built_in">char</span>(<span class="number">10</span>) <span class="built_in">character</span> <span class="keyword">set</span> gbk;</span><br></pre></td></tr></table></figure>
-<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; show full columns <span class="keyword">from</span> test1;</span><br><span class="line">+-------+----------+-----------------+------+-----+---------+-------+---------------------------------+---------+</span><br><span class="line">| Field |<span class="built_in"> Type </span>    | Collation       | <span class="literal">Null</span> | Key |<span class="built_in"> Default </span>| Extra | Privileges                      | Comment |</span><br><span class="line">+-------+----------+-----------------+------+-----+---------+-------+---------------------------------+---------+</span><br><span class="line">| id    | int(6)   | <span class="literal">NULL</span>            | <span class="literal">YES</span>  |     | <span class="literal">NULL</span>    |       | select,insert,update,references |         |</span><br><span class="line">| name  | char(10) | utf8_general_ci | <span class="literal">YES</span>  |     | <span class="literal">NULL</span>    |       | select,insert,update,references |         |</span><br><span class="line">+-------+----------+-----------------+------+-----+---------+-------+---------------------------------+---------+</span><br><span class="line">2 rows <span class="keyword">in</span> <span class="builtin-name">set</span> (0.01 sec)</span><br><span class="line"></span><br><span class="line">mysql&gt; alter table test1 modify name char(10) character <span class="builtin-name">set</span> gbk;</span><br><span class="line">Query OK, 0 rows affected (0.58 sec)</span><br><span class="line">Records: 0  Duplicates: 0  Warnings: 0</span><br><span class="line"></span><br><span class="line">mysql&gt; show full columns <span class="keyword">from</span> test1;</span><br><span class="line">+-------+----------+----------------+------+-----+---------+-------+---------------------------------+---------+</span><br><span class="line">| Field |<span class="built_in"> Type </span>    | Collation      | <span class="literal">Null</span> | Key |<span class="built_in"> Default </span>| Extra | Privileges                      | Comment |</span><br><span class="line">+-------+----------+----------------+------+-----+---------+-------+---------------------------------+---------+</span><br><span class="line">| id    | int(6)   | <span class="literal">NULL</span>           | <span class="literal">YES</span>  |     | <span class="literal">NULL</span>    |       | select,insert,update,references |         |</span><br><span class="line">| name  | char(10) | gbk_chinese_ci | <span class="literal">YES</span>  |     | <span class="literal">NULL</span>    |       | select,insert,update,references |         |</span><br><span class="line">+-------+----------+----------------+------+-----+---------+-------+---------------------------------+---------+</span><br><span class="line">2 rows <span class="keyword">in</span> <span class="builtin-name">set</span> (0.01 sec)</span><br></pre></td></tr></table></figure>
-<p><strong>character set即字符集</strong></p>
-<p>我们常看到的UTF-8、GB2312、GB18030都是相互独立的character set。即对Unicode的一套编码。</p>
-<p><strong>collation即比对方法</strong></p>
-<p>用于指定数据集如何排序，以及字符串的比对规则。</p>
-<p>collation名字的规则可以归纳为这两类：</p>
-<ul>
-<li><character set=""><em><language other=""></language></em><ci cs=""></ci></character></li>
-<li><character set="">_bin</character></li>
-</ul>
-<p>例如：</p>
-<p>utf8_danish_ci</p>
-<p>ci是case insensitive的缩写，cs是case sensitive的缩写。即，指定大小写是否敏感。</p>
-<p>utf8_bin是将字符串中的每一个字符用二进制数据存储，区分大小写。</p>
-<p>奇怪的是utf8字符集对应的collation居然没有一个是cs的。</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -2305,7 +2335,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">149</span>
+                  <span class="site-state-item-count">150</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -2380,7 +2410,7 @@
     
       <span class="post-meta-item-text">Site words total count&#58;</span>
     
-    <span title="Site words total count">275.8k</span>
+    <span title="Site words total count">276.8k</span>
   
 </div>
 

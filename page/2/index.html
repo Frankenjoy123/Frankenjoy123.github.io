@@ -293,6 +293,396 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://zhouxiaowu.coding.me/2019/05/21/Hive原理案例及搭建/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="周小伍 Joey">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/xiaowu_avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="xiaowu's blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/05/21/Hive原理案例及搭建/" itemprop="url">Hive原理案例及搭建</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-05-21T08:06:27+08:00">
+                2019-05-21
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/大数据/" itemprop="url" rel="index">
+                    <span itemprop="name">大数据</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2019/05/21/Hive原理案例及搭建/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2019/05/21/Hive原理案例及搭建/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  2.2k
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  11
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="Hive搭建"><a href="#Hive搭建" class="headerlink" title="Hive搭建"></a>Hive搭建</h2><h3 id="in-memory-derby"><a href="#in-memory-derby" class="headerlink" title="in-memory derby"></a>in-memory derby</h3><p>内存数据库，实际不用</p>
+<h3 id="远程服务器模式"><a href="#远程服务器模式" class="headerlink" title="远程服务器模式"></a>远程服务器模式</h3><ul>
+<li>前面为hadoop部分</li>
+<li>元数据 保存在MySQL</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>namenode 主备</th>
+<th>ZKFC</th>
+<th>datanode</th>
+<th>zookeeper</th>
+<th>JNN</th>
+<th>mysql</th>
+<th>hive Metastore Server</th>
+<th>hive  client</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>node01</td>
+<td>*</td>
+<td>*</td>
+<td></td>
+<td></td>
+<td>*</td>
+<td>*</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>node02</td>
+<td>*</td>
+<td>*</td>
+<td>*</td>
+<td>*</td>
+<td>*</td>
+<td></td>
+<td>*</td>
+<td></td>
+</tr>
+<tr>
+<td>node03</td>
+<td></td>
+<td></td>
+<td>*</td>
+<td>*</td>
+<td>*</td>
+<td></td>
+<td></td>
+<td>*</td>
+</tr>
+<tr>
+<td>node04</td>
+<td></td>
+<td></td>
+<td>*</td>
+<td>*</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>Thrift MetaStore Server</p>
+<h4 id="mysql安装"><a href="#mysql安装" class="headerlink" title="mysql安装"></a>mysql安装</h4><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">解决无包可用，下载地址 http://repo.mysql.com/mysql-community-<span class="keyword">release</span>-el7<span class="number">-5.</span>noarch.rpm</span><br><span class="line">rpm -ivh mysql-community-<span class="keyword">release</span>-el7<span class="number">-5.</span>noarch.rpm</span><br><span class="line">yum <span class="keyword">install</span> -y mysql-<span class="keyword">server</span></span><br></pre></td></tr></table></figure>
+<p>服务mysql启动</p>
+<figure class="highlight crmsh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">service mysqld <span class="literal">start</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">mysql</span><br><span class="line"><span class="keyword">show</span> <span class="keyword">databases</span></span><br><span class="line"><span class="keyword">use</span> mysql</span><br><span class="line"><span class="keyword">show</span> <span class="keyword">tables</span></span><br><span class="line"><span class="keyword">desc</span> <span class="keyword">user</span>;</span><br></pre></td></tr></table></figure>
+<p>修改授权用户密码</p>
+<figure class="highlight lasso"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> Host , User , Password from user;</span><br><span class="line">GRANT <span class="literal">ALL</span> PRIVILEGES <span class="keyword">ON</span> *.* <span class="keyword">TO</span> <span class="string">'root'</span>@<span class="string">'%'</span> IDENTIFIED <span class="keyword">BY</span> <span class="string">'123'</span> <span class="keyword">WITH</span> GRANT OPTION;</span><br><span class="line">delete from user <span class="keyword">where</span> Host != <span class="string">'%'</span>;</span><br><span class="line">flush privileges;</span><br><span class="line"></span><br><span class="line">quit</span><br><span class="line">mysql <span class="params">-uroot</span> <span class="params">-p</span>;</span><br><span class="line"></span><br><span class="line">含义：<span class="literal">ALL</span> PRIVILEGES所有权限，*.*所有库所有表， %任何host  root用户名 <span class="number">123</span>密码</span><br></pre></td></tr></table></figure>
+<h4 id="hive-Metastore-Server"><a href="#hive-Metastore-Server" class="headerlink" title="hive Metastore Server"></a>hive Metastore Server</h4><figure class="highlight crystal"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">服务端需要连接mysql</span><br><span class="line">scp apache-hive-<span class="number">1.2</span>.<span class="number">1</span>-bin.tar.gz mysql-connector-java-<span class="number">5.1</span>.<span class="number">32</span>-bin.jar root@<span class="symbol">node02:</span>/root/</span><br><span class="line">tar zxvf apache-hive-<span class="number">1.2</span>.<span class="number">1</span>-bin.tar.gz</span><br><span class="line">cp mysql-connector-java-<span class="number">5.1</span>.<span class="number">32</span>-bin.jar apache-hive-<span class="number">1.2</span>.<span class="number">1</span>-bin/<span class="class"><span class="keyword">lib</span>/</span></span><br></pre></td></tr></table></figure>
+<p>环境变量</p>
+<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">vi /etc/profile</span><br><span class="line"><span class="builtin-name">export</span> <span class="attribute">HIVE_HOME</span>=/root/apache-hive-1.2.1-bin</span><br><span class="line"><span class="builtin-name">export</span> <span class="attribute">PATH</span>=<span class="variable">$PATH</span>:$ZOOKEEPER_HOME/bin:$HADOOP_HOME/bin:$HADOOP_HOME/sbin:$HIVE_HOME/bin</span><br><span class="line">source  /etc/profile</span><br></pre></td></tr></table></figure>
+<p>配置文件</p>
+<p>参考 <a href="https://cwiki.apache.org/confluence/display/Hive/AdminManual+Configuration" target="_blank" rel="external">https://cwiki.apache.org/confluence/display/Hive/AdminManual+Configuration</a></p>
+<p><a href="https://cwiki.apache.org/confluence/display/Hive/AdminManual+Metastore+Administration" target="_blank" rel="external">https://cwiki.apache.org/confluence/display/Hive/AdminManual+Metastore+Administration</a></p>
+<p><a href="https://cwiki.apache.org/confluence/display/Hive/AdminManual+Metastore+Administration#AdminManualMetastoreAdministration-RemoteMetastoreServer" target="_blank" rel="external">https://cwiki.apache.org/confluence/display/Hive/AdminManual+Metastore+Administration#AdminManualMetastoreAdministration-RemoteMetastoreServer</a></p>
+<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">cd conf/</span><br><span class="line">mv hive-default<span class="selector-class">.xml</span><span class="selector-class">.template</span> hive-site.xml</span><br><span class="line">vi hive-site.xml</span><br><span class="line">从当前行 &lt;configuration&gt;下面一行， 删除到倒数-<span class="number">1</span>行</span><br><span class="line">:.,$-<span class="number">1</span>d</span><br></pre></td></tr></table></figure>
+<figure class="highlight dts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="params">&lt;property&gt;</span>  </span><br><span class="line">  <span class="params">&lt;name&gt;</span>hive.metastore.warehouse.dir<span class="params">&lt;/name&gt;</span>  </span><br><span class="line">  <span class="params">&lt;value&gt;</span><span class="meta-keyword">/user/</span>hive/warehouse<span class="params">&lt;/value&gt;</span>  </span><br><span class="line"><span class="params">&lt;/property&gt;</span>  </span><br><span class="line">   </span><br><span class="line"><span class="params">&lt;property&gt;</span>  </span><br><span class="line">  <span class="params">&lt;name&gt;</span>javax.jdo.option.ConnectionURL<span class="params">&lt;/name&gt;</span>  </span><br><span class="line">  <span class="params">&lt;value&gt;</span>jdbc:mysql:<span class="comment">//node01:3306/hive?createDatabaseIfNotExist=true&lt;/value&gt;  </span></span><br><span class="line"><span class="params">&lt;/property&gt;</span>  </span><br><span class="line">   </span><br><span class="line"><span class="params">&lt;property&gt;</span>  </span><br><span class="line">  <span class="params">&lt;name&gt;</span>javax.jdo.option.ConnectionDriverName<span class="params">&lt;/name&gt;</span>  </span><br><span class="line">  <span class="params">&lt;value&gt;</span>com.mysql.jdbc.Driver<span class="params">&lt;/value&gt;</span>  </span><br><span class="line"><span class="params">&lt;/property&gt;</span>  </span><br><span class="line">   </span><br><span class="line"><span class="params">&lt;property&gt;</span>  </span><br><span class="line">  <span class="params">&lt;name&gt;</span>javax.jdo.option.ConnectionUserName<span class="params">&lt;/name&gt;</span>  </span><br><span class="line">  <span class="params">&lt;value&gt;</span>root<span class="params">&lt;/value&gt;</span>  </span><br><span class="line"><span class="params">&lt;/property&gt;</span>  </span><br><span class="line">   </span><br><span class="line"><span class="params">&lt;property&gt;</span>  </span><br><span class="line">  <span class="params">&lt;name&gt;</span>javax.jdo.option.ConnectionPassword<span class="params">&lt;/name&gt;</span>  </span><br><span class="line">  <span class="params">&lt;value&gt;</span><span class="number">123</span><span class="params">&lt;/value&gt;</span>  </span><br><span class="line"><span class="params">&lt;/property&gt;</span></span><br></pre></td></tr></table></figure>
+<h5 id="启动metastore-server"><a href="#启动metastore-server" class="headerlink" title="启动metastore server"></a>启动metastore server</h5><figure class="highlight ada"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hive <span class="comment">--service metastore</span></span><br></pre></td></tr></table></figure>
+<p>也可使用hiveserver2 beeline方式</p>
+<h4 id="hive-client"><a href="#hive-client" class="headerlink" title="hive  client"></a>hive  client</h4><p>vi hive-site.xml</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="symbol">:</span>.,<span class="variable">$-</span><span class="number">1</span>d</span><br></pre></td></tr></table></figure>
+<p>连接metastore</p>
+<p>环境变量</p>
+<p>./hive</p>
+<figure class="highlight dts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="params">&lt;property&gt;</span>  </span><br><span class="line">  <span class="params">&lt;name&gt;</span>hive.metastore.warehouse.dir<span class="params">&lt;/name&gt;</span>  </span><br><span class="line">  <span class="params">&lt;value&gt;</span><span class="meta-keyword">/user/</span>hive/warehouse<span class="params">&lt;/value&gt;</span>  </span><br><span class="line"><span class="params">&lt;/property&gt;</span>  </span><br><span class="line"> </span><br><span class="line"><span class="params">&lt;property&gt;</span>  </span><br><span class="line">  <span class="params">&lt;name&gt;</span>hive.metastore.local<span class="params">&lt;/name&gt;</span>  </span><br><span class="line">  <span class="params">&lt;value&gt;</span>false<span class="params">&lt;/value&gt;</span>  </span><br><span class="line"><span class="params">&lt;/property&gt;</span>  </span><br><span class="line">  </span><br><span class="line"><span class="params">&lt;property&gt;</span>  </span><br><span class="line">  <span class="params">&lt;name&gt;</span>hive.metastore.uris<span class="params">&lt;/name&gt;</span>  </span><br><span class="line">  <span class="params">&lt;value&gt;</span>thrift:<span class="comment">//node02:9083&lt;/value&gt;  </span></span><br><span class="line"><span class="params">&lt;/property&gt;</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight applescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&lt;<span class="keyword">property</span>&gt;  </span><br><span class="line">  &lt;<span class="built_in">name</span>&gt;hive.metastore.<span class="keyword">local</span>&lt;/<span class="built_in">name</span>&gt;  </span><br><span class="line">  &lt;value&gt;<span class="literal">false</span>&lt;/value&gt;  </span><br><span class="line">&lt;/<span class="keyword">property</span>&gt;  可以去掉,避免waring</span><br><span class="line">Metastore <span class="keyword">is</span> remote.  Note: This <span class="keyword">is</span> no longer needed <span class="keyword">as</span> <span class="keyword">of</span> Hive <span class="number">0.10</span>.  Setting hive.metastore.uri <span class="keyword">is</span> sufficient.</span><br></pre></td></tr></table></figure>
+<p>避免jline报错</p>
+<figure class="highlight crystal"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">cd /opt/sxt/hadoop-<span class="number">2.6</span>.<span class="number">5</span>/share/hadoop/yarn/<span class="class"><span class="keyword">lib</span></span></span><br><span class="line">rm jline-<span class="number">0.9</span>.<span class="number">94</span>.jar</span><br><span class="line">cp /root/apache-hive-<span class="number">1.2</span>.<span class="number">1</span>-bin/<span class="class"><span class="keyword">lib</span>/<span class="title">jline</span>-2.12.<span class="title">jar</span> ./</span></span><br></pre></td></tr></table></figure>
+<p>启动</p>
+<figure class="highlight ebnf"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">hive</span></span><br></pre></td></tr></table></figure>
+<h3 id="hive操作"><a href="#hive操作" class="headerlink" title="hive操作"></a>hive操作</h3><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">create</span> <span class="keyword">table</span> tbl(<span class="keyword">id</span> <span class="built_in">int</span>,age <span class="built_in">int</span>);</span><br><span class="line"><span class="keyword">show</span> <span class="keyword">tables</span>;</span><br></pre></td></tr></table></figure>
+<figure class="highlight n1ql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">insert</span> <span class="keyword">into</span> tbl <span class="keyword">values</span>(<span class="number">1</span>,<span class="number">1</span>);</span><br></pre></td></tr></table></figure>
+<p>Time taken: 175.393 seconds  查看map reduece 执行job状态 <a href="http://node03:8088/cluster" target="_blank" rel="external">http://node03:8088/cluster</a></p>
+<figure class="highlight n1ql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> tbl;</span><br></pre></td></tr></table></figure>
+<p>查看hdfs存储  <a href="http://node01:50070/explorer.html#/user/hive/warehouse/tbl" target="_blank" rel="external">http://node01:50070/explorer.html#/user/hive/warehouse/tbl</a></p>
+<figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hdfs dfs -cat <span class="regexp">/user/</span>hive<span class="regexp">/warehouse/</span>tbl<span class="regexp">/*</span></span><br></pre></td></tr></table></figure>
+<h3 id="hive数据类型"><a href="#hive数据类型" class="headerlink" title="hive数据类型"></a>hive数据类型</h3><p>: primitive_type</p>
+<p>  | array_type   数组</p>
+<p>  | map_type     map类型</p>
+<p>  | struct_type   结构体</p>
+<p>：primitive_type</p>
+<p>  |TINYINT</p>
+<p>  | SMALLINT</p>
+<p>  | INT</p>
+<p>  | BIGINT</p>
+<p>  | BOOLEAN</p>
+<p>  | FLOAT</p>
+<p>  | DOUBLE</p>
+<p>  | STRING</p>
+<p>参考 <a href="https://cwiki.apache.org/confluence/display/Hive/LanguageManual+DDL" target="_blank" rel="external">https://cwiki.apache.org/confluence/display/Hive/LanguageManual+DDL</a></p>
+<p><a href="https://cwiki.apache.org/confluence/display/Hive/LanguageManual+DDL#LanguageManualDDL-CreateTable" target="_blank" rel="external">https://cwiki.apache.org/confluence/display/Hive/LanguageManual+DDL#LanguageManualDDL-CreateTable</a></p>
+<h4 id="创建表"><a href="#创建表" class="headerlink" title="创建表"></a>创建表</h4><h5 id="内部表"><a href="#内部表" class="headerlink" title="内部表"></a>内部表</h5><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">create</span> <span class="keyword">table</span> psn(</span><br><span class="line"><span class="keyword">id</span> <span class="built_in">int</span>,</span><br><span class="line"><span class="keyword">name</span> <span class="keyword">string</span>,</span><br><span class="line">likes <span class="built_in">array</span>&lt;<span class="keyword">string</span>&gt;,</span><br><span class="line">address <span class="keyword">map</span>&lt;<span class="keyword">string</span>,<span class="keyword">string</span>&gt;</span><br><span class="line">)</span><br><span class="line"><span class="keyword">row</span> <span class="keyword">format</span> <span class="keyword">DELIMITED</span></span><br><span class="line"><span class="keyword">FIELDS</span> <span class="keyword">TERMINATED</span> <span class="keyword">BY</span> <span class="string">','</span></span><br><span class="line">COLLECTION ITEMS <span class="keyword">TERMINATED</span> <span class="keyword">BY</span> <span class="string">'-'</span></span><br><span class="line"><span class="keyword">MAP</span> <span class="keyword">KEYS</span> <span class="keyword">TERMINATED</span> <span class="keyword">BY</span> <span class="string">':'</span>;</span><br></pre></td></tr></table></figure>
+<figure class="highlight vim"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">人员表</span><br><span class="line">id,姓名,爱好，住址</span><br><span class="line"><span class="number">1</span>,小明<span class="number">1</span>,<span class="keyword">lol</span>-book-movie,zhejian<span class="variable">g:hangzhou</span>-guangdon<span class="variable">g:shenzhen</span></span><br><span class="line"><span class="number">2</span>,小明<span class="number">2</span>,<span class="keyword">lol</span>-book,zhejian<span class="variable">g:hangzhou</span>-guangdon<span class="variable">g:shenzhen</span></span><br></pre></td></tr></table></figure>
+<h4 id="描述表"><a href="#描述表" class="headerlink" title="描述表"></a>描述表</h4><figure class="highlight stata"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">desc</span> psn;</span><br><span class="line"><span class="keyword">desc</span> formatted psn;</span><br><span class="line"></span><br><span class="line"><span class="keyword">Table</span> <span class="keyword">Type</span>:         	MANAGED_TABLE  内部表</span><br></pre></td></tr></table></figure>
+<h4 id="数据插入"><a href="#数据插入" class="headerlink" title="数据插入"></a>数据插入</h4><p>参考 <a href="https://cwiki.apache.org/confluence/display/Hive/LanguageManual+DML#LanguageManualDML-Loadingfilesintotables" target="_blank" rel="external">https://cwiki.apache.org/confluence/display/Hive/LanguageManual+DML#LanguageManualDML-Loadingfilesintotables</a></p>
+<p>文件导入</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">LOAD</span> <span class="keyword">DATA</span> <span class="keyword">LOCAL</span> INPATH <span class="string">'/root/persondata'</span> <span class="keyword">INTO</span> <span class="keyword">TABLE</span> psn;</span><br></pre></td></tr></table></figure>
+<figure class="highlight cs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">hive&gt; <span class="keyword">select</span> * <span class="keyword">from</span> psn;</span><br><span class="line">OK</span><br><span class="line"><span class="number">1</span>	小明<span class="number">1</span>	[<span class="string">"lol"</span>,<span class="string">"book"</span>,<span class="string">"movie"</span>]	&#123;<span class="string">"zhejiang"</span>:<span class="string">"hangzhou"</span>,<span class="string">"guangdong"</span>:<span class="string">"shenzhen"</span>&#125;</span><br><span class="line"><span class="number">2</span>	小明<span class="number">2</span>	[<span class="string">"lol"</span>,<span class="string">"book"</span>]	&#123;<span class="string">"zhejiang"</span>:<span class="string">"hangzhou"</span>,<span class="string">"guangdong"</span>:<span class="string">"shenzhen"</span>&#125;</span><br></pre></td></tr></table></figure>
+<h5 id="外部表"><a href="#外部表" class="headerlink" title="外部表"></a>外部表</h5><p>persondata为数据txt</p>
+<figure class="highlight arduino"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">hdfs dfs <span class="built_in">mkdir</span> /external_table</span><br><span class="line">hdfs dfs -<span class="built_in">put</span> persondata /external_table/</span><br></pre></td></tr></table></figure>
+<p>创建table</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">create</span> <span class="keyword">EXTERNAL</span> <span class="keyword">table</span>  psn_external(</span><br><span class="line"><span class="keyword">id</span> <span class="built_in">int</span>,</span><br><span class="line"><span class="keyword">name</span> <span class="keyword">string</span>,</span><br><span class="line">likes <span class="built_in">array</span>&lt;<span class="keyword">string</span>&gt;,</span><br><span class="line">address <span class="keyword">map</span>&lt;<span class="keyword">string</span>,<span class="keyword">string</span>&gt;</span><br><span class="line">)</span><br><span class="line"><span class="keyword">row</span> <span class="keyword">format</span> <span class="keyword">DELIMITED</span></span><br><span class="line"><span class="keyword">FIELDS</span> <span class="keyword">TERMINATED</span> <span class="keyword">BY</span> <span class="string">','</span></span><br><span class="line">COLLECTION ITEMS <span class="keyword">TERMINATED</span> <span class="keyword">BY</span> <span class="string">'-'</span></span><br><span class="line"><span class="keyword">MAP</span> <span class="keyword">KEYS</span> <span class="keyword">TERMINATED</span> <span class="keyword">BY</span> <span class="string">':'</span></span><br><span class="line">LOCATION <span class="string">'/external_table'</span>;</span><br></pre></td></tr></table></figure>
+<figure class="highlight oxygene"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> psn_external;</span><br><span class="line"><span class="keyword">desc</span> formatted psn_external;</span><br><span class="line">Table <span class="keyword">Type</span>:         	EXTERNAL_TABLE</span><br></pre></td></tr></table></figure>
+<p>内部：删除元数据，及目录</p>
+<p>外部：只删除元数据，存放目录不会删除</p>
+<h4 id="其他创建表方式"><a href="#其他创建表方式" class="headerlink" title="其他创建表方式"></a>其他创建表方式</h4><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">create</span> <span class="keyword">table</span> <span class="keyword">like</span> <span class="keyword">table</span>;</span><br></pre></td></tr></table></figure>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">create</span> <span class="keyword">table</span> psn2 <span class="keyword">as</span> <span class="keyword">select</span> <span class="keyword">id</span>,<span class="keyword">name</span>,likes <span class="keyword">from</span> psn;</span><br></pre></td></tr></table></figure>
+<h3 id="分区表"><a href="#分区表" class="headerlink" title="分区表"></a>分区表</h3><h4 id="单个字段分区"><a href="#单个字段分区" class="headerlink" title="单个字段分区"></a>单个字段分区</h4><p>按年龄分区</p>
+<figure class="highlight vim"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">id,年龄爱好，住址</span><br><span class="line"><span class="number">1</span>,小明<span class="number">1</span>,<span class="keyword">lol</span>-book-movie,zhejian<span class="variable">g:hangzhou</span>-guangdon<span class="variable">g:shenzhen</span></span><br><span class="line"><span class="number">2</span>,小明<span class="number">2</span>,lofl-book,zhejian<span class="variable">g:hangzhou</span>-guangdon<span class="variable">g:shenzhen</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">create</span> <span class="keyword">table</span> psn_partition(</span><br><span class="line"><span class="keyword">id</span> <span class="built_in">int</span>,</span><br><span class="line"><span class="keyword">name</span> <span class="keyword">string</span>,</span><br><span class="line">likes <span class="built_in">array</span>&lt;<span class="keyword">string</span>&gt;,</span><br><span class="line">address <span class="keyword">map</span>&lt;<span class="keyword">string</span>,<span class="keyword">string</span>&gt;</span><br><span class="line">)</span><br><span class="line">PARTITIONED <span class="keyword">BY</span> (age <span class="built_in">int</span>)</span><br><span class="line"><span class="keyword">row</span> <span class="keyword">format</span> <span class="keyword">DELIMITED</span></span><br><span class="line"><span class="keyword">FIELDS</span> <span class="keyword">TERMINATED</span> <span class="keyword">BY</span> <span class="string">','</span></span><br><span class="line">COLLECTION ITEMS <span class="keyword">TERMINATED</span> <span class="keyword">BY</span> <span class="string">'-'</span></span><br><span class="line"><span class="keyword">MAP</span> <span class="keyword">KEYS</span> <span class="keyword">TERMINATED</span> <span class="keyword">BY</span> <span class="string">':'</span>;</span><br></pre></td></tr></table></figure>
+<p>通过分区指定年龄</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">LOAD</span> <span class="keyword">DATA</span> <span class="keyword">LOCAL</span> INPATH <span class="string">'/root/persondata'</span> <span class="keyword">INTO</span> <span class="keyword">TABLE</span> psn_partition <span class="keyword">partition</span>(age=<span class="number">10</span>);</span><br><span class="line"><span class="keyword">LOAD</span> <span class="keyword">DATA</span> <span class="keyword">LOCAL</span> INPATH <span class="string">'/root/persondata'</span> <span class="keyword">INTO</span> <span class="keyword">TABLE</span> psn_partition <span class="keyword">partition</span>(age=<span class="number">20</span>);</span><br></pre></td></tr></table></figure>
+<h4 id="多个字段分区"><a href="#多个字段分区" class="headerlink" title="多个字段分区"></a>多个字段分区</h4><p>按年龄和性别分区</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">create</span> <span class="keyword">table</span> psn_partition_multi(</span><br><span class="line"><span class="keyword">id</span> <span class="built_in">int</span>,</span><br><span class="line"><span class="keyword">name</span> <span class="keyword">string</span>,</span><br><span class="line">likes <span class="built_in">array</span>&lt;<span class="keyword">string</span>&gt;,</span><br><span class="line">address <span class="keyword">map</span>&lt;<span class="keyword">string</span>,<span class="keyword">string</span>&gt;</span><br><span class="line">)</span><br><span class="line">PARTITIONED <span class="keyword">BY</span> (age <span class="built_in">int</span>,sex <span class="keyword">string</span>)</span><br><span class="line"><span class="keyword">row</span> <span class="keyword">format</span> <span class="keyword">DELIMITED</span></span><br><span class="line"><span class="keyword">FIELDS</span> <span class="keyword">TERMINATED</span> <span class="keyword">BY</span> <span class="string">','</span></span><br><span class="line">COLLECTION ITEMS <span class="keyword">TERMINATED</span> <span class="keyword">BY</span> <span class="string">'-'</span></span><br><span class="line"><span class="keyword">MAP</span> <span class="keyword">KEYS</span> <span class="keyword">TERMINATED</span> <span class="keyword">BY</span> <span class="string">':'</span>;</span><br></pre></td></tr></table></figure>
+<p>通过分区指定年龄、性别</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">LOAD</span> <span class="keyword">DATA</span> <span class="keyword">LOCAL</span> INPATH <span class="string">'/root/persondata'</span> <span class="keyword">INTO</span> <span class="keyword">TABLE</span> psn_partition_multi <span class="keyword">partition</span>(age=<span class="number">10</span>,sex=<span class="string">'boy'</span>);</span><br><span class="line"><span class="keyword">LOAD</span> <span class="keyword">DATA</span> <span class="keyword">LOCAL</span> INPATH <span class="string">'/root/persondata'</span> <span class="keyword">INTO</span> <span class="keyword">TABLE</span> psn_partition_multi <span class="keyword">partition</span>(age=<span class="number">10</span>,sex=<span class="string">'girl'</span>);</span><br><span class="line"><span class="keyword">LOAD</span> <span class="keyword">DATA</span> <span class="keyword">LOCAL</span> INPATH <span class="string">'/root/persondata'</span> <span class="keyword">INTO</span> <span class="keyword">TABLE</span> psn_partition_multi <span class="keyword">partition</span>(age=<span class="number">20</span>,sex=<span class="string">'girl'</span>);</span><br></pre></td></tr></table></figure>
+<h5 id="删除分区"><a href="#删除分区" class="headerlink" title="删除分区"></a>删除分区</h5><p>参考文档 <a href="https://cwiki.apache.org/confluence/display/Hive/LanguageManual+DDL#LanguageManualDDL-DropPartitions" target="_blank" rel="external">https://cwiki.apache.org/confluence/display/Hive/LanguageManual+DDL#LanguageManualDDL-DropPartitions</a></p>
+<p>10和20的girl二级分区都删掉</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">ALTER</span> <span class="keyword">TABLE</span> psn_partition_multi <span class="keyword">DROP</span> <span class="keyword">PARTITION</span> (sex=<span class="string">'girl'</span>);</span><br></pre></td></tr></table></figure>
+<h5 id="添加分区"><a href="#添加分区" class="headerlink" title="添加分区"></a>添加分区</h5><p>必须指定第一级分区年龄</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">ALTER</span> <span class="keyword">TABLE</span> psn_partition_multi <span class="keyword">ADD</span> <span class="keyword">PARTITION</span> (age=<span class="number">10</span>,sex=<span class="string">'girl'</span>);</span><br></pre></td></tr></table></figure>
+<h3 id="DML"><a href="#DML" class="headerlink" title="DML"></a>DML</h3><h4 id="from-insert-select方式"><a href="#from-insert-select方式" class="headerlink" title="from insert select方式"></a>from insert select方式</h4><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">create</span> <span class="keyword">table</span> psn_copy <span class="keyword">like</span> psn;</span><br></pre></td></tr></table></figure>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">FROM psn</span><br><span class="line"><span class="keyword">INSERT</span> OVERWRITE <span class="keyword">TABLE</span> psn_copy</span><br><span class="line"><span class="keyword">SELECT</span> <span class="keyword">id</span>,<span class="keyword">name</span>,likes,address;</span><br></pre></td></tr></table></figure>
+<h3 id="Hive-Beeline"><a href="#Hive-Beeline" class="headerlink" title="Hive Beeline"></a>Hive Beeline</h3><h4 id="hiveserver2"><a href="#hiveserver2" class="headerlink" title="hiveserver2"></a>hiveserver2</h4><p>node02</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hiveserver2</span><br></pre></td></tr></table></figure>
+<h4 id="beeline"><a href="#beeline" class="headerlink" title="beeline"></a>beeline</h4><p>node03</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">beeline</span><br></pre></td></tr></table></figure>
+<p>生产环境用 用户名、密码不校验</p>
+<figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">!connect <span class="string">jdbc:</span><span class="string">hive2:</span><span class="comment">//node02:10000/default; root 123</span></span><br><span class="line"></span><br><span class="line">show tables;</span><br></pre></td></tr></table></figure>
+<figure class="highlight jboss-cli"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">0: jdbc<span class="function">:hive2</span>:<span class="string">//node02</span><span class="function">:10000</span>/default&gt; select * from psn;</span><br><span class="line">+<span class="params">---------</span>+<span class="params">-----------</span>+<span class="params">-------------------------</span>+<span class="params">-------------------------------------------------</span>+--+</span><br><span class="line">| psn.id  | psn.name  |        psn.likes        |                   psn.address                   |</span><br><span class="line">+<span class="params">---------</span>+<span class="params">-----------</span>+<span class="params">-------------------------</span>+<span class="params">-------------------------------------------------</span>+--+</span><br><span class="line">| 1       | 小明1       | [<span class="string">"lol"</span>,<span class="string">"book"</span>,<span class="string">"movie"</span>]  | &#123;<span class="string">"zhejiang"</span>:<span class="string">"hangzhou"</span>,<span class="string">"guangdong"</span>:<span class="string">"shenzhen"</span>&#125;  |</span><br><span class="line">| 2       | 小明2       | [<span class="string">"lol"</span>,<span class="string">"book"</span>]          | &#123;<span class="string">"zhejiang"</span>:<span class="string">"hangzhou"</span>,<span class="string">"guangdong"</span>:<span class="string">"shenzhen"</span>&#125;  |</span><br><span class="line">+<span class="params">---------</span>+<span class="params">-----------</span>+<span class="params">-------------------------</span>+<span class="params">-------------------------------------------------</span>+--+</span><br><span class="line">2 rows selected <span class="params">(3.391 seconds)</span></span><br></pre></td></tr></table></figure>
+<p>退出</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">!quit</span><br></pre></td></tr></table></figure>
+<h3 id="hive-jdbc-demo"><a href="#hive-jdbc-demo" class="headerlink" title="hive jdbc demo"></a>hive jdbc demo</h3><p>参考hivedemo</p>
+<figure class="highlight gradle"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> HiveJdbcClient &#123;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">private</span> <span class="keyword">static</span> String driverName = <span class="string">"org.apache.hive.jdbc.HiveDriver"</span>;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> main(String[] args) <span class="keyword">throws</span> SQLException &#123;</span><br><span class="line">		<span class="keyword">try</span> &#123;</span><br><span class="line">			<span class="keyword">Class</span>.forName(driverName);</span><br><span class="line">		&#125; <span class="keyword">catch</span> (ClassNotFoundException e) &#123;</span><br><span class="line">			e.printStackTrace();</span><br><span class="line">		&#125;</span><br><span class="line"></span><br><span class="line">		Connection conn = DriverManager.getConnection(<span class="string">"jdbc:hive2://node02:10000/default"</span>, <span class="string">"root"</span>, <span class="string">""</span>);</span><br><span class="line">		Statement stmt = conn.createStatement();</span><br><span class="line">		String sql = <span class="string">"select * from psn limit 5"</span>;</span><br><span class="line">		ResultSet res = stmt.executeQuery(sql);</span><br><span class="line">		<span class="keyword">while</span> (res.<span class="keyword">next</span>()) &#123;</span><br><span class="line">			System.out.<span class="keyword">println</span>(res.getString(<span class="number">1</span>) + <span class="string">"-"</span> + res.getString(<span class="string">"name"</span>));</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="hive-函数"><a href="#hive-函数" class="headerlink" title="hive 函数"></a>hive 函数</h3><h4 id="UDF-用户自定义函数"><a href="#UDF-用户自定义函数" class="headerlink" title="UDF 用户自定义函数"></a>UDF 用户自定义函数</h4><figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> cn.laolian;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> org.apache.hadoop.hive.ql.exec.<span class="type">UDF</span>;</span><br><span class="line"><span class="keyword">import</span> org.apache.hadoop.io.<span class="type">Text</span>;</span><br><span class="line"></span><br><span class="line">public <span class="class"><span class="keyword">class</span> <span class="title">TuoMin</span> <span class="keyword">extends</span> <span class="title">UDF</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">	public <span class="type">Text</span> evaluate(<span class="keyword">final</span> <span class="type">Text</span> s) &#123;</span><br><span class="line">		<span class="keyword">if</span> (s == <span class="literal">null</span>) &#123;</span><br><span class="line">			<span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="type">String</span> str = s.toString().substring(<span class="number">0</span>, <span class="number">3</span>) + <span class="string">"***"</span>;</span><br><span class="line">		<span class="keyword">return</span> <span class="keyword">new</span> <span class="type">Text</span>(str);</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>eclipse 导出jar 包export jar</p>
+<p>node02</p>
+<figure class="highlight ada"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hive <span class="comment">--service metastore</span></span><br></pre></td></tr></table></figure>
+<p>node03</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">hive</span><br><span class="line"></span><br><span class="line">add jar /root/tuomin.jar;</span><br><span class="line"><span class="keyword">create</span> <span class="keyword">temporary</span> <span class="keyword">function</span> tm <span class="keyword">AS</span> <span class="string">'cn.laolian.TuoMin'</span>;</span><br><span class="line"><span class="keyword">select</span> tm(<span class="keyword">name</span>) <span class="keyword">from</span> psn;</span><br></pre></td></tr></table></figure>
+<p>临时函数，当前会话有效</p>
+<figure class="highlight cs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">hive&gt; <span class="function"><span class="keyword">select</span> <span class="title">tm</span>(<span class="params">name</span>) <span class="keyword">from</span> psn</span>;</span><br><span class="line">OK</span><br><span class="line">小明<span class="number">1</span>***</span><br><span class="line">小明<span class="number">2</span>***</span><br></pre></td></tr></table></figure>
+<h4 id="UDAF"><a href="#UDAF" class="headerlink" title="UDAF"></a>UDAF</h4><h4 id="UDTF-一进多出"><a href="#UDTF-一进多出" class="headerlink" title="UDTF 一进多出"></a>UDTF 一进多出</h4><figure class="highlight cs"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">select</span> <span class="title">explode</span>(<span class="params">likes</span>) <span class="keyword">from</span> psn</span>;</span><br></pre></td></tr></table></figure>
+<figure class="highlight asciidoc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">: jdbc:hive2://node02:10000/default&gt;</span> select explode(likes) from psn;</span><br><span class="line"><span class="code">+--------+</span>--+</span><br><span class="line">|  col   |</span><br><span class="line"><span class="code">+--------+</span>--+</span><br><span class="line">| lol    |</span><br><span class="line">| book   |</span><br><span class="line">| movie  |</span><br><span class="line">| lol    |</span><br><span class="line">| book   |</span><br><span class="line"><span class="code">+--------+</span>--+</span><br></pre></td></tr></table></figure>
+<h3 id="hive参数"><a href="#hive参数" class="headerlink" title="hive参数"></a>hive参数</h3><p>打印头信息</p>
+<h4 id="方式一"><a href="#方式一" class="headerlink" title="方式一"></a>方式一</h4><figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">hive</span><br><span class="line"><span class="builtin-name">set</span> hive.cli.print.<span class="attribute">header</span>=<span class="literal">true</span>;</span><br></pre></td></tr></table></figure>
+<figure class="highlight gams"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">set</span>; 进行提示，导出配置</span><br></pre></td></tr></table></figure>
+<h4 id="方式二-启动时设置"><a href="#方式二-启动时设置" class="headerlink" title="方式二 启动时设置"></a>方式二 启动时设置</h4><figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hive --hiveconf hive.cli.print.<span class="attribute">header</span>=<span class="literal">true</span>;</span><br></pre></td></tr></table></figure>
+<p>只在当前会话有效</p>
+<figure class="highlight applescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">hive&gt; select *  <span class="keyword">from</span> psn;</span><br><span class="line">OK</span><br><span class="line">psn.<span class="built_in">id</span>	psn.<span class="built_in">name</span>	psn.likes	psn.address</span><br><span class="line"><span class="number">1</span>	小明<span class="number">1</span>	[<span class="string">"lol"</span>,<span class="string">"book"</span>,<span class="string">"movie"</span>]	&#123;<span class="string">"zhejiang"</span>:<span class="string">"hangzhou"</span>,<span class="string">"guangdong"</span>:<span class="string">"shenzhen"</span>&#125;</span><br><span class="line"><span class="number">2</span>	小明<span class="number">2</span>	[<span class="string">"lol"</span>,<span class="string">"book"</span>]	&#123;<span class="string">"zhejiang"</span>:<span class="string">"hangzhou"</span>,<span class="string">"guangdong"</span>:<span class="string">"shenzhen"</span>&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="方式三-所有会话有效"><a href="#方式三-所有会话有效" class="headerlink" title="方式三 所有会话有效"></a>方式三 所有会话有效</h4><figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">vi .hiverc</span><br><span class="line"></span><br><span class="line">hive.cli.print.<span class="attribute">header</span>=<span class="literal">true</span>;</span><br></pre></td></tr></table></figure>
+<h4 id="历史命令"><a href="#历史命令" class="headerlink" title="历史命令"></a>历史命令</h4><figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="selector-tag">cat</span> <span class="selector-class">.hivehistory</span></span><br></pre></td></tr></table></figure>
+<h3 id="Hive-动态分区"><a href="#Hive-动态分区" class="headerlink" title="Hive 动态分区"></a>Hive 动态分区</h3><p>严格模式：至少保证有一个静态分区</p>
+<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="builtin-name">set</span> hive.exec.dynamic.<span class="attribute">partition</span>=<span class="literal">true</span>;</span><br><span class="line"><span class="builtin-name">set</span> hive.exec.dynamic.partition.<span class="attribute">mode</span>=nostrict;</span><br></pre></td></tr></table></figure>
+<figure class="highlight autohotkey"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vi persondat<span class="built_in">a_daynamic</span>_partition</span><br></pre></td></tr></table></figure>
+<figure class="highlight vim"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">id,姓名，年龄，性别，爱好，住址</span><br><span class="line"><span class="number">1</span>,小明<span class="number">1</span>,<span class="number">10</span>,boy,<span class="keyword">lol</span>-book-movie,zhejian<span class="variable">g:hangzhou</span>-guangdon<span class="variable">g:shenzhen</span></span><br><span class="line"><span class="number">2</span>,小明<span class="number">2</span>,<span class="number">10</span>,man,lofl-book,zhejian<span class="variable">g:hangzhou</span>-guangdon<span class="variable">g:shenzhen</span></span><br><span class="line"><span class="number">3</span>,小明<span class="number">3</span>,<span class="number">20</span>,boy,lofl-book,zhejian<span class="variable">g:hangzhou</span>-guangdon<span class="variable">g:shenzhen</span></span><br><span class="line"><span class="number">2</span>,小明<span class="number">3</span>,<span class="number">20</span>,man,lofl-book,zhejian<span class="variable">g:hangzhou</span>-guangdon<span class="variable">g:shenzhen</span></span><br></pre></td></tr></table></figure>
+<h4 id="原始表"><a href="#原始表" class="headerlink" title="原始表"></a>原始表</h4><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">create</span> <span class="keyword">table</span> psn_dynamic_partition(</span><br><span class="line"><span class="keyword">id</span> <span class="built_in">int</span>,</span><br><span class="line"><span class="keyword">name</span> <span class="keyword">string</span>,</span><br><span class="line">age <span class="built_in">int</span>,</span><br><span class="line">sex <span class="keyword">string</span>,</span><br><span class="line">likes <span class="built_in">array</span>&lt;<span class="keyword">string</span>&gt;,</span><br><span class="line">address <span class="keyword">map</span>&lt;<span class="keyword">string</span>,<span class="keyword">string</span>&gt;</span><br><span class="line">)</span><br><span class="line"><span class="keyword">row</span> <span class="keyword">format</span> <span class="keyword">DELIMITED</span></span><br><span class="line"><span class="keyword">FIELDS</span> <span class="keyword">TERMINATED</span> <span class="keyword">BY</span> <span class="string">','</span></span><br><span class="line">COLLECTION ITEMS <span class="keyword">TERMINATED</span> <span class="keyword">BY</span> <span class="string">'-'</span></span><br><span class="line"><span class="keyword">MAP</span> <span class="keyword">KEYS</span> <span class="keyword">TERMINATED</span> <span class="keyword">BY</span> <span class="string">':'</span>;</span><br></pre></td></tr></table></figure>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">load</span> <span class="keyword">data</span> <span class="keyword">local</span> inpath <span class="string">'/root/persondata_daynamic_partition'</span> <span class="keyword">into</span> <span class="keyword">table</span> psn_dynamic_partition;</span><br></pre></td></tr></table></figure>
+<h4 id="分区表-1"><a href="#分区表-1" class="headerlink" title="分区表"></a>分区表</h4><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">create</span> <span class="keyword">table</span> psn_dynamic_partition_r(</span><br><span class="line"><span class="keyword">id</span> <span class="built_in">int</span>,</span><br><span class="line"><span class="keyword">name</span> <span class="keyword">string</span>,</span><br><span class="line">likes <span class="built_in">array</span>&lt;<span class="keyword">string</span>&gt;,</span><br><span class="line">address <span class="keyword">map</span>&lt;<span class="keyword">string</span>,<span class="keyword">string</span>&gt;</span><br><span class="line">)</span><br><span class="line">PARTITIONED <span class="keyword">BY</span> (age <span class="built_in">int</span> , sex <span class="keyword">string</span>)</span><br><span class="line"><span class="keyword">row</span> <span class="keyword">format</span> <span class="keyword">DELIMITED</span></span><br><span class="line"><span class="keyword">FIELDS</span> <span class="keyword">TERMINATED</span> <span class="keyword">BY</span> <span class="string">','</span></span><br><span class="line">COLLECTION ITEMS <span class="keyword">TERMINATED</span> <span class="keyword">BY</span> <span class="string">'-'</span></span><br><span class="line"><span class="keyword">MAP</span> <span class="keyword">KEYS</span> <span class="keyword">TERMINATED</span> <span class="keyword">BY</span> <span class="string">':'</span>;</span><br></pre></td></tr></table></figure>
+<h4 id="从原始表导入到分区表"><a href="#从原始表导入到分区表" class="headerlink" title="从原始表导入到分区表"></a>从原始表导入到分区表</h4><p>注意age,sex的顺序</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">from psn_dynamic_partition</span><br><span class="line"><span class="keyword">insert</span> overwrite <span class="keyword">table</span> psn_dynamic_partition_r <span class="keyword">partition</span>(age,sex)</span><br><span class="line"><span class="keyword">select</span> <span class="keyword">id</span>,<span class="keyword">name</span>,likes,address,age,sex <span class="keyword">distribute</span> <span class="keyword">by</span> age,sex;</span><br></pre></td></tr></table></figure>
+<h3 id="Hive脚本运行方式"><a href="#Hive脚本运行方式" class="headerlink" title="Hive脚本运行方式"></a>Hive脚本运行方式</h3><figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">hive -e <span class="string">"select * from psn"</span></span><br><span class="line">重定向</span><br><span class="line">hive -e <span class="string">"select * from psn"</span> &gt; aaa</span><br><span class="line">静默输出</span><br><span class="line">hive -S -e <span class="string">"select * from psn"</span> &gt; aaa</span><br></pre></td></tr></table></figure>
+<h4 id="文件脚本"><a href="#文件脚本" class="headerlink" title="文件脚本"></a>文件脚本</h4><figure class="highlight cs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">vi sql</span><br><span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> psn</span><br></pre></td></tr></table></figure>
+<figure class="highlight ebnf"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">hive -f sql</span></span><br></pre></td></tr></table></figure>
+<h3 id="hive-client终端交互"><a href="#hive-client终端交互" class="headerlink" title="hive client终端交互"></a>hive client终端交互</h3><h4 id="hdfs交互"><a href="#hdfs交互" class="headerlink" title="hdfs交互"></a>hdfs交互</h4><figure class="highlight subunit"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">hive&gt; dfs -ls / ;</span><br><span class="line">Found 5 items</span><br><span class="line">drwxr-xr-x   - root supergroup          0 2019<span class="string">-04</span><span class="string">-17</span> 22:08 /data</span><br><span class="line">drwxr-xr-x   - root supergroup          0 2019<span class="string">-06</span><span class="string">-02</span> 19:25 /external_table</span><br><span class="line">-rw-r--r--   2 root supergroup        118 2019<span class="string">-06</span><span class="string">-02</span> 19:10 /persondata</span><br><span class="line">drwx------   - root supergroup          0 2019<span class="string">-06</span><span class="string">-02</span> 11:55 /tmp</span><br><span class="line">drwxr-xr-x   - root supergroup          0 2019<span class="string">-06</span><span class="string">-02</span> 12:06 /user</span><br></pre></td></tr></table></figure>
+<h4 id="linux交互"><a href="#linux交互" class="headerlink" title="linux交互"></a>linux交互</h4><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">hive&gt;</span><span class="bash"> !<span class="built_in">pwd</span>;</span></span><br><span class="line">/root</span><br></pre></td></tr></table></figure>
+<h3 id="Hive优化"><a href="#Hive优化" class="headerlink" title="Hive优化"></a>Hive优化</h3><h4 id="核心思想：hive-SQL-当做Map-Reduce程序去优化"><a href="#核心思想：hive-SQL-当做Map-Reduce程序去优化" class="headerlink" title="核心思想：hive SQL 当做Map Reduce程序去优化"></a>核心思想：hive SQL 当做Map Reduce程序去优化</h4><p>两种不会转化为Mapreduce执行</p>
+<ul>
+<li>select仅查询本表字段</li>
+</ul>
+<figure class="highlight n1ql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> psn;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>select仅对本表字段做条件过滤</li>
+</ul>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> psn <span class="keyword">where</span> <span class="keyword">id</span>=<span class="number">1</span>;</span><br></pre></td></tr></table></figure>
+<h4 id="Explain执行计划"><a href="#Explain执行计划" class="headerlink" title="Explain执行计划"></a>Explain执行计划</h4><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">explain</span> <span class="keyword">select</span> * <span class="keyword">from</span> psn;</span><br><span class="line"><span class="keyword">explain</span> <span class="keyword">extended</span> <span class="keyword">select</span> * <span class="keyword">from</span> psn;</span><br></pre></td></tr></table></figure>
+<h4 id="抓取策略"><a href="#抓取策略" class="headerlink" title="抓取策略"></a>抓取策略</h4><p>这样会执行mapreduce，默认值more</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">set</span> hive.fetch.task.conversion=<span class="keyword">none</span>;</span><br><span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> psn;</span><br></pre></td></tr></table></figure>
+<h4 id="hive运行方式"><a href="#hive运行方式" class="headerlink" title="hive运行方式"></a>hive运行方式</h4><h5 id="本地模式"><a href="#本地模式" class="headerlink" title="本地模式"></a>本地模式</h5><p>本地模式，开发测试用，生产不要用</p>
+<figure class="highlight sqf"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">set</span> hive.<span class="built_in">exec</span>.mode.<span class="built_in">local</span>.auto=<span class="literal">true</span>;</span><br><span class="line"><span class="built_in">select</span> <span class="built_in">count</span>(*) <span class="keyword">from</span>  psn;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>hive.exec.mode.local.inputbytes.max 默认值128M，大于该配置，也会以集群方法运行</li>
+</ul>
+<h4 id="并行计算"><a href="#并行计算" class="headerlink" title="并行计算"></a>并行计算</h4>
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="https://zhouxiaowu.coding.me/2019/05/15/Spring-framwork技术体系目录/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -2750,290 +3140,6 @@ mv aa logs/
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://zhouxiaowu.coding.me/2019/02/23/java-nio常用方法/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="周小伍 Joey">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/xiaowu_avatar.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="xiaowu's blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/02/23/java-nio常用方法/" itemprop="url">java nio常用方法</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-02-23T22:59:24+08:00">
-                2019-02-23
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/java基础/" itemprop="url" rel="index">
-                    <span itemprop="name">java基础</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2019/02/23/java-nio常用方法/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count disqus-comment-count"
-                        data-disqus-identifier="2019/02/23/java-nio常用方法/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-
-          
-
-          
-            <div class="post-wordcount">
-              
-                
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-file-word-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">字数统计&#58;</span>
-                
-                <span title="字数统计">
-                  828
-                </span>
-              
-
-              
-                <span class="post-meta-divider">|</span>
-              
-
-              
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-clock-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
-                
-                <span title="阅读时长">
-                  3
-                </span>
-              
-            </div>
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h1 id="ByteBuffer"><a href="#ByteBuffer" class="headerlink" title="ByteBuffer"></a>ByteBuffer</h1><h2 id="1、实例化"><a href="#1、实例化" class="headerlink" title="1、实例化"></a>1、实例化</h2><p>java.nio.Buffer类是一个抽象类，不能被实例化。Buffer类的直接子类，如ByteBuffer等也是抽象类，所以也不能被实例化。</p>
-<p>但是ByteBuffer类提供了4个静态工厂方法来获得ByteBuffer的实例：</p>
-<table>
-<thead>
-<tr>
-<th>方法</th>
-<th>描述</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>allocate(int capacity)</td>
-<td>从堆空间中分配一个容量大小为capacity的byte数组作为缓冲区的byte数据存储器</td>
-</tr>
-<tr>
-<td>allocateDirect(int capacity)</td>
-<td>是不使用JVM堆栈而是通过操作系统来创建内存块用作缓冲区，它与当前操作系统能够更好的耦合，因此能进一步提高I/O操作速度。但是分配直接缓冲区的系统开销很大，因此只有在缓冲区较大并长期存在，或者需要经常重用时，才使用这种缓冲区</td>
-</tr>
-<tr>
-<td>wrap(byte[] array)</td>
-<td>这个缓冲区的数据会存放在byte数组中，bytes数组或buff缓冲区任何一方中数据的改动都会影响另一方。其实ByteBuffer底层本来就有一个bytes数组负责来保存buffer缓冲区中的数据，通过allocate方法系统会帮你构造一个byte数组</td>
-</tr>
-<tr>
-<td>wrap(byte[] array,<br> int offset, int length)</td>
-<td>在上一个方法的基础上可以指定偏移量和长度，这个offset也就是包装后byteBuffer的position，而length呢就是limit-position的大小，从而我们可以得到limit的位置为length+position(offset)</td>
-</tr>
-</tbody>
-</table>
-<h2 id="2、另外一些常用的方法"><a href="#2、另外一些常用的方法" class="headerlink" title="2、另外一些常用的方法"></a>2、另外一些常用的方法</h2><table>
-<thead>
-<tr>
-<th>方法</th>
-<th>描述</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>limit(), limit(10)等</td>
-<td>其中读取和设置这4个属性的方法的命名和jQuery中的val(),val(10)类似，一个负责get，一个负责set</td>
-</tr>
-<tr>
-<td>reset()</td>
-<td>把position设置成<strong>mark</strong>的值，相当于之前做过一个标记，现在要退回到之前标记的地方</td>
-</tr>
-<tr>
-<td>clear()</td>
-<td>position = 0;limit = capacity;mark = -1; 有点初始化的味道，但是并不影响底层byte数组的内容</td>
-</tr>
-<tr>
-<td>flip()</td>
-<td>limit = position;position = 0;mark = -1; 翻转，也就是让flip之后的position到limit这块区域变成之前的0到position这块，翻转就是将一个处于存数据状态的缓冲区变为一个处于准备取数据的状态</td>
-</tr>
-<tr>
-<td>rewind()</td>
-<td>把position设为0，mark设为-1，不改变limit的值</td>
-</tr>
-<tr>
-<td>remaining()</td>
-<td>return limit - position; 返回limit和position之间相对位置差</td>
-</tr>
-<tr>
-<td>hasRemaining()</td>
-<td>return position &lt; limit返回是否还有未读内容</td>
-</tr>
-<tr>
-<td>compact()</td>
-<td>把从position到limit中的内容移到0到limit-position的区域内，position和limit的取值也分别变成limit-position、capacity。如果先将positon设置到limit，再compact，那么相当于clear()</td>
-</tr>
-<tr>
-<td>get()</td>
-<td>相对读，从position位置读取一个byte，并将position+1，为下次读写作准备</td>
-</tr>
-<tr>
-<td>get(int index)</td>
-<td>绝对读，读取byteBuffer底层的bytes中下标为index的byte，不改变position</td>
-</tr>
-<tr>
-<td>get(byte[] dst, int offset, int length)</td>
-<td>从position位置开始相对读，读length个byte，并写入dst下标从offset到offset+length的区域</td>
-</tr>
-<tr>
-<td>put(byte b)</td>
-<td>相对写，向position的位置写入一个byte，并将postion+1，为下次读写作准备</td>
-</tr>
-<tr>
-<td>put(int index, byte b)</td>
-<td>绝对写，向byteBuffer底层的bytes中下标为index的位置插入byte b，不改变position</td>
-</tr>
-<tr>
-<td>put(ByteBuffer src)</td>
-<td>用相对写，把src中可读的部分（也就是position到limit）写入此byteBuffer</td>
-</tr>
-<tr>
-<td>put(byte[] src, int offset, int length)</td>
-<td>从src数组中的offset到offset+length区域读取数据并使用相对写写入此byteBuffer</td>
-</tr>
-</tbody>
-</table>
-<h3 id="代码参考"><a href="#代码参考" class="headerlink" title="代码参考"></a>代码参考</h3><p><a href="https://github.com/Frankenjoy123/nettystudy" target="_blank" rel="external">https://github.com/Frankenjoy123/nettystudy</a></p>
-<h1 id="java-nio-charset-Charset"><a href="#java-nio-charset-Charset" class="headerlink" title="java.nio.charset.Charset"></a>java.nio.charset.Charset</h1><h2 id="encode-java-nio-CharBuffer"><a href="#encode-java-nio-CharBuffer" class="headerlink" title="encode(java.nio.CharBuffer)"></a>encode(java.nio.CharBuffer)</h2><h1 id="FileChannel"><a href="#FileChannel" class="headerlink" title="FileChannel"></a>FileChannel</h1><h1 id="java-nio-file-Paths"><a href="#java-nio-file-Paths" class="headerlink" title="java.nio.file.Paths"></a>java.nio.file.Paths</h1><p>##get(java.lang.String, java.lang.String…)</p>
-<p>​</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -3088,7 +3194,7 @@ mv aa logs/
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">149</span>
+                  <span class="site-state-item-count">150</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -3163,7 +3269,7 @@ mv aa logs/
     
       <span class="post-meta-item-text">Site words total count&#58;</span>
     
-    <span title="Site words total count">275.8k</span>
+    <span title="Site words total count">276.8k</span>
   
 </div>
 
