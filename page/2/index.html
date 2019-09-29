@@ -293,6 +293,434 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://zhouxiaowu.coding.me/2019/06/08/HBase原理案例及搭建/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="周小伍 Joey">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/xiaowu_avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="xiaowu's blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/06/08/HBase原理案例及搭建/" itemprop="url">HBase原理案例及搭建</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-06-08T11:16:12+08:00">
+                2019-06-08
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/大数据/" itemprop="url" rel="index">
+                    <span itemprop="name">大数据</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2019/06/08/HBase原理案例及搭建/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2019/06/08/HBase原理案例及搭建/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  1.9k
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  8
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="HBase-数据模型"><a href="#HBase-数据模型" class="headerlink" title="HBase 数据模型"></a>HBase 数据模型</h1><table>
+<thead>
+<tr>
+<th>Row   Key</th>
+<th>Time   Stamp</th>
+<th>CF1</th>
+<th>CF2</th>
+<th>CF3</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>11248112</td>
+<td>t6</td>
+<td></td>
+<td>CF2:q1=val1</td>
+<td>CF3:q3=val3</td>
+</tr>
+<tr>
+<td></td>
+<td>t3</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td>t2</td>
+<td>CF1:q2=val2</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h2 id="ROW-KEY"><a href="#ROW-KEY" class="headerlink" title="ROW  KEY"></a>ROW  KEY</h2><ul>
+<li>决定一行数据</li>
+<li>按照字典顺序排序的。</li>
+<li>Row key只能存储64k的字节数据</li>
+</ul>
+<h2 id="Column-Family列族"><a href="#Column-Family列族" class="headerlink" title="Column Family列族"></a>Column Family列族</h2><ul>
+<li><p>HBase表中的每个列都归属于某个列族，列族必须作为表模式(schema)定义的一部分预先给出。如<code>create &#39;tbl&#39;, ‘cf’</code></p>
+</li>
+<li><p>列名以列族作为前缀，<code>cf:name</code></p>
+</li>
+<li><p>权限控制、存储以及调优都是在列族层面进行的；</p>
+</li>
+<li>HBase把同一列族里面的数据存储在同一目录下，由几个文件保存。</li>
+</ul>
+<h2 id="Timestamp时间戳"><a href="#Timestamp时间戳" class="headerlink" title="Timestamp时间戳"></a>Timestamp时间戳</h2><ul>
+<li>在HBase每个cell存储单元对同一份数据有多个版本，根据唯一的时间戳来区分每个版本之间的差异，不同版本的数据按照时间倒序排序，最新的数据版本排在最前面。</li>
+<li>时间戳的类型是 64位整型。</li>
+<li>时间戳可以由HBase(在数据写入时自动)赋值，此时时间戳是精确到毫秒的当前系统时间。</li>
+<li>时间戳也可以由客户显式赋值，如果应用程序要避免数据版本冲突，就必须自己生成具有唯一性的时间戳。</li>
+</ul>
+<h2 id="Cell单元格"><a href="#Cell单元格" class="headerlink" title="Cell单元格"></a>Cell单元格</h2><ul>
+<li><p>由<code>{row key， column(&lt;family&gt; +&lt;qualifier&gt;)， version}</code>唯一确定的单元。</p>
+</li>
+<li><p>cell中的数据是没有类型的，全部是字节码形式存贮。</p>
+</li>
+</ul>
+<h2 id="HLog-WAL-log"><a href="#HLog-WAL-log" class="headerlink" title="HLog(WAL log)"></a>HLog(WAL log)</h2><ul>
+<li><p>HLog文件就是一个普通的Hadoop Sequence File，Sequence File 的Key是HLogKey对象，HLogKey中记录了写入数据的归属信息，除了table和region名字外，同时还包括 sequence number和timestamp，timestamp是” 写入时间”，sequence number的起始值为0，或者是最近一次存入文件系统中sequence number。</p>
+</li>
+<li><p>类似binlog</p>
+</li>
+</ul>
+<h1 id="HBase-架构"><a href="#HBase-架构" class="headerlink" title="HBase 架构"></a>HBase 架构</h1><p><img src="/2019/06/08/HBase原理案例及搭建/01.png" alt="01"></p>
+<h2 id="写流程"><a href="#写流程" class="headerlink" title="写流程"></a>写流程</h2><ul>
+<li>client记录写入数据，到Hlog</li>
+<li>memstore</li>
+<li>memstore达到阈值,写入到store file</li>
+</ul>
+<h2 id="Client"><a href="#Client" class="headerlink" title="Client"></a>Client</h2><ul>
+<li>包含访问HBase的接口并维护cache来加快对HBase的访问</li>
+</ul>
+<h2 id="Zookeeper"><a href="#Zookeeper" class="headerlink" title="Zookeeper"></a>Zookeeper</h2><ul>
+<li><p>保证任何时候，集群中只有一个master</p>
+</li>
+<li><p>存贮所有Region的寻址入口。</p>
+</li>
+<li><p>实时监控Region server的上线和下线信息。并实时通知Master</p>
+</li>
+<li><p>存储HBase的schema和table元数据</p>
+</li>
+</ul>
+<h2 id="Master"><a href="#Master" class="headerlink" title="Master"></a>Master</h2><ul>
+<li><p>为Region server分配region</p>
+</li>
+<li><p>负责Region server的负载均衡</p>
+</li>
+<li><p>发现失效的Region server并重新分配其上的region</p>
+</li>
+<li><p>管理用户对table的增删改操作</p>
+</li>
+</ul>
+<h2 id="RegionServer"><a href="#RegionServer" class="headerlink" title="RegionServer"></a>RegionServer</h2><ul>
+<li><p>Region server维护region，处理对这些region的IO请求</p>
+</li>
+<li><p>Region server负责切分在运行过程中变得过大的region</p>
+</li>
+</ul>
+<h2 id="Region"><a href="#Region" class="headerlink" title="Region"></a>Region</h2><ul>
+<li><p>HBase自动把表水平划分成多个区域(region)，每个region会保存一个表里面某段连续的数据</p>
+</li>
+<li><p>每个表一开始只有一个region，随着数据不断插入表，region不断增大，当增大到一个阀值的时候，region就会等分会两个新的region（裂变）</p>
+</li>
+<li>当table中的行不断增多，就会有越来越多的region。这样一张完整的表被保存在多个Regionserver 上。</li>
+</ul>
+<p><img src="/2019/06/08/HBase原理案例及搭建/02.png" alt="01"></p>
+<ul>
+<li><p>HRegion是HBase中分布式存储和负载均衡的最小单元。最小单元就表示不同的HRegion可以分布在不同的 HRegion server上。</p>
+</li>
+<li><p>HRegion由一个或者多个Store组成，每个store保存一个columns family。</p>
+</li>
+<li><p>每个Strore又由一个memStore和0至多个StoreFile组成。如图：StoreFile以HFile格式保存在HDFS上。</p>
+</li>
+</ul>
+<h2 id="memstore-与-storefile"><a href="#memstore-与-storefile" class="headerlink" title="memstore 与 storefile"></a>memstore 与 storefile</h2><ul>
+<li><p>一个region由多个store组成，一个store对应一个CF（列族）</p>
+</li>
+<li><p>store包括位于内存中的<strong>memstore</strong>和位于磁盘的<strong>storefile</strong>写操作<u>先写入memstore</u>，<u>当memstore中的数据达到某个阈值，hregionserver会启动flashcache进程写入storefile</u>，每次写入形成单独的一个storefile</p>
+</li>
+<li><p><u>当storefile文件的数量增长到一定阈值后，系统会进行合并</u>（minor、major compaction），在合并过程中会进行版本合并和删除工作（majar），形成更大的storefile</p>
+</li>
+<li><p>当一个region所有storefile的大小和数量超过一定阈值后，会把当前的region分割为两个，并由hmaster分配到相应的regionserver服务器，实现负载均衡</p>
+</li>
+<li><p>客户端检索数据，先在memstore找，找不到再找storefile</p>
+</li>
+</ul>
+<p><img src="/2019/06/08/HBase原理案例及搭建/03.png" alt="01"></p>
+<ul>
+<li>SequeceFile的Value是HBase的KeyValue对象，即对应HFile中的KeyValue</li>
+<li>StoreFile 等价于hdfs file</li>
+</ul>
+<h2 id="读顺序"><a href="#读顺序" class="headerlink" title="读顺序"></a>读顺序</h2><ul>
+<li>1.读memstore，没有则下一步</li>
+<li>2.读block cache，没有则下一步</li>
+<li>3.读store file</li>
+</ul>
+<p>写顺序</p>
+<ul>
+<li>1.写memstore，达到阈值，下一步</li>
+<li>2.写store file</li>
+</ul>
+<h1 id="HBase-完全HA分布式搭建"><a href="#HBase-完全HA分布式搭建" class="headerlink" title="HBase 完全HA分布式搭建"></a>HBase 完全HA分布式搭建</h1><table>
+<thead>
+<tr>
+<th></th>
+<th>zookeeper</th>
+<th>master</th>
+<th>region server</th>
+<th>master backup</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>node01</td>
+<td></td>
+<td>*</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>node02</td>
+<td>*</td>
+<td></td>
+<td>*</td>
+<td></td>
+</tr>
+<tr>
+<td>node03</td>
+<td>*</td>
+<td></td>
+<td>*</td>
+<td></td>
+</tr>
+<tr>
+<td>node04</td>
+<td>*</td>
+<td></td>
+<td></td>
+<td>*</td>
+</tr>
+</tbody>
+</table>
+<h3 id="hbase-env-sh-配置"><a href="#hbase-env-sh-配置" class="headerlink" title="hbase-env.sh 配置"></a>hbase-env.sh 配置</h3><p>conf中</p>
+<ul>
+<li>jdk地址</li>
+<li>使用自己配置zk，不适用hbase自带内置的zk</li>
+</ul>
+<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">vi hbase-env.sh</span><br><span class="line"></span><br><span class="line"><span class="builtin-name">export</span> <span class="attribute">JAVA_HOME</span>=/usr/install/jdk/jdk1.8.0_171/</span><br><span class="line"><span class="builtin-name">export</span> <span class="attribute">HBASE_MANAGES_ZK</span>=<span class="literal">false</span></span><br></pre></td></tr></table></figure>
+<h3 id="hbase-site-xml配置"><a href="#hbase-site-xml配置" class="headerlink" title="hbase-site.xml配置"></a>hbase-site.xml配置</h3><ul>
+<li>hbase在hdfs的目录</li>
+<li>是否分布式</li>
+<li>zk地址</li>
+</ul>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">vi hbase-site.xml</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">name</span>&gt;</span>hbase.rootdir<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">value</span>&gt;</span>hdfs://mycluster/hbase<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">name</span>&gt;</span>hbase.cluster.distributed<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">value</span>&gt;</span>true<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">name</span>&gt;</span>hbase.zookeeper.quorum<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">value</span>&gt;</span>node02,node03,node04<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<h3 id="regionservers配置"><a href="#regionservers配置" class="headerlink" title="regionservers配置"></a>regionservers配置</h3><figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">vi</span> regionservers</span><br><span class="line"></span><br><span class="line">node02 node03</span><br></pre></td></tr></table></figure>
+<h3 id="backup-masters配置"><a href="#backup-masters配置" class="headerlink" title="backup-masters配置"></a>backup-masters配置</h3><p>添加 backup-masters</p>
+<figure class="highlight armasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="symbol">vi</span> <span class="keyword">backup-masters</span></span><br><span class="line"><span class="keyword"></span></span><br><span class="line"><span class="keyword">node04</span></span><br></pre></td></tr></table></figure>
+<h3 id="hdfs-site-xml复制"><a href="#hdfs-site-xml复制" class="headerlink" title="hdfs-site.xml复制"></a>hdfs-site.xml复制</h3><figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cp <span class="regexp">/opt/</span>sxt<span class="regexp">/hadoop-2.6.5/</span>etc<span class="regexp">/hadoop/</span>hdfs-site.xml .<span class="regexp">/</span></span><br></pre></td></tr></table></figure>
+<h3 id="环境变量配置"><a href="#环境变量配置" class="headerlink" title="环境变量配置"></a>环境变量配置</h3><figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">vi /etc/profile</span><br><span class="line"></span><br><span class="line"><span class="builtin-name">export</span> <span class="attribute">HBASE_HOME</span>=/root/hbase-0.98.12.1-hadoop2</span><br><span class="line"><span class="builtin-name">export</span> <span class="attribute">PATH</span>=<span class="variable">$PATH</span>:$ZOOKEEPER_HOME/bin:$HADOOP_HOME/bin:$HADOOP_HOME/sbin:$HBASE_HOME/bin</span><br><span class="line"></span><br><span class="line">source /etc/profile</span><br></pre></td></tr></table></figure>
+<p>注意各节点的时间一致</p>
+<h3 id="给其他节点scp一份"><a href="#给其他节点scp一份" class="headerlink" title="给其他节点scp一份"></a>给其他节点scp一份</h3><figure class="highlight elixir"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">scp -r hbase-<span class="number">0</span>.<span class="number">98.12</span>.<span class="number">1</span>-hadoop2 root<span class="variable">@node02</span><span class="symbol">:/root/</span></span><br><span class="line">scp -r hbase-<span class="number">0</span>.<span class="number">98.12</span>.<span class="number">1</span>-hadoop2 root<span class="variable">@node03</span><span class="symbol">:/root/</span></span><br><span class="line">scp -r hbase-<span class="number">0</span>.<span class="number">98.12</span>.<span class="number">1</span>-hadoop2 root<span class="variable">@node04</span><span class="symbol">:/root/</span></span><br></pre></td></tr></table></figure>
+<h3 id="启动start-hbase-sh"><a href="#启动start-hbase-sh" class="headerlink" title="启动start-hbase.sh"></a>启动start-hbase.sh</h3><p>需要提前启动node02、03、04的zk，start-hdfs.sh服务</p>
+<figure class="highlight crmsh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="literal">start</span>-hbase.sh</span><br></pre></td></tr></table></figure>
+<h3 id="验证是否启动成功"><a href="#验证是否启动成功" class="headerlink" title="验证是否启动成功"></a>验证是否启动成功</h3><figure class="highlight dockerfile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">hbase <span class="keyword">shell</span><span class="bash"></span></span><br><span class="line"><span class="bash"><span class="built_in">help</span></span></span><br><span class="line"><span class="bash">create <span class="string">'tbl'</span>,<span class="string">'cf'</span></span></span><br></pre></td></tr></table></figure>
+<figure class="highlight excel"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">hbase(main)<span class="symbol">:023</span><span class="symbol">:0</span>&gt; scan 'tbl'</span><br><span class="line"><span class="built_in">ROW</span>                                <span class="built_in">COLUMN</span>+<span class="built_in">CELL</span></span><br><span class="line"> <span class="number">1111</span>                              <span class="built_in">column</span>=<span class="symbol">cf:ag</span>e, timestamp=<span class="number">1559984836555</span>, <span class="built_in">value</span>=<span class="number">12</span></span><br><span class="line"> <span class="number">1111</span>                              <span class="built_in">column</span>=<span class="symbol">cf:na</span>me, timestamp=<span class="number">1559984734803</span>, <span class="built_in">value</span>=zhangsan</span><br><span class="line"> <span class="number">2222</span>                              <span class="built_in">column</span>=<span class="symbol">cf:se</span>x, timestamp=<span class="number">1559984896283</span>, <span class="built_in">value</span>=boy</span><br><span class="line"><span class="number">2</span> <span class="built_in">row</span>(s) in <span class="number">0.0480</span> seconds</span><br></pre></td></tr></table></figure>
+<figure class="highlight 1c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">get 'tbl','<span class="number">1111</span>'</span><br></pre></td></tr></table></figure>
+<ul>
+<li>数据内容先写到memstore</li>
+<li>执行<code>flush</code>，查看filestore</li>
+</ul>
+<blockquote>
+<p><a href="http://node02:50070/explorer.html#/hbase/data/default/tbl/78a2935308b5f14d4c23a999ee797ed2/cf" target="_blank" rel="external">http://node02:50070/explorer.html#/hbase/data/default/tbl/78a2935308b5f14d4c23a999ee797ed2/cf</a></p>
+</blockquote>
+<figure class="highlight arduino"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">flush</span> <span class="string">'tbl'</span></span><br></pre></td></tr></table></figure>
+<blockquote>
+<p><a href="http://node02:50070/explorer.html#/hbase/data/default/tbl" target="_blank" rel="external">http://node02:50070/explorer.html#/hbase/data/default/tbl</a></p>
+</blockquote>
+<figure class="highlight avrasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="symbol">node01:</span><span class="number">60010</span></span><br></pre></td></tr></table></figure>
+<h1 id="DDL操作"><a href="#DDL操作" class="headerlink" title="DDL操作"></a>DDL操作</h1><h2 id="进入client-shell"><a href="#进入client-shell" class="headerlink" title="进入client shell"></a>进入client shell</h2><figure class="highlight dockerfile"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hbase <span class="keyword">shell</span><span class="bash"></span></span><br></pre></td></tr></table></figure>
+<h2 id="帮助"><a href="#帮助" class="headerlink" title="帮助"></a>帮助</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">help</span></span><br></pre></td></tr></table></figure>
+<h2 id="创建表"><a href="#创建表" class="headerlink" title="创建表"></a>创建表</h2><p>列族数量2到3个</p>
+<figure class="highlight livecodeserver"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">create</span> <span class="string">'tbl'</span>,<span class="string">'cf1'</span>,<span class="string">'cf2'</span></span><br></pre></td></tr></table></figure>
+<h2 id="描述表"><a href="#描述表" class="headerlink" title="描述表"></a>描述表</h2><figure class="highlight axapta"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">desc</span> <span class="string">'tbl'</span></span><br></pre></td></tr></table></figure>
+<h3 id="列表list"><a href="#列表list" class="headerlink" title="列表list"></a>列表list</h3><figure class="highlight applescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">list</span></span><br></pre></td></tr></table></figure>
+<h2 id="删除表"><a href="#删除表" class="headerlink" title="删除表"></a>删除表</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">disable</span> <span class="string">'tbl'</span></span><br><span class="line">drop <span class="string">'tbl'</span></span><br></pre></td></tr></table></figure>
+<h2 id="插入数据"><a href="#插入数据" class="headerlink" title="插入数据"></a>插入数据</h2><figure class="highlight 1c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">put 'tbl','<span class="number">1111</span>','cf:name','zhangsan'</span><br><span class="line">put 'tbl','<span class="number">1111</span>','cf:age','12'</span><br><span class="line">put 'tbl','<span class="number">2222</span>','cf:sex','boy'</span><br></pre></td></tr></table></figure>
+<p>flush数据，memstore立即到store file，到hdfs中</p>
+<figure class="highlight arduino"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">flush</span> <span class="string">'tbl'</span></span><br></pre></td></tr></table></figure>
+<h2 id="查看数据"><a href="#查看数据" class="headerlink" title="查看数据"></a>查看数据</h2><h3 id="查看全表"><a href="#查看全表" class="headerlink" title="查看全表"></a>查看全表</h3><figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">scan</span> <span class="string">'tbl'</span></span><br></pre></td></tr></table></figure>
+<h3 id="查看单条"><a href="#查看单条" class="headerlink" title="查看单条"></a>查看单条</h3><figure class="highlight 1c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">get 'tbl','<span class="number">1111</span>'</span><br></pre></td></tr></table></figure>
+<h3 id="溢写数据"><a href="#溢写数据" class="headerlink" title="溢写数据"></a>溢写数据</h3><p><code>hbase shell</code>执行</p>
+<figure class="highlight arduino"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">flush</span> <span class="string">'eventlog'</span></span><br></pre></td></tr></table></figure>
+<h3 id="查看hdfs的存储文件"><a href="#查看hdfs的存储文件" class="headerlink" title="查看hdfs的存储文件"></a>查看hdfs的存储文件</h3><p>hdfs查看目录 /hbase/data/default/eventlog/43169c43dc06d3e24836e3291149f8e5/log</p>
+<p>直接服务器执行</p>
+<figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hbase hfile -p -f <span class="regexp">/hbase/</span>data<span class="regexp">/default/</span>eventlog<span class="regexp">/43169c43dc06d3e24836e3291149f8e5/</span>log<span class="regexp">/9bb18168d5e2437491a5adeaae62f864</span></span><br></pre></td></tr></table></figure>
+<h1 id="hbase-java实战"><a href="#hbase-java实战" class="headerlink" title="hbase java实战"></a>hbase java实战</h1><h2 id="表创建"><a href="#表创建" class="headerlink" title="表创建"></a>表创建</h2><figure class="highlight haxe"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> void createTable() &#123;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">try</span> &#123;</span><br><span class="line">		Configuration conf = <span class="keyword">new</span> <span class="type">Configuration</span>();</span><br><span class="line">		conf.<span class="keyword">set</span>(<span class="string">"hbase.zookeeper.quorum"</span>, <span class="string">"node02,node03,node04"</span>);</span><br><span class="line">		admin = <span class="keyword">new</span> <span class="type">HBaseAdmin</span>(conf);</span><br><span class="line"></span><br><span class="line">		HTableDescriptor desc = <span class="keyword">new</span> <span class="type">HTableDescriptor</span>(tableName);</span><br><span class="line">		HColumnDescriptor columnDescriptor = <span class="keyword">new</span> <span class="type">HColumnDescriptor</span>(<span class="string">"cf"</span>);</span><br><span class="line">		desc.addFamily(columnDescriptor);</span><br><span class="line">		admin.createTable(desc);</span><br><span class="line"></span><br><span class="line">		<span class="keyword">if</span> (admin != <span class="literal">null</span>) &#123;</span><br><span class="line">			admin.close();</span><br><span class="line">		&#125;</span><br><span class="line"></span><br><span class="line">	&#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">		<span class="comment">// <span class="doctag">TODO:</span> handle exception</span></span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="插入"><a href="#插入" class="headerlink" title="插入"></a>插入</h2><figure class="highlight arduino"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">void</span> insertTable() &#123;</span><br><span class="line"></span><br><span class="line">	<span class="built_in">try</span> &#123;</span><br><span class="line">		Configuration conf = <span class="keyword">new</span> Configuration();</span><br><span class="line">		conf.set(<span class="string">"hbase.zookeeper.quorum"</span>, <span class="string">"node02,node03,node04"</span>);</span><br><span class="line"></span><br><span class="line">		HTable hTable = <span class="keyword">new</span> HTable(conf, tableName);</span><br><span class="line"></span><br><span class="line">		Put <span class="built_in">put</span> = <span class="keyword">new</span> Put(<span class="string">"1111"</span>.getBytes());</span><br><span class="line">		<span class="built_in">put</span>.add(<span class="string">"cf"</span>.getBytes(), <span class="string">"name"</span>.getBytes(), <span class="string">"zhangsan"</span>.getBytes());</span><br><span class="line">		<span class="built_in">put</span>.add(<span class="string">"cf"</span>.getBytes(), <span class="string">"age"</span>.getBytes(), <span class="string">"12"</span>.getBytes());</span><br><span class="line">		<span class="built_in">put</span>.add(<span class="string">"cf"</span>.getBytes(), <span class="string">"sex"</span>.getBytes(), <span class="string">"boy"</span>.getBytes());</span><br><span class="line">		hTable.<span class="built_in">put</span>(<span class="built_in">put</span>);</span><br><span class="line"></span><br><span class="line">		<span class="built_in">if</span> (admin != null) &#123;</span><br><span class="line">			admin.<span class="built_in">close</span>();</span><br><span class="line">		&#125;</span><br><span class="line"></span><br><span class="line">	&#125; <span class="built_in">catch</span> (Exception e) &#123;</span><br><span class="line">		<span class="comment">// <span class="doctag">TODO:</span> handle exception</span></span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="查询"><a href="#查询" class="headerlink" title="查询"></a>查询</h2><figure class="highlight processing"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line">	<span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">void</span> getTable() &#123;</span><br><span class="line"></span><br><span class="line">		<span class="keyword">try</span> &#123;</span><br><span class="line">			Configuration conf = <span class="keyword">new</span> Configuration();</span><br><span class="line">			conf.<span class="built_in">set</span>(<span class="string">"hbase.zookeeper.quorum"</span>, <span class="string">"node02,node03,node04"</span>);</span><br><span class="line"></span><br><span class="line">			HTable hTable = <span class="keyword">new</span> HTable(conf, tableName);</span><br><span class="line"></span><br><span class="line">			Get <span class="built_in">get</span> = <span class="keyword">new</span> Get(<span class="string">"1111"</span>.getBytes());</span><br><span class="line">			<span class="comment">// define return columns in family</span></span><br><span class="line">			<span class="built_in">get</span>.addColumn(<span class="string">"cf"</span>.getBytes(), <span class="string">"name"</span>.getBytes());</span><br><span class="line">			<span class="built_in">get</span>.addColumn(<span class="string">"cf"</span>.getBytes(), <span class="string">"age"</span>.getBytes());</span><br><span class="line">			<span class="built_in">get</span>.addColumn(<span class="string">"cf"</span>.getBytes(), <span class="string">"sex"</span>.getBytes());</span><br><span class="line"></span><br><span class="line">			Result result = hTable.<span class="built_in">get</span>(<span class="built_in">get</span>);</span><br><span class="line">			Cell cell = result.getColumnLatestCell(<span class="string">"cf"</span>.getBytes(), <span class="string">"name"</span>.getBytes());</span><br><span class="line">			Cell cell2 = result.getColumnLatestCell(<span class="string">"cf"</span>.getBytes(), <span class="string">"age"</span>.getBytes());</span><br><span class="line">			Cell cell3 = result.getColumnLatestCell(<span class="string">"cf"</span>.getBytes(), <span class="string">"sex"</span>.getBytes());</span><br><span class="line"><span class="comment">//			System.out.println(new String( cell.getValue()));</span></span><br><span class="line">			System.out.<span class="built_in">println</span>(<span class="keyword">new</span> <span class="keyword">String</span>(CellUtil.cloneValue(cell)));</span><br><span class="line">			System.out.<span class="built_in">println</span>(<span class="keyword">new</span> <span class="keyword">String</span>(CellUtil.cloneValue(cell2)));</span><br><span class="line">			System.out.<span class="built_in">println</span>(<span class="keyword">new</span> <span class="keyword">String</span>(CellUtil.cloneValue(cell3)));</span><br><span class="line"></span><br><span class="line">			<span class="keyword">if</span> (admin != <span class="keyword">null</span>) &#123;</span><br><span class="line">				admin.close();</span><br><span class="line">			&#125;</span><br><span class="line"></span><br><span class="line">		&#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">			<span class="comment">// <span class="doctag">TODO:</span> handle exception</span></span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br></pre></td></tr></table></figure>
+<h1 id="Hbase出现ServerNotRunningYetException的解决方案"><a href="#Hbase出现ServerNotRunningYetException的解决方案" class="headerlink" title="Hbase出现ServerNotRunningYetException的解决方案"></a>Hbase出现ServerNotRunningYetException的解决方案</h1><p>因为hadoop处在安全模式下。所以hbase的操作会出现异常。</p>
+<figure class="highlight ebnf"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">hadoop dfsadmin -safemode leave</span></span><br></pre></td></tr></table></figure>
+<h1 id="hbase-shell中使用list命令报错"><a href="#hbase-shell中使用list命令报错" class="headerlink" title="hbase shell中使用list命令报错"></a>hbase shell中使用list命令报错</h1><blockquote>
+<p><a href="https://blog.csdn.net/hll19950830/article/details/80022676" target="_blank" rel="external">https://blog.csdn.net/hll19950830/article/details/80022676</a></p>
+</blockquote>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="https://zhouxiaowu.coding.me/2019/05/21/Hive原理案例及搭建/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -2854,297 +3282,11 @@ mv aa logs/
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://zhouxiaowu.coding.me/2019/02/26/使用Spring5的Webflux开发Reactive应用（SSE-、Websocket/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="周小伍 Joey">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/xiaowu_avatar.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="xiaowu's blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/02/26/使用Spring5的Webflux开发Reactive应用（SSE-、Websocket/" itemprop="url">使用Spring5的Webflux开发Reactive应用（SSE 、Websocket)</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-02-26T10:34:15+08:00">
-                2019-02-26
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Spring/" itemprop="url" rel="index">
-                    <span itemprop="name">Spring</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2019/02/26/使用Spring5的Webflux开发Reactive应用（SSE-、Websocket/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count disqus-comment-count"
-                        data-disqus-identifier="2019/02/26/使用Spring5的Webflux开发Reactive应用（SSE-、Websocket/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-
-          
-
-          
-            <div class="post-wordcount">
-              
-                
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-file-word-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">字数统计&#58;</span>
-                
-                <span title="字数统计">
-                  4.9k
-                </span>
-              
-
-              
-                <span class="post-meta-divider">|</span>
-              
-
-              
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-clock-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
-                
-                <span title="阅读时长">
-                  21
-                </span>
-              
-            </div>
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>对 Java 开发者来说，2017 年 9 月是个热闹的月份，Java SE 9、Java EE 8 相继发布，而 Spring 也在这段时间，发布了 5.0 正式版本。</p>
-<p>身为 Java 开发者，对于 Spring 框架并不陌生。Spring 在 Rod Johnson 十几年前一个人单挑 J2EE 体系开始，到十年前开始大行其道至今，基本上已是 Java 开发领域的事实标准了。</p>
-<p>Spring 5 中最重要改动是把反应式编程的思想应用到了框架的各个方面，Spring 5 的反应式编程以 Reactor 库为基础。Spring 5 框架所包含的内容很多，这里只重点介绍其中新增的 WebFlux 模块。我们可以使用 WebFlux 创建高性能的 Web 应用和客户端。本文对 WebFlux 模块进行了详细介绍，包括其中的 HTTP、服务器推送事件（SSE）和 WebSocket 支持。</p>
-<h1 id="WebFlux-简介"><a href="#WebFlux-简介" class="headerlink" title="WebFlux 简介"></a>WebFlux 简介</h1><p>WebFlux 模块的名称是 spring-webflux，名称中的 Flux 来源于 Reactor 中的类 Flux。该模块中包含了对反应式 HTTP、服务器推送事件和 WebSocket 的客户端和服务器端的支持。<br>对于开发人员来说，比较重要的是服务器端的开发，这也是本文的重点。在服务器端，WebFlux 支持两种不同的编程模型：第一种是 Spring MVC 中使用的基于 Java 注解的方式；第二种是基于 Java 8 的 Lambda 表达式的函数式编程模型。这两种编程模型只是在代码编写方式上存在不同。它们运行在同样的反应式底层架构之上，因此在运行时是相同的。WebFlux 需要底层提供运行时的支持，WebFlux 可以运行在支持 Servlet 3.1 非阻塞 IO API 的 Servlet 容器上，或是其他异步运行时环境，如 Netty 和 Undertow。</p>
-<p><a href="https://spring.io/img/homepage/diagram-boot-reactor.svg" target="_blank" rel="external"><img src="https://spring.io/img/homepage/diagram-boot-reactor.svg" alt="img"></a><br>Spring Boot 2 是基于 Spring 5 的，其中一个比较大的更新就在于支持包括 spring-webflux 和响应式的 spring-data 在内的响应式模块，下边的例子我们就用 Spring Boot 2 在进行搭建。</p>
-<p>本文从三个方面对 WebFlux 进行介绍。首先是使用经典的基于 Java 注解的编程模型来进行开发，其次是使用 WebFlux 新增的函数式编程模型来进行开发，最后介绍 WebFlux 应用的测试。通过这样循序渐进的方式让读者了解 WebFlux 应用开发的细节。</p>
-<h1 id="Java-注解编程模型"><a href="#Java-注解编程模型" class="headerlink" title="Java 注解编程模型"></a>Java 注解编程模型</h1><p>基于 Java 注解的编程模型，对于使用过 Spring MVC 的人来说是再熟悉不过的。在 WebFlux 应用中使用同样的模式，容易理解和上手。我们先从最经典的 Hello World 开始说明。</p>
-<p>我们通过 Spring Initializ 创建一个 Spring Boot 工程，因为目前我们还不涉及 DAO 层，所以只选择 Reactive Web 就行了<br><a href="https://ws4.sinaimg.cn/large/006tNc79ly1fqovuf2vr9j31as0v6n2m.jpg" target="_blank" rel="external"><img src="https://ws4.sinaimg.cn/large/006tNc79ly1fqovuf2vr9j31as0v6n2m.jpg" alt="img"></a></p>
-<p>也可以使用网页版的 <a href="https://start.spring.io/" target="_blank" rel="external">https://start.spring.io</a> 来创建项目：<br><a href="https://ws3.sinaimg.cn/large/006tNc79ly1fqow11gjudj31kw0v8gwj.jpg" target="_blank" rel="external"><img src="https://ws3.sinaimg.cn/large/006tNc79ly1fqow11gjudj31kw0v8gwj.jpg" alt="img"></a></p>
-<p>创建后的项目 POM 中，包含下边的依赖，即表示基于 Spring WebFlux：</p>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-starter-webflux<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
-<p>创建 Controller 类<code>HelloController</code>，仅提供一个 Endpoint<code>/hello</code>：</p>
-<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@RestController</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">HelloController</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@GetMapping(<span class="meta-string">"/hello"</span>)</span></span><br><span class="line">    <span class="keyword">public</span> Mono&lt;String&gt; sayHello()&#123;</span><br><span class="line">        <span class="keyword">return</span> Mono.just(<span class="string">"Hello World!"</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>我们启动应用，通过访问 <a href="http://localhost:8080/hello" target="_blank" rel="external">http://localhost:8080/hello</a> 可以得到返回值<code>Hello World!</code>。</p>
-<p>通过这个简单的 Hello World 示例我们可以看到使用 WebFlux 与 Spring MVC 的不同在于，WebFlux 所使用的类型是与反应式编程相关的 Flux 和 Mono 等，而不是简单的对象。对于简单的 Hello World 示例来说，这两者之间并没有什么太大的差别。对于复杂的应用来说，反应式编程和负压的优势会体现出来，可以带来整体的性能的提升。</p>
-<h2 id="RESTful-API"><a href="#RESTful-API" class="headerlink" title="RESTful API"></a>RESTful API</h2><p>简单的 Hello World 示例并不足以说明 WebFlux 的用法。在下面的小节中，本文将介绍其他具体的实例。先从 RESTful API 开始说起。RESTful API 在 Web 服务器端应用中占据了很大的一部分。我们通过一个具体的实例来说明如何使用 WebFlux 来开发 RESTful API，该 RESTful API 用来对用户数据进行基本的 CRUD 操作。</p>
-<p>作为领域对象的<code>User</code>类中包含了<code>id</code>、<code>name</code>和<code>email</code>三个基本的属性。</p>
-<figure class="highlight less"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">@Data</span> <span class="comment">// 生成无参构造方法 getter setter hashCode equals toString</span></span><br><span class="line"><span class="variable">@AllArgsConstructor</span> <span class="comment">// 生成所有参数构造方法</span></span><br><span class="line"><span class="variable">@NoArgsConstructor</span> <span class="comment">// @AllArgsConstructor 会导致 @Data 不生成无参构造方法，需要手动添加 @NoArgsConstructor，如果没有无参构造方法，可能会导致比如 com.fasterxml.jackson 在序列化处理时报错</span></span><br><span class="line">public class User &#123;</span><br><span class="line"></span><br><span class="line">    <span class="selector-tag">private</span> <span class="selector-tag">Integer</span> <span class="selector-tag">id</span>;</span><br><span class="line"></span><br><span class="line">    <span class="selector-tag">private</span> <span class="selector-tag">String</span> <span class="selector-tag">name</span>;</span><br><span class="line"></span><br><span class="line">    <span class="selector-tag">private</span> <span class="selector-tag">String</span> <span class="selector-tag">email</span>;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>为了对<code>User</code>类进行操作，我们需要提供服务类<code>UserService</code>。<code>UserService</code>使用一个 Map 来保存所有用户的信息，并不是一个持久化的实现，这对于示例应用来说已经足够了。</p>
-<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Service</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">UserService</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> Map&lt;Integer, User&gt; <span class="keyword">data</span> = new ConcurrentHashMap&lt;&gt;();</span><br><span class="line"></span><br><span class="line">    <span class="meta">@PostConstruct</span></span><br><span class="line">    <span class="keyword">private</span> void init() &#123;</span><br><span class="line">        <span class="keyword">data</span>.put(<span class="number">1</span>, new User(<span class="number">1</span>, <span class="string">"张三"</span>, <span class="string">"z3@qq.com"</span>));</span><br><span class="line">        <span class="keyword">data</span>.put(<span class="number">2</span>, new User(<span class="number">2</span>, <span class="string">"李四"</span>, <span class="string">"l4@qq.com"</span>));</span><br><span class="line">        <span class="keyword">data</span>.put(<span class="number">3</span>, new User(<span class="number">3</span>, <span class="string">"王五"</span>, <span class="string">"w5@qq.com"</span>));</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> Flux&lt;User&gt; list() &#123;</span><br><span class="line">        <span class="keyword">return</span> Flux.fromIterable(<span class="keyword">this</span>.<span class="keyword">data</span>.values());</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> Flux&lt;User&gt; getByIds(Flux&lt;Integer&gt; ids) &#123;</span><br><span class="line">        <span class="keyword">return</span> ids.flatMap(id -&gt; Mono.justOrEmpty(<span class="keyword">this</span>.<span class="keyword">data</span>.<span class="keyword">get</span>(id)));</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> Mono&lt;User&gt; getById(Integer id) &#123;</span><br><span class="line">        <span class="keyword">return</span> Mono.justOrEmpty(<span class="keyword">this</span>.<span class="keyword">data</span>.<span class="keyword">get</span>(id))</span><br><span class="line">                .switchIfEmpty(Mono.error(new ResourceNotFoundException()));</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> Flux&lt;User&gt; createOrUpdate(Flux&lt;User&gt; users) &#123;</span><br><span class="line">        <span class="keyword">return</span> users.doOnNext(user -&gt; <span class="keyword">this</span>.<span class="keyword">data</span>.put(user.getId(), user));</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> Mono&lt;User&gt; createOrUpdate(User user) &#123;</span><br><span class="line">        <span class="keyword">this</span>.<span class="keyword">data</span>.put(user.getId(), user);</span><br><span class="line">        <span class="keyword">return</span> Mono.just(user);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> Mono&lt;User&gt; delete(Integer id) &#123;</span><br><span class="line">        <span class="keyword">return</span> Mono.justOrEmpty(<span class="keyword">this</span>.<span class="keyword">data</span>.remove(id));</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p><code>UserController</code>是具体的 Spring MVC 控制器类，它使用<code>UserService</code>来完成具体的功能。<code>UserController</code>中使用了注解<code>@ExceptionHandler</code>来添加了<code>ResourceNotFoundException</code>异常的处理方法，并返回 404 错误。<code>UserController</code>中的方法都很简单，只是简单地代理给<code>UserService</code>中的对应方法。</p>
-<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@RestController</span></span><br><span class="line"><span class="meta">@RequestMapping(<span class="meta-string">"/user"</span>)</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">UserController</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="keyword">private</span> UserService userService;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@ExceptionHandler(ResourceNotFoundException.class)</span></span><br><span class="line">    <span class="meta">@ResponseStatus(code = HttpStatus.NOT_FOUND, reason = <span class="meta-string">"User not found"</span>)</span></span><br><span class="line">    <span class="keyword">public</span> void notFound()&#123;&#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@GetMapping(<span class="meta-string">""</span>)</span></span><br><span class="line">    <span class="keyword">public</span> Flux&lt;User&gt; list() &#123;</span><br><span class="line">        <span class="keyword">return</span> userService.list();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@GetMapping(<span class="meta-string">"/&#123;id&#125;"</span>)</span></span><br><span class="line">    <span class="keyword">public</span> Mono&lt;User&gt; getById(<span class="meta">@PathVariable</span> Integer id)&#123;</span><br><span class="line">        <span class="keyword">return</span> userService.getById(id);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@PostMapping(<span class="meta-string">""</span>)</span></span><br><span class="line">    <span class="keyword">public</span> Flux&lt;User&gt; create(<span class="meta">@RequestBody</span> Flux&lt;User&gt; users)&#123;</span><br><span class="line">        <span class="keyword">return</span> userService.createOrUpdate(users);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@PutMapping(<span class="meta-string">"/&#123;id&#125;"</span>)</span></span><br><span class="line">    <span class="keyword">public</span> Mono&lt;User&gt; update(<span class="meta">@PathVariable</span> Integer id, <span class="meta">@RequestBody</span> User user)&#123;</span><br><span class="line">        Objects.requireNonNull(user);</span><br><span class="line">        user.setId(id);</span><br><span class="line">        <span class="keyword">return</span> userService.createOrUpdate(user);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@DeleteMapping(<span class="meta-string">"/&#123;id&#125;"</span>)</span></span><br><span class="line">    <span class="keyword">public</span> Mono&lt;User&gt; delete(<span class="meta">@PathVariable</span> Integer id)&#123;</span><br><span class="line">        <span class="keyword">return</span> userService.delete(id);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>我们可以通过访问 <a href="http://127.0.0.1:8080/user" target="_blank" rel="external">http://127.0.0.1:8080/user</a> 获取到用户信息，其他的 CRUD 操作可以自行测试</p>
-<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">[</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="attr">"id"</span>: <span class="number">1</span>,</span><br><span class="line">    <span class="attr">"name"</span>: <span class="string">"张三"</span>,</span><br><span class="line">    <span class="attr">"email"</span>: <span class="string">"z3@qq.com"</span></span><br><span class="line">  &#125;,</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="attr">"id"</span>: <span class="number">2</span>,</span><br><span class="line">    <span class="attr">"name"</span>: <span class="string">"李四"</span>,</span><br><span class="line">    <span class="attr">"email"</span>: <span class="string">"l4@qq.com"</span></span><br><span class="line">  &#125;,</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="attr">"id"</span>: <span class="number">3</span>,</span><br><span class="line">    <span class="attr">"name"</span>: <span class="string">"王五"</span>,</span><br><span class="line">    <span class="attr">"email"</span>: <span class="string">"w5@qq.com"</span></span><br><span class="line">  &#125;</span><br><span class="line">]</span><br></pre></td></tr></table></figure>
-<h2 id="服务器推送事件（SSE）"><a href="#服务器推送事件（SSE）" class="headerlink" title="服务器推送事件（SSE）"></a>服务器推送事件（SSE）</h2><p>服务器推送事件（Server-Sent Events，SSE）允许服务器端不断地推送数据到客户端。相对于 WebSocket 而言，服务器推送事件只支持服务器端到客户端的单向数据传递。虽然功能较弱，但优势在于 SSE 在已有的 HTTP 协议上使用简单易懂的文本格式来表示传输的数据。作为 W3C 的推荐规范，SSE 在浏览器端的支持也比较广泛，除了 IE 之外的其他浏览器都提供了支持。在 IE 上也可以使用 polyfill 库来提供支持。在服务器端来说，SSE 是一个不断产生新数据的流，非常适合于用反应式流来表示。在 WebFlux 中创建 SSE 的服务器端是非常简单的。只需要返回的对象的类型是 Flux，就会被自动按照 SSE 规范要求的格式来发送响应。</p>
-<p>下面的<code>SseController</code>是一个使用 SSE 的控制器的示例。</p>
-<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@RestController</span></span><br><span class="line"><span class="meta">@RequestMapping(<span class="meta-string">"/sse"</span>)</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SseController</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@GetMapping(<span class="meta-string">"/random"</span>)</span></span><br><span class="line">    <span class="keyword">public</span> Flux&lt;ServerSentEvent&lt;Integer&gt;&gt; random() &#123;</span><br><span class="line">        <span class="keyword">return</span> Flux.interval(Duration.ofSeconds(<span class="number">1</span>)) <span class="comment">// 1</span></span><br><span class="line">                .map(seq -&gt; &#123;</span><br><span class="line">                            <span class="keyword">return</span> ServerSentEvent.&lt;Integer&gt;builder() <span class="comment">// 2</span></span><br><span class="line">                                    .event(<span class="string">"random"</span>)</span><br><span class="line">                                    .id(seq.toString())</span><br><span class="line">                                    .<span class="keyword">data</span>(ThreadLocalRandom.current().nextInt())</span><br><span class="line">                                    .build();</span><br><span class="line">                        &#125;</span><br><span class="line">                );</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<ol>
-<li>每 1 秒发出一个自增的 Long 值</li>
-<li>使用<code>ServerSentEvent.Builder</code>来创建<code>ServerSentEvent</code>对象</li>
-</ol>
-<p>在测试 SSE 时，我们只需要使用 curl 来访问即可。</p>
-<figure class="highlight dts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">$ curl http:<span class="comment">//localhost:8080/sse/random</span></span><br><span class="line"><span class="symbol">id:</span><span class="number">0</span></span><br><span class="line"><span class="symbol">event:</span>random</span><br><span class="line"><span class="symbol">data:</span><span class="number">-244762412</span></span><br><span class="line"></span><br><span class="line"><span class="symbol">id:</span><span class="number">1</span></span><br><span class="line"><span class="symbol">event:</span>random</span><br><span class="line"><span class="symbol">data:</span><span class="number">-1757349679</span></span><br><span class="line"></span><br><span class="line"><span class="symbol">id:</span><span class="number">2</span></span><br><span class="line"><span class="symbol">event:</span>random</span><br><span class="line"><span class="symbol">data:</span><span class="number">496598301</span></span><br></pre></td></tr></table></figure>
-<h2 id="WebSocket"><a href="#WebSocket" class="headerlink" title="WebSocket"></a>WebSocket</h2><p>WebSocket 支持客户端与服务器端的双向通讯。当客户端与服务器端之间的交互方式比较复杂时，可以使用 WebSocket。WebSocket 在主流的浏览器上都得到了支持。<br>WebFlux 也对创建 WebSocket 服务器端提供了支持。在服务器端，我们需要实现接口<code>org.springframework.web.reactive.socket.WebSocketHandler</code>来处理 WebSocket 通讯，其<code>handle</code>方法的参数是<code>WebSocketSession</code>对象，可以用来获取客户端信息、接送消息和发送消息。</p>
-<p>下面的<code>EchoHandler</code>对于每个接收到的消息，都会在其前边添加一个前缀<code>Echo -&gt;</code>再发送出去。<code>WebSocketSession</code>的<code>receive()</code>方法的返回值是一个<code>Flux&lt;WebSocketMessage&gt;</code>对象，表示的是接收到的消息流，而<code>send()</code>方法的参数是一个<code>Publisher&lt;WebSocketMessage&gt;</code>对象，表示要发送的消息流。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">EchoHandler</span> <span class="keyword">implements</span> <span class="title">WebSocketHandler</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Mono&lt;Void&gt; <span class="title">handle</span><span class="params">(WebSocketSession session)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> session.send(</span><br><span class="line">                session.receive()</span><br><span class="line">                        .map(msg -&gt; session.textMessage(<span class="string">"Echo -&gt; "</span> + msg.getPayloadAsText())));</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>仅创建一个<code>WebSocketHandler</code>是不够的，我们还需要把它注册到 WebFlux 中。<br>我们再来需要创建一个<code>WebSocketHandlerAdapter</code>对象，该对象负责把 WebSocketHandler 关联到 WebFlux 中。其中我们使用<code>HandlerMapping</code>把<code>EchoHandler</code>映射到<code>/echo</code>端点。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Configuration</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">WebSocketConfiguration</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="meta">@Bean</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> HandlerMapping <span class="title">webSocketMapping</span><span class="params">(EchoHandler echoHandler)</span></span>&#123;</span><br><span class="line">        Map&lt;String, WebSocketHandler&gt; map = <span class="keyword">new</span> HashMap&lt;&gt;(<span class="number">1</span>);</span><br><span class="line">        map.put(<span class="string">"/echo"</span>, echoHandler);</span><br><span class="line"></span><br><span class="line">        SimpleUrlHandlerMapping mapping = <span class="keyword">new</span> SimpleUrlHandlerMapping();</span><br><span class="line">        mapping.setOrder(Ordered.HIGHEST_PRECEDENCE);</span><br><span class="line">        mapping.setUrlMap(map);</span><br><span class="line">        <span class="keyword">return</span> mapping;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Bean</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> WebSocketHandlerAdapter <span class="title">webSocketHandlerAdapter</span><span class="params">()</span></span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> WebSocketHandlerAdapter();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>运行应用之后，可以使用<a href="https://www.websocket.org/echo.html" target="_blank" rel="external">工具</a>来测试该 WebSocket 服务。<br>打开<a href="https://www.websocket.org/echo.html" target="_blank" rel="external">工具页面</a>，然后连接到<code>ws://localhost:8080/echo</code>可以发送消息并查看服务器端返回的结果。<br><a href="https://ws3.sinaimg.cn/large/006tNc79ly1fqoxyc59hfj311g0e5mzr.jpg" target="_blank" rel="external"><img src="https://ws3.sinaimg.cn/large/006tNc79ly1fqoxyc59hfj311g0e5mzr.jpg" alt="img"></a></p>
-<h1 id="函数式编程模型"><a href="#函数式编程模型" class="headerlink" title="函数式编程模型"></a>函数式编程模型</h1><p>前面介绍了基于 Java 注解的编程模型，WebFlux 还支持基于 Lambda 表达式的函数式编程模型。与基于 Java 注解的编程模型相比，函数式编程模型的抽象层次更低，代码编写更灵活，可以满足一些对动态性要求更高的场景。不过在编写时的代码复杂度也较高，学习曲线也较陡。</p>
-<p>目前 Spring Boot 已支持在一个应用中同时使用两种不同的编程模式，我们可以根据实际的需要来选择合适的编程模型。</p>
-<p>在函数式编程模型中，每个请求是由一个函数来处理的， 通过接口<code>org.springframework.web.reactive.function.server.HandlerFunction</code>来表示。<code>HandlerFunction</code>是一个函数式接口，其中只有一个方法，因此可以用 Labmda 表达式来实现该接口：</p>
-<figure class="highlight lisp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Mono&lt;T extends ServerResponse&gt; handle(<span class="name">ServerRequest</span> request)<span class="comment">;</span></span><br></pre></td></tr></table></figure>
-<p>然后通过函数式接口<code>org.springframework.web.reactive.function.server.RouterFunction</code>来为这些<code>HandlerFunction</code>提供路由信息，输入为请求，输出为装在 Mono 里边的<code>Handlerfunction</code></p>
-<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Mono&lt;HandlerFunction&lt;T<span class="meta">&gt;&gt; </span>route(ServerRequest request);</span><br></pre></td></tr></table></figure>
-<p>我们看到，在 WebFlux 中，请求和响应不再是 WebMVC 中的<code>ServletRequest</code>和<code>ServletResponse</code>，而是<code>ServerRequest</code>和<code>ServerResponse</code>。后者是在响应式编程中使用的接口，它们提供了对非阻塞和回压特性的支持，以及 HTTP 消息体与响应式类型 Mono 和 Flux 的转换方法。</p>
-<p>下面我们用函数式的方式开发一个简单的计算器，有<code>add</code>、<code>subtract</code>、<code>multiply</code>和<code>divide</code>四个方法，都是接口<code>HandlerFunction</code>的实现，分别对应加、减、乘、除四种运算。</p>
-<p>对于这个需求，HandlerFunction 很容易写：</p>
-<figure class="highlight d"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">HandlerFunction&lt;ServerResponse&gt; add = request -&gt; ServerResponse.ok()</span><br><span class="line">            .<span class="keyword">body</span>(Mono.just(parseOperand(request, <span class="string">"v1"</span>) + parseOperand(request, <span class="string">"v2"</span>)), Integer.<span class="keyword">class</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">int</span> parseOperand(<span class="keyword">final</span> ServerRequest request, <span class="keyword">final</span> String param) &#123;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> Integer.parseInt(request.queryParam(param).orElse(<span class="string">"0"</span>));</span><br><span class="line">    &#125; <span class="keyword">catch</span> (<span class="keyword">final</span> NumberFormatException e) &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>那么 RouterFunction 为：</p>
-<figure class="highlight cs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">@Bean</span><br><span class="line"><span class="function"><span class="keyword">public</span> RouterFunction&lt;ServerResponse&gt; <span class="title">routerFunction</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> RouterFunctions.route(RequestPredicates.GET(<span class="string">"/add"</span>), <span class="keyword">add</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>启动服务，访问 <a href="http://localhost:8080/add?v1=2&amp;v2=3" target="_blank" rel="external">http://localhost:8080/add?v1=2&amp;v2=3</a> 即计算 2+3 得到返回值<code>5</code>。</p>
-<p>不过这么写在业务逻辑复杂的时候不太好组织，我们通常采用跟 MVC 类似的代码组织方式，将同类业务的 HandlerFunction 放在一个类中，然后在 Java Config 中将 RouterFunction 配置为 Spring 容器的 Bean。我们继续在这个计算器的代码上开发：</p>
-<figure class="highlight livescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line">@Component</span><br><span class="line">public <span class="class"><span class="keyword">class</span> <span class="title">CalculatorHandler</span> &#123;</span></span><br><span class="line"></span><br><span class="line">    public Mono&lt;ServerResponse&gt; add(final ServerRequest request) &#123;</span><br><span class="line">        <span class="keyword">return</span> calculate<span class="function"><span class="params">(request, (v1, v2) -&gt; v1 + v2)</span>;</span></span><br><span class="line"><span class="function">    &#125;</span></span><br><span class="line"><span class="function"></span></span><br><span class="line"><span class="function">    <span class="title">public</span> <span class="title">Mono</span>&lt;<span class="title">ServerResponse</span>&gt; <span class="title">subtract</span><span class="params">(final ServerRequest request)</span> &#123;</span></span><br><span class="line"><span class="function">        <span class="title">return</span> <span class="title">calculate</span><span class="params">(request, (v1, v2) -&gt; v1 - v2)</span>;</span></span><br><span class="line"><span class="function">    &#125;</span></span><br><span class="line"><span class="function"></span></span><br><span class="line"><span class="function">    <span class="title">public</span> <span class="title">Mono</span>&lt;<span class="title">ServerResponse</span>&gt; <span class="title">multiply</span><span class="params">(final ServerRequest request)</span> &#123;</span></span><br><span class="line"><span class="function">        <span class="title">return</span> <span class="title">calculate</span><span class="params">(request, (v1, v2) -&gt; v1 * v2)</span>;</span></span><br><span class="line"><span class="function">    &#125;</span></span><br><span class="line"><span class="function"></span></span><br><span class="line"><span class="function">    <span class="title">public</span> <span class="title">Mono</span>&lt;<span class="title">ServerResponse</span>&gt; <span class="title">divide</span><span class="params">(final ServerRequest request)</span> &#123;</span></span><br><span class="line"><span class="function">        <span class="title">return</span> <span class="title">calculate</span><span class="params">(request, (v1, v2) -&gt; v1 / v2)</span>;</span></span><br><span class="line"><span class="function">    &#125;</span></span><br><span class="line"><span class="function"></span></span><br><span class="line"><span class="function">    <span class="title">private</span> <span class="title">Mono</span>&lt;<span class="title">ServerResponse</span>&gt; <span class="title">calculate</span><span class="params">(final ServerRequest request,</span></span></span><br><span class="line"><span class="function"><span class="params">                                           final BiFunction&lt;Integer, Integer, Integer&gt; calculateFunc)</span> &#123;</span></span><br><span class="line"><span class="function">        <span class="title">final</span> <span class="title">Tuple2</span>&lt;<span class="title">Integer</span>, <span class="title">Integer</span>&gt; <span class="title">operands</span> = <span class="title">extractOperands</span><span class="params">(request)</span>;</span></span><br><span class="line"><span class="function">        <span class="title">return</span> <span class="title">ServerResponse</span></span></span><br><span class="line"><span class="function">                .<span class="title">ok</span><span class="params">()</span></span></span><br><span class="line"><span class="function">                .<span class="title">body</span><span class="params">(Mono.just(calculateFunc.apply(operands.getT1(), operands.getT2())), Integer.class)</span>;</span></span><br><span class="line"><span class="function">    &#125;</span></span><br><span class="line"><span class="function"></span></span><br><span class="line"><span class="function">    <span class="title">private</span> <span class="title">Tuple2</span>&lt;<span class="title">Integer</span>, <span class="title">Integer</span>&gt; <span class="title">extractOperands</span><span class="params">(final ServerRequest request)</span> &#123;</span></span><br><span class="line"><span class="function">        <span class="title">return</span> <span class="title">Tuples</span>.<span class="title">of</span><span class="params">(parseOperand(request, <span class="string">"v1"</span>), parseOperand(request, <span class="string">"v2"</span>))</span>;</span></span><br><span class="line"><span class="function">    &#125;</span></span><br><span class="line"><span class="function"></span></span><br><span class="line"><span class="function">    <span class="title">private</span> <span class="title">int</span> <span class="title">parseOperand</span><span class="params">(final ServerRequest request, final String param)</span> &#123;</span></span><br><span class="line"><span class="function">        <span class="title">try</span> &#123;</span></span><br><span class="line"><span class="function">            <span class="title">return</span> <span class="title">Integer</span>.<span class="title">parseInt</span><span class="params">(request.queryParam(param).orElse(<span class="string">"0"</span>))</span>;</span></span><br><span class="line"><span class="function">        &#125; <span class="title">catch</span> <span class="params">(final NumberFormatException e)</span> &#123;</span></span><br><span class="line"><span class="function">            <span class="title">return</span> 0;</span></span><br><span class="line"><span class="function">        &#125;</span></span><br><span class="line"><span class="function">    &#125;</span></span><br><span class="line"><span class="function"></span></span><br><span class="line"><span class="function">&#125;</span></span><br></pre></td></tr></table></figure>
-<p>我们采用 Spring 现在比较推荐的 Java Config 的配置 Bean 的方式，创建用于存放 Router 的配置类<code>RouterConfig.java</code>：</p>
-<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Configuration</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">RouterConfig</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Bean</span></span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="keyword">public</span> RouterFunction&lt;ServerResponse&gt; routerFunction(<span class="keyword">final</span> CalculatorHandler calculatorHandler) &#123;</span><br><span class="line">        <span class="keyword">return</span> RouterFunctions.route(RequestPredicates.path(<span class="string">"/calculator"</span>), request -&gt;</span><br><span class="line">                request.queryParam(<span class="string">"operator"</span>).map(<span class="keyword">operator</span> -&gt;</span><br><span class="line">                        Mono.justOrEmpty(ReflectionUtils.findMethod(CalculatorHandler.<span class="keyword">class</span>, <span class="keyword">operator</span>, ServerRequest.<span class="keyword">class</span>))</span><br><span class="line">                                .flatMap(method -&gt; (Mono&lt;ServerResponse&gt;) ReflectionUtils.invokeMethod(method, calculatorHandler, request))</span><br><span class="line">                                .switchIfEmpty(ServerResponse.badRequest().build())</span><br><span class="line">                                .onErrorResume(ex -&gt; ServerResponse.status(HttpStatus.INTERNAL_SERVER_ERROR).build()))</span><br><span class="line">                        .orElse(ServerResponse.badRequest().build()));</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>在上边的代码中，我们首先用<code>RouterFunctions.route</code>来根据<code>Predicate</code>是否匹配来确定<code>HandlerFunction</code>是否被应用。<code>RequestPredicates</code>中包含了很多静态方法来创建常用的基于不同匹配规则的<code>Predicate</code>，如<code>RequestPredicates.path</code>用来根据 HTTP 请求的路径来进行匹配，此处我们检查请求的路径是<code>/calculator</code>。然后使用<code>ServerRequest</code>的<code>queryParam</code>方法来获取到参数<code>operator</code>的值，然后通过反射 API 在<code>CalculatorHandler</code>中找到与参数<code>operator</code>的值名称相同的方法来确定要调用的<code>HandlerFunction</code>的实现，最后调用查找到的方法来处理该请求。如果找不到参数<code>operator</code>，服务器端返回 400 错误；如果反射 API 的方法调用中出现错误，服务器端返回 500 错误。</p>
-<p>重启服务然后我们访问 <a href="http://127.0.0.1:8080/calculator?operator=add&amp;v1=2&amp;v2=3" target="_blank" rel="external">http://127.0.0.1:8080/calculator?operator=add&amp;v1=2&amp;v2=3</a> 得到返回值<code>5</code>。</p>
-<h1 id="客户端"><a href="#客户端" class="headerlink" title="客户端"></a>客户端</h1><p>除了服务器端实现之外，WebFlux 也提供了反应式客户端，可以访问 HTTP、SSE 和 WebSocket 服务器端。</p>
-<h2 id="HTTP"><a href="#HTTP" class="headerlink" title="HTTP"></a>HTTP</h2><p>对于 HTTP 和 SSE，可以使用 WebFlux 模块中的类<code>org.springframework.web.reactive.function.client.WebClient</code>。下面的代码中我们将用<code>RESTClient</code>来访问前面小节中创建的 REST API。</p>
-<figure class="highlight d"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">@Test</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> testRESTClient() throws InterruptedException &#123;</span><br><span class="line">    User user = <span class="keyword">new</span> User(<span class="number">4</span>, <span class="string">"赵六"</span>, <span class="string">"z6@qq.com"</span>);</span><br><span class="line">    WebClient client = WebClient.create(<span class="string">"http://localhost:8080/user"</span>); <span class="comment">// 1</span></span><br><span class="line">    Flux&lt;User&gt; createdUser = client.post() <span class="comment">// 2</span></span><br><span class="line">            .uri(<span class="string">""</span>) <span class="comment">// 3</span></span><br><span class="line">            .accept(MediaType.APPLICATION_JSON) <span class="comment">// 4</span></span><br><span class="line">            .<span class="keyword">body</span>(Mono.just(user), User.<span class="keyword">class</span>) <span class="comment">// 5</span></span><br><span class="line">            .retrieve() <span class="comment">// 6</span></span><br><span class="line">            .bodyToFlux(User.<span class="keyword">class</span>); <span class="comment">// 7</span></span><br><span class="line"></span><br><span class="line">    createdUser.subscribe(System.<span class="keyword">out</span>::println); <span class="comment">// 8</span></span><br><span class="line">    TimeUnit.SECONDS.sleep(<span class="number">1</span>); <span class="comment">// 9</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<ol>
-<li>使用<code>WebClient.create</code>方法来创建一个新的<code>WebClient</code>对象</li>
-<li>使用<code>post</code>方法来创建一个 POST 请求</li>
-<li>指定 baseUrl</li>
-<li>配置请求 Header：<code>Content-Type: application/json</code></li>
-<li>使用<code>body()</code>方法来设置 POST 请求的内容</li>
-<li>异步地获取 response 信息，返回值为<code>WebClient.ResponseSpec</code>，<code>retrive()</code>可以看做是<code>exchange()</code>方法的 “快捷版”（<code>exchange()</code>的返回值为<code>ClientResponse</code>）</li>
-<li><code>WebClient.ResponseSpec</code>的<code>bodyToFlux</code>方法把响应内容转换成<code>User</code>对象，最终得到的结果是<code>Flux&lt;User&gt;</code></li>
-<li>打印出来</li>
-<li>由于是异步的，我们将测试线程 sleep 1 秒确保拿到 response，也可以用<code>CountDownLatch</code></li>
-</ol>
-<p><a href="https://ws4.sinaimg.cn/large/006tNc79ly1fqp20ifrhzj30wi0hmaf8.jpg" target="_blank" rel="external"><img src="https://ws4.sinaimg.cn/large/006tNc79ly1fqp20ifrhzj30wi0hmaf8.jpg" alt="img"></a></p>
-<h2 id="SEE"><a href="#SEE" class="headerlink" title="SEE"></a>SEE</h2><p>WebClient 还可以用同样的方式来访问 SSE 服务。这里我们访问的是在之前的小节中创建的生成随机数的 SSE 服务。使用 WebClient 访问 SSE 在发送请求部分与访问 REST API 是相同的，所不同的地方在于对 HTTP 响应的处理。</p>
-<figure class="highlight roboconf"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">@Test</span><br><span class="line">public void testSEEClient() &#123;</span><br><span class="line">    <span class="attribute">final WebClient client = WebClient.create();</span></span><br><span class="line"><span class="attribute">    client.get()</span></span><br><span class="line"><span class="attribute">            .uri("http</span>://localhost:8080/sse/random")</span><br><span class="line">            <span class="variable">.accept</span>(MediaType<span class="variable">.TEXT_EVENT_STREAM</span>)</span><br><span class="line">            <span class="variable">.exchange</span>()</span><br><span class="line">            <span class="variable">.flatMapMany</span>(response -&gt; // 1</span><br><span class="line">                    response<span class="variable">.body</span>(</span><br><span class="line">                            BodyExtractors<span class="variable">.toFlux</span>(</span><br><span class="line">                                    new ParameterizedTypeReference&lt;ServerSentEvent&lt;String&gt;&gt;() &#123;&#125;</span><br><span class="line">                            )</span><br><span class="line">                    )</span><br><span class="line">            )</span><br><span class="line">            <span class="variable">.filter</span>(sse -&gt; Objects<span class="variable">.nonNull</span>(sse<span class="variable">.data</span>()))</span><br><span class="line">            <span class="variable">.map</span>(ServerSentEvent::data)</span><br><span class="line">            <span class="variable">.buffer</span>(10) // 2</span><br><span class="line">            <span class="variable">.doOnNext</span>(System<span class="variable">.out</span>::println) // 3</span><br><span class="line">            <span class="variable">.blockFirst</span>(); // 4</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<ol>
-<li>由于 SSE 服务的响应是一个消息流，我们需要使用<code>flatMapMany</code>把 <code>Mono&lt;ServerResponse&gt;</code>转换成一个<code>Flux&lt;ServerSentEvent&gt;</code>对象，这是通过方法<code>BodyExtractors.toFlux</code>来完成的，其中的参数<code>new ParameterizedTypeReference&lt;ServerSentEvent&lt;String&gt;&gt;() {}</code>表明了响应消息流中的内容是<code>ServerSentEvent</code>对象</li>
-<li>由于 SSE 服务器会不断地发送消息，这里我们只是通过<code>buffer</code>方法来获取前 10 条消息并输出</li>
-<li>只读地 peek 每个元素，然后打印出来，它并不是 subscribe，所以不会触发流</li>
-<li><code>blockFirst</code>方法，顾名思义，在收到第一个元素前会阻塞，响应式业务场景中慎用</li>
-</ol>
-<p>运行效果如下：<br><a href="https://ws4.sinaimg.cn/large/006tNc79ly1fqp1z8lm44j31kw08u0ut.jpg" target="_blank" rel="external"><img src="https://ws4.sinaimg.cn/large/006tNc79ly1fqp1z8lm44j31kw08u0ut.jpg" alt="img"></a></p>
-<p>或者也可以像下边这样</p>
-<figure class="highlight roboconf"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">@Test</span><br><span class="line">public void testSEEClient2() &#123;</span><br><span class="line">    <span class="attribute">WebClient client = WebClient.create();</span></span><br><span class="line"><span class="attribute">    client.get()</span></span><br><span class="line"><span class="attribute">            .uri("http</span>://localhost:8080/sse/random")</span><br><span class="line">            <span class="variable">.accept</span>(MediaType<span class="variable">.TEXT_EVENT_STREAM</span>)</span><br><span class="line">            <span class="variable">.retrieve</span>()</span><br><span class="line">            <span class="variable">.bodyToFlux</span>(String<span class="variable">.class</span>)</span><br><span class="line">            <span class="variable">.log</span>()</span><br><span class="line">            <span class="variable">.take</span>(10)</span><br><span class="line">            <span class="variable">.blockLast</span>();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>运行效果如下：<br><a href="https://ws1.sinaimg.cn/large/006tNc79ly1fqp25ohnygj311g0j6jw0.jpg" target="_blank" rel="external"><img src="https://ws1.sinaimg.cn/large/006tNc79ly1fqp25ohnygj311g0j6jw0.jpg" alt="img"></a></p>
-<h2 id="WebSocket-1"><a href="#WebSocket-1" class="headerlink" title="WebSocket"></a>WebSocket</h2><p>访问 WebSocket 不能使用 WebClient，而应该使用专门的 WebSocketClient 客户端。Spring Boot 的 WebFlux 模板中默认使用的是 Reactor Netty 库。Reactor Netty 库提供了 WebSocketClient 的实现。我们这里访问前面创建的 WebSocket 服务。</p>
-<figure class="highlight lasso"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">@Test</span><br><span class="line"><span class="keyword">public</span> <span class="literal">void</span> testWSClient() &#123;</span><br><span class="line">    WebSocketClient client = <span class="literal">new</span> ReactorNettyWebSocketClient(); <span class="comment">// 1</span></span><br><span class="line">    client.execute(URI.create(<span class="string">"ws://localhost:8080/echo"</span>), session -&gt; <span class="comment">// 2</span></span><br><span class="line">            session.send(Flux.just(session.textMessage(<span class="string">"Hello"</span>))) <span class="comment">// 3</span></span><br><span class="line">                    .thenMany(session.receive().<span class="keyword">take</span>(<span class="number">1</span>).<span class="built_in">map</span>(WebSocketMessage<span class="type">::getPayloadAsText</span>)) <span class="comment">// 4</span></span><br><span class="line">                    .doOnNext(System.out<span class="type">::println</span>)</span><br><span class="line">                    .then())</span><br><span class="line">            .block(<span class="built_in">Duration</span>.ofMillis(<span class="number">5000</span>));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<ol>
-<li>创建一个 WebSocketClient 实例</li>
-<li>使用 WebSocketClient 的<code>execute</code>方法与 WebSocket 服务器建立连接，并执行给定的 WebSocketHandler 对象</li>
-<li>通过 WebSocketSession 的<code>send</code>方法来发送字符串”Hello” 到服务器端</li>
-<li>通过<code>receive</code>方法来等待服务器端的响应并输出，<code>take(1)</code>的作用是表明客户端只获取服务器端发送的第一条消息</li>
-</ol>
-<p>运行效果如下：<br><a href="https://ws2.sinaimg.cn/large/006tNc79ly1fqp2mdfjfcj30tw0gkdjc.jpg" target="_blank" rel="external"><img src="https://ws2.sinaimg.cn/large/006tNc79ly1fqp2mdfjfcj30tw0gkdjc.jpg" alt="img"></a></p>
-<h1 id="测试"><a href="#测试" class="headerlink" title="测试"></a>测试</h1><p>在 spring-test 模块中也添加了对 WebFlux 的支持。通过类 <code>org.springframework.test.web.reactive.server.WebTestClient</code>可以测试 WebFlux 服务器。进行测试时既可以通过 mock 的方式来进行，也可以对实际运行的服务器进行集成测试。</p>
-<p>我们通过一个集成测试来测试<code>UserController</code>中的创建用户的功能。方法 <code>WebTestClient.bindToServer</code>绑定到一个运行的服务器并设置了基础 URL。发送 HTTP 请求的方式与之前的代码相同，不同的是<code>exchange</code>方法的返回值是<code>ResponseSpec</code>对象，其中包含了<code>expectStatus</code>和<code>expectBody</code>等方法来验证 HTTP 响应的状态码和内容。方法<code>jsonPath</code>可以根据 JSON 对象中的路径来进行验证。</p>
-<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">public class UserControllerTest &#123;</span><br><span class="line"></span><br><span class="line">    private final WebTestClient<span class="built_in"> client </span>= WebTestClient.bindToServer().baseUrl(<span class="string">"http://localhost:8080"</span>).build();</span><br><span class="line"></span><br><span class="line">    @Test</span><br><span class="line">    public void testCreateUser() throws Exception &#123;</span><br><span class="line">       <span class="built_in"> User user </span>= new User(5, <span class="string">"钱七"</span>,  <span class="string">"q7@qq.com"</span>);</span><br><span class="line">        client.post().uri(<span class="string">"/user"</span>)</span><br><span class="line">                .contentType(MediaType.APPLICATION_JSON)</span><br><span class="line">                .body(Mono.just(user), User.class)</span><br><span class="line">                .exchange()</span><br><span class="line">                .expectStatus().isOk()</span><br><span class="line">                .expectBody().jsonPath(<span class="string">"$[0].name"</span>)</span><br><span class="line">                .isEqualTo(<span class="string">"钱七"</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<blockquote>
-<p>JsonPath 的语法可以看 <a href="https://github.com/json-path/JsonPath" target="_blank" rel="external">https://github.com/json-path/JsonPath</a></p>
-</blockquote>
-<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>反应式编程范式为开发高性能 Web 应用带来了新的机会和挑战。Spring 5 中的 WebFlux 模块可以作为开发反应式 Web 应用的基础。由于 Spring 框架的流行，WebFlux 会成为开发 Web 应用的重要趋势之一。本文对 Spring 5 中的 WebFlux 模块进行了详细的介绍，包括如何用 WebFlux 开发 HTTP、SSE 和 WebSocket 服务器端应用，以及作为客户端来访问 HTTP、SSE 和 WebSocket 服务。对于 WebFlux 的基于 Java 注解和函数式编程等两种模型都进行了介绍。最后介绍了如何测试 WebFlux 应用。</p>
-<p>示例代码：<a href="https://github.com/zhaoyibo/spring-webflux" target="_blank" rel="external">Github</a></p>
-<h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><p><a href="https://docs.spring.io/spring/docs/current/spring-framework-reference/web-reactive.html" target="_blank" rel="external">Web on Reactive Stack</a><br><a href="https://docs.spring.io/spring-framework/docs/5.0.0.BUILD-SNAPSHOT/spring-framework-reference/html/web-reactive.html" target="_blank" rel="external">23. WebFlux framework</a><br><a href="https://www.ibm.com/developerworks/cn/java/spring5-webflux-reactive/index.html" target="_blank" rel="external">使用 Spring 5 的 WebFlux 开发反应式 Web 应用</a><br><a href="https://www.ibm.com/developerworks/cn/java/j-cn-with-reactor-response-encode/index.html" target="_blank" rel="external">使用 Reactor 进行反应式编程</a><br><a href="https://github.com/reactor/reactor-netty" target="_blank" rel="external">Reactor Netty</a><br><a href="https://blog.csdn.net/get_set/article/details/79480233" target="_blank" rel="external">Spring WebFlux 快速上手</a></p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="page-number current">2</span><a class="page-number" href="/page/3/">3</a><span class="space">&hellip;</span><a class="page-number" href="/page/15/">15</a><a class="extend next" rel="next" href="/page/3/"><i class="fa fa-angle-right"></i></a>
+    <a class="extend prev" rel="prev" href="/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="page-number current">2</span><a class="page-number" href="/page/3/">3</a><span class="space">&hellip;</span><a class="page-number" href="/page/16/">16</a><a class="extend next" rel="next" href="/page/3/"><i class="fa fa-angle-right"></i></a>
   </nav>
 
 
@@ -3194,7 +3336,7 @@ mv aa logs/
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">150</span>
+                  <span class="site-state-item-count">151</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -3269,7 +3411,7 @@ mv aa logs/
     
       <span class="post-meta-item-text">Site words total count&#58;</span>
     
-    <span title="Site words total count">276.8k</span>
+    <span title="Site words total count">279.8k</span>
   
 </div>
 

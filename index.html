@@ -1520,6 +1520,425 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://zhouxiaowu.coding.me/2019/09/18/ElasticSearch基本原理与分布式搭建/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="周小伍 Joey">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/xiaowu_avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="xiaowu's blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/09/18/ElasticSearch基本原理与分布式搭建/" itemprop="url">ElasticSearch基本原理与分布式搭建</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-09-18T08:26:48+08:00">
+                2019-09-18
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/大数据/" itemprop="url" rel="index">
+                    <span itemprop="name">大数据</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2019/09/18/ElasticSearch基本原理与分布式搭建/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2019/09/18/ElasticSearch基本原理与分布式搭建/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  3k
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  11
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="分布式特性"><a href="#分布式特性" class="headerlink" title="分布式特性"></a>分布式特性</h1><p>es支持集群模式，是一个分布式系统，其好处主要有两个：</p>
+<ul>
+<li>增大系统容量，如内存，磁盘，使得es集群可以支持PB级的数据</li>
+<li>提高系统可用性，即使部分节点停止服务，整个集群依然可以正常服务</li>
+</ul>
+<p>es集群由多个es实例组成</p>
+<ul>
+<li>不同集群通过集群名字来区分，可通过cluster.name来进行修改，默认为elasticsearch</li>
+<li>每个es实例本质上是一个JVM进程，且有自己的名字，可以通过node.name来进行修改</li>
+</ul>
+<p>可视化插件：<br>    Elasticsearch-head ：<a href="https://github.com/mobz/elasticsearch-head" target="_blank" rel="external">https://github.com/mobz/elasticsearch-head</a><br>    Cerebro：<a href="https://github.com/lmenezes/cerebro/releases" target="_blank" rel="external">https://github.com/lmenezes/cerebro/releases</a></p>
+<h2 id="cluster-state"><a href="#cluster-state" class="headerlink" title="cluster state"></a>cluster state</h2><p>es 集群相关的数据称为 cluster state,主要记录如下信息： </p>
+<ul>
+<li>节点信息，比如节点名称、链接地址等</li>
+<li>索引信息，比如索引名称、配置等</li>
+</ul>
+<h2 id="master-node"><a href="#master-node" class="headerlink" title="master node"></a>master node</h2><ul>
+<li>1、可以修改cluster state的节点称为master节点，一个集群只能有一个</li>
+<li>2、cluster state存储在每个节点上，master维护最新版本并同步给其他节点</li>
+<li>3、master 节点是通过集群中所有节点选取产生的，可以被被选举的节点称为master-eligible节点<br>相关配置：<code>node.master:true</code></li>
+</ul>
+<h3 id="创建索引"><a href="#创建索引" class="headerlink" title="创建索引"></a>创建索引</h3><p>我们通过如下api创建一个索引 ，创建索引后，cluster state的版本更新<br><code>PUT test_index</code></p>
+<p><img src="/2019/09/18/ElasticSearch基本原理与分布式搭建/01.jpg" alt="01"></p>
+<h2 id="处理请求coordinating-node"><a href="#处理请求coordinating-node" class="headerlink" title="处理请求coordinating node"></a>处理请求coordinating node</h2><ul>
+<li><p>处理请求的节点称为coordinating节点，该节点为所有节点的默认角色，不能取消 </p>
+<pre><code>* 路由请求到正确的节点处理，比如创建索引的请求到master节点
+</code></pre></li>
+</ul>
+<h2 id="数据节点-data-node"><a href="#数据节点-data-node" class="headerlink" title="数据节点 data node"></a>数据节点 data node</h2><p>存储数据的节点称为 data节点，默认节点都是data类型，相关配置如下：<br><code>node.data:true</code></p>
+<p><img src="/2019/09/18/ElasticSearch基本原理与分布式搭建/02.jpg" alt="01"></p>
+<ul>
+<li>五角星：master</li>
+<li>圆形: coordinating</li>
+<li>正方形: data node</li>
+</ul>
+<h1 id="分布式搭建"><a href="#分布式搭建" class="headerlink" title="分布式搭建"></a>分布式搭建</h1><ul>
+<li><p>解压6.5.1版本</p>
+</li>
+<li><p>elasticsearch.yml 主节点配置</p>
+</li>
+</ul>
+<figure class="highlight crmsh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">cluster.name : vip-demo</span><br><span class="line"><span class="keyword">node</span>.name:<span class="title"> vip-master</span></span><br><span class="line"><span class="keyword">node</span>.master:<span class="title"> true</span></span><br><span class="line"></span><br><span class="line">network.host: <span class="number">127.0</span>.<span class="number">0.1</span></span><br></pre></td></tr></table></figure>
+<ul>
+<li>从节点配置1</li>
+</ul>
+<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">cluster<span class="selector-class">.name</span> : vip-demo</span><br><span class="line">node<span class="selector-class">.name</span>: vip-slave-<span class="number">1</span></span><br><span class="line"></span><br><span class="line">network<span class="selector-class">.host</span>: <span class="number">127.0</span>.<span class="number">0.1</span></span><br><span class="line">http<span class="selector-class">.port</span>: <span class="number">8200</span></span><br><span class="line"></span><br><span class="line">discovery<span class="selector-class">.zen</span><span class="selector-class">.ping</span><span class="selector-class">.unicatt</span><span class="selector-class">.hosts</span>: [<span class="string">"127.0.0.1"</span>]</span><br></pre></td></tr></table></figure>
+<ul>
+<li>从节点配置2</li>
+</ul>
+<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">cluster<span class="selector-class">.name</span> : vip-demo</span><br><span class="line">node<span class="selector-class">.name</span>: vip-slave-<span class="number">2</span></span><br><span class="line"></span><br><span class="line">network<span class="selector-class">.host</span>: <span class="number">127.0</span>.<span class="number">0.1</span></span><br><span class="line">http<span class="selector-class">.port</span>: <span class="number">7200</span></span><br><span class="line"></span><br><span class="line">directory<span class="selector-class">.zen</span><span class="selector-class">.ping</span><span class="selector-class">.unicatt</span><span class="selector-class">.hosts</span>: [<span class="string">"127.0.0.1"</span>]</span><br></pre></td></tr></table></figure>
+<h2 id="快速启动"><a href="#快速启动" class="headerlink" title="快速启动"></a>快速启动</h2><ul>
+<li>新建用户</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">adduser elasticsearch</span><br><span class="line">passwd elasticsearch</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash">授权</span></span><br><span class="line">chown -R elasticsearch elasticsearch-6.5.4</span><br><span class="line"><span class="meta">#</span><span class="bash">切换</span></span><br><span class="line">su elasticsearch</span><br></pre></td></tr></table></figure>
+<ul>
+<li>系统配置踩坑</li>
+</ul>
+<p><a href="https://www.elastic.co/guide/en/elasticsearch/reference/master/setting-system-settings.html#limits.conf" target="_blank" rel="external">https://www.elastic.co/guide/en/elasticsearch/reference/master/setting-system-settings.html#limits.conf</a></p>
+<p>修改<code>/etc/security/limits.conf</code> （或者临时root执行 ulimit -n 65535）</p>
+<figure class="highlight lsl"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">elasticsearch    -       nofile          <span class="number">65536</span></span><br></pre></td></tr></table></figure>
+<p>修改<code>/etc/security/limits.d/20-nproc.conf</code></p>
+<figure class="highlight asciidoc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="bullet">*          </span>soft    nproc     4096</span><br><span class="line"><span class="bullet">*          </span>hard    nproc     4096</span><br><span class="line">root       soft    nproc     unlimited</span><br></pre></td></tr></table></figure>
+<p>修改<code>/etc/sysctl.conf</code>(或者临时root执行 sysctl -w vm.max_map_count=262144)</p>
+<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vm.<span class="attribute">max_map_count</span>=262144</span><br></pre></td></tr></table></figure>
+<ul>
+<li>启动</li>
+</ul>
+<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">bin/elasticsearch -Ecluster.<span class="attribute">name</span>=my_cluster -Epath.<span class="attribute">data</span>=my_cluster_node1 -Enode.<span class="attribute">name</span>=node1 -Ehttp.<span class="attribute">port</span>=5100 -Enetwork.<span class="attribute">host</span>=0.0.0.0  -d</span><br></pre></td></tr></table></figure>
+<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">bin/elasticsearch -Ecluster.<span class="attribute">name</span>=my_cluster -Epath.<span class="attribute">data</span>=my_cluster_node2 -Enode.<span class="attribute">name</span>=node2 -Ehttp.<span class="attribute">port</span>=5200 -Enetwork.<span class="attribute">host</span>=0.0.0.0  -d</span><br></pre></td></tr></table></figure>
+<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">bin/elasticsearch -Ecluster.<span class="attribute">name</span>=my_cluster -Epath.<span class="attribute">data</span>=my_cluster_node3 -Enode.<span class="attribute">name</span>=node3 -Ehttp.<span class="attribute">port</span>=5300 -Enetwork.<span class="attribute">host</span>=0.0.0.0  -d</span><br></pre></td></tr></table></figure>
+<h1 id="副本与分片"><a href="#副本与分片" class="headerlink" title="副本与分片"></a>副本与分片</h1><ul>
+<li>分片是es支持PB级数据的基石<ul>
+<li>分片存储了部分数据，可以分布于任意节点上<ul>
+<li>分片数在索引创建时指定且后续不允许再更改，默认为5个</li>
+<li>分片有主分片和副本分片之分，以实现数据的高可用</li>
+<li>副本分片的数据由主分片同步，可以有多个，从而提高读取的吞吐量</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">PUT test_index</span><br><span class="line">&#123;</span><br><span class="line"><span class="section">“settings”:&#123;</span></span><br><span class="line"><span class="section">“number_of_shards”:3,</span></span><br><span class="line"><span class="section">“number_of_replicas”:1</span></span><br><span class="line">&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>下图演示的是3个节点的集群中test_index的分片分布情况，创建时我们指定了3个分片和1个副本<br>api如下所示：</p>
+<p><img src="/2019/09/18/ElasticSearch基本原理与分布式搭建/03.jpg" alt="01"></p>
+<ul>
+<li>单纯地增加机器节点数，无法提高test_index的容量。原因在于3个分片已经分配到之前的3个节点。</li>
+<li>单纯地增加副本数，也无法提高test_index的吞吐量。新增的副本还是原有的节点上。</li>
+</ul>
+<p>解决问题：</p>
+<ul>
+<li>合理地设定分片数<ul>
+<li>分片数太少，导致后续无法通过增加节点实现水平扩容</li>
+<li>分片数过大，导致一个节点上分布多个分片，造成资源浪费，同时会影响查询性能</li>
+</ul>
+</li>
+</ul>
+<h1 id="集群状态"><a href="#集群状态" class="headerlink" title="集群状态"></a>集群状态</h1><ul>
+<li>green 健康状态，指所有主副分片都正常分配</li>
+<li>yellow 指所有主分片都正常分配，但是有副本分片未正常分配</li>
+<li>red 有主分片未分配</li>
+</ul>
+<p>三种状态只是代表分片的工作状态，并不是代表整个es集群是否能够对外提供服务<br><code>GET _cluster/health</code></p>
+<h2 id="故障转移"><a href="#故障转移" class="headerlink" title="故障转移"></a>故障转移</h2><p><img src="/2019/09/18/ElasticSearch基本原理与分布式搭建/04.jpg" alt="01"></p>
+<p><img src="/2019/09/18/ElasticSearch基本原理与分布式搭建/05.jpg" alt="01"></p>
+<ol>
+<li>node2和node3发现node1无法响应一段时间后会发起master选举，<br>比如这里选举node2为master节点，此时由于主分片P0下线，集群状态变为red。</li>
+<li>node2发现主分片P0未分配，将R0提升为主分片。此时由于所有主分片都正常分配，<br>集群状态变为yellow。</li>
+<li>node2发现主分片P0和P1生成新的副本，集群状态变为green。</li>
+</ol>
+<h2 id="解决脑裂问题"><a href="#解决脑裂问题" class="headerlink" title="解决脑裂问题"></a>解决脑裂问题</h2><p>脑裂问题，英文为split-brain，是分布式系统中的经典网络问题</p>
+<ul>
+<li>node2与node3会重新选举master，比如node2成为了新master，此时会更新cluster state<br>node1自己组成集群后，也会更新cluster state</li>
+<li>同一个集群有两个master，而维护不同的cluster state，网络恢复后无法选择正确的master</li>
+</ul>
+<p>解决方案</p>
+<ul>
+<li>为仅在可选举master-eligible节点数据大于等于quorum时才可以进行master选举<br>quorum = master-eligible 节点数/2 + 1，例如 3个master-eligible节点时，quorum为2。</li>
+<li>解决：discovery.zen.mininum_master_nodes为quorum即可避免脑裂</li>
+</ul>
+<p><img src="/2019/09/18/ElasticSearch基本原理与分布式搭建/06.jpg" alt="01"></p>
+<h1 id="分布式文件存储"><a href="#分布式文件存储" class="headerlink" title="分布式文件存储"></a>分布式文件存储</h1><h2 id="hash计算对应的分片"><a href="#hash计算对应的分片" class="headerlink" title="hash计算对应的分片"></a>hash计算对应的分片</h2><p>假设Doc1最终存储在分片P1上</p>
+<figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">PUT test_index<span class="regexp">/doc/</span><span class="number">1</span></span><br><span class="line">&#123;</span><br><span class="line"><span class="string">"name"</span>:<span class="string">"tom"</span>,</span><br><span class="line"><span class="string">"age"</span>:<span class="number">18</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><img src="/2019/09/18/ElasticSearch基本原理与分布式搭建/07.jpg" alt="01"></p>
+<p>es通过如下公司计算文档对应的分片<br><code>shard = hash(routing) % number_of_primary_shards</code></p>
+<ul>
+<li>hash算法保证可以将数据均匀地分散在分片中</li>
+<li>routing是一个关键参数，默认是文档id，也可以自行指定</li>
+<li>number_of_primary_shards 是主分片数</li>
+<li><strong>该算法与主分片数相关，这也是分片数一旦确定后便不能更改的根本原因</strong></li>
+</ul>
+<h2 id="文档创建的流程"><a href="#文档创建的流程" class="headerlink" title="文档创建的流程"></a>文档创建的流程</h2><figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">PUT test_index/doc/1</span><br><span class="line">&#123;</span><br><span class="line"><span class="section">“name”:“tom”,</span></span><br><span class="line"><span class="section">“age”:18</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><img src="/2019/09/18/ElasticSearch基本原理与分布式搭建/08.jpg" alt="01"></p>
+<ul>
+<li>1、Clinet向node3发起创建文档的请求</li>
+<li>2、node3通过routing计算该文档应该存储在Shard1上，查询cluster state后确认主分片P1在<br>node2上，然后转发创建文档的请求到node2</li>
+<li>3、P1接收并执行创建文档的请求后，将同样的请求发送到副本分片R1</li>
+<li>4、R1接收并执行创建文档请求后，通知P1成功的结果</li>
+</ul>
+<h1 id="Shard分片"><a href="#Shard分片" class="headerlink" title="Shard分片"></a>Shard分片</h1><h2 id="倒排索引不能更改"><a href="#倒排索引不能更改" class="headerlink" title="倒排索引不能更改"></a>倒排索引不能更改</h2><p>有如下好处：</p>
+<ul>
+<li><p>不用考虑并发写文件的问题，杜绝了锁机制带来的性能问题</p>
+</li>
+<li><p>由于文件不再更改，可以充分利用文件系统缓存，只需要载入一次，只要内存足够</p>
+</li>
+<li><p>对该文件的读取都会从内存读取，性能高</p>
+</li>
+<li><p>利于生成缓存数据</p>
+</li>
+<li><p>利于对文件进行压缩存储，节省磁盘和内存存储空间</p>
+</li>
+</ul>
+<p>坏处：</p>
+<ul>
+<li><p>写入新文档时，必须重新构建倒排索引文件，然后替换老文件后，新文档才能被检索，</p>
+</li>
+<li><p>导致文档实时性受到影响</p>
+</li>
+</ul>
+<h2 id="文档实时性搜索"><a href="#文档实时性搜索" class="headerlink" title="文档实时性搜索"></a>文档实时性搜索</h2><p>解决方案： </p>
+<ul>
+<li>新文档直接生成新的倒排索引文件，查询的时候同时查询所有的倒排文件，</li>
+<li>然后对查询结果做汇总计算即可</li>
+</ul>
+<p><img src="/2019/09/18/ElasticSearch基本原理与分布式搭建/09.jpg" alt="01"></p>
+<h3 id="Lucene"><a href="#Lucene" class="headerlink" title="Lucene"></a>Lucene</h3><ul>
+<li>Lucene采用了这种方案，它构建的单个倒排索引称为<strong>segment</strong>，合在一起称为Index</li>
+<li>与ES中的Index概念不同。<u>ES中的一个Shard对应一个<strong>Lucene Index</strong>。</u></li>
+<li>Lucene会有一个专门的文件来记录所有的<strong>segment</strong>信息，称为<strong>Commit Point</strong></li>
+</ul>
+<p><img src="/2019/09/18/ElasticSearch基本原理与分布式搭建/10.jpg" alt="01"></p>
+<h3 id="index-buffer"><a href="#index-buffer" class="headerlink" title="index buffer"></a>index buffer</h3><ul>
+<li>segment写入磁盘的过程依然很耗时，可以借助<strong>文件系统缓存</strong>的特性，先将segment在缓存中</li>
+<li>创建并开放查询来进一步提升实时性，该过程在es中被称为refresh。</li>
+<li>在refresh之前文档会先存储在一个<strong>index buffer</strong>中，refresh时将index buffer中的所有文档清空并生成segment</li>
+<li>es默认<strong>每1秒执行一次refresh</strong>，因此文档的实时性被提高到1秒，这也是es被称为近实时（Near Real Time）的真正原因<br><img src="/2019/09/18/ElasticSearch基本原理与分布式搭建/11.jpg" alt="01"></li>
+</ul>
+<h3 id="translog机制"><a href="#translog机制" class="headerlink" title="translog机制"></a>translog机制</h3><p>如果在内存中的segment InMemory还没有写入磁盘前发生了宕机，那么内存中的文档就无法恢复了。<br>那么如何解决这个问题呢？</p>
+<ul>
+<li>es引入translog机制。写入文档到index buffer时，同时将该操作写入translog。</li>
+<li>translog 文件会即时写入磁盘（fsync），6.x默认每个请求都会落盘，可以修改为每5秒写一次，</li>
+<li>这样风险便是丢失5秒内的数据，相关配置为<code>index.translog.*</code></li>
+<li>es重新启动时会自动检查translog文件，并从中恢复数据</li>
+</ul>
+<p><img src="/2019/09/18/ElasticSearch基本原理与分布式搭建/12.jpg" alt="01"></p>
+<h3 id="refresh-和-flush"><a href="#refresh-和-flush" class="headerlink" title="refresh 和 flush"></a>refresh 和 flush</h3><p>flush负责将内存中的segment写入磁盘，主要做如下的工作： </p>
+<ul>
+<li>将translog写入磁盘</li>
+<li>将index buffer清空，其中的文档生成一个新的segment，相当于一个refresh操作</li>
+<li>更新commit point并写入磁盘</li>
+<li>执行fsync操作，将内存中的segment InMemory写入磁盘</li>
+<li>删除旧的translog文件</li>
+</ul>
+<p><img src="/2019/09/18/ElasticSearch基本原理与分布式搭建/13.jpg" alt="01"></p>
+<p>refresh发生的时机主要有以下几种情况： </p>
+<ul>
+<li>间隔时间达到时，通过index.settings.refresh_interval来设定，默认是1秒</li>
+<li>index buffer占满时，其大小通过indices.memory.index_buffer_size设置，默认为jvm heap的10%，所有shard共享</li>
+<li>flush发生时也会发生refresh</li>
+</ul>
+<p>flush发生的时机主要有以下几种情况： </p>
+<ul>
+<li>间隔时间达到时，默认是30分钟，5.x之前可以通过index.translog.flush_threshold_period修改<br>之后发布的版本无法设置</li>
+<li>translog占满时，其大小可以通过index.translog.flush_threshold_size控制，默认是512MB。每个index有自己的translog</li>
+</ul>
+<h3 id="删除与更新"><a href="#删除与更新" class="headerlink" title="删除与更新"></a>删除与更新</h3><p>segment一旦生成就不能更改，那么如果要删除文档该如何操作？ </p>
+<ul>
+<li>lucene会专门维护一个.del的文件，记录所有已经删除的文档</li>
+<li>注意.del上记录的是文档在Lucene的内部id</li>
+<li>在查询结果返回前会过滤掉.del中所有的文档</li>
+</ul>
+<p>更新文档如何进行呢？</p>
+<ul>
+<li>首先删除文档，然后再创建新的文档</li>
+</ul>
+<h3 id="ES-Index-与-Lucene-Index"><a href="#ES-Index-与-Lucene-Index" class="headerlink" title="ES Index 与 Lucene Index"></a>ES Index 与 Lucene Index</h3><p>ES Index 与 Lucene Index的术语对照如下所示：</p>
+<p><img src="/2019/09/18/ElasticSearch基本原理与分布式搭建/14.jpg" alt="01"></p>
+<h3 id="Segment-Merge"><a href="#Segment-Merge" class="headerlink" title="Segment Merge"></a>Segment Merge</h3><p>随着segment的增多，由于一次查询的segment数增多，查询速度会变慢 </p>
+<ul>
+<li>es会定时在后台进行segment merge的操作，减少segment的 数量</li>
+<li>通过force_merge api可以手动强制做segment merge的操作</li>
+</ul>
+<h1 id="Search的运行机制"><a href="#Search的运行机制" class="headerlink" title="Search的运行机制"></a>Search的运行机制</h1><p>Search执行的时候实际分两个步骤运行的</p>
+<ul>
+<li>Query阶段</li>
+<li>Fetch阶段</li>
+</ul>
+<h2 id="Query阶段"><a href="#Query阶段" class="headerlink" title="Query阶段"></a>Query阶段</h2><p><img src="/2019/09/18/ElasticSearch基本原理与分布式搭建/15.jpg" alt="01"></p>
+<p>1、node3在接收到用户的search请求后，先会进行Query阶段（此时Coordinating Node角色）<br>2、node3在6个主副分片中随机选择3个分片，发送search request<br>3、被选中的3个分片会分别执行查询并排序，返回from+size个文档Id和排序值</p>
+<h2 id="Fetch阶段"><a href="#Fetch阶段" class="headerlink" title="Fetch阶段"></a>Fetch阶段</h2><p>node3根据Query阶段获取到文档Id列表对应的shard上获取文档详情数据<br>1、node3向相关的分片发送multi_get请求<br>2、3个分片返回文档详细数据<br>3、node3<strong>拼接返回的结果并返回给用户</strong></p>
+<h1 id="相关性算分"><a href="#相关性算分" class="headerlink" title="相关性算分"></a>相关性算分</h1><p>相关性算分在shard与shard间是相互独立的，也就意味着同一个Tearm的IDF等值在不同shard上是不同的。文档的相关性算法和它所处的shard相关。在文档数量不多时，会导致相关性算分严重不准的情况发生<br>解决思路有两个：</p>
+<ul>
+<li>1、设置分片数为1个，从根本上排除问题，在文档数量不多的时候可以考虑该方案，<br>比如百万到千万级别的文档数量</li>
+<li>2、采用DFS Query-then-Fetch的查询方式</li>
+</ul>
+<p>DFS Query-then-Fetch是拿到所有文档后再重新完整的计算一次相关性算法，耗费更多的cpu和内存，执行性能也比较低下，一般不建议使用。操作方式如下：</p>
+<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="builtin-name">GET</span> test_search_relevace/_search?<span class="attribute">search_type</span>=dfs_query_then_fetch</span><br><span class="line">&#123;</span><br><span class="line"><span class="string">"query"</span>:&#123;</span><br><span class="line"><span class="string">"match"</span>: &#123;</span><br><span class="line"><span class="string">"name"</span>: <span class="string">"hello"</span></span><br><span class="line">&#125;</span><br><span class="line">&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="https://zhouxiaowu.coding.me/2019/08/02/Spark原理案例及搭建/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -3419,439 +3838,11 @@ mv aa logs/
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://zhouxiaowu.coding.me/2019/06/08/HBase原理案例及搭建/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="周小伍 Joey">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/xiaowu_avatar.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="xiaowu's blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/06/08/HBase原理案例及搭建/" itemprop="url">HBase原理案例及搭建</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-06-08T11:16:12+08:00">
-                2019-06-08
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/大数据/" itemprop="url" rel="index">
-                    <span itemprop="name">大数据</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2019/06/08/HBase原理案例及搭建/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count disqus-comment-count"
-                        data-disqus-identifier="2019/06/08/HBase原理案例及搭建/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-
-          
-
-          
-            <div class="post-wordcount">
-              
-                
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-file-word-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">字数统计&#58;</span>
-                
-                <span title="字数统计">
-                  1.9k
-                </span>
-              
-
-              
-                <span class="post-meta-divider">|</span>
-              
-
-              
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-clock-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
-                
-                <span title="阅读时长">
-                  8
-                </span>
-              
-            </div>
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h1 id="HBase-数据模型"><a href="#HBase-数据模型" class="headerlink" title="HBase 数据模型"></a>HBase 数据模型</h1><table>
-<thead>
-<tr>
-<th>Row   Key</th>
-<th>Time   Stamp</th>
-<th>CF1</th>
-<th>CF2</th>
-<th>CF3</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>11248112</td>
-<td>t6</td>
-<td></td>
-<td>CF2:q1=val1</td>
-<td>CF3:q3=val3</td>
-</tr>
-<tr>
-<td></td>
-<td>t3</td>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td></td>
-<td>t2</td>
-<td>CF1:q2=val2</td>
-<td></td>
-</tr>
-</tbody>
-</table>
-<h2 id="ROW-KEY"><a href="#ROW-KEY" class="headerlink" title="ROW  KEY"></a>ROW  KEY</h2><ul>
-<li>决定一行数据</li>
-<li>按照字典顺序排序的。</li>
-<li>Row key只能存储64k的字节数据</li>
-</ul>
-<h2 id="Column-Family列族"><a href="#Column-Family列族" class="headerlink" title="Column Family列族"></a>Column Family列族</h2><ul>
-<li><p>HBase表中的每个列都归属于某个列族，列族必须作为表模式(schema)定义的一部分预先给出。如<code>create &#39;tbl&#39;, ‘cf’</code></p>
-</li>
-<li><p>列名以列族作为前缀，<code>cf:name</code></p>
-</li>
-<li><p>权限控制、存储以及调优都是在列族层面进行的；</p>
-</li>
-<li>HBase把同一列族里面的数据存储在同一目录下，由几个文件保存。</li>
-</ul>
-<h2 id="Timestamp时间戳"><a href="#Timestamp时间戳" class="headerlink" title="Timestamp时间戳"></a>Timestamp时间戳</h2><ul>
-<li>在HBase每个cell存储单元对同一份数据有多个版本，根据唯一的时间戳来区分每个版本之间的差异，不同版本的数据按照时间倒序排序，最新的数据版本排在最前面。</li>
-<li>时间戳的类型是 64位整型。</li>
-<li>时间戳可以由HBase(在数据写入时自动)赋值，此时时间戳是精确到毫秒的当前系统时间。</li>
-<li>时间戳也可以由客户显式赋值，如果应用程序要避免数据版本冲突，就必须自己生成具有唯一性的时间戳。</li>
-</ul>
-<h2 id="Cell单元格"><a href="#Cell单元格" class="headerlink" title="Cell单元格"></a>Cell单元格</h2><ul>
-<li><p>由<code>{row key， column(&lt;family&gt; +&lt;qualifier&gt;)， version}</code>唯一确定的单元。</p>
-</li>
-<li><p>cell中的数据是没有类型的，全部是字节码形式存贮。</p>
-</li>
-</ul>
-<h2 id="HLog-WAL-log"><a href="#HLog-WAL-log" class="headerlink" title="HLog(WAL log)"></a>HLog(WAL log)</h2><ul>
-<li><p>HLog文件就是一个普通的Hadoop Sequence File，Sequence File 的Key是HLogKey对象，HLogKey中记录了写入数据的归属信息，除了table和region名字外，同时还包括 sequence number和timestamp，timestamp是” 写入时间”，sequence number的起始值为0，或者是最近一次存入文件系统中sequence number。</p>
-</li>
-<li><p>类似binlog</p>
-</li>
-</ul>
-<h1 id="HBase-架构"><a href="#HBase-架构" class="headerlink" title="HBase 架构"></a>HBase 架构</h1><p><img src="/2019/06/08/HBase原理案例及搭建/01.png" alt="01"></p>
-<h2 id="写流程"><a href="#写流程" class="headerlink" title="写流程"></a>写流程</h2><ul>
-<li>client记录写入数据，到Hlog</li>
-<li>memstore</li>
-<li>memstore达到阈值,写入到store file</li>
-</ul>
-<h2 id="Client"><a href="#Client" class="headerlink" title="Client"></a>Client</h2><ul>
-<li>包含访问HBase的接口并维护cache来加快对HBase的访问</li>
-</ul>
-<h2 id="Zookeeper"><a href="#Zookeeper" class="headerlink" title="Zookeeper"></a>Zookeeper</h2><ul>
-<li><p>保证任何时候，集群中只有一个master</p>
-</li>
-<li><p>存贮所有Region的寻址入口。</p>
-</li>
-<li><p>实时监控Region server的上线和下线信息。并实时通知Master</p>
-</li>
-<li><p>存储HBase的schema和table元数据</p>
-</li>
-</ul>
-<h2 id="Master"><a href="#Master" class="headerlink" title="Master"></a>Master</h2><ul>
-<li><p>为Region server分配region</p>
-</li>
-<li><p>负责Region server的负载均衡</p>
-</li>
-<li><p>发现失效的Region server并重新分配其上的region</p>
-</li>
-<li><p>管理用户对table的增删改操作</p>
-</li>
-</ul>
-<h2 id="RegionServer"><a href="#RegionServer" class="headerlink" title="RegionServer"></a>RegionServer</h2><ul>
-<li><p>Region server维护region，处理对这些region的IO请求</p>
-</li>
-<li><p>Region server负责切分在运行过程中变得过大的region</p>
-</li>
-</ul>
-<h2 id="Region"><a href="#Region" class="headerlink" title="Region"></a>Region</h2><ul>
-<li><p>HBase自动把表水平划分成多个区域(region)，每个region会保存一个表里面某段连续的数据</p>
-</li>
-<li><p>每个表一开始只有一个region，随着数据不断插入表，region不断增大，当增大到一个阀值的时候，region就会等分会两个新的region（裂变）</p>
-</li>
-<li>当table中的行不断增多，就会有越来越多的region。这样一张完整的表被保存在多个Regionserver 上。</li>
-</ul>
-<p><img src="/2019/06/08/HBase原理案例及搭建/02.png" alt="01"></p>
-<ul>
-<li><p>HRegion是HBase中分布式存储和负载均衡的最小单元。最小单元就表示不同的HRegion可以分布在不同的 HRegion server上。</p>
-</li>
-<li><p>HRegion由一个或者多个Store组成，每个store保存一个columns family。</p>
-</li>
-<li><p>每个Strore又由一个memStore和0至多个StoreFile组成。如图：StoreFile以HFile格式保存在HDFS上。</p>
-</li>
-</ul>
-<h2 id="memstore-与-storefile"><a href="#memstore-与-storefile" class="headerlink" title="memstore 与 storefile"></a>memstore 与 storefile</h2><ul>
-<li><p>一个region由多个store组成，一个store对应一个CF（列族）</p>
-</li>
-<li><p>store包括位于内存中的<strong>memstore</strong>和位于磁盘的<strong>storefile</strong>写操作<u>先写入memstore</u>，<u>当memstore中的数据达到某个阈值，hregionserver会启动flashcache进程写入storefile</u>，每次写入形成单独的一个storefile</p>
-</li>
-<li><p><u>当storefile文件的数量增长到一定阈值后，系统会进行合并</u>（minor、major compaction），在合并过程中会进行版本合并和删除工作（majar），形成更大的storefile</p>
-</li>
-<li><p>当一个region所有storefile的大小和数量超过一定阈值后，会把当前的region分割为两个，并由hmaster分配到相应的regionserver服务器，实现负载均衡</p>
-</li>
-<li><p>客户端检索数据，先在memstore找，找不到再找storefile</p>
-</li>
-</ul>
-<p><img src="/2019/06/08/HBase原理案例及搭建/03.png" alt="01"></p>
-<ul>
-<li>SequeceFile的Value是HBase的KeyValue对象，即对应HFile中的KeyValue</li>
-<li>StoreFile 等价于hdfs file</li>
-</ul>
-<h2 id="读顺序"><a href="#读顺序" class="headerlink" title="读顺序"></a>读顺序</h2><ul>
-<li>1.读memstore，没有则下一步</li>
-<li>2.读block cache，没有则下一步</li>
-<li>3.读store file</li>
-</ul>
-<p>写顺序</p>
-<ul>
-<li>1.写memstore，达到阈值，下一步</li>
-<li>2.写store file</li>
-</ul>
-<h1 id="HBase-完全HA分布式搭建"><a href="#HBase-完全HA分布式搭建" class="headerlink" title="HBase 完全HA分布式搭建"></a>HBase 完全HA分布式搭建</h1><table>
-<thead>
-<tr>
-<th></th>
-<th>zookeeper</th>
-<th>master</th>
-<th>region server</th>
-<th>master backup</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>node01</td>
-<td></td>
-<td>*</td>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td>node02</td>
-<td>*</td>
-<td></td>
-<td>*</td>
-<td></td>
-</tr>
-<tr>
-<td>node03</td>
-<td>*</td>
-<td></td>
-<td>*</td>
-<td></td>
-</tr>
-<tr>
-<td>node04</td>
-<td>*</td>
-<td></td>
-<td></td>
-<td>*</td>
-</tr>
-</tbody>
-</table>
-<h3 id="hbase-env-sh-配置"><a href="#hbase-env-sh-配置" class="headerlink" title="hbase-env.sh 配置"></a>hbase-env.sh 配置</h3><p>conf中</p>
-<ul>
-<li>jdk地址</li>
-<li>使用自己配置zk，不适用hbase自带内置的zk</li>
-</ul>
-<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">vi hbase-env.sh</span><br><span class="line"></span><br><span class="line"><span class="builtin-name">export</span> <span class="attribute">JAVA_HOME</span>=/usr/install/jdk/jdk1.8.0_171/</span><br><span class="line"><span class="builtin-name">export</span> <span class="attribute">HBASE_MANAGES_ZK</span>=<span class="literal">false</span></span><br></pre></td></tr></table></figure>
-<h3 id="hbase-site-xml配置"><a href="#hbase-site-xml配置" class="headerlink" title="hbase-site.xml配置"></a>hbase-site.xml配置</h3><ul>
-<li>hbase在hdfs的目录</li>
-<li>是否分布式</li>
-<li>zk地址</li>
-</ul>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">vi hbase-site.xml</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">name</span>&gt;</span>hbase.rootdir<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">value</span>&gt;</span>hdfs://mycluster/hbase<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">name</span>&gt;</span>hbase.cluster.distributed<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">value</span>&gt;</span>true<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">name</span>&gt;</span>hbase.zookeeper.quorum<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">value</span>&gt;</span>node02,node03,node04<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br></pre></td></tr></table></figure>
-<h3 id="regionservers配置"><a href="#regionservers配置" class="headerlink" title="regionservers配置"></a>regionservers配置</h3><figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">vi</span> regionservers</span><br><span class="line"></span><br><span class="line">node02 node03</span><br></pre></td></tr></table></figure>
-<h3 id="backup-masters配置"><a href="#backup-masters配置" class="headerlink" title="backup-masters配置"></a>backup-masters配置</h3><p>添加 backup-masters</p>
-<figure class="highlight armasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="symbol">vi</span> <span class="keyword">backup-masters</span></span><br><span class="line"><span class="keyword"></span></span><br><span class="line"><span class="keyword">node04</span></span><br></pre></td></tr></table></figure>
-<h3 id="hdfs-site-xml复制"><a href="#hdfs-site-xml复制" class="headerlink" title="hdfs-site.xml复制"></a>hdfs-site.xml复制</h3><figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cp <span class="regexp">/opt/</span>sxt<span class="regexp">/hadoop-2.6.5/</span>etc<span class="regexp">/hadoop/</span>hdfs-site.xml .<span class="regexp">/</span></span><br></pre></td></tr></table></figure>
-<h3 id="环境变量配置"><a href="#环境变量配置" class="headerlink" title="环境变量配置"></a>环境变量配置</h3><figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">vi /etc/profile</span><br><span class="line"></span><br><span class="line"><span class="builtin-name">export</span> <span class="attribute">HBASE_HOME</span>=/root/hbase-0.98.12.1-hadoop2</span><br><span class="line"><span class="builtin-name">export</span> <span class="attribute">PATH</span>=<span class="variable">$PATH</span>:$ZOOKEEPER_HOME/bin:$HADOOP_HOME/bin:$HADOOP_HOME/sbin:$HBASE_HOME/bin</span><br><span class="line"></span><br><span class="line">source /etc/profile</span><br></pre></td></tr></table></figure>
-<p>注意各节点的时间一致</p>
-<h3 id="给其他节点scp一份"><a href="#给其他节点scp一份" class="headerlink" title="给其他节点scp一份"></a>给其他节点scp一份</h3><figure class="highlight elixir"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">scp -r hbase-<span class="number">0</span>.<span class="number">98.12</span>.<span class="number">1</span>-hadoop2 root<span class="variable">@node02</span><span class="symbol">:/root/</span></span><br><span class="line">scp -r hbase-<span class="number">0</span>.<span class="number">98.12</span>.<span class="number">1</span>-hadoop2 root<span class="variable">@node03</span><span class="symbol">:/root/</span></span><br><span class="line">scp -r hbase-<span class="number">0</span>.<span class="number">98.12</span>.<span class="number">1</span>-hadoop2 root<span class="variable">@node04</span><span class="symbol">:/root/</span></span><br></pre></td></tr></table></figure>
-<h3 id="启动start-hbase-sh"><a href="#启动start-hbase-sh" class="headerlink" title="启动start-hbase.sh"></a>启动start-hbase.sh</h3><p>需要提前启动node02、03、04的zk，start-hdfs.sh服务</p>
-<figure class="highlight crmsh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="literal">start</span>-hbase.sh</span><br></pre></td></tr></table></figure>
-<h3 id="验证是否启动成功"><a href="#验证是否启动成功" class="headerlink" title="验证是否启动成功"></a>验证是否启动成功</h3><figure class="highlight dockerfile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">hbase <span class="keyword">shell</span><span class="bash"></span></span><br><span class="line"><span class="bash"><span class="built_in">help</span></span></span><br><span class="line"><span class="bash">create <span class="string">'tbl'</span>,<span class="string">'cf'</span></span></span><br></pre></td></tr></table></figure>
-<figure class="highlight excel"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">hbase(main)<span class="symbol">:023</span><span class="symbol">:0</span>&gt; scan 'tbl'</span><br><span class="line"><span class="built_in">ROW</span>                                <span class="built_in">COLUMN</span>+<span class="built_in">CELL</span></span><br><span class="line"> <span class="number">1111</span>                              <span class="built_in">column</span>=<span class="symbol">cf:ag</span>e, timestamp=<span class="number">1559984836555</span>, <span class="built_in">value</span>=<span class="number">12</span></span><br><span class="line"> <span class="number">1111</span>                              <span class="built_in">column</span>=<span class="symbol">cf:na</span>me, timestamp=<span class="number">1559984734803</span>, <span class="built_in">value</span>=zhangsan</span><br><span class="line"> <span class="number">2222</span>                              <span class="built_in">column</span>=<span class="symbol">cf:se</span>x, timestamp=<span class="number">1559984896283</span>, <span class="built_in">value</span>=boy</span><br><span class="line"><span class="number">2</span> <span class="built_in">row</span>(s) in <span class="number">0.0480</span> seconds</span><br></pre></td></tr></table></figure>
-<figure class="highlight 1c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">get 'tbl','<span class="number">1111</span>'</span><br></pre></td></tr></table></figure>
-<ul>
-<li>数据内容先写到memstore</li>
-<li>执行<code>flush</code>，查看filestore</li>
-</ul>
-<blockquote>
-<p><a href="http://node02:50070/explorer.html#/hbase/data/default/tbl/78a2935308b5f14d4c23a999ee797ed2/cf" target="_blank" rel="external">http://node02:50070/explorer.html#/hbase/data/default/tbl/78a2935308b5f14d4c23a999ee797ed2/cf</a></p>
-</blockquote>
-<figure class="highlight arduino"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">flush</span> <span class="string">'tbl'</span></span><br></pre></td></tr></table></figure>
-<blockquote>
-<p><a href="http://node02:50070/explorer.html#/hbase/data/default/tbl" target="_blank" rel="external">http://node02:50070/explorer.html#/hbase/data/default/tbl</a></p>
-</blockquote>
-<figure class="highlight avrasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="symbol">node01:</span><span class="number">60010</span></span><br></pre></td></tr></table></figure>
-<h1 id="DDL操作"><a href="#DDL操作" class="headerlink" title="DDL操作"></a>DDL操作</h1><h2 id="进入client-shell"><a href="#进入client-shell" class="headerlink" title="进入client shell"></a>进入client shell</h2><figure class="highlight dockerfile"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hbase <span class="keyword">shell</span><span class="bash"></span></span><br></pre></td></tr></table></figure>
-<h2 id="帮助"><a href="#帮助" class="headerlink" title="帮助"></a>帮助</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">help</span></span><br></pre></td></tr></table></figure>
-<h2 id="创建表"><a href="#创建表" class="headerlink" title="创建表"></a>创建表</h2><p>列族数量2到3个</p>
-<figure class="highlight livecodeserver"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">create</span> <span class="string">'tbl'</span>,<span class="string">'cf1'</span>,<span class="string">'cf2'</span></span><br></pre></td></tr></table></figure>
-<h2 id="描述表"><a href="#描述表" class="headerlink" title="描述表"></a>描述表</h2><figure class="highlight axapta"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">desc</span> <span class="string">'tbl'</span></span><br></pre></td></tr></table></figure>
-<h3 id="列表list"><a href="#列表list" class="headerlink" title="列表list"></a>列表list</h3><figure class="highlight applescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">list</span></span><br></pre></td></tr></table></figure>
-<h2 id="删除表"><a href="#删除表" class="headerlink" title="删除表"></a>删除表</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">disable</span> <span class="string">'tbl'</span></span><br><span class="line">drop <span class="string">'tbl'</span></span><br></pre></td></tr></table></figure>
-<h2 id="插入数据"><a href="#插入数据" class="headerlink" title="插入数据"></a>插入数据</h2><figure class="highlight 1c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">put 'tbl','<span class="number">1111</span>','cf:name','zhangsan'</span><br><span class="line">put 'tbl','<span class="number">1111</span>','cf:age','12'</span><br><span class="line">put 'tbl','<span class="number">2222</span>','cf:sex','boy'</span><br></pre></td></tr></table></figure>
-<p>flush数据，memstore立即到store file，到hdfs中</p>
-<figure class="highlight arduino"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">flush</span> <span class="string">'tbl'</span></span><br></pre></td></tr></table></figure>
-<h2 id="查看数据"><a href="#查看数据" class="headerlink" title="查看数据"></a>查看数据</h2><h3 id="查看全表"><a href="#查看全表" class="headerlink" title="查看全表"></a>查看全表</h3><figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">scan</span> <span class="string">'tbl'</span></span><br></pre></td></tr></table></figure>
-<h3 id="查看单条"><a href="#查看单条" class="headerlink" title="查看单条"></a>查看单条</h3><figure class="highlight 1c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">get 'tbl','<span class="number">1111</span>'</span><br></pre></td></tr></table></figure>
-<h3 id="溢写数据"><a href="#溢写数据" class="headerlink" title="溢写数据"></a>溢写数据</h3><p><code>hbase shell</code>执行</p>
-<figure class="highlight arduino"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">flush</span> <span class="string">'eventlog'</span></span><br></pre></td></tr></table></figure>
-<h3 id="查看hdfs的存储文件"><a href="#查看hdfs的存储文件" class="headerlink" title="查看hdfs的存储文件"></a>查看hdfs的存储文件</h3><p>hdfs查看目录 /hbase/data/default/eventlog/43169c43dc06d3e24836e3291149f8e5/log</p>
-<p>直接服务器执行</p>
-<figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hbase hfile -p -f <span class="regexp">/hbase/</span>data<span class="regexp">/default/</span>eventlog<span class="regexp">/43169c43dc06d3e24836e3291149f8e5/</span>log<span class="regexp">/9bb18168d5e2437491a5adeaae62f864</span></span><br></pre></td></tr></table></figure>
-<h1 id="hbase-java实战"><a href="#hbase-java实战" class="headerlink" title="hbase java实战"></a>hbase java实战</h1><h2 id="表创建"><a href="#表创建" class="headerlink" title="表创建"></a>表创建</h2><figure class="highlight haxe"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> void createTable() &#123;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">try</span> &#123;</span><br><span class="line">		Configuration conf = <span class="keyword">new</span> <span class="type">Configuration</span>();</span><br><span class="line">		conf.<span class="keyword">set</span>(<span class="string">"hbase.zookeeper.quorum"</span>, <span class="string">"node02,node03,node04"</span>);</span><br><span class="line">		admin = <span class="keyword">new</span> <span class="type">HBaseAdmin</span>(conf);</span><br><span class="line"></span><br><span class="line">		HTableDescriptor desc = <span class="keyword">new</span> <span class="type">HTableDescriptor</span>(tableName);</span><br><span class="line">		HColumnDescriptor columnDescriptor = <span class="keyword">new</span> <span class="type">HColumnDescriptor</span>(<span class="string">"cf"</span>);</span><br><span class="line">		desc.addFamily(columnDescriptor);</span><br><span class="line">		admin.createTable(desc);</span><br><span class="line"></span><br><span class="line">		<span class="keyword">if</span> (admin != <span class="literal">null</span>) &#123;</span><br><span class="line">			admin.close();</span><br><span class="line">		&#125;</span><br><span class="line"></span><br><span class="line">	&#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">		<span class="comment">// <span class="doctag">TODO:</span> handle exception</span></span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h2 id="插入"><a href="#插入" class="headerlink" title="插入"></a>插入</h2><figure class="highlight arduino"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">void</span> insertTable() &#123;</span><br><span class="line"></span><br><span class="line">	<span class="built_in">try</span> &#123;</span><br><span class="line">		Configuration conf = <span class="keyword">new</span> Configuration();</span><br><span class="line">		conf.set(<span class="string">"hbase.zookeeper.quorum"</span>, <span class="string">"node02,node03,node04"</span>);</span><br><span class="line"></span><br><span class="line">		HTable hTable = <span class="keyword">new</span> HTable(conf, tableName);</span><br><span class="line"></span><br><span class="line">		Put <span class="built_in">put</span> = <span class="keyword">new</span> Put(<span class="string">"1111"</span>.getBytes());</span><br><span class="line">		<span class="built_in">put</span>.add(<span class="string">"cf"</span>.getBytes(), <span class="string">"name"</span>.getBytes(), <span class="string">"zhangsan"</span>.getBytes());</span><br><span class="line">		<span class="built_in">put</span>.add(<span class="string">"cf"</span>.getBytes(), <span class="string">"age"</span>.getBytes(), <span class="string">"12"</span>.getBytes());</span><br><span class="line">		<span class="built_in">put</span>.add(<span class="string">"cf"</span>.getBytes(), <span class="string">"sex"</span>.getBytes(), <span class="string">"boy"</span>.getBytes());</span><br><span class="line">		hTable.<span class="built_in">put</span>(<span class="built_in">put</span>);</span><br><span class="line"></span><br><span class="line">		<span class="built_in">if</span> (admin != null) &#123;</span><br><span class="line">			admin.<span class="built_in">close</span>();</span><br><span class="line">		&#125;</span><br><span class="line"></span><br><span class="line">	&#125; <span class="built_in">catch</span> (Exception e) &#123;</span><br><span class="line">		<span class="comment">// <span class="doctag">TODO:</span> handle exception</span></span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h2 id="查询"><a href="#查询" class="headerlink" title="查询"></a>查询</h2><figure class="highlight processing"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line">	<span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">void</span> getTable() &#123;</span><br><span class="line"></span><br><span class="line">		<span class="keyword">try</span> &#123;</span><br><span class="line">			Configuration conf = <span class="keyword">new</span> Configuration();</span><br><span class="line">			conf.<span class="built_in">set</span>(<span class="string">"hbase.zookeeper.quorum"</span>, <span class="string">"node02,node03,node04"</span>);</span><br><span class="line"></span><br><span class="line">			HTable hTable = <span class="keyword">new</span> HTable(conf, tableName);</span><br><span class="line"></span><br><span class="line">			Get <span class="built_in">get</span> = <span class="keyword">new</span> Get(<span class="string">"1111"</span>.getBytes());</span><br><span class="line">			<span class="comment">// define return columns in family</span></span><br><span class="line">			<span class="built_in">get</span>.addColumn(<span class="string">"cf"</span>.getBytes(), <span class="string">"name"</span>.getBytes());</span><br><span class="line">			<span class="built_in">get</span>.addColumn(<span class="string">"cf"</span>.getBytes(), <span class="string">"age"</span>.getBytes());</span><br><span class="line">			<span class="built_in">get</span>.addColumn(<span class="string">"cf"</span>.getBytes(), <span class="string">"sex"</span>.getBytes());</span><br><span class="line"></span><br><span class="line">			Result result = hTable.<span class="built_in">get</span>(<span class="built_in">get</span>);</span><br><span class="line">			Cell cell = result.getColumnLatestCell(<span class="string">"cf"</span>.getBytes(), <span class="string">"name"</span>.getBytes());</span><br><span class="line">			Cell cell2 = result.getColumnLatestCell(<span class="string">"cf"</span>.getBytes(), <span class="string">"age"</span>.getBytes());</span><br><span class="line">			Cell cell3 = result.getColumnLatestCell(<span class="string">"cf"</span>.getBytes(), <span class="string">"sex"</span>.getBytes());</span><br><span class="line"><span class="comment">//			System.out.println(new String( cell.getValue()));</span></span><br><span class="line">			System.out.<span class="built_in">println</span>(<span class="keyword">new</span> <span class="keyword">String</span>(CellUtil.cloneValue(cell)));</span><br><span class="line">			System.out.<span class="built_in">println</span>(<span class="keyword">new</span> <span class="keyword">String</span>(CellUtil.cloneValue(cell2)));</span><br><span class="line">			System.out.<span class="built_in">println</span>(<span class="keyword">new</span> <span class="keyword">String</span>(CellUtil.cloneValue(cell3)));</span><br><span class="line"></span><br><span class="line">			<span class="keyword">if</span> (admin != <span class="keyword">null</span>) &#123;</span><br><span class="line">				admin.close();</span><br><span class="line">			&#125;</span><br><span class="line"></span><br><span class="line">		&#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">			<span class="comment">// <span class="doctag">TODO:</span> handle exception</span></span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br></pre></td></tr></table></figure>
-<h1 id="Hbase出现ServerNotRunningYetException的解决方案"><a href="#Hbase出现ServerNotRunningYetException的解决方案" class="headerlink" title="Hbase出现ServerNotRunningYetException的解决方案"></a>Hbase出现ServerNotRunningYetException的解决方案</h1><p>因为hadoop处在安全模式下。所以hbase的操作会出现异常。</p>
-<figure class="highlight ebnf"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">hadoop dfsadmin -safemode leave</span></span><br></pre></td></tr></table></figure>
-<h1 id="hbase-shell中使用list命令报错"><a href="#hbase-shell中使用list命令报错" class="headerlink" title="hbase shell中使用list命令报错"></a>hbase shell中使用list命令报错</h1><blockquote>
-<p><a href="https://blog.csdn.net/hll19950830/article/details/80022676" target="_blank" rel="external">https://blog.csdn.net/hll19950830/article/details/80022676</a></p>
-</blockquote>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
   <nav class="pagination">
-    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><span class="space">&hellip;</span><a class="page-number" href="/page/15/">15</a><a class="extend next" rel="next" href="/page/2/"><i class="fa fa-angle-right"></i></a>
+    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><span class="space">&hellip;</span><a class="page-number" href="/page/16/">16</a><a class="extend next" rel="next" href="/page/2/"><i class="fa fa-angle-right"></i></a>
   </nav>
 
 
@@ -3901,7 +3892,7 @@ mv aa logs/
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">150</span>
+                  <span class="site-state-item-count">151</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -3976,7 +3967,7 @@ mv aa logs/
     
       <span class="post-meta-item-text">Site words total count&#58;</span>
     
-    <span title="Site words total count">276.8k</span>
+    <span title="Site words total count">279.8k</span>
   
 </div>
 

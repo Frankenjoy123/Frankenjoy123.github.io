@@ -1,0 +1,1400 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.3" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.png?v=5.1.3">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.3" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="大数据," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="分布式特性es支持集群模式，是一个分布式系统，其好处主要有两个：  增大系统容量，如内存，磁盘，使得es集群可以支持PB级的数据 提高系统可用性，即使部分节点停止服务，整个集群依然可以正常服务  es集群由多个es实例组成  不同集群通过集群名字来区分，可通过cluster.name来进行修改，默认为elasticsearch 每个es实例本质上是一个JVM进程，且有自己的名字，可以通过node.">
+<meta name="keywords" content="大数据">
+<meta property="og:type" content="article">
+<meta property="og:title" content="ElasticSearch基本原理与分布式搭建">
+<meta property="og:url" content="https://zhouxiaowu.coding.me/2019/09/18/ElasticSearch基本原理与分布式搭建/index.html">
+<meta property="og:site_name" content="xiaowu&#39;s blog">
+<meta property="og:description" content="分布式特性es支持集群模式，是一个分布式系统，其好处主要有两个：  增大系统容量，如内存，磁盘，使得es集群可以支持PB级的数据 提高系统可用性，即使部分节点停止服务，整个集群依然可以正常服务  es集群由多个es实例组成  不同集群通过集群名字来区分，可通过cluster.name来进行修改，默认为elasticsearch 每个es实例本质上是一个JVM进程，且有自己的名字，可以通过node.">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="https://zhouxiaowu.coding.me/2019/09/18/ElasticSearch基本原理与分布式搭建/01.jpg">
+<meta property="og:image" content="https://zhouxiaowu.coding.me/2019/09/18/ElasticSearch基本原理与分布式搭建/02.jpg">
+<meta property="og:image" content="https://zhouxiaowu.coding.me/2019/09/18/ElasticSearch基本原理与分布式搭建/03.jpg">
+<meta property="og:image" content="https://zhouxiaowu.coding.me/2019/09/18/ElasticSearch基本原理与分布式搭建/04.jpg">
+<meta property="og:image" content="https://zhouxiaowu.coding.me/2019/09/18/ElasticSearch基本原理与分布式搭建/05.jpg">
+<meta property="og:image" content="https://zhouxiaowu.coding.me/2019/09/18/ElasticSearch基本原理与分布式搭建/06.jpg">
+<meta property="og:image" content="https://zhouxiaowu.coding.me/2019/09/18/ElasticSearch基本原理与分布式搭建/07.jpg">
+<meta property="og:image" content="https://zhouxiaowu.coding.me/2019/09/18/ElasticSearch基本原理与分布式搭建/08.jpg">
+<meta property="og:image" content="https://zhouxiaowu.coding.me/2019/09/18/ElasticSearch基本原理与分布式搭建/09.jpg">
+<meta property="og:image" content="https://zhouxiaowu.coding.me/2019/09/18/ElasticSearch基本原理与分布式搭建/10.jpg">
+<meta property="og:image" content="https://zhouxiaowu.coding.me/2019/09/18/ElasticSearch基本原理与分布式搭建/11.jpg">
+<meta property="og:image" content="https://zhouxiaowu.coding.me/2019/09/18/ElasticSearch基本原理与分布式搭建/12.jpg">
+<meta property="og:image" content="https://zhouxiaowu.coding.me/2019/09/18/ElasticSearch基本原理与分布式搭建/13.jpg">
+<meta property="og:image" content="https://zhouxiaowu.coding.me/2019/09/18/ElasticSearch基本原理与分布式搭建/14.jpg">
+<meta property="og:image" content="https://zhouxiaowu.coding.me/2019/09/18/ElasticSearch基本原理与分布式搭建/15.jpg">
+<meta property="og:updated_time" content="2019-09-27T03:17:41.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="ElasticSearch基本原理与分布式搭建">
+<meta name="twitter:description" content="分布式特性es支持集群模式，是一个分布式系统，其好处主要有两个：  增大系统容量，如内存，磁盘，使得es集群可以支持PB级的数据 提高系统可用性，即使部分节点停止服务，整个集群依然可以正常服务  es集群由多个es实例组成  不同集群通过集群名字来区分，可通过cluster.name来进行修改，默认为elasticsearch 每个es实例本质上是一个JVM进程，且有自己的名字，可以通过node.">
+<meta name="twitter:image" content="https://zhouxiaowu.coding.me/2019/09/18/ElasticSearch基本原理与分布式搭建/01.jpg">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.3',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://zhouxiaowu.coding.me/2019/09/18/ElasticSearch基本原理与分布式搭建/"/>
+
+
+
+
+
+  <title>ElasticSearch基本原理与分布式搭建 | xiaowu's blog</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?3da41265a1a0042eebe5413c0d6c76f5";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">xiaowu's blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-dubbo">
+          <a href="/categories/Dubbo" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-heartbeat"></i> <br />
+            
+            Dubbo
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off"
+             placeholder="搜索..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://zhouxiaowu.coding.me/2019/09/18/ElasticSearch基本原理与分布式搭建/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="周小伍 Joey">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/xiaowu_avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="xiaowu's blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">ElasticSearch基本原理与分布式搭建</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-09-18T08:26:48+08:00">
+                2019-09-18
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/大数据/" itemprop="url" rel="index">
+                    <span itemprop="name">大数据</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2019/09/18/ElasticSearch基本原理与分布式搭建/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2019/09/18/ElasticSearch基本原理与分布式搭建/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  3k
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  11
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="分布式特性"><a href="#分布式特性" class="headerlink" title="分布式特性"></a>分布式特性</h1><p>es支持集群模式，是一个分布式系统，其好处主要有两个：</p>
+<ul>
+<li>增大系统容量，如内存，磁盘，使得es集群可以支持PB级的数据</li>
+<li>提高系统可用性，即使部分节点停止服务，整个集群依然可以正常服务</li>
+</ul>
+<p>es集群由多个es实例组成</p>
+<ul>
+<li>不同集群通过集群名字来区分，可通过cluster.name来进行修改，默认为elasticsearch</li>
+<li>每个es实例本质上是一个JVM进程，且有自己的名字，可以通过node.name来进行修改</li>
+</ul>
+<p>可视化插件：<br>    Elasticsearch-head ：<a href="https://github.com/mobz/elasticsearch-head" target="_blank" rel="external">https://github.com/mobz/elasticsearch-head</a><br>    Cerebro：<a href="https://github.com/lmenezes/cerebro/releases" target="_blank" rel="external">https://github.com/lmenezes/cerebro/releases</a></p>
+<h2 id="cluster-state"><a href="#cluster-state" class="headerlink" title="cluster state"></a>cluster state</h2><p>es 集群相关的数据称为 cluster state,主要记录如下信息： </p>
+<ul>
+<li>节点信息，比如节点名称、链接地址等</li>
+<li>索引信息，比如索引名称、配置等</li>
+</ul>
+<h2 id="master-node"><a href="#master-node" class="headerlink" title="master node"></a>master node</h2><ul>
+<li>1、可以修改cluster state的节点称为master节点，一个集群只能有一个</li>
+<li>2、cluster state存储在每个节点上，master维护最新版本并同步给其他节点</li>
+<li>3、master 节点是通过集群中所有节点选取产生的，可以被被选举的节点称为master-eligible节点<br>相关配置：<code>node.master:true</code></li>
+</ul>
+<h3 id="创建索引"><a href="#创建索引" class="headerlink" title="创建索引"></a>创建索引</h3><p>我们通过如下api创建一个索引 ，创建索引后，cluster state的版本更新<br><code>PUT test_index</code></p>
+<p><img src="/2019/09/18/ElasticSearch基本原理与分布式搭建/01.jpg" alt="01"></p>
+<h2 id="处理请求coordinating-node"><a href="#处理请求coordinating-node" class="headerlink" title="处理请求coordinating node"></a>处理请求coordinating node</h2><ul>
+<li><p>处理请求的节点称为coordinating节点，该节点为所有节点的默认角色，不能取消 </p>
+<pre><code>* 路由请求到正确的节点处理，比如创建索引的请求到master节点
+</code></pre></li>
+</ul>
+<h2 id="数据节点-data-node"><a href="#数据节点-data-node" class="headerlink" title="数据节点 data node"></a>数据节点 data node</h2><p>存储数据的节点称为 data节点，默认节点都是data类型，相关配置如下：<br><code>node.data:true</code></p>
+<p><img src="/2019/09/18/ElasticSearch基本原理与分布式搭建/02.jpg" alt="01"></p>
+<ul>
+<li>五角星：master</li>
+<li>圆形: coordinating</li>
+<li>正方形: data node</li>
+</ul>
+<h1 id="分布式搭建"><a href="#分布式搭建" class="headerlink" title="分布式搭建"></a>分布式搭建</h1><ul>
+<li><p>解压6.5.1版本</p>
+</li>
+<li><p>elasticsearch.yml 主节点配置</p>
+</li>
+</ul>
+<figure class="highlight crmsh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">cluster.name : vip-demo</span><br><span class="line"><span class="keyword">node</span>.name:<span class="title"> vip-master</span></span><br><span class="line"><span class="keyword">node</span>.master:<span class="title"> true</span></span><br><span class="line"></span><br><span class="line">network.host: <span class="number">127.0</span>.<span class="number">0.1</span></span><br></pre></td></tr></table></figure>
+<ul>
+<li>从节点配置1</li>
+</ul>
+<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">cluster<span class="selector-class">.name</span> : vip-demo</span><br><span class="line">node<span class="selector-class">.name</span>: vip-slave-<span class="number">1</span></span><br><span class="line"></span><br><span class="line">network<span class="selector-class">.host</span>: <span class="number">127.0</span>.<span class="number">0.1</span></span><br><span class="line">http<span class="selector-class">.port</span>: <span class="number">8200</span></span><br><span class="line"></span><br><span class="line">discovery<span class="selector-class">.zen</span><span class="selector-class">.ping</span><span class="selector-class">.unicatt</span><span class="selector-class">.hosts</span>: [<span class="string">"127.0.0.1"</span>]</span><br></pre></td></tr></table></figure>
+<ul>
+<li>从节点配置2</li>
+</ul>
+<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">cluster<span class="selector-class">.name</span> : vip-demo</span><br><span class="line">node<span class="selector-class">.name</span>: vip-slave-<span class="number">2</span></span><br><span class="line"></span><br><span class="line">network<span class="selector-class">.host</span>: <span class="number">127.0</span>.<span class="number">0.1</span></span><br><span class="line">http<span class="selector-class">.port</span>: <span class="number">7200</span></span><br><span class="line"></span><br><span class="line">directory<span class="selector-class">.zen</span><span class="selector-class">.ping</span><span class="selector-class">.unicatt</span><span class="selector-class">.hosts</span>: [<span class="string">"127.0.0.1"</span>]</span><br></pre></td></tr></table></figure>
+<h2 id="快速启动"><a href="#快速启动" class="headerlink" title="快速启动"></a>快速启动</h2><ul>
+<li>新建用户</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">adduser elasticsearch</span><br><span class="line">passwd elasticsearch</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash">授权</span></span><br><span class="line">chown -R elasticsearch elasticsearch-6.5.4</span><br><span class="line"><span class="meta">#</span><span class="bash">切换</span></span><br><span class="line">su elasticsearch</span><br></pre></td></tr></table></figure>
+<ul>
+<li>系统配置踩坑</li>
+</ul>
+<p><a href="https://www.elastic.co/guide/en/elasticsearch/reference/master/setting-system-settings.html#limits.conf" target="_blank" rel="external">https://www.elastic.co/guide/en/elasticsearch/reference/master/setting-system-settings.html#limits.conf</a></p>
+<p>修改<code>/etc/security/limits.conf</code> （或者临时root执行 ulimit -n 65535）</p>
+<figure class="highlight lsl"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">elasticsearch    -       nofile          <span class="number">65536</span></span><br></pre></td></tr></table></figure>
+<p>修改<code>/etc/security/limits.d/20-nproc.conf</code></p>
+<figure class="highlight asciidoc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="bullet">*          </span>soft    nproc     4096</span><br><span class="line"><span class="bullet">*          </span>hard    nproc     4096</span><br><span class="line">root       soft    nproc     unlimited</span><br></pre></td></tr></table></figure>
+<p>修改<code>/etc/sysctl.conf</code>(或者临时root执行 sysctl -w vm.max_map_count=262144)</p>
+<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vm.<span class="attribute">max_map_count</span>=262144</span><br></pre></td></tr></table></figure>
+<ul>
+<li>启动</li>
+</ul>
+<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">bin/elasticsearch -Ecluster.<span class="attribute">name</span>=my_cluster -Epath.<span class="attribute">data</span>=my_cluster_node1 -Enode.<span class="attribute">name</span>=node1 -Ehttp.<span class="attribute">port</span>=5100 -Enetwork.<span class="attribute">host</span>=0.0.0.0  -d</span><br></pre></td></tr></table></figure>
+<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">bin/elasticsearch -Ecluster.<span class="attribute">name</span>=my_cluster -Epath.<span class="attribute">data</span>=my_cluster_node2 -Enode.<span class="attribute">name</span>=node2 -Ehttp.<span class="attribute">port</span>=5200 -Enetwork.<span class="attribute">host</span>=0.0.0.0  -d</span><br></pre></td></tr></table></figure>
+<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">bin/elasticsearch -Ecluster.<span class="attribute">name</span>=my_cluster -Epath.<span class="attribute">data</span>=my_cluster_node3 -Enode.<span class="attribute">name</span>=node3 -Ehttp.<span class="attribute">port</span>=5300 -Enetwork.<span class="attribute">host</span>=0.0.0.0  -d</span><br></pre></td></tr></table></figure>
+<h1 id="副本与分片"><a href="#副本与分片" class="headerlink" title="副本与分片"></a>副本与分片</h1><ul>
+<li>分片是es支持PB级数据的基石<ul>
+<li>分片存储了部分数据，可以分布于任意节点上<ul>
+<li>分片数在索引创建时指定且后续不允许再更改，默认为5个</li>
+<li>分片有主分片和副本分片之分，以实现数据的高可用</li>
+<li>副本分片的数据由主分片同步，可以有多个，从而提高读取的吞吐量</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">PUT test_index</span><br><span class="line">&#123;</span><br><span class="line"><span class="section">“settings”:&#123;</span></span><br><span class="line"><span class="section">“number_of_shards”:3,</span></span><br><span class="line"><span class="section">“number_of_replicas”:1</span></span><br><span class="line">&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>下图演示的是3个节点的集群中test_index的分片分布情况，创建时我们指定了3个分片和1个副本<br>api如下所示：</p>
+<p><img src="/2019/09/18/ElasticSearch基本原理与分布式搭建/03.jpg" alt="01"></p>
+<ul>
+<li>单纯地增加机器节点数，无法提高test_index的容量。原因在于3个分片已经分配到之前的3个节点。</li>
+<li>单纯地增加副本数，也无法提高test_index的吞吐量。新增的副本还是原有的节点上。</li>
+</ul>
+<p>解决问题：</p>
+<ul>
+<li>合理地设定分片数<ul>
+<li>分片数太少，导致后续无法通过增加节点实现水平扩容</li>
+<li>分片数过大，导致一个节点上分布多个分片，造成资源浪费，同时会影响查询性能</li>
+</ul>
+</li>
+</ul>
+<h1 id="集群状态"><a href="#集群状态" class="headerlink" title="集群状态"></a>集群状态</h1><ul>
+<li>green 健康状态，指所有主副分片都正常分配</li>
+<li>yellow 指所有主分片都正常分配，但是有副本分片未正常分配</li>
+<li>red 有主分片未分配</li>
+</ul>
+<p>三种状态只是代表分片的工作状态，并不是代表整个es集群是否能够对外提供服务<br><code>GET _cluster/health</code></p>
+<h2 id="故障转移"><a href="#故障转移" class="headerlink" title="故障转移"></a>故障转移</h2><p><img src="/2019/09/18/ElasticSearch基本原理与分布式搭建/04.jpg" alt="01"></p>
+<p><img src="/2019/09/18/ElasticSearch基本原理与分布式搭建/05.jpg" alt="01"></p>
+<ol>
+<li>node2和node3发现node1无法响应一段时间后会发起master选举，<br>比如这里选举node2为master节点，此时由于主分片P0下线，集群状态变为red。</li>
+<li>node2发现主分片P0未分配，将R0提升为主分片。此时由于所有主分片都正常分配，<br>集群状态变为yellow。</li>
+<li>node2发现主分片P0和P1生成新的副本，集群状态变为green。</li>
+</ol>
+<h2 id="解决脑裂问题"><a href="#解决脑裂问题" class="headerlink" title="解决脑裂问题"></a>解决脑裂问题</h2><p>脑裂问题，英文为split-brain，是分布式系统中的经典网络问题</p>
+<ul>
+<li>node2与node3会重新选举master，比如node2成为了新master，此时会更新cluster state<br>node1自己组成集群后，也会更新cluster state</li>
+<li>同一个集群有两个master，而维护不同的cluster state，网络恢复后无法选择正确的master</li>
+</ul>
+<p>解决方案</p>
+<ul>
+<li>为仅在可选举master-eligible节点数据大于等于quorum时才可以进行master选举<br>quorum = master-eligible 节点数/2 + 1，例如 3个master-eligible节点时，quorum为2。</li>
+<li>解决：discovery.zen.mininum_master_nodes为quorum即可避免脑裂</li>
+</ul>
+<p><img src="/2019/09/18/ElasticSearch基本原理与分布式搭建/06.jpg" alt="01"></p>
+<h1 id="分布式文件存储"><a href="#分布式文件存储" class="headerlink" title="分布式文件存储"></a>分布式文件存储</h1><h2 id="hash计算对应的分片"><a href="#hash计算对应的分片" class="headerlink" title="hash计算对应的分片"></a>hash计算对应的分片</h2><p>假设Doc1最终存储在分片P1上</p>
+<figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">PUT test_index<span class="regexp">/doc/</span><span class="number">1</span></span><br><span class="line">&#123;</span><br><span class="line"><span class="string">"name"</span>:<span class="string">"tom"</span>,</span><br><span class="line"><span class="string">"age"</span>:<span class="number">18</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><img src="/2019/09/18/ElasticSearch基本原理与分布式搭建/07.jpg" alt="01"></p>
+<p>es通过如下公司计算文档对应的分片<br><code>shard = hash(routing) % number_of_primary_shards</code></p>
+<ul>
+<li>hash算法保证可以将数据均匀地分散在分片中</li>
+<li>routing是一个关键参数，默认是文档id，也可以自行指定</li>
+<li>number_of_primary_shards 是主分片数</li>
+<li><strong>该算法与主分片数相关，这也是分片数一旦确定后便不能更改的根本原因</strong></li>
+</ul>
+<h2 id="文档创建的流程"><a href="#文档创建的流程" class="headerlink" title="文档创建的流程"></a>文档创建的流程</h2><figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">PUT test_index/doc/1</span><br><span class="line">&#123;</span><br><span class="line"><span class="section">“name”:“tom”,</span></span><br><span class="line"><span class="section">“age”:18</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><img src="/2019/09/18/ElasticSearch基本原理与分布式搭建/08.jpg" alt="01"></p>
+<ul>
+<li>1、Clinet向node3发起创建文档的请求</li>
+<li>2、node3通过routing计算该文档应该存储在Shard1上，查询cluster state后确认主分片P1在<br>node2上，然后转发创建文档的请求到node2</li>
+<li>3、P1接收并执行创建文档的请求后，将同样的请求发送到副本分片R1</li>
+<li>4、R1接收并执行创建文档请求后，通知P1成功的结果</li>
+</ul>
+<h1 id="Shard分片"><a href="#Shard分片" class="headerlink" title="Shard分片"></a>Shard分片</h1><h2 id="倒排索引不能更改"><a href="#倒排索引不能更改" class="headerlink" title="倒排索引不能更改"></a>倒排索引不能更改</h2><p>有如下好处：</p>
+<ul>
+<li><p>不用考虑并发写文件的问题，杜绝了锁机制带来的性能问题</p>
+</li>
+<li><p>由于文件不再更改，可以充分利用文件系统缓存，只需要载入一次，只要内存足够</p>
+</li>
+<li><p>对该文件的读取都会从内存读取，性能高</p>
+</li>
+<li><p>利于生成缓存数据</p>
+</li>
+<li><p>利于对文件进行压缩存储，节省磁盘和内存存储空间</p>
+</li>
+</ul>
+<p>坏处：</p>
+<ul>
+<li><p>写入新文档时，必须重新构建倒排索引文件，然后替换老文件后，新文档才能被检索，</p>
+</li>
+<li><p>导致文档实时性受到影响</p>
+</li>
+</ul>
+<h2 id="文档实时性搜索"><a href="#文档实时性搜索" class="headerlink" title="文档实时性搜索"></a>文档实时性搜索</h2><p>解决方案： </p>
+<ul>
+<li>新文档直接生成新的倒排索引文件，查询的时候同时查询所有的倒排文件，</li>
+<li>然后对查询结果做汇总计算即可</li>
+</ul>
+<p><img src="/2019/09/18/ElasticSearch基本原理与分布式搭建/09.jpg" alt="01"></p>
+<h3 id="Lucene"><a href="#Lucene" class="headerlink" title="Lucene"></a>Lucene</h3><ul>
+<li>Lucene采用了这种方案，它构建的单个倒排索引称为<strong>segment</strong>，合在一起称为Index</li>
+<li>与ES中的Index概念不同。<u>ES中的一个Shard对应一个<strong>Lucene Index</strong>。</u></li>
+<li>Lucene会有一个专门的文件来记录所有的<strong>segment</strong>信息，称为<strong>Commit Point</strong></li>
+</ul>
+<p><img src="/2019/09/18/ElasticSearch基本原理与分布式搭建/10.jpg" alt="01"></p>
+<h3 id="index-buffer"><a href="#index-buffer" class="headerlink" title="index buffer"></a>index buffer</h3><ul>
+<li>segment写入磁盘的过程依然很耗时，可以借助<strong>文件系统缓存</strong>的特性，先将segment在缓存中</li>
+<li>创建并开放查询来进一步提升实时性，该过程在es中被称为refresh。</li>
+<li>在refresh之前文档会先存储在一个<strong>index buffer</strong>中，refresh时将index buffer中的所有文档清空并生成segment</li>
+<li>es默认<strong>每1秒执行一次refresh</strong>，因此文档的实时性被提高到1秒，这也是es被称为近实时（Near Real Time）的真正原因<br><img src="/2019/09/18/ElasticSearch基本原理与分布式搭建/11.jpg" alt="01"></li>
+</ul>
+<h3 id="translog机制"><a href="#translog机制" class="headerlink" title="translog机制"></a>translog机制</h3><p>如果在内存中的segment InMemory还没有写入磁盘前发生了宕机，那么内存中的文档就无法恢复了。<br>那么如何解决这个问题呢？</p>
+<ul>
+<li>es引入translog机制。写入文档到index buffer时，同时将该操作写入translog。</li>
+<li>translog 文件会即时写入磁盘（fsync），6.x默认每个请求都会落盘，可以修改为每5秒写一次，</li>
+<li>这样风险便是丢失5秒内的数据，相关配置为<code>index.translog.*</code></li>
+<li>es重新启动时会自动检查translog文件，并从中恢复数据</li>
+</ul>
+<p><img src="/2019/09/18/ElasticSearch基本原理与分布式搭建/12.jpg" alt="01"></p>
+<h3 id="refresh-和-flush"><a href="#refresh-和-flush" class="headerlink" title="refresh 和 flush"></a>refresh 和 flush</h3><p>flush负责将内存中的segment写入磁盘，主要做如下的工作： </p>
+<ul>
+<li>将translog写入磁盘</li>
+<li>将index buffer清空，其中的文档生成一个新的segment，相当于一个refresh操作</li>
+<li>更新commit point并写入磁盘</li>
+<li>执行fsync操作，将内存中的segment InMemory写入磁盘</li>
+<li>删除旧的translog文件</li>
+</ul>
+<p><img src="/2019/09/18/ElasticSearch基本原理与分布式搭建/13.jpg" alt="01"></p>
+<p>refresh发生的时机主要有以下几种情况： </p>
+<ul>
+<li>间隔时间达到时，通过index.settings.refresh_interval来设定，默认是1秒</li>
+<li>index buffer占满时，其大小通过indices.memory.index_buffer_size设置，默认为jvm heap的10%，所有shard共享</li>
+<li>flush发生时也会发生refresh</li>
+</ul>
+<p>flush发生的时机主要有以下几种情况： </p>
+<ul>
+<li>间隔时间达到时，默认是30分钟，5.x之前可以通过index.translog.flush_threshold_period修改<br>之后发布的版本无法设置</li>
+<li>translog占满时，其大小可以通过index.translog.flush_threshold_size控制，默认是512MB。每个index有自己的translog</li>
+</ul>
+<h3 id="删除与更新"><a href="#删除与更新" class="headerlink" title="删除与更新"></a>删除与更新</h3><p>segment一旦生成就不能更改，那么如果要删除文档该如何操作？ </p>
+<ul>
+<li>lucene会专门维护一个.del的文件，记录所有已经删除的文档</li>
+<li>注意.del上记录的是文档在Lucene的内部id</li>
+<li>在查询结果返回前会过滤掉.del中所有的文档</li>
+</ul>
+<p>更新文档如何进行呢？</p>
+<ul>
+<li>首先删除文档，然后再创建新的文档</li>
+</ul>
+<h3 id="ES-Index-与-Lucene-Index"><a href="#ES-Index-与-Lucene-Index" class="headerlink" title="ES Index 与 Lucene Index"></a>ES Index 与 Lucene Index</h3><p>ES Index 与 Lucene Index的术语对照如下所示：</p>
+<p><img src="/2019/09/18/ElasticSearch基本原理与分布式搭建/14.jpg" alt="01"></p>
+<h3 id="Segment-Merge"><a href="#Segment-Merge" class="headerlink" title="Segment Merge"></a>Segment Merge</h3><p>随着segment的增多，由于一次查询的segment数增多，查询速度会变慢 </p>
+<ul>
+<li>es会定时在后台进行segment merge的操作，减少segment的 数量</li>
+<li>通过force_merge api可以手动强制做segment merge的操作</li>
+</ul>
+<h1 id="Search的运行机制"><a href="#Search的运行机制" class="headerlink" title="Search的运行机制"></a>Search的运行机制</h1><p>Search执行的时候实际分两个步骤运行的</p>
+<ul>
+<li>Query阶段</li>
+<li>Fetch阶段</li>
+</ul>
+<h2 id="Query阶段"><a href="#Query阶段" class="headerlink" title="Query阶段"></a>Query阶段</h2><p><img src="/2019/09/18/ElasticSearch基本原理与分布式搭建/15.jpg" alt="01"></p>
+<p>1、node3在接收到用户的search请求后，先会进行Query阶段（此时Coordinating Node角色）<br>2、node3在6个主副分片中随机选择3个分片，发送search request<br>3、被选中的3个分片会分别执行查询并排序，返回from+size个文档Id和排序值</p>
+<h2 id="Fetch阶段"><a href="#Fetch阶段" class="headerlink" title="Fetch阶段"></a>Fetch阶段</h2><p>node3根据Query阶段获取到文档Id列表对应的shard上获取文档详情数据<br>1、node3向相关的分片发送multi_get请求<br>2、3个分片返回文档详细数据<br>3、node3<strong>拼接返回的结果并返回给用户</strong></p>
+<h1 id="相关性算分"><a href="#相关性算分" class="headerlink" title="相关性算分"></a>相关性算分</h1><p>相关性算分在shard与shard间是相互独立的，也就意味着同一个Tearm的IDF等值在不同shard上是不同的。文档的相关性算法和它所处的shard相关。在文档数量不多时，会导致相关性算分严重不准的情况发生<br>解决思路有两个：</p>
+<ul>
+<li>1、设置分片数为1个，从根本上排除问题，在文档数量不多的时候可以考虑该方案，<br>比如百万到千万级别的文档数量</li>
+<li>2、采用DFS Query-then-Fetch的查询方式</li>
+</ul>
+<p>DFS Query-then-Fetch是拿到所有文档后再重新完整的计算一次相关性算法，耗费更多的cpu和内存，执行性能也比较低下，一般不建议使用。操作方式如下：</p>
+<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="builtin-name">GET</span> test_search_relevace/_search?<span class="attribute">search_type</span>=dfs_query_then_fetch</span><br><span class="line">&#123;</span><br><span class="line"><span class="string">"query"</span>:&#123;</span><br><span class="line"><span class="string">"match"</span>: &#123;</span><br><span class="line"><span class="string">"name"</span>: <span class="string">"hello"</span></span><br><span class="line">&#125;</span><br><span class="line">&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/大数据/" rel="tag"># 大数据</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/09/11/Web协议详解与抓包实战/" rel="next" title="Web协议详解与抓包实战">
+                <i class="fa fa-chevron-left"></i> Web协议详解与抓包实战
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  
+    <div class="comments" id="comments">
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    </div>
+  
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/xiaowu_avatar.jpg"
+                alt="周小伍 Joey" />
+            
+              <p class="site-author-name" itemprop="name">周小伍 Joey</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">151</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">28</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">42</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          <div class="links-of-author motion-element">
+            
+          </div>
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#分布式特性"><span class="nav-number">1.</span> <span class="nav-text">分布式特性</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#cluster-state"><span class="nav-number">1.1.</span> <span class="nav-text">cluster state</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#master-node"><span class="nav-number">1.2.</span> <span class="nav-text">master node</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#创建索引"><span class="nav-number">1.2.1.</span> <span class="nav-text">创建索引</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#处理请求coordinating-node"><span class="nav-number">1.3.</span> <span class="nav-text">处理请求coordinating node</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#数据节点-data-node"><span class="nav-number">1.4.</span> <span class="nav-text">数据节点 data node</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#分布式搭建"><span class="nav-number">2.</span> <span class="nav-text">分布式搭建</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#快速启动"><span class="nav-number">2.1.</span> <span class="nav-text">快速启动</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#副本与分片"><span class="nav-number">3.</span> <span class="nav-text">副本与分片</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#集群状态"><span class="nav-number">4.</span> <span class="nav-text">集群状态</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#故障转移"><span class="nav-number">4.1.</span> <span class="nav-text">故障转移</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#解决脑裂问题"><span class="nav-number">4.2.</span> <span class="nav-text">解决脑裂问题</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#分布式文件存储"><span class="nav-number">5.</span> <span class="nav-text">分布式文件存储</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#hash计算对应的分片"><span class="nav-number">5.1.</span> <span class="nav-text">hash计算对应的分片</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#文档创建的流程"><span class="nav-number">5.2.</span> <span class="nav-text">文档创建的流程</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Shard分片"><span class="nav-number">6.</span> <span class="nav-text">Shard分片</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#倒排索引不能更改"><span class="nav-number">6.1.</span> <span class="nav-text">倒排索引不能更改</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#文档实时性搜索"><span class="nav-number">6.2.</span> <span class="nav-text">文档实时性搜索</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Lucene"><span class="nav-number">6.2.1.</span> <span class="nav-text">Lucene</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#index-buffer"><span class="nav-number">6.2.2.</span> <span class="nav-text">index buffer</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#translog机制"><span class="nav-number">6.2.3.</span> <span class="nav-text">translog机制</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#refresh-和-flush"><span class="nav-number">6.2.4.</span> <span class="nav-text">refresh 和 flush</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#删除与更新"><span class="nav-number">6.2.5.</span> <span class="nav-text">删除与更新</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#ES-Index-与-Lucene-Index"><span class="nav-number">6.2.6.</span> <span class="nav-text">ES Index 与 Lucene Index</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Segment-Merge"><span class="nav-number">6.2.7.</span> <span class="nav-text">Segment Merge</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Search的运行机制"><span class="nav-number">7.</span> <span class="nav-text">Search的运行机制</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Query阶段"><span class="nav-number">7.1.</span> <span class="nav-text">Query阶段</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Fetch阶段"><span class="nav-number">7.2.</span> <span class="nav-text">Fetch阶段</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#相关性算分"><span class="nav-number">8.</span> <span class="nav-text">相关性算分</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">周小伍 Joey</span>
+
+  
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-area-chart"></i>
+    </span>
+    
+      <span class="post-meta-item-text">Site words total count&#58;</span>
+    
+    <span title="Site words total count">279.8k</span>
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.3</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.3"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.3"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.3"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  
+
+    
+      <script id="dsq-count-scr" src="https://joeyblog.disqus.com/count.js" async></script>
+    
+
+    
+      <script type="text/javascript">
+        var disqus_config = function () {
+          this.page.url = 'https://zhouxiaowu.coding.me/2019/09/18/ElasticSearch基本原理与分布式搭建/';
+          this.page.identifier = '2019/09/18/ElasticSearch基本原理与分布式搭建/';
+          this.page.title = 'ElasticSearch基本原理与分布式搭建';
+        };
+        var d = document, s = d.createElement('script');
+        s.src = 'https://joeyblog.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', '' + +new Date());
+        (d.head || d.body).appendChild(s);
+      </script>
+    
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
